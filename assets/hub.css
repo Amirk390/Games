@@ -268,7 +268,69 @@ body[data-view="play"] .chips { display: none; }
 .card .badge, .detail-copy .badge { background: #f4e7d4; color: #1c1914; }
 .card .level, .detail-copy .level { background: transparent; padding-inline: 0; color: var(--muted); font-weight: 600; }
 
-.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+.actions { display: flex; flex-direction: column; align-items: stretch; gap: 8px; margin-top: 6px; }
+.open-game {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.35em;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 64px;
+  padding: 12px 18px;
+  border-radius: 16px;
+  background: var(--torch);
+  color: var(--torch-ink);
+  font-weight: 800;
+  font-size: 1.15rem;
+  line-height: 1.25;
+  text-align: center;
+  text-decoration: none;
+}
+.open-game:hover { background: #f7a33a; }
+.open-game:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.card .open-game:focus-visible,
+.detail-copy .open-game:focus-visible { outline-color: var(--torch); }
+.stage-open {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: auto;
+  max-width: calc(100% - 28px);
+  min-width: min(100%, 280px);
+  z-index: 2;
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+.card-actions { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+.quiet {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1.5px solid #cfc3b2;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.98rem;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+}
+.quiet:hover { background: rgba(28, 25, 20, 0.04); }
+.hero .quiet { color: var(--cream); border-color: rgba(246, 241, 231, 0.45); }
+.hero .quiet:hover { background: rgba(255, 255, 255, 0.06); }
+.quiet:focus-visible { outline: 3px solid var(--torch); outline-offset: 2px; }
+.actions-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.actions-row > * { flex: 1 1 120px; width: auto; }
+.actions-row .ghost { min-height: 44px; font-size: 0.98rem; border-radius: 12px; }
 .play, .ghost, .stage-play, .stage-bar .ghost, .exit-full {
   display: inline-flex;
   align-items: center;

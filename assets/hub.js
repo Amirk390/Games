@@ -111,6 +111,13 @@ function coverHTML(game, alt) {
   return `<img src="${esc(src)}" alt="${esc(alt || "")}" width="1280" height="720" decoding="async">`;
 }
 
+function openGameHTML(game, extraClass) {
+  const href = safeRel(game.path);
+  if (!href) return "";
+  const cls = extraClass ? `open-game ${extraClass}` : "open-game";
+  return `<a class="${cls}" href="${esc(href)}" target="_blank" rel="noopener">Open game / <span lang="he" dir="rtl">פתח משחק</span> ↗</a>`;
+}
+
 function heroHTML(game) {
   const id = encodeURIComponent(game.id);
   return `
@@ -126,8 +133,8 @@ function heroHTML(game) {
         <p class="meta">${badge(game)}</p>
         ${tagsHTML(game.tags, 4)}
         <div class="actions">
-          <a class="play" href="#/game/${id}/play" aria-label="Play ${esc(game.title)}">Play</a>
-          <a class="ghost" href="#/game/${id}">Details</a>
+          ${openGameHTML(game)}
+          <a class="quiet" href="#/game/${id}">Details</a>
         </div>
       </div>
     </section>`;
@@ -144,7 +151,10 @@ function cardHTML(game) {
         ${game.subtitleHe ? `<p class="he" lang="he" dir="rtl">${esc(game.subtitleHe)}</p>` : ""}
         <p class="desc">${esc(game.description || "")}</p>
         ${tagsHTML(game.tags, 4)}
-        <a class="play" href="#/game/${id}/play" aria-label="Play ${esc(game.title)}">Play</a>
+        <div class="card-actions">
+          ${openGameHTML(game)}
+          <a class="quiet" href="#/game/${id}">Details</a>
+        </div>
       </div>
     </article>`;
 }
@@ -169,10 +179,12 @@ function stageHTML(game, playing) {
     if (!src) return `<div class="stage live" id="stage"><p class="stage-msg">This game has no page to open.</p></div>`;
     return `<div class="stage live" id="stage">${exit}<iframe id="gameFrame" title="${esc(game.title)}" src="${esc(src)}" scrolling="no" allowfullscreen allow="fullscreen; autoplay"></iframe></div>`;
   }
+  const open = openGameHTML(game, "stage-open");
+  const center = open || `<a class="stage-play" href="#/game/${encodeURIComponent(game.id)}/play" aria-label="Play ${esc(game.title)}">Play</a>`;
   return `
     <div class="stage" id="stage">
       ${coverHTML(game, "")}
-      <a class="stage-play" href="#/game/${encodeURIComponent(game.id)}/play" aria-label="Play ${esc(game.title)}">Play</a>
+      ${center}
     </div>`;
 }
 
@@ -193,8 +205,11 @@ function detailHTML(game, playing) {
         <p class="lede">${esc(game.description || "")}</p>
         ${tagsHTML(game.tags)}
         <div class="actions">
-          <a class="play" href="#/game/${id}/play" aria-label="Play ${esc(game.title)}">Play</a>
-          <button type="button" class="ghost" data-fullscreen data-game="${esc(game.id)}">Full screen</button>
+          ${openGameHTML(game)}
+          <div class="actions-row">
+            ${playing ? "" : `<a class="quiet" href="#/game/${id}/play">Play here</a>`}
+            <button type="button" class="ghost" data-fullscreen data-game="${esc(game.id)}">Full screen</button>
+          </div>
         </div>
         <p class="tip tip-tight">Full screen fills the board. Inside the game, F does the same. <span lang="he" dir="rtl">באייפון: הוספה למסך הבית.</span></p>
       </div>
