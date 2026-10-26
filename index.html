@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Englishia</title>
+<meta name="description" content="Englishia — English games by Mr. Khoury for grades 10–12. משחקי אנגלית לכיתה.">
+<meta name="theme-color" content="#14181f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Englishia">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="assets/icons/icon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/icons/icon-180.png">
+<link rel="stylesheet" href="assets/hub.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to games</a>
+<header class="topbar">
+  <div class="bar-inner">
+    <a class="brand" href="#/">
+      <svg class="logo" viewBox="0 0 48 48" aria-hidden="true">
+        <rect width="48" height="48" rx="14" fill="#ef8f1e"/>
+        <rect x="4" y="4" width="40" height="40" rx="11" fill="#1a120e"/>
+        <path d="M24 9c1.6 3.2 5 5 5 9.2a5 5 0 0 1-10 0C19 14 22.4 12.2 24 9z" fill="#ffb03a"/>
+        <path d="M24 14.2c.7 1.6 2 2.4 2 4.1a2 2 0 0 1-4 0c0-1.7 1.3-2.5 2-4.1z" fill="#fff6dc"/>
+        <rect x="22.3" y="27.5" width="3.4" height="9" rx="1.4" fill="#ef8f1e"/>
+      </svg>
+      <span>
+        <h1 class="wordmark">Englishia</h1>
+        <span class="brand-he" lang="he" dir="rtl">אינגלישיה</span>
+      </span>
+    </a>
+    <form class="search" id="searchForm" role="search">
+      <label class="sr-only" for="q">Search games</label>
+      <input id="q" type="search" placeholder="Search games" autocomplete="off" enterkeyhint="search">
+    </form>
+  </div>
+</header>
+<div class="wrap page">
+  <p class="byline">
+    <span>English games by Mr. Khoury</span>
+    <span class="dot" aria-hidden="true">·</span>
+    <span class="he" lang="he" dir="rtl">משחקי אנגלית לכיתה</span>
+  </p>
+  <p class="tip tip-home">Tip: press Full screen on a game, or the F key. On iPhone, Add to Home Screen and Englishia opens full screen. <span lang="he" dir="rtl">באייפון: הוספה למסך הבית.</span></p>
+  <nav id="chips" class="chips" aria-label="Categories"></nav>
+  <main id="main">
+    <noscript>
+      <p>JavaScript is off, so the shelf cannot load. Grammar Maze is still here.</p>
+      <p><a class="play" href="games/grammar-maze/">Play Grammar Maze</a></p>
+    </noscript>
+    <p class="loading">Loading games…</p>
+  </main>
+  <footer class="footer">Englishia · Amir Khoury · Grades 10–12. No accounts and no tracking.</footer>
+</div>
+<script id="games-fallback" type="application/json">
+{
+  "categories": ["Grammar", "Vocabulary", "Reading", "Quiz"],
+  "games": [
+    {
+      "id": "grammar-maze",
+      "title": "Grammar Maze",
+      "subtitleHe": "מבוך הדקדוק",
+      "description": "A torch-lit 3D maze for the classroom. Every fork is an English question: choose the sign with the right answer and the class walks that way. Four zones lead to the gold, with timers, monsters, and topics for grades 10–12.",
+      "category": "Grammar",
+      "tags": ["Tenses", "Sentences", "Bagrut", "Word types"],
+      "level": "Grades 10–12",
+      "path": "games/grammar-maze/",
+      "thumbnail": "assets/thumbs/grammar-maze.png",
+      "featured": true
+    }
+  ]
+}
+</script>
+<script src="assets/hub.js"></script>
+</body>
+</html>

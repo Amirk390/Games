@@ -1,0 +1,2601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Grammar Maze 2 – Classroom Edition</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Grammar Maze">
+<meta name="theme-color" content="#12161d">
+<meta name="format-detection" content="telephone=no">
+<style>
+:root{
+  --bg:#2a313d; --panel:#353d4c; --panel-2:#414a5a; --ink:#f3ead6; --muted:#b9b09b;
+  --torch:#f2a33a; --moss:#8fbf63; --blood:#e0574e; --gold:#ffd04a; --parch:#ead9ae;
+  --line:rgba(234,217,174,.28);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --bg:#12161d; --panel:#1d232d; --panel-2:#272f3b; } }
+:root[data-theme="dark"]{ --bg:#12161d; --panel:#1d232d; --panel-2:#272f3b; }
+html{height:100%; scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{height:100%; margin:0; background:var(--bg); color:var(--ink);
+  font-family:'Atkinson Hyperlegible','Segoe UI',Roboto,system-ui,-apple-system,sans-serif; -webkit-tap-highlight-color:transparent}
+#app{height:100%; display:flex; flex-direction:column; width:100%; margin:0; background:var(--bg)}
+#app:fullscreen{max-width:none; padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+#app:-webkit-full-screen{max-width:none; width:100%; height:100%}
+body.pseudo-full #app{position:fixed; inset:0; z-index:20; max-width:none;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+header{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:6px 12px; flex-wrap:wrap}
+h1,h2{font-family:'Metamorphous',Georgia,'Times New Roman',serif; font-weight:400; color:var(--parch); margin:0}
+h1{font-size:1.3rem}
+.hud{display:flex; align-items:center; gap:14px; color:var(--muted); font-size:.95rem; flex-wrap:wrap}
+.pips{display:inline-flex; gap:5px; vertical-align:middle; margin-left:6px}
+.pip{width:12px; height:12px; border-radius:50%; background:var(--moss); box-shadow:0 0 6px rgba(143,191,99,.5)}
+.pip.lost{background:var(--blood); box-shadow:0 0 6px rgba(224,87,78,.6)}
+.tools{display:flex; gap:6px}
+.iconbtn{font:inherit; font-size:.9rem; background:none; border:1px solid var(--line); color:var(--ink); border-radius:8px; padding:5px 10px; cursor:pointer; white-space:nowrap}
+.iconbtn:hover{border-color:var(--torch)}
+.iconbtn[aria-pressed="false"]{opacity:.5; text-decoration:line-through}
+.iconbtn:focus-visible{outline:3px solid var(--torch); outline-offset:2px}
+#stage{position:relative; flex:1; min-height:max(260px,52vh); margin:0 8px; border-radius:12px; overflow:hidden; background:#000}
+#view{position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:manipulation}
+#map{position:absolute; right:10px; top:10px; width:110px; height:110px; background:rgba(8,10,14,.6); border:1px solid var(--line); border-radius:8px; pointer-events:none}
+#panel{padding:8px 12px 10px}
+.topic{color:var(--torch); font-size:.9rem; min-height:1.2em}
+.topic.fight{color:#ff9a90; font-weight:700}
+#question{font-size:clamp(1.05rem,2.2vw,1.5rem); line-height:1.3; margin:2px 0 8px; min-height:2.6em}
+#question b{color:var(--gold)}
+#question.ok{color:var(--moss)}
+#question.bad{color:#ff9a90}
+#question .why{display:block; color:var(--ink); font-size:.8em; margin-top:4px}
+.choices{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.choice{font:inherit; font-weight:700; font-size:clamp(1rem,2.5vw,1.3rem); min-height:56px; padding:12px 16px; display:flex; align-items:center; gap:12px;
+  text-align:left; color:var(--ink); background:var(--panel); border:2px solid var(--line); border-radius:12px; cursor:pointer; transition:border-color .15s, background .15s}
+.choice.r{justify-content:flex-end; text-align:right}
+.choice .arrow{color:var(--torch); font-size:1.5em; line-height:1}
+.choice:hover:not(:disabled){border-color:var(--torch); background:var(--panel-2)}
+.choice:focus-visible{outline:3px solid var(--torch); outline-offset:2px}
+.choice:disabled{opacity:.45; cursor:default}
+.keys{color:var(--muted); font-size:.78rem; margin-top:6px; text-align:center}
+.overlay{position:fixed; inset:0; z-index:30; display:flex; align-items:center; justify-content:center; padding:16px;
+  padding-top:calc(16px + env(safe-area-inset-top,0px)); padding-bottom:calc(16px + env(safe-area-inset-bottom,0px)); background:rgba(6,8,12,.8); overflow:auto}
+.overlay[hidden]{display:none}
+.card{width:100%; max-width:560px; background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:24px; max-height:100%; overflow:auto}
+.card h2{font-size:clamp(1.8rem,5vw,2.4rem); line-height:1.1}
+.card p{line-height:1.5; margin:10px 0 0}
+.group{margin-top:18px}
+.group > span{display:block; color:var(--muted); font-size:.9rem; margin-bottom:8px}
+.chips{display:flex; flex-wrap:wrap; gap:8px}
+.chip{position:relative}
+.chip input{position:absolute; opacity:0; inset:0; cursor:pointer; margin:0}
+.chip span{display:inline-block; padding:8px 16px; border-radius:999px; border:1.5px solid var(--line); color:var(--muted); font-size:.95rem}
+.chip input:checked + span{border-color:var(--torch); color:var(--ink); background:rgba(242,163,58,.16)}
+.chip input:focus-visible + span{outline:3px solid var(--torch); outline-offset:2px}
+.levelDesc{color:var(--ink); font-size:.92rem; line-height:1.45; margin-top:8px; min-height:2.9em}
+.go{font:inherit; font-weight:700; font-size:1.15rem; width:100%; margin-top:22px; padding:14px; border:none; border-radius:12px; background:var(--torch); color:#1e1406; cursor:pointer}
+.go:focus-visible{outline:3px solid var(--parch); outline-offset:3px}
+.go.secondary{background:transparent; color:var(--ink); border:1.5px solid var(--line); margin-top:10px}
+.warn{color:#ff9a90; font-size:.9rem; min-height:1.2em; margin-top:8px}
+.stats{margin-top:14px}
+.stats div{font-size:.9rem; color:var(--muted)}
+.stats strong{display:block; font-size:1.6rem; color:var(--parch); font-family:'Metamorphous',Georgia,serif; font-weight:400}
+.review{margin-top:14px; padding:0; list-style:none}
+.review li{padding:10px 0; border-top:1px solid var(--line); line-height:1.4}
+.review .q{display:block}
+.review .q b{color:var(--gold)}
+.review small{color:var(--muted)}
+.card{max-width:760px}
+.subhead{color:var(--parch); font-size:.78rem; letter-spacing:.06em; text-transform:uppercase; opacity:.85; margin:12px 0 6px}
+.subhead:first-child{margin-top:0}
+.link{font:inherit; font-size:.9rem; background:none; border:none; color:var(--torch); cursor:pointer; padding:0 2px; text-decoration:underline}
+.link:focus-visible{outline:3px solid var(--torch); outline-offset:2px}
+.mini{margin-left:8px}
+details.more{margin-top:20px; border:1px solid var(--line); border-radius:12px; padding:2px 16px 16px}
+details.more summary{cursor:pointer; padding:12px 0 6px; font-weight:700; color:var(--parch)}
+details.more summary:focus-visible{outline:3px solid var(--torch); outline-offset:2px}
+details.more .group:first-of-type{margin-top:10px}
+.help{color:var(--muted); font-size:.86rem; line-height:1.45; margin:8px 0}
+textarea{display:block; width:100%; min-height:110px; font:inherit; font-size:.95rem; background:var(--bg); color:var(--ink); border:1.5px solid var(--line); border-radius:10px; padding:10px; resize:vertical}
+textarea:focus-visible{outline:3px solid var(--torch); outline-offset:1px}
+.poolInfo{color:var(--moss); font-size:.92rem; margin-top:16px; line-height:1.4}
+.poolInfo.bad{color:#ff9a90}
+.pts{color:var(--gold); font-weight:700; margin-left:6px}
+.streak{color:var(--torch); font-weight:700}
+.newbest{display:inline-block; color:var(--gold); font-style:normal; font-weight:700}
+.stats{display:grid; grid-template-columns:repeat(3,1fr); gap:14px 18px}
+@media (max-width:600px){ .stats{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:600px){
+  #map{width:80px; height:80px}
+  .choices{gap:8px}
+  .choice{padding:10px 12px; min-height:50px}
+  .hud{gap:10px; font-size:.85rem}
+  .iconbtn .lbl{display:none}
+  header{padding:8px 10px}
+  #stage{margin:0 8px}
+}
+
+/* ===== v2: projector-friendly sizes, teams, teacher bar ===== */
+header{padding:6px 14px}
+h1{font-size:clamp(1.3rem,2vw,1.8rem)} h1 small{font-family:'Atkinson Hyperlegible',sans-serif; font-size:.55em; color:var(--torch); margin-left:8px; letter-spacing:.04em}
+.hud{font-size:clamp(1rem,1.35vw,1.25rem); color:var(--ink)}
+.iconbtn{font-size:clamp(.9rem,1.1vw,1.05rem); padding:6px 11px}
+.iconbtn.on{background:rgba(242,163,58,.22); border-color:var(--torch)}
+#panel{padding:6px 14px 10px}
+.topic{font-size:clamp(1rem,1.5vw,1.3rem); min-height:1.3em}
+#question{font-size:clamp(1.35rem,2.9vw,2.5rem); line-height:1.25; min-height:2.5em; margin:2px 0 10px; color:#fff}
+#question b{color:var(--gold)}
+#question .why{font-size:.72em; color:#f3ead6}
+#question .he{display:block; direction:rtl; text-align:right; font-size:.7em; color:#9fe0ff; margin-top:4px}
+.choices{grid-template-columns:repeat(var(--nch,2),1fr)}
+.choice{font-size:clamp(1.15rem,2.4vw,2.05rem); min-height:70px; border-width:3px; color:#fff; background:#2b3342}
+.choice .k{display:inline-flex; align-items:center; justify-content:center; min-width:1.6em; height:1.6em; border-radius:8px; background:rgba(242,163,58,.2); color:var(--torch); font-size:.7em; flex:none}
+.choice.m{justify-content:center; text-align:center}
+.choice[hidden]{display:none}
+.keys{font-size:clamp(.85rem,1.1vw,1.05rem)}
+#hint{direction:rtl; text-align:right; color:#9fe0ff; font-size:clamp(1.05rem,1.8vw,1.5rem); margin:0 0 6px; min-height:0}
+#hint:empty{display:none}
+#teams{display:none; gap:12px; padding:0 8px 8px}
+body.teams #teams{display:flex}
+.team{flex:1; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:6px 18px; border-radius:14px; border:3px solid transparent; background:var(--panel);
+  font-size:clamp(1.15rem,2.1vw,1.9rem); font-weight:700; transition:border-color .25s, box-shadow .25s, transform .25s; opacity:.7}
+.team .ts{font-size:1.35em; font-variant-numeric:tabular-nums}
+.team.t0{color:#7cc4ff} .team.t1{color:#ffb35c}
+.team.active{opacity:1; transform:scale(1.02)}
+.team.active.t0{border-color:#7cc4ff; box-shadow:0 0 22px rgba(124,196,255,.55)}
+.team.active.t1{border-color:#ffb35c; box-shadow:0 0 22px rgba(255,179,92,.55)}
+.team .turn{font-size:.6em; color:var(--ink); visibility:hidden} .team.active .turn{visibility:visible}
+.teamNames{display:flex; gap:10px; margin-top:10px; flex-wrap:wrap}
+.teamNames input{flex:1; min-width:140px; font:inherit; font-size:1rem; padding:9px 12px; border-radius:10px; border:2px solid var(--line); background:var(--bg); color:var(--ink)}
+.teamNames input:first-child{border-color:#7cc4ff} .teamNames input:last-child{border-color:#ffb35c}
+#pauseScreen .card{text-align:center}
+#pauseScreen h2{font-size:clamp(3rem,9vw,6rem)}
+.bigkeys{display:grid; grid-template-columns:auto 1fr; gap:6px 16px; text-align:left; margin-top:16px; font-size:1.05rem}
+.bigkeys kbd{font:inherit; font-weight:700; background:var(--panel-2); border:1px solid var(--line); border-radius:6px; padding:1px 8px; color:var(--gold)}
+.review li .mark{font-weight:700; margin-right:8px}
+.review li.ok .mark{color:var(--moss)} .review li.bad .mark{color:var(--blood)} .review li.skip .mark{color:var(--muted)}
+.review li .tm{font-size:.85em; margin-left:6px}
+.review.onlybad li.ok, .review.onlybad li.skip{display:none}
+.endbtns{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+.endbtns .go{width:auto; flex:1; margin-top:0; min-width:180px}
+.winner{font-size:clamp(1.4rem,3vw,2rem); margin-top:10px; color:var(--gold); font-weight:700}
+body.big #question{font-size:clamp(1.7rem,3.7vw,3.2rem)}
+body.big .choice{font-size:clamp(1.45rem,3.1vw,2.6rem); min-height:88px}
+body.big .topic{font-size:clamp(1.15rem,1.8vw,1.6rem)}
+@media (max-width:700px){ .choices{grid-template-columns:1fr} .choice.r{justify-content:flex-start; flex-direction:row-reverse} }
+@media print{
+  body{background:#fff; color:#000; height:auto}
+  #app > *:not(#endScreen){display:none !important}
+  #endScreen{position:static; background:#fff; display:block !important; padding:0}
+  #endScreen .card{max-width:none; max-height:none; background:#fff; color:#000; border:none; overflow:visible}
+  #endScreen h2, #endScreen .stats strong{color:#000}
+  .review.onlybad li.ok, .review.onlybad li.skip{display:list-item}
+  .review li{break-inside:avoid; color:#000} .review small{color:#333}
+  .noprint{display:none !important}
+}
+
+/* ===== v2.1: touch, iPhone, small screens ===== */
+html,body{touch-action:manipulation; overscroll-behavior:none; -webkit-text-size-adjust:100%}
+#app{height:100vh; height:100dvh}
+button,.chip span,summary,.link{touch-action:manipulation}
+.iconbtn{min-height:44px; min-width:44px}
+.chip span{min-height:44px; display:inline-flex; align-items:center}
+.link{min-height:44px; padding:0 8px}
+.go{min-height:52px}
+.choice{min-height:56px}
+body.pseudo-full{overflow:hidden; position:fixed; inset:0; width:100%; height:100%}
+body.pseudo-full #app{height:100vh; height:100dvh; padding-left:env(safe-area-inset-left,0px); padding-right:env(safe-area-inset-right,0px)}
+#rotateTip{position:fixed; left:50%; bottom:calc(16px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); z-index:60; background:rgba(10,12,16,.92); color:#fff;
+  border:2px solid var(--torch); border-radius:14px; padding:12px 18px; font-size:1.05rem; text-align:center; max-width:90vw}
+#rotateTip[hidden]{display:none}
+/* phone portrait */
+@media (max-width:600px) and (orientation:portrait){
+  h1 small{display:none}
+  header{padding:4px 8px; gap:6px}
+  .hud{gap:6px; font-size:.9rem}
+  .tools{flex-wrap:wrap; gap:4px}
+  .iconbtn{padding:4px 8px}
+  #stage{min-height:34vh; margin:0 6px}
+  #panel{padding:6px 8px 8px}
+  #question{font-size:clamp(1.15rem,5.2vw,1.6rem); min-height:2em}
+  .choice{font-size:clamp(1.05rem,4.8vw,1.4rem); padding:8px 12px}
+  .keys{display:none}
+  .team{font-size:1.05rem; padding:4px 10px}
+  .card{padding:16px}
+}
+@media (max-width:600px) and (orientation:portrait){ .iconbtn .lbl{display:none} #map{width:64px; height:64px} .tools{flex-wrap:nowrap} .iconbtn{min-width:40px; padding:4px 6px} }
+@media (max-height:520px) and (orientation:landscape){ #map{width:70px; height:70px} h1{display:none} header{justify-content:flex-start} .hud{width:100%; justify-content:space-between} .tools{margin-left:auto} .iconbtn{min-width:40px} }
+/* phone landscape: 3D view on the left, question and answers on the right */
+@media (max-height:520px) and (orientation:landscape){
+  #app{display:grid; grid-template-columns:minmax(0,1fr) minmax(250px,40%); grid-template-rows:auto auto minmax(0,1fr)}
+  header{grid-column:1 / -1; padding:2px 8px; gap:6px; flex-wrap:nowrap}
+  h1{font-size:1rem} h1 small{display:none}
+  .hud{gap:6px; font-size:.85rem; flex-wrap:nowrap}
+  .hud > span{white-space:nowrap}
+  .tools{gap:3px}
+  .iconbtn{padding:2px 6px; font-size:.85rem}
+  .iconbtn .lbl{display:none}
+  #teams{grid-column:1 / -1; padding:0 6px 4px}
+  .team{font-size:.95rem; padding:2px 10px; border-width:2px}
+  #stage{grid-column:1; grid-row:3; min-height:0; margin:0 4px 4px 6px}
+  #panel{grid-column:2; grid-row:3; overflow-y:auto; padding:2px 8px 6px; -webkit-overflow-scrolling:touch}
+  #question{font-size:clamp(1rem,2.6vw,1.35rem); min-height:0; margin:2px 0 6px}
+  .topic{font-size:.85rem}
+  .choices{grid-template-columns:1fr !important; gap:6px}
+  .choice{font-size:clamp(.95rem,2.4vw,1.2rem); min-height:46px; padding:6px 10px}
+  .choice.r{justify-content:flex-start; flex-direction:row-reverse}
+  .choice.m{justify-content:flex-start}
+  .keys{display:none}
+  #hint{font-size:.95rem}
+  .card{padding:14px}
+  .card h2{font-size:1.5rem}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>Grammar Maze <small>CLASSROOM EDITION</small></h1>
+    <div class="hud">
+      <span id="forkLabel">Fork 1 of 10</span>
+      <span title="Deaths so far (skulls in the maze)">☠ <span id="deaths">0</span></span>
+      <span title="Enemies defeated">⚔ <span id="kills">0</span></span>
+      <span title="Score">💰 <span id="score">0</span></span><span id="streak" class="streak" title="Right answers in a row"></span>
+      <div class="tools">
+        <button class="iconbtn" id="menuBtn" title="Back to the menu">☰<span class="lbl"> Menu</span></button>
+        <button class="iconbtn" id="pauseBtn" title="Pause (P)">⏸<span class="lbl"> Pause</span></button>
+        <button class="iconbtn" id="skipBtn" title="Skip this question, no penalty (S)">⏭<span class="lbl"> Skip</span></button>
+        <button class="iconbtn" id="hintBtn" title="Hebrew hint (H)">💡<span class="lbl"> רמז</span></button>
+        <button class="iconbtn" id="timerBtn" title="Timer on/off (T)">⏱<span class="lbl"> Timer</span></button>
+        <button class="iconbtn" id="musicBtn" aria-pressed="true" title="Music on or off">🎵<span class="lbl"> Music</span></button>
+        <button class="iconbtn" id="sfxBtn" aria-pressed="true" title="Sound effects on or off (M mutes all)">🔊<span class="lbl"> Sounds</span></button>
+        <button class="iconbtn" id="fsBtn" title="Full screen (F)">⛶<span class="lbl"> Full screen</span></button>
+      </div>
+    </div>
+  </header>
+  <div id="teams">
+    <div class="team t0" id="team0"><span><span id="t0n">Team Blue</span> <span class="turn">◀ your turn</span></span><span class="ts" id="t0s">0</span></div>
+    <div class="team t1" id="team1"><span><span id="t1n">Team Orange</span> <span class="turn">◀ your turn</span></span><span class="ts" id="t1s">0</span></div>
+  </div>
+  <div id="stage">
+    <canvas id="view" aria-label="First-person view of a stone maze. Click a sign to choose a way."></canvas>
+    <canvas id="map" aria-label="Map of your path"></canvas>
+  </div>
+  <div id="panel">
+    <div class="topic" id="topic">&nbsp;</div>
+    <div id="question" aria-live="polite">&nbsp;</div>
+    <div id="hint"></div>
+    <div class="choices">
+      <button class="choice" id="btnL"><span class="arrow">◀</span><span id="txtL"></span><span class="k">1</span></button>
+      <button class="choice m" id="btnM" hidden><span class="arrow">▲</span><span id="txtM"></span><span class="k">2</span></button>
+      <button class="choice r" id="btnR"><span class="k" id="kR">2</span><span id="txtR"></span><span class="arrow">▶</span></button>
+    </div>
+    <div class="keys">Click a sign or an answer · keys ← ↑ → or 1 2 3 · teacher: P pause · S skip · H hint · T timer · M mute · F full screen</div>
+  </div>
+
+  <div class="overlay" id="startScreen">
+    <div class="card">
+      <h2>Grammar Maze</h2>
+      <p>Every fork in the tunnel has a question. Click the sign with the right answer and you walk that way. Right answers lead deeper, through four zones, to the mountain of gold. Too many wrong turns and you walk into a deadly trap. Watch out for monsters: answer fast to defeat them.</p>
+      <div class="group"><span>Players</span><div class="chips" id="modeChips"></div>
+        <div class="teamNames" id="teamNames"><input id="t0in" maxlength="18" aria-label="Team 1 name"><input id="t1in" maxlength="18" aria-label="Team 2 name"></div>
+        <p class="help" id="modeHelp"></p></div>
+      <div class="group"><span>Difficulty</span><div class="chips" id="levelChips"></div><div class="levelDesc" id="levelDesc"></div></div>
+      <div class="group"><span>Topics <span class="mini"><button type="button" class="link" id="allTopics">All</button> · <button type="button" class="link" id="noTopics">None</button></span></span><div id="topicChips"></div></div>
+      <div class="group"><span>Question types</span><div class="chips" id="typeChips"></div></div>
+      <div class="group"><span>Forks (3 ways = less guessing)</span><div class="chips" id="forkChips"></div></div>
+      <div class="group"><span>Classroom display</span><div class="chips" id="displayChips"></div></div>
+      <details class="more">
+        <summary>More options</summary>
+        <p class="help">Choosing a difficulty fills these in for you. Change anything you like after that.</p>
+        <div class="group"><span>Time limit for each question</span><div class="chips" id="forkTimeChips"></div></div>
+        <div class="group"><span>Forks to reach the gold</span><div class="chips" id="goalChips"></div></div>
+        <div class="group"><span>Wrong turns before the trap (green shields)</span><div class="chips" id="livesChips"></div></div>
+        <div class="group"><span>Monster hits you can take (red hearts)</span><div class="chips" id="hitsChips"></div></div>
+        <div class="group"><span>Monsters</span><div class="chips" id="enemyChips"></div></div>
+        <div class="group"><span>Time to beat a monster</span><div class="chips" id="enemyTimeChips"></div></div>
+        <div class="group"><span>Win back a safe step after 3 right answers in a row</span><div class="chips" id="healChips"></div></div>
+        <div class="group"><span>Read questions aloud</span><div class="chips" id="speakChips"></div></div>
+        <div class="group"><span>Your own questions</span><div class="chips" id="customChips"></div>
+          <p class="help">One question per line: question | right answer | wrong answer | explanation (optional). For a 3-way fork add a second wrong answer: question | right | wrong | wrong 2 | explanation. Use ___ for the gap. Saved only in this browser.</p>
+          <textarea id="customText" spellcheck="false" placeholder="My mother ___ a nurse. | is | are | Mother = she, so we use is.&#10;If I ___ you, I'd study. | were | am | will be | We say 'If I were you'.&#10;Which word is a noun? | garden | slowly"></textarea>
+          <div class="help" id="customInfo"></div>
+        </div>
+      </details>
+      <div class="poolInfo" id="poolInfo"></div>
+      <div class="help">☠ Deaths so far: <span id="deathCount">0</span>. Each one leaves a skull in the maze. <button type="button" class="link" id="clearDeaths">Clear the skulls</button></div>
+      <div class="warn" id="warn"></div>
+      <button class="go" id="startBtn">Enter the maze</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="endScreen" hidden>
+    <div class="card">
+      <h2 id="endTitle"></h2>
+      <p id="endText"></p>
+      <div class="stats" id="stats"></div>
+      <div class="endbtns noprint">
+        <button class="go secondary" id="onlyBadBtn">Show only mistakes</button>
+        <button class="go secondary" id="printBtn">🖨 Print answer key</button>
+      </div>
+      <ul class="review" id="review"></ul>
+      <button class="go noprint" id="againBtn">Play again</button>
+      <button class="go secondary noprint" id="settingsBtn">Change settings</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="pauseScreen" hidden>
+    <div class="card">
+      <h2>Paused</h2>
+      <p>The timer is stopped. Press <b>P</b> or the button to continue.</p>
+      <button class="go" id="resumeBtn">▶ Continue</button>
+      <div class="bigkeys">
+        <kbd>← ↑ →</kbd><span>or 1 2 3 – choose an answer</span>
+        <kbd>P</kbd><span>pause / continue</span>
+        <kbd>S</kbd><span>skip the question (no penalty)</span>
+        <kbd>H</kbd><span>show a short Hebrew hint</span>
+        <kbd>T</kbd><span>timer on / off</span>
+        <kbd>M</kbd><span>mute everything</span>
+        <kbd>F</kbd><span>full screen</span>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="rotateTip" hidden>🔄 Turn your phone sideways (landscape) for the best view</div>
+
+<script>
+const $ = id=>document.getElementById(id);
+/* Storage that never throws: in a sandboxed preview (no allow-same-origin) even reading
+   window.localStorage throws a SecurityError, so we fall back to memory for this session. */
+const MEMSTORE = {};
+const store = {
+  get(k){ try{ const v=window["localStorage"].getItem(k); if(v!==null) return v; }catch(e){} return Object.prototype.hasOwnProperty.call(MEMSTORE,k) ? MEMSTORE[k] : null; },
+  set(k,v){ MEMSTORE[k]=String(v); try{ window["localStorage"].setItem(k,String(v)); }catch(e){} }
+};
+const IS_IOS = /iP(hone|od|ad)/.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+/* ---------- Question bank: [topic, question, correct, wrong, why, level 1-5, type] ---------- */
+const TYPES = { G:"Fill the gap", C:"Correct sentence", M:"Find the mistake", O:"Word order", W:"Word types", F:"Word forms" };
+const TOPIC_GROUPS = [
+  ["Word basics", ["Nouns","Verbs","Adjectives & adverbs","Subject & object","Pronouns","Articles","Prepositions"]],
+  ["Tenses", ["Present simple","Present continuous","Past simple","Past continuous","Present perfect","Past perfect","Future"]],
+  ["Sentences", ["Sentence structure","Questions & negatives","Comparatives","Modals","Conditionals","Passive voice","Reported speech","Relative clauses"]],
+  ["Bagrut extras", ["Gerunds & infinitives","Wishes","Linking words","Quantifiers","Causative","Used to"]]
+];
+/* short Hebrew hints for weaker students, one per topic */
+const HE = {
+ "Nouns":"שם עצם: אדם, מקום או דבר. ברבים בדרך כלל מוסיפים s.",
+ "Verbs":"פועל: מילה של פעולה או מצב.",
+ "Adjectives & adverbs":"שם תואר מתאר שם עצם. תואר הפועל (לרוב עם ly) מתאר איך עושים משהו.",
+ "Subject & object":"נושא = מי שעושה את הפעולה. מושא = מי שמקבל את הפעולה.",
+ "Pronouns":"כינויי גוף: I / he / she לפני הפועל, me / him / her אחרי הפועל.",
+ "Articles":"an לפני צליל של תנועה, a לפני צליל של עיצור, the לדבר מסוים שכולם מכירים.",
+ "Prepositions":"in לחודשים ושנים, on לימים ותאריכים, at לשעות.",
+ "Present simple":"הווה פשוט: הרגלים ועובדות. he / she / it – מוסיפים s לפועל.",
+ "Present continuous":"הווה מתמשך: קורה עכשיו. am / is / are + ing.",
+ "Past simple":"עבר פשוט: פעולה שהסתיימה בזמן ידוע בעבר (yesterday, last year).",
+ "Past continuous":"עבר מתמשך: פעולה שהייתה באמצע בעבר. was / were + ing.",
+ "Present perfect":"הווה מושלם: have / has + V3. מחבר בין העבר להווה (since, for, already, yet).",
+ "Past perfect":"עבר מושלם: had + V3. מה שקרה לפני דבר אחר בעבר.",
+ "Future":"עתיד: will + פועל, או be going to + פועל לתוכנית או לניבוי שרואים.",
+ "Sentence structure":"סדר המילים באנגלית: נושא + פועל + מושא.",
+ "Questions & negatives":"בשאלה פועל העזר בא לפני הנושא (Do you...? Is she...?).",
+ "Comparatives":"השוואה: מילה קצרה + er, מילה ארוכה – more. הכי: the + est או the most.",
+ "Modals":"פעלים מודאליים (must, can, should, might) + פועל בסיסי, בלי to.",
+ "Conditionals":"תנאי: if + הווה → will. if + עבר → would. if + had V3 → would have V3.",
+ "Passive voice":"סביל: be + V3. הנושא מקבל את הפעולה ולא עושה אותה.",
+ "Reported speech":"דיבור עקיף: הזמן זז אחורה (is → was, will → would). בשאלה – סדר מילים רגיל.",
+ "Relative clauses":"משפט זיקה: who לאנשים, which / that לדברים, where למקום, whose לשייכות.",
+ "Gerunds & infinitives":"אחרי פעלים מסוימים בא ing (enjoy, avoid) ואחרי אחרים to + פועל (decide, want).",
+ "Wishes":"wish + עבר = משאלה על ההווה. wish + had V3 = חרטה על העבר.",
+ "Linking words":"מילות קישור: although / however = ניגוד, because = סיבה, so / therefore = תוצאה.",
+ "Quantifiers":"much / little לדברים שלא סופרים, many / few לדברים שסופרים.",
+ "Causative":"have / get + חפץ + V3 = מישהו אחר עושה את זה בשבילי.",
+ "Used to":"used to + פועל = הרגל בעבר שכבר לא קיים. be used to + ing = רגיל ל...",
+};
+const TOPICS = TOPIC_GROUPS.flatMap(g=>g[1]);
+const RAW = `@Nouns
+1|W|Which word is a noun?|table|quickly|A noun is a person, place or thing. A table is a thing.
+1|W|Find the noun: The dog runs fast.|dog|runs|Dog is an animal, so it is a noun. Runs is a verb.
+1|W|Which word is a noun?|teacher|teach|A teacher is a person. Teach is a verb.
+1|F|The plural of 'box' is:|boxes|boxs|Words ending in -x add -es: boxes.
+1|F|The plural of 'cat' is:|cats|cates|Most nouns just add -s: cats.
+1|W|Find the noun: Maria reads a book.|book|reads|Book is a thing. Reads is a verb.
+2|F|The plural of 'child' is:|children|childs|Child is irregular: children.
+2|F|The plural of 'baby' is:|babies|babys|Consonant + y becomes -ies: babies.
+2|F|The plural of 'mouse' is:|mice|mouses|Mouse is irregular: mice.
+2|F|The plural of 'man' is:|men|mans|Man is irregular: men.
+2|W|Which is a proper noun?|London|city|Proper nouns are names and start with a capital letter.
+2|W|Which word is a noun?|happiness|happy|Happiness is a noun. Happy is an adjective.
+2|W|Which noun is uncountable?|water|apple|You can't count water: 'two waters' doesn't work.
+3|F|The plural of 'knife' is:|knives|knifes|Many nouns ending in -fe change to -ves: knives.
+3|G|I need some ___ about the trip.|information|informations|Information is uncountable. It has no plural.
+3|F|The plural of 'tooth' is:|teeth|tooths|Tooth is irregular: teeth.
+3|W|Which word is an abstract noun?|freedom|chair|Abstract nouns are ideas you can't touch, like freedom.
+4|G|The news ___ very good today.|is|are|News is uncountable and takes a singular verb.
+4|F|The plural of 'criterion' is:|criteria|criterions|Criterion comes from Greek: the plural is criteria.
+4|C|Which sentence is correct?|She gave me some advice.|She gave me an advice.|Advice is uncountable, so we can't say 'an advice'.
+5|F|The plural of 'phenomenon' is:|phenomena|phenomenons|Phenomenon comes from Greek: phenomena.
+5|G|The police ___ looking for the thief.|are|is|Police always takes a plural verb: the police are.
+5|M|Find the mistake: The furnitures in this room are new.|furnitures|room|Furniture is uncountable: 'The furniture in this room is new.'
+
+@Verbs
+1|W|Which word is a verb?|jump|chair|A verb is an action. You can jump.
+1|W|Find the verb: Birds fly in the sky.|fly|sky|Fly is the action. Sky is a noun.
+1|W|Which word is a verb?|swim|pool|Swim is the action. A pool is a place.
+1|W|Find the verb: We sing songs.|sing|songs|Sing is the action. Songs are things.
+1|W|Which word is a verb?|open|door|You can open a door. Door is a noun.
+2|W|Which word is a verb?|write|writer|Write is the action. A writer is a person.
+2|W|Find the verb: My mother cooks dinner.|cooks|dinner|Cooks is the action.
+2|W|Find the verb: They are happy.|are|happy|Are is a form of the verb 'be'.
+2|W|Which word is a verb?|decide|decision|Decide is the verb. Decision is a noun.
+2|W|Which word is a verb?|laugh|funny|Laugh is the action. Funny is an adjective.
+3|W|Find the main verb: She has finished her work.|finished|has|Has is a helping verb. Finished is the main verb.
+3|G|I'm looking forward to ___ you.|seeing|see|After 'look forward to' we use the -ing form.
+3|G|She decided ___ a new car.|to buy|buying|Decide is followed by 'to' + verb.
+3|G|He enjoys ___ football.|playing|to play|Enjoy is followed by the -ing form.
+3|G|He gave up ___ the piano.|playing|to play|Give up is followed by the -ing form.
+4|G|She avoided ___ the question.|answering|to answer|Avoid is followed by the -ing form.
+4|G|They let us ___ early.|leave|to leave|After 'let someone' we use the verb without 'to'.
+4|G|I remember ___ the door, so I'm sure it's locked.|locking|to lock|Remember + -ing = remember something you already did.
+5|G|Don't forget ___ the lights when you leave.|to turn off|turning off|Forget + to-verb = forget something you need to do.
+5|M|Find the mistake: He made me to clean my room.|to clean|made|After 'make someone' we use the verb without 'to'.
+5|G|I'd rather you ___ smoke in here.|didn't|don't|After 'I'd rather you' we use the past tense.
+
+@Adjectives & adverbs
+1|W|Which word is an adjective?|big|run|An adjective describes a noun. Big describes size.
+1|W|Find the adjective: I have a red car.|red|car|Red describes the car.
+1|W|Which word is an adjective?|happy|happily|Happy is an adjective. Happily is an adverb.
+2|G|She sings ___.|beautifully|beautiful|We use an adverb to describe how she sings.
+2|G|He is a ___ driver.|careful|carefully|Before a noun we use an adjective: a careful driver.
+2|G|The test was ___.|easy|easily|After 'be' we use an adjective.
+2|W|Find the adverb: He ran quickly to school.|quickly|school|Quickly tells us how he ran.
+3|G|She speaks English very ___.|well|good|Well is the adverb of good.
+3|G|I feel ___ about the mistake.|bad|badly|After feel, look and seem we use an adjective.
+3|G|The film was ___. I fell asleep.|boring|bored|-ing describes the thing. -ed describes how people feel.
+3|G|I was really ___ by the news.|surprised|surprising|-ed describes how a person feels.
+4|O|Which order is correct?|a lovely old wooden table|a wooden old lovely table|Opinion comes first, then age, and material comes last.
+4|G|He ___ works on Sundays. Maybe once a year.|hardly ever|hard ever|Hardly ever means almost never.
+4|C|Which sentence is correct?|She works hard.|She works hardly.|Hard is already an adverb. Hardly means almost not.
+5|O|Which order is correct?|a big round black hat|a black round big hat|Size, then shape, then colour.
+5|G|The soup tastes ___.|delicious|deliciously|Taste is a linking verb here, so it takes an adjective.
+
+@Subject & object
+1|W|Find the subject: Tom plays the guitar.|Tom|the guitar|The subject does the action. Tom plays.
+1|W|Find the subject: My sister loves pizza.|My sister|pizza|My sister does the loving.
+1|G|___ is my teacher.|She|Her|She is the subject pronoun.
+1|G|___ are my friends.|They|Them|They is the subject pronoun.
+1|G|___ live in a big city.|We|Us|We is the subject pronoun.
+1|M|Find the mistake: Him is my friend.|Him|friend|The subject must be he, not him: He is my friend.
+2|W|Find the subject: The children are in the garden.|The children|the garden|The sentence is about the children.
+2|W|Find the subject: She gave me a gift.|She|me|She does the giving.
+2|W|Find the subject: The old man walked slowly.|The old man|slowly|The old man does the walking.
+2|W|Find the object: Sara kicked the ball.|the ball|Sara|The object receives the action. The ball was kicked.
+2|W|Which word can be a subject?|He|Him|He is a subject pronoun. Him is an object pronoun.
+3|W|Find the subject: Every morning, the bus arrives late.|the bus|Every morning|The bus does the arriving.
+3|W|Find the subject: In the box, the kitten sleeps.|the kitten|the box|The kitten does the sleeping.
+3|W|Find the object: They invited us to the party.|us|They|Us receives the invitation.
+4|W|Find the subject: Swimming every day keeps me fit.|Swimming every day|me|An -ing phrase can be the subject of a sentence.
+4|W|Find the subject: Here comes the bus.|the bus|Here|In this sentence the subject comes after the verb.
+5|W|Find the subject: What she said surprised everyone.|What she said|everyone|A whole clause can be the subject.
+5|W|Find the indirect object: She sent her mum a letter.|her mum|a letter|The indirect object receives the direct object (the letter).
+
+@Pronouns
+1|G|This is my brother. ___ name is Ali.|His|He|His shows that something belongs to him.
+1|G|Can you help ___?|me|I|After a verb we use an object pronoun: me.
+2|G|Is this your pen or ___?|mine|my|Mine stands alone, without a noun after it.
+2|G|The dog wagged ___ tail.|its|it's|Its = belonging to it. It's = it is.
+2|G|We enjoyed ___ at the party.|ourselves|ours|The reflexive pronoun for we is ourselves.
+2|M|Find the mistake: This book is my.|my|book|With no noun after it, we use mine: This book is mine.
+3|G|There isn't ___ milk left.|any|some|In negative sentences we usually use any.
+3|G|Between you and ___, I don't like him.|me|I|After a preposition we use an object pronoun.
+3|G|___ of my friends came. Nobody was missing.|All|None|All means every one of them.
+4|G|Each of the students ___ a book.|has|have|Each takes a singular verb.
+4|G|The two sisters help ___ with homework.|each other|each others|We say each other, never each others.
+5|G|Neither of the answers ___ correct.|is|are|In formal English, neither takes a singular verb.
+5|G|To ___ did you give the book?|whom|who|After a preposition, formal English uses whom.
+
+@Articles
+1|G|I have ___ apple.|an|a|Use an before a vowel sound: an apple.
+1|G|She is ___ teacher.|a|an|Teacher starts with a consonant sound: a teacher.
+2|G|I saw ___ elephant at the zoo.|an|a|Elephant starts with a vowel sound.
+2|G|___ sun is very hot today.|The|A|There is only one sun, so we use the.
+2|G|He is ___ honest man.|an|a|The h in honest is silent, so it starts with a vowel sound.
+3|G|She goes to ___ university in Paris.|a|an|University starts with a 'you' sound, which is a consonant sound.
+3|G|I love ___ music.|(no word)|the|For things in general we use no article.
+3|G|Can you pass me ___ salt, please?|the|a|We both know which salt, so we use the.
+3|M|Find the mistake: I have a umbrella.|a|have|Before a vowel sound we use an: an umbrella.
+4|G|___ Nile is the longest river in Africa.|The|(no word)|Names of rivers take the: the Nile.
+4|G|She plays ___ piano very well.|the|a|With musical instruments we usually use the.
+5|G|He was elected ___ president of the club.|(no word)|a|For a unique role after 'elect', we use no article.
+5|G|We should help ___ poor.|the|(no word)|The + adjective means a group of people: the poor.
+
+@Prepositions
+1|G|The cat is ___ the box.|in|on|Inside something = in.
+1|G|I go to school ___ bus.|by|on|We travel by bus, by car, by train.
+2|G|My birthday is ___ May.|in|on|Months take in.
+2|G|The class starts ___ 8 o'clock.|at|in|Clock times take at.
+2|G|We play football ___ Monday.|on|in|Days take on.
+2|M|Find the mistake: I was born on 2010.|on|born|Years take in: in 2010.
+3|G|She is good ___ maths.|at|in|Good at = skilled in something.
+3|G|I'm afraid ___ spiders.|of|from|We say afraid of.
+3|G|It depends ___ the weather.|on|of|We say depend on.
+4|G|He apologized ___ being late.|for|about|Apologize for something.
+4|G|She insisted ___ paying the bill.|on|to|Insist on + -ing.
+4|G|I've lived here ___ 2015.|since|for|Since + a point in time. For + a period.
+5|G|The decision was ___ my control.|beyond|above|Beyond someone's control = they can't change it.
+5|G|He was accused ___ stealing the money.|of|for|Accuse someone of something.
+
+@Present simple
+1|G|She ___ to school every day.|goes|go|He, she and it take -s or -es: she goes.
+1|G|They ___ football on Sundays.|play|plays|With they, the verb has no -s.
+1|G|My cat ___ a lot.|sleeps|sleep|My cat = it, so add -s: sleeps.
+1|G|I ___ my teeth every morning.|brush|brushes|With I, the verb has no -s.
+1|C|Which sentence is present simple?|I eat apples.|I ate apples.|Eat is present. Ate is past.
+2|G|He ___ like coffee.|doesn't|don't|He, she and it use doesn't.
+2|G|___ you speak English?|Do|Does|Questions with you start with Do.
+2|G|Water ___ at 100 degrees.|boils|boil|Facts use present simple. Water = it: boils.
+2|G|___ your brother live here?|Does|Do|Your brother = he, so the question uses Does.
+2|G|We ___ watch TV in the morning.|don't|doesn't|We, you, they and I use don't.
+2|G|The shop ___ at 9 o'clock.|opens|open|The shop = it: opens.
+2|G|Tom ___ his homework after dinner.|does|do|Tom = he: does.
+3|G|How often ___ she visit her grandma?|does|is|Present simple questions with she use does.
+3|M|Find the mistake: She don't like tea.|don't|like|With she we use doesn't.
+3|M|Find the mistake: He watchs TV every night.|watchs|every|Verbs ending in -ch add -es: watches.
+4|G|The train ___ at 6:15 tomorrow morning.|leaves|is leave|Timetables use present simple, even for the future.
+4|G|Everybody ___ the answer.|knows|know|Everybody takes a singular verb.
+5|G|As soon as he ___, we'll start dinner.|arrives|will arrive|After 'as soon as' about the future we use present simple.
+
+@Present continuous
+1|G|Look! The baby ___ sleeping.|is|are|The baby = he or she: is.
+1|G|I ___ reading a book now.|am|is|With I we use am.
+2|G|They ___ playing in the park right now.|are|is|With they we use are.
+2|F|write + ing = ___|writing|writeing|Drop the -e before -ing: writing.
+2|F|swim + ing = ___|swimming|swiming|Short verbs double the last letter: swimming.
+2|G|Listen! Someone ___ at the door.|is knocking|knocks|Listen! shows it is happening now.
+3|G|I ___ what you mean.|know|am knowing|Know is a state verb. We don't use it in the continuous.
+3|G|This week I ___ at my uncle's house.|am staying|stay|A temporary situation uses the present continuous.
+3|C|Which sentence is correct?|I don't understand this word.|I am not understanding this word.|Understand is a state verb.
+4|G|We ___ to Spain next Friday. The tickets are booked.|are flying|fly|Fixed plans for the future use the present continuous.
+4|G|He ___ leaving his things everywhere! It's so annoying.|is always|always is|Always + present continuous shows annoyance.
+5|G|I ___ of selling my car. What do you think?|am thinking|think|Think of (= consider) is an action, so it can be continuous.
+5|G|This soup ___ delicious.|tastes|is tasting|Taste here is a state (how it is), so we use present simple.
+
+@Past simple
+1|G|Yesterday I ___ to the park.|went|go|Yesterday tells us it is past. Go becomes went.
+1|G|We ___ TV last night.|watched|watch|Regular verbs add -ed in the past: watched.
+1|F|What is the past of 'eat'?|ate|eated|Eat is irregular: ate.
+1|G|I ___ tired after the game.|was|were|I, he, she and it use was.
+2|G|She ___ a letter last week.|wrote|writes|Last week is past. Write becomes wrote.
+2|G|They ___ come to the party.|didn't|don't|The party is over, so we use didn't.
+2|G|___ you see the film yesterday?|Did|Do|Past questions start with Did.
+2|G|He ___ his keys this morning.|lost|loses|Lose becomes lost in the past.
+2|F|What is the past of 'buy'?|bought|buyed|Buy is irregular: bought.
+2|G|They ___ at home last Sunday.|were|was|You, we and they use were.
+2|F|What is the past of 'stop'?|stopped|stoped|Short verbs like stop double the last letter: stopped.
+2|G|Did she call you? Yes, she ___.|did|does|Answer a Did question with did.
+3|M|Find the mistake: She didn't went to school.|went|didn't|After didn't we use the base verb: didn't go.
+3|F|What is the past of 'catch'?|caught|catched|Catch is irregular: caught.
+3|G|When ___ you start learning English?|did|were|Past questions with an action verb use did.
+4|F|Past of 'lie' (= say something false)?|lied|lay|Lie (not tell the truth) is regular: lied. Lay is the past of lie (= rest).
+4|F|What is the past of 'seek'?|sought|seeked|Seek is irregular: sought.
+5|F|What is the past of 'forbid'?|forbade|forbidded|Forbid is irregular: forbade.
+5|F|Past of 'lay' (= put down)?|laid|layed|Lay has an irregular spelling: laid.
+
+@Past continuous
+2|G|I ___ watching TV when you called.|was|were|With I we use was.
+2|G|They ___ playing football at 5 pm yesterday.|were|was|With they we use were.
+3|G|While she ___, the phone rang.|was cooking|cooked|The longer action uses the past continuous.
+3|G|I was walking home when it ___ to rain.|started|was starting|The short action that interrupts uses the past simple.
+3|C|Which question is correct?|What were you doing at 8 pm?|What did you doing at 8 pm?|Past continuous question: were + -ing.
+3|M|Find the mistake: They was playing outside.|was|playing|With they we use were.
+4|G|When I arrived, they ___ dinner, so I joined them.|were having|had had|They were in the middle of dinner when I came.
+
+@Present perfect
+2|G|I have ___ my homework.|finished|finish|Present perfect = have + past participle.
+2|G|She ___ been to London.|has|have|With she we use has.
+3|G|Have you ever ___ sushi?|eaten|ate|The past participle of eat is eaten.
+3|G|I have lived here ___ ten years.|for|since|For + a period of time.
+3|G|We've known each other ___ 2019.|since|for|Since + a point in time.
+3|C|Which sentence is correct?|I saw him yesterday.|I have seen him yesterday.|With a finished time like yesterday, we use past simple.
+3|G|Has she called you ___?|yet|already|Yet is used in questions and negatives.
+4|G|I've ___ finished. You can use the computer now.|just|yet|Just = a very short time ago.
+4|G|She ___ for two hours and she's tired.|has been running|has run|Present perfect continuous for an activity with a duration.
+4|G|This is the best film I ___.|have ever seen|have ever saw|After a superlative we use present perfect + ever: have ever seen.
+4|M|Find the mistake: I have went there twice.|went|twice|The past participle of go is gone.
+5|G|He ___ three novels so far.|has written|has been writing|For a number of finished things we use present perfect simple.
+5|G|It's the first time I ___ snow.|have seen|see|'It's the first time' is followed by the present perfect.
+
+@Past perfect
+3|G|When I arrived, the train ___ left.|had already|has already|The train left before I arrived: past perfect.
+3|G|She ___ never flown before that trip.|had|has|Past perfect for experiences before a time in the past.
+4|G|They weren't hungry because they ___ lunch.|had eaten|have eaten|Lunch happened before that moment in the past.
+4|G|By the time we got there, the film ___.|had started|has started|It started before we got there: past perfect.
+4|C|Which sentence is correct?|I realized I had lost my keys.|I realized I have lost my keys.|Losing came before realizing: past perfect.
+5|G|___ had I sat down when the phone rang.|Hardly|No sooner|We say 'Hardly ... when'. 'No sooner' goes with 'than'.
+5|G|She ___ for hours when she finally found the answer.|had been searching|was searched|Past perfect continuous for a long action before another past event.
+5|G|If only I ___ to your advice!|had listened|listened|For regrets about the past we use the past perfect.
+
+@Future
+1|G|Tomorrow I ___ visit my grandma.|will|am|Will + base verb for the future.
+2|G|Look at those clouds! It's ___ rain.|going to|will to|Going to for a prediction we can see.
+2|G|I think it ___ be sunny tomorrow.|will|is|After 'I think' we often use will.
+2|G|She ___ going to study medicine.|is|will|Be going to: she is going to.
+2|G|I ___ you when I get home.|will call|am call|Will + base verb: will call.
+3|G|The phone is ringing. I ___ answer it.|will|am going to|Will for a decision made at the moment of speaking.
+3|C|Which sentence is correct?|I'll tell her when she arrives.|I'll tell her when she will arrive.|After 'when' about the future we use present simple.
+3|M|Find the mistake: I will to call you later.|to|call|After will we use the base verb without to.
+4|G|This time tomorrow, I ___ on a beach.|will be lying|will lie|Future continuous for an action in progress at a future time.
+4|G|By next year, she ___ her degree.|will have finished|will finish|Future perfect: finished before a future time.
+5|G|By June, they ___ married for 25 years.|will have been|will be|Future perfect for a duration up to a future point.
+5|G|By the time you read this letter, I ___.|will have left|will leave|Future perfect: it will already be finished.
+
+@Sentence structure
+1|O|Which order is correct?|I like apples.|Like I apples.|English order: subject, verb, object.
+1|O|Which order is correct?|She has a dog.|A dog she has.|Subject, then verb, then object.
+2|O|Which order is correct?|Where do you live?|Where you do live?|Question: question word, do, subject, verb.
+2|O|Which order is correct?|I always drink milk.|I drink always milk.|Always goes before the main verb.
+2|O|Which order is correct?|Is he your brother?|He is your brother?|In a yes/no question with be, the verb comes first.
+2|C|Which is a complete sentence?|The bird sings.|The small bird.|A sentence needs a subject and a verb.
+2|W|What kind of sentence is: Close the door.|an order|a question|An order (imperative) starts with the verb.
+3|O|Which order is correct?|She is always late.|She always is late.|Always goes after the verb 'be'.
+3|O|Which order is correct?|I went to the park yesterday.|I went yesterday to the park.|Place usually comes before time.
+3|O|Which order is correct?|Can you tell me where he lives?|Can you tell me where does he live?|In an indirect question we use normal word order.
+3|C|Which sentence is correct?|Although it rained, we went out.|Although it rained, but we went out.|Don't use 'although' and 'but' together.
+3|M|Find the mistake: Where you are going?|you are|Where|In a question the verb comes before the subject: Where are you going?
+4|O|Which order is correct?|Do you know what time it is?|Do you know what time is it?|Indirect question: normal word order.
+4|C|Which sentence is correct?|She speaks English very well.|She speaks very well English.|Don't put an adverb between the verb and its object.
+4|C|Which is a compound sentence?|I was tired, so I slept.|I was very tired.|A compound sentence joins two clauses with and, but, so...
+4|C|Which is a complex sentence?|I slept because I was tired.|I slept and I dreamed.|A complex sentence has a main clause and a clause with because, when, if...
+5|O|Which order is correct?|Never have I seen such a mess.|Never I have seen such a mess.|After a negative word at the start, the verb comes before the subject.
+5|O|Which order is correct?|Not only did she win, she broke the record.|Not only she won, she broke the record.|After 'Not only' at the start, we use question word order.
+5|C|Which sentence is correct?|Walking home, I saw a fox.|Walking home, a fox saw me.|The subject after the comma must be the one doing the walking.
+
+@Questions & negatives
+1|G|___ is your name?|What|Who|We ask for names with what.
+1|G|___ old are you?|How|What|How old asks about age.
+2|G|___ do you live? In Haifa.|Where|When|Where asks about a place.
+2|G|___ is that bag? It's Sara's.|Whose|Who's|Whose asks who owns something.
+2|C|Which sentence is negative?|I don't like fish.|I like fish.|Don't makes the sentence negative.
+3|G|You're a student, ___?|aren't you|are you|Positive sentence, negative tag.
+3|G|She can swim, ___?|can't she|doesn't she|The tag uses the same helping verb: can.
+3|G|Who ___ the window?|broke|did broke|When who is the subject, we use the past simple without did.
+3|M|Find the mistake: Does she likes music?|likes|Does|After does we use the base verb: like.
+4|G|They didn't come, ___?|did they|didn't they|Negative sentence, positive tag.
+4|G|I'm right, ___?|aren't I|amn't I|The tag for 'I am' is 'aren't I'.
+4|G|Let's go, ___?|shall we|will we|The tag for let's is shall we.
+5|G|Nobody called, ___?|did they|didn't they|Nobody is negative, so the tag is positive.
+5|G|Hardly anyone came, ___?|did they|didn't they|Hardly makes the sentence negative, so the tag is positive.
+
+@Comparatives
+1|F|big → ___|bigger|more big|Short adjectives add -er. Big doubles the g.
+1|G|An elephant is ___ than a mouse.|bigger|big|Comparing two things: bigger than.
+2|F|good → ___|better|gooder|Good is irregular: better.
+2|G|This is the ___ day of my life!|happiest|happyest|The y becomes i: happiest.
+2|G|Maths is ___ than art.|more difficult|difficulter|Long adjectives use more.
+3|F|bad → worse → ___|worst|baddest|Bad is irregular: bad, worse, worst.
+3|G|She is as tall ___ her brother.|as|than|As ... as means the same.
+3|G|This is the ___ expensive phone in the shop.|least|less|For the lowest of a group we use least.
+3|M|Find the mistake: She is more taller than me.|more|taller|Taller already means 'more tall'.
+4|G|The more you practise, the ___ you get.|better|best|The more ..., the + comparative.
+4|G|He is ___ older than me.|much|very|Use much, not very, before comparatives.
+5|G|It's getting ___.|colder and colder|more and more cold|Repeat the comparative to show change.
+5|F|far (distance) → ___|farther|farer|Far is irregular: farther or further.
+
+@Modals
+1|G|I ___ swim. I learned last year.|can|can to|After can we use the base verb.
+2|G|You ___ wear a seatbelt. It's the law.|must|can|Must shows a strong rule.
+2|G|___ I open the window?|May|Must|May I ... is a polite request.
+2|M|Find the mistake: She can speaks French.|speaks|can|After can we use the base verb: speak.
+3|G|You ___ bring food. We have plenty.|don't have to|mustn't|Don't have to = it's not necessary.
+3|G|You ___ run in the corridor. It's not allowed.|mustn't|don't have to|Mustn't = it is not allowed.
+3|G|You look tired. You ___ go to bed.|should|would|Should gives advice.
+4|G|She isn't answering. She ___ be asleep.|might|must to|Might shows it is possible.
+4|G|He ___ be at home. His car is outside.|must|can't|Must shows we are almost sure.
+4|G|That ___ be John. He's in Paris!|can't|mustn't|Can't shows we're sure it's not true.
+5|G|You ___ have told me! I would have helped.|should|must|Should have = it was a good idea, but you didn't do it.
+5|G|She ___ have left already. Her coat is gone.|must|should|Must have = we're almost sure about the past.
+5|G|I ___ have passed if I had studied.|could|can|Could have for a past possibility that didn't happen.
+
+@Conditionals
+2|G|If you heat ice, it ___.|melts|melted|Zero conditional for facts: if + present, present.
+3|G|If it rains, we ___ at home.|will stay|would stay|First conditional: if + present, will.
+3|G|If I ___ rich, I would travel the world.|were|am|Second conditional: if + past, would.
+3|C|Which sentence is correct?|If I see her, I'll tell her.|If I will see her, I'll tell her.|Don't use will after if.
+4|G|If I had studied, I ___ the test.|would have passed|would pass|Third conditional: if + had + participle, would have.
+4|G|If I ___ you, I'd apologize.|were|was being|We say 'If I were you' to give advice.
+4|G|___ you hurry, you'll miss the bus.|Unless|If|Unless = if not.
+4|M|Find the mistake: If I would have known, I would have come.|would have known|would have come|After if we use the past perfect: If I had known.
+5|G|If she had taken the job, she ___ in London now.|would be living|would have lived|Mixed conditional: past cause, present result.
+5|O|Which order is correct?|Had I known, I would have come.|Had known I, I would have come.|Formal third conditional: had + subject, without if.
+5|G|___ you need help, just call me.|Should|Would|Should + subject = if (formal).
+
+@Passive voice
+3|G|English ___ all over the world.|is spoken|speaks|Passive: be + past participle.
+3|G|The letter ___ yesterday.|was sent|sent|Past passive: was + past participle.
+3|C|Which sentence is passive?|The cake was eaten.|She ate the cake.|In a passive sentence, the subject receives the action.
+4|G|The bridge ___ next year.|will be built|will build|Future passive: will be + past participle.
+4|G|My car ___ at the moment.|is being repaired|is repairing|Present continuous passive: is being + past participle.
+4|G|The house ___ painted since 2010.|hasn't been|hasn't|Present perfect passive: has been + past participle.
+4|M|Find the mistake: The window was broke by the ball.|broke|window|The passive needs the past participle: broken.
+5|G|I had my hair ___.|cut|cutting|Have something done = someone does it for you.
+5|G|He is said ___ very rich.|to be|being|Passive reporting: is said to be.
+5|G|The work needs ___.|doing|to do|Needs + -ing has a passive meaning: it needs to be done.
+
+@Reported speech
+4|G|"I am tired." She said she ___ tired.|was|is|In reported speech, am and is usually become was.
+4|G|"I will help." He said he ___ help.|would|will|Will becomes would in reported speech.
+4|G|"Are you OK?" She asked if I ___ OK.|was|am|Am becomes was.
+4|G|"Do you like it?" He asked me ___ I liked it.|if|that|Reported yes/no questions use if or whether.
+5|G|"I saw him." She said she ___ him.|had seen|has seen|Past simple becomes past perfect.
+5|O|Which reported question is correct?|He asked where I lived.|He asked where did I live.|Reported questions use normal word order.
+5|G|"Don't touch it!" He told me ___ it.|not to touch|don't touch|Reported orders: tell someone (not) to + verb.
+5|M|Find the mistake: She said me that she was busy.|said me|busy|We say 'told me' or 'said that', not 'said me'.
+
+@Relative clauses
+3|G|The man ___ lives next door is a doctor.|who|which|Who is for people.
+3|G|The book ___ I read was great.|that|who|That or which for things.
+3|G|That's the house ___ I was born.|where|which|Where for places.
+4|G|The girl ___ bag was stolen called the police.|whose|who's|Whose shows possession.
+4|G|My brother, ___ lives in Rome, is a chef.|who|that|We can't use that in a clause with commas.
+4|M|Find the mistake: The book who I read was great.|who|book|Who is for people. Use which or that for things.
+5|C|Which sentence is correct?|This is the town where I grew up.|This is the town which I grew up.|Which needs 'in': the town which I grew up in.
+5|G|She failed the exam, ___ surprised everyone.|which|that|Which can refer to a whole clause.
+
+@Conditionals
+3|G|If you ___ the button, the door opens.|press|will press|Zero conditional: if + present, present.
+3|G|If we ___ now, we'll catch the last train.|leave|will leave|First conditional: if + present, will.
+3|G|What would you do if you ___ a lion?|saw|see|Second conditional: if + past, would.
+3|G|If my phone ___ working, I'll buy a new one.|stops|will stop|After if about the future we use present simple.
+4|G|If I ___ more time, I would learn Japanese.|had|have|Second conditional for an unreal present: if + past.
+4|G|She would have won if she ___ harder.|had trained|trained|Third conditional: if + had + past participle.
+4|G|If they ___ the map, they wouldn't have got lost.|had taken|took|Third conditional: if + had + past participle.
+4|G|We'll go to the beach ___ it rains.|unless|if|Unless = if not.
+4|G|I'll lend you my bike ___ you bring it back by six.|as long as|unless|As long as = only if.
+5|G|If he hadn't missed the bus, he ___ here now.|would be|would have been|Mixed conditional: past cause, present result.
+5|G|___ it not been for your help, I would have failed.|Had|If|Formal third conditional: Had it not been for...
+5|G|___ you to see Maya, tell her I said hello.|Were|If|Formal: Were you to ... = If you happened to ...
+5|G|I'd have called you if I ___ your number.|had known|knew|Third conditional: if + had + past participle.
+5|C|Which sentence is correct?|Supposing you lost your job, what would you do?|Supposing you lose your job, what would you did?|Supposing + past, would + base verb.
+
+@Modals
+3|G|You ___ wear a uniform at our school. It's a rule.|have to|has to|With you we use have to.
+3|G|When I was five, I ___ ride a bike.|could|can|Could is the past of can.
+3|G|___ you help me with this box, please?|Could|Should|Could you ...? is a polite request.
+4|G|We ___ to leave early yesterday because of the storm.|had|must|Must has no past form. We use had to.
+4|G|You ___ have seen him. He was in Haifa that day!|can't|mustn't|Can't have = we're sure it didn't happen.
+4|G|I ___ go to the party. I haven't decided yet.|might|must|Might shows we're not sure.
+5|G|You needn't ___ a taxi. I could have driven you.|have taken|took|Needn't have + past participle = you did it, but it wasn't necessary.
+5|G|He ___ have forgotten. He never forgets anything.|can't|mustn't|Can't have shows we're sure something didn't happen.
+5|G|The road is closed. There ___ have been an accident.|must|should|Must have = a logical guess about the past.
+5|G|You ___ better apologize before she gets angry.|had|would|We say 'had better' for strong advice.
+
+@Verbs
+3|G|I used ___ in a small village.|to live|living|Used to + base verb for past habits.
+3|G|She's used to ___ up early.|getting|get|Be used to + -ing = be familiar with something.
+4|G|I wish I ___ taller.|were|am|After wish for the present we use the past (were).
+4|G|I wish I ___ that. I'm sorry.|hadn't said|didn't say|After wish for the past we use the past perfect.
+4|G|It's no use ___ about it now.|worrying|to worry|It's no use + -ing.
+4|G|I can't help ___ when I see that video.|laughing|to laugh|Can't help + -ing = can't stop yourself.
+5|G|She regrets ___ the job offer.|turning down|to turn down|Regret + -ing = feel sorry about something you did.
+5|G|We regret ___ you that the flight is cancelled.|to inform|informing|Regret + to = formal way to give bad news.
+5|G|He tried ___ the window, but it was stuck.|to open|opening|Try + to = make an effort. Try + -ing = experiment.
+5|G|It's high time we ___ home.|went|go|It's high time + past tense.
+
+@Sentence structure
+3|C|Which sentence is correct?|I like tea, but my sister prefers coffee.|I like tea, but my sister prefer coffee.|My sister = she, so the verb is prefers.
+3|C|Which is a complete sentence?|Because it was late, we went home.|Because it was late.|A clause with because needs a main clause.
+3|O|Which order is correct?|She gave me a beautiful red scarf.|She gave me a red beautiful scarf.|Opinion adjectives come before colour.
+4|C|Which sentence is correct?|Despite the rain, we enjoyed the trip.|Despite it rained, we enjoyed the trip.|Despite + noun. Although + full clause.
+4|C|Which sentence is correct?|Neither Tom nor his sister likes fish.|Neither Tom nor his sister like fish.|With neither ... nor, the verb agrees with the nearer subject (his sister).
+4|O|Which order is correct?|I have never been to Japan.|I have been never to Japan.|Never goes between have and the past participle.
+4|C|Which sentence is correct?|The man who called you is my uncle.|The man which called you is my uncle.|Who is for people.
+4|C|Which sentence is correct?|Having finished the test, she left the room.|Having finished the test, the room was empty.|The person who finished must be the subject after the comma.
+5|O|Which order is correct?|Rarely do we see such talent.|Rarely we see such talent.|After rarely at the start, we use question word order.
+5|O|Which order is correct?|Only then did I understand the problem.|Only then I understood the problem.|After 'Only then' at the start, we use question word order.
+5|O|Which order is correct?|Little did he know what was coming.|Little he knew what was coming.|After 'Little' at the start, we use question word order.
+5|C|Which sentence is correct?|What I need is a long holiday.|What I need it is a long holiday.|A cleft sentence: What I need is ...
+5|C|Which sentence is correct?|It was Maya who found the key.|It was Maya which found the key.|Cleft sentence with a person: It was ... who.
+5|O|Which order is correct?|So tired was she that she fell asleep.|So tired she was that she fell asleep.|So + adjective at the start: verb before subject.
+5|C|Which sentence is correct?|The more you read, the more you learn.|More you read, more you learn.|The + comparative ..., the + comparative.
+
+@Reported speech
+4|G|"We're leaving." They said they ___ leaving.|were|are|Are becomes were in reported speech.
+4|G|"I can swim." He said he ___ swim.|could|can|Can becomes could.
+5|G|"I have finished." She said she ___ finished.|had|has|Present perfect becomes past perfect.
+5|G|"Where is the station?" He asked me where the station ___.|was|is it|Reported questions use normal word order.
+5|G|"Please sit down." The teacher asked us ___ down.|to sit|sit|Reported requests: ask someone to + verb.
+5|G|"I'll call you tomorrow." He said he would call me the ___ day.|next|tomorrow|Tomorrow often becomes the next day in reported speech.
+
+@Relative clauses
+3|G|Do you know the woman ___ is talking to Tom?|who|which|Who for people.
+4|G|This is the reason ___ I came.|why|which|The reason why.
+4|G|I remember the day ___ we first met.|when|which|When for times.
+5|G|The people with ___ I work are very kind.|whom|who|After a preposition, formal English uses whom.
+5|G|He has two brothers, both of ___ are doctors.|whom|them|After 'both of' in a relative clause we use whom.
+5|G|The house, ___ roof was damaged, is being repaired.|whose|which|Whose shows possession, also for things.
+
+@Passive voice
+4|G|The results ___ announced tomorrow.|will be|will|Future passive: will be + past participle.
+4|G|English is ___ in many countries.|spoken|speaking|Passive: is + past participle.
+5|G|The thief is believed ___ the country.|to have left|to leave|Passive reporting about the past: to have + past participle.
+5|G|She got her car ___ last week.|repaired|repair|Get something done = someone does it for you.
+5|G|The problem should have ___ earlier.|been solved|solved|Modal passive: should have been + past participle.
+
+@Questions & negatives
+3|G|How ___ sugar do you take?|much|many|Much for uncountable nouns.
+3|G|How ___ brothers have you got?|many|much|Many for countable nouns.
+4|G|Do you know what time ___?|it is|is it|Indirect questions use normal word order.
+4|G|There's ___ milk in the fridge. Let's buy some.|no|any|There's no = there isn't any.
+5|G|Not once ___ she complain.|did|she did|After 'Not once' at the start, we use question word order.
+5|G|You'd rather stay at home, ___?|wouldn't you|hadn't you|I'd rather = I would rather, so the tag is wouldn't you.
+`;
+const RAW3 = `@Present simple
+2|G|My brother ___ in a bank in Tel Aviv.|works|work|is work|He, she and it: add -s to the verb.
+2|G|___ your parents speak Arabic?|Do|Does|Are|Your parents = they, so the question starts with Do.
+3|G|The museum ___ at 10 a.m. on Saturdays.|opens|open|is opening|Fixed timetables use the present simple.
+3|M|Find the mistake: My sister don't eat meat.|don't|eat|meat|With she we use doesn't: My sister doesn't eat meat.
+3|G|The train ___ at 6:45 tomorrow, so don't be late.|leaves|is leave|leaving|Timetables use the present simple, even for the future.
+@Present continuous
+2|G|Please be quiet. The baby ___.|is sleeping|sleep|are sleeping|Happening right now: am / is / are + -ing.
+3|G|Prices ___ higher and higher these days.|are getting|is getting|getting|Prices = they: are + -ing for a situation that is changing now.
+3|G|I can't talk now. I ___ dinner.|am cooking|cooking|cooked|Now: am + -ing.
+4|C|Which sentence is correct?|She owns two cars.|She is owning two cars.|She owning two cars.|Own is a state verb, so we don't use it with -ing.
+@Past simple
+2|G|Shakespeare ___ Romeo and Juliet.|wrote|writed|has wrote|Write is irregular: write, wrote, written.
+2|G|We ___ to Eilat last summer.|went|have gone|go|Last summer is finished time, so we use the past simple.
+3|G|When ___ the Second World War end?|did|was|has|A past simple question: did + subject + base verb.
+3|G|She ___ her phone on the bus yesterday.|left|leaved|has left|Leave is irregular: left. Yesterday = past simple.
+@Past continuous
+3|G|While we ___ TV, the lights went out.|were watching|was watching|are watching|We = were. The longer action uses was / were + -ing.
+3|G|What ___ you doing at 9 o'clock last night?|were|did|was|Past continuous question: were + you + -ing.
+4|G|He was painting the ceiling when he ___ off the ladder.|fell|was falling|falls|The short action that interrupts uses the past simple.
+@Present perfect
+3|G|I ___ this film three times. I love it!|have seen|have saw|has seen|I + have + past participle (seen).
+3|G|She has worked here ___ 2018.|since|for|during|Since + a point in time (2018).
+3|G|They have been married ___ twenty years.|for|since|during|For + a period of time (twenty years).
+3|G|Have you finished your project ___?|yet|just|since|Yet goes at the end of questions and negatives.
+4|G|I ___ for you for an hour! Where were you?|have been waiting|am waiting|wait|It started in the past and is still going on: present perfect continuous.
+4|G|He looks tired because he ___ all day.|has been working|have been working|is worked|He + has been + -ing for a long activity up to now.
+4|C|Which sentence is correct?|I have known her since we were children.|I know her since we were children.|I am knowing her since we were children.|With since we use the present perfect. Know is a state verb, so no -ing.
+5|G|This is the third time she ___ late this week.|has been|is|was|'This is the first / second / third time' + present perfect.
+@Past perfect
+4|G|By the time the police arrived, the thieves ___.|had escaped|have escaped|escape|They escaped before the police arrived: past perfect (had + V3).
+4|G|She was nervous because she ___ on a plane before.|had never flown|has never flown|never flies|An experience before a moment in the past: had + V3.
+4|G|After he ___ his homework, he went out to play.|had finished|has finished|finishes|The homework came first: had + V3.
+5|G|No sooner ___ home than it started to rain.|had we arrived|we had arrived|did we arrived|No sooner + had + subject + V3 ... than.
+@Future
+3|G|Don't worry, I ___ you with your bags.|'ll help|help|helped|An offer made now: will + base verb.
+3|G|Look at those black clouds! It ___ rain.|is going to|will to|goes to|We can see it coming: be going to.
+4|G|By 2030, scientists ___ a cure for this disease.|will have found|found|have found|By + a future time: will have + V3 (future perfect).
+4|G|This time next week, we ___ on a beach in Greece.|will be lying|will have lain|are lie|In progress at a future time: will be + -ing.
+@Passive voice
+3|G|Hebrew and Arabic ___ in Israel.|are spoken|speak|are speaking|Passive present: am / is / are + past participle.
+3|G|The Mona Lisa ___ by Leonardo da Vinci.|was painted|painted|was paint|Past passive: was / were + past participle.
+3|G|The winners ___ next week.|will be announced|will announce|will announced|Future passive: will be + past participle.
+4|G|A new hospital ___ in our city at the moment.|is being built|is building|has built|Present continuous passive: is being + V3.
+4|G|All the tickets ___. There are none left.|have been sold|has been sold|are sell|Tickets = plural: have been + V3.
+4|G|Smoking ___ in this building.|is not allowed|does not allow|not allowed|Passive negative: is not + past participle.
+5|G|The bridge must ___ before winter.|be repaired|repaired|repair|Modal passive: modal + be + V3.
+5|G|The thief is thought ___ the money in the forest.|to have hidden|having hid|to hidden|Passive reporting about an earlier action: to have + V3.
+4|C|Which sentence is in the passive?|The road was closed because of the snow.|The snow closed the road.|They closed the road because of the snow.|Passive: be + past participle. The road receives the action.
+5|G|When I came back, my bike ___.|had been stolen|had stolen|has been stealing|Past perfect passive: had been + V3.
+4|M|Find the mistake: The new mall was open by the mayor last week.|open|mayor|last week|The passive needs the past participle: was opened.
+@Causative
+4|G|I ___ my hair cut yesterday.|had|did|made|Causative: have + object + past participle (someone else did it).
+4|G|We are having our kitchen ___ next week.|painted|paint|painting|Have something done: object + past participle.
+5|G|She got her phone ___ at the shop near school.|fixed|fix|to fix|Get something done = someone does it for you.
+5|G|You should have your eyes ___.|tested|test|testing|Have + object + past participle.
+@Conditionals
+3|G|If you ___ water to 100°C, it boils.|heat|will heat|heated|Zero conditional (facts): if + present, present.
+3|G|If it ___ tomorrow, we will cancel the trip.|rains|will rain|rained|First conditional: if + present simple, will + verb.
+3|G|If I ___ a million shekels, I would buy a house by the sea.|had|have|will have|Second conditional: if + past simple, would + verb.
+4|G|If you had told me, I ___ you.|would have helped|had helped|will help|Third conditional: if + had + V3, would have + V3.
+4|G|If I ___ you, I would study for the Bagrut every day.|were|am|will be|For advice we say 'If I were you'.
+4|G|She won't pass the test ___ she studies harder.|unless|without|except|Unless = if not.
+4|G|We would have gone to the beach if it ___ so cold.|hadn't been|isn't|won't be|Third conditional: if + had (not) + V3.
+5|G|If I had taken the job in London, I ___ there now.|would be living|would have lived|will live|Mixed conditional: past condition, present result (now).
+5|G|___ I known about the party, I would have come.|Had|If|Did|Formal: Had I known = If I had known.
+5|G|___ you need any help, please call me.|Should|Would|Did|Formal: Should you need = If you need.
+4|M|Find the mistake: If I will see him, I will tell him.|will see|will tell|him|No will after if: If I see him, I will tell him.
+@Modals
+3|G|You ___ smoke in the hospital. It's forbidden.|mustn't|don't have to|needn't|Mustn't = it is not allowed.
+3|G|Tomorrow is Saturday, so we ___ get up early.|don't have to|mustn't|haven't to|Don't have to = it isn't necessary.
+3|G|___ you speak more slowly, please?|Could|Must|Should|Could you ...? is a polite request.
+4|G|She ___ be at home. All the lights are on.|must|can't|mustn't|Must = we are almost sure it is true.
+4|G|He ___ be the thief. He was with me all evening.|can't|mustn't|must|Can't = we are sure it is not true.
+5|G|You ___ have told her the secret. Now everyone knows!|shouldn't|mustn't|needn't to|Shouldn't have + V3 = it was a mistake, but you did it.
+5|G|The ground is wet. It ___ have rained last night.|must|should|can|Must have + V3 = a logical guess about the past.
+5|G|I ___ have bought so much food. Nobody came!|needn't|mustn't|can't|Needn't have + V3 = you did it, but it wasn't necessary.
+4|G|When I was ten, I ___ swim very well.|could|can|must|Could = ability in the past.
+4|G|You ___ better leave now, or you'll miss the bus.|had|would|should|We say 'had better' + base verb.
+@Reported speech
+4|G|"I'm feeling sick," Tom said. → Tom said that he ___ sick.|was feeling|were feeling|feel|Present continuous usually becomes past continuous: was feeling.
+4|G|"I will call you," Dana said. → Dana said that she ___ me.|would call|will called|would called|Will becomes would. After would we use the base verb.
+4|G|"Do you like pizza?" he asked. → He asked me ___ I liked pizza.|if|that|do|Yes / no questions are reported with if or whether.
+4|G|"Where do you live?" → She asked me where I ___.|lived|did live|do live|Reported questions use normal word order, without do / did.
+5|G|"I have lost my keys," she said. → She said that she ___ her keys.|had lost|had losing|have lost|Present perfect becomes past perfect: had lost.
+5|G|"Don't open the door!" → Mom told us ___ the door.|not to open|don't open|to not opening|Reported orders: tell someone (not) to + verb.
+5|G|"We visited Rome last year." → They said they ___ Rome the year before.|had visited|have visited|had visit|Past simple becomes past perfect: had visited.
+5|G|"I'm leaving tomorrow." → He said he was leaving ___.|the next day|tomorrow's day|the yesterday|Tomorrow becomes the next day (or the following day).
+5|M|Find the mistake: He asked me where was the station.|was the station|asked|me|Reported questions use normal word order: where the station was.
+@Relative clauses
+3|G|The girl ___ won the prize is in my class.|who|which|whose|Who is for people.
+3|G|This is the phone ___ I bought yesterday.|that|who|where|That or which is for things.
+4|G|That's the café ___ we first met.|where|which|who|Where is for places.
+4|G|The boy ___ father is a pilot sits next to me.|whose|who|who's|Whose shows possession (his father).
+4|G|I'll never forget the day ___ I started high school.|when|where|who|When is for times.
+4|G|Tel Aviv, ___ is on the coast, is a busy city.|which|that|where|After a comma we use which, not that.
+5|G|She passed all her exams, ___ made her parents very happy.|which|that|what|Which can refer to a whole sentence.
+5|G|The teacher to ___ I gave the letter was very kind.|whom|who|that|After a preposition we use whom (formal).
+5|G|I have three brothers, all of ___ live abroad.|whom|them|who|All of whom / some of whom in a relative clause.
+4|M|Find the mistake: The man which lives next door is a doctor.|which|lives|next door|Which is for things. For people use who.
+@Gerunds & infinitives
+3|G|I enjoy ___ to music.|listening|to listen|listen|Enjoy + -ing.
+3|G|We decided ___ a taxi.|to take|taking|take|Decide + to + verb.
+3|G|She is interested in ___ medicine.|studying|to study|study|After a preposition (in) we use -ing.
+4|G|I look forward to ___ from you.|hearing|hear|to hear|Look forward to + -ing (here to is a preposition).
+4|G|He promised ___ late again.|not to be|not being|to not being|Promise + (not) to + verb.
+4|G|They avoided ___ about the problem.|talking|to talk|talk|Avoid + -ing.
+4|G|My parents let me ___ to the party.|go|to go|going|Let + someone + base verb (no to).
+5|G|I'll never forget ___ the Dead Sea for the first time.|seeing|to see|see|Forget + -ing = a memory of something you did.
+5|G|Please remember ___ the door when you leave.|to lock|locking|lock|Remember + to = don't forget to do it.
+5|G|He stopped ___ when he was 30. He doesn't smoke now.|smoking|to smoke|smoke|Stop + -ing = quit doing something.
+@Wishes
+4|G|I wish I ___ more free time. I'm always busy.|had|have|will have|Wish + past simple for a present situation.
+4|G|I wish I ___ to the party last night. Everyone says it was great.|had gone|went|have gone|Wish + past perfect for a regret about the past.
+5|G|I wish you ___ making that noise! It's driving me crazy.|would stop|stop|will stop|Wish + would for something annoying we want to change.
+5|G|If only I ___ harder for the exam!|had studied|have studied|study|If only + past perfect = a regret about the past.
+5|G|It's time we ___ home. It's very late.|went|gone|will go|It's (high) time + subject + past simple.
+@Linking words
+3|G|___ it was raining, we went for a walk.|Although|Because|Despite|Although + a full sentence shows contrast. Despite + noun.
+3|G|I was tired, ___ I went to bed early.|so|but|although|So shows a result.
+4|G|___ the rain, the game continued.|Despite|Although|However|Despite + noun (the rain).
+4|G|He studied very hard. ___, he failed the test.|However|Therefore|Moreover|However shows contrast.
+4|G|She missed the bus. ___, she was late for school.|As a result|However|Although|As a result shows a result.
+4|G|I stayed at home ___ I was sick.|because|so|despite|Because gives a reason.
+4|G|You can come with us ___ you are back by ten.|as long as|in spite of|despite of|As long as = only if.
+5|G|___ being very rich, he lives in a small flat.|In spite of|Although|Even though|In spite of + -ing or noun. Although + a full sentence.
+5|G|She left early ___ she could catch the last train.|so that|because of|in spite of|So that + a sentence shows purpose.
+5|G|Not only ___ the test, but she also got the highest grade.|did she pass|she passed|she did pass|After 'Not only' at the start: did + subject + verb.
+4|G|___ studying for the Bagrut, he also works part-time.|In addition to|However|Unless|In addition to + -ing = and also.
+@Quantifiers
+3|G|There isn't ___ milk in the fridge.|much|many|a few|Much is for uncountable nouns (milk).
+3|G|How ___ students are there in your class?|many|much|a lot|Many is for countable nouns (students).
+4|G|I have ___ friends in Eilat, so I visit often.|a few|a little|much|A few + plural countable noun.
+4|G|Hurry up! We have very ___ time.|little|few|many|Little + uncountable noun (time).
+4|G|___ of my two brothers likes football. They both hate it.|Neither|Both|None|Neither = not one and not the other (of two).
+5|G|___ student in the class got a certificate.|Every|All|Both|Every + singular noun.
+4|G|We need ___ information before we decide.|more|many|a few|Information is uncountable.
+@Questions & negatives
+3|G|You're coming to the party, ___?|aren't you|don't you|isn't it|Positive sentence, negative tag with the same verb (are).
+4|G|She has finished her homework, ___?|hasn't she|doesn't she|isn't she|The tag uses the same helping verb: has → hasn't.
+4|G|They won't be late, ___?|will they|won't they|do they|Negative sentence, positive tag.
+4|G|Do you know where ___?|she lives|does she live|lives she|Indirect question: normal word order.
+5|G|Can you tell me what time ___?|the train leaves|does the train leave|leaves the train|Indirect question: normal word order.
+5|G|Nobody called me, ___?|did they|didn't they|did he|Nobody is negative, so the tag is positive. We use they.
+@Used to
+3|G|I ___ play football every day when I was a child.|used to|use to|was used to|Used to + verb = a past habit.
+4|G|She ___ live in Jerusalem, but now she lives in Haifa.|used to|is used to|uses to|Used to = something that was true but isn't now.
+4|G|I'm not used to ___ up so early.|getting|get|got|Be used to + -ing = be familiar with something.
+4|G|Did you ___ have long hair?|use to|used to|using to|In questions and negatives: did + use to.
+@Sentence structure
+4|O|Which order is correct?|She has never been to London.|She has been never to London.|Never she has been to London.|Never goes after the helping verb (has).
+5|O|Which order is correct?|Rarely have I seen such a beautiful view.|Rarely I have seen such a beautiful view.|Rarely seen I have such a beautiful view.|After rarely at the start: helping verb before the subject.
+5|O|Which order is correct?|Only after the test did I relax.|Only after the test I relaxed.|Only after the test relaxed I.|After 'Only after ...' at the start: did + subject + verb.
+4|O|Which order is correct?|Could you tell me where the bank is?|Could you tell me where is the bank?|Could you tell me where the bank it is?|Indirect question: subject before the verb.
+@Comparatives
+3|G|This test was ___ than the last one.|easier|more easy|easyer|Easy → easier (y becomes i).
+4|G|The ___ you practise, the better you get.|more|most|much|The + comparative ..., the + comparative.
+4|G|Eilat is much ___ than Jerusalem in summer.|hotter|more hot|hoter|Hot → hotter (double t).
+4|G|This is ___ book I have ever read.|the most interesting|the more interesting|most interesting|Superlative: the most + long adjective.
+5|G|Your phone is not as expensive ___ mine.|as|than|like|As ... as.
+`;
+const STATIC = [];
+(()=>{ let topic="";
+  RAW3.split("\n").forEach(line=>{ line=line.trim(); if(!line) return;
+    if(line[0]==="@"){ topic=line.slice(1).trim(); return; }
+    const p=line.split("|"); if(p.length<7) return;
+    // [topic, question, right, wrong, why, level, type, wrong2]
+    STATIC.push([topic,p[2],p[3],p[4],p[6],+p[0],p[1],p[5]]); });
+  topic="";
+  RAW.split("\n").forEach(line=>{ line=line.trim(); if(!line) return;
+    if(line[0]==="@"){ topic=line.slice(1).trim(); return; }
+    const p=line.split("|"); if(p.length<6) return;
+    STATIC.push([topic,p[2],p[3],p[4],p[5],+p[0],p[1]]); });
+})();
+/* ---------- Word bank: builds fresh questions every game so they don't repeat ---------- */
+const pick = a=>a[Math.floor(Math.random()*a.length)];
+const cap = s=>s[0].toUpperCase()+s.slice(1);
+const lc = s=>s.replace(/^(My|Our|The|We|They|You)\b/,m=>m.toLowerCase());
+const edWrong = b=>b.endsWith("e")?b+"d":b+"ed";
+
+// [subject, singular?]
+const SUBJ = [["My brother",1],["Sara",1],["Our teacher",1],["The old man",1],["My best friend",1],["Daniel",1],["Lina",1],["The farmer",1],["My aunt",1],["The new student",1],
+  ["We",0],["They",0],["My parents",0],["The children",0],["Tom and Lily",0],["Our neighbours",0],["My cousins",0],["You",0]];
+const SING = SUBJ.filter(s=>s[1]), PLUR = SUBJ.filter(s=>!s[1]);
+const NAMES = [["Ali","m"],["Omar","m"],["Daniel","m"],["Adam","m"],["Tom","m"],["Yosef","m"],["Maya","f"],["Sara","f"],["Lina","f"],["Noa","f"],["Emma","f"],["Rania","f"]];
+const FREQ = ["every day","every morning","on Sundays","after school","twice a week","every evening","at the weekend","in the summer"];
+const PAST_T = ["Yesterday","Last night","Two days ago","Last summer","Last week","This morning","In 2019","A long time ago","Last Friday"];
+
+// regular verbs: [base, he/she form, -ing, object, wrong -ing or ""]
+const RV = [
+ ["play","plays","playing","football",""],["watch","watches","watching","cartoons",""],["study","studies","studying","history","studing"],
+ ["fix","fixes","fixing","old bikes",""],["wash","washes","washing","the dishes",""],["carry","carries","carrying","heavy bags",""],
+ ["miss","misses","missing","the bus",""],["catch","catches","catching","the early train",""],["push","pushes","pushing","the trolley",""],
+ ["cook","cooks","cooking","dinner",""],["read","reads","reading","comics",""],["drink","drinks","drinking","orange juice",""],
+ ["write","writes","writing","emails","writeing"],["clean","cleans","cleaning","the kitchen",""],["drive","drives","driving","a red car","driveing"],
+ ["ride","rides","riding","a bike","rideing"],["visit","visits","visiting","their grandparents",""],["help","helps","helping","old people",""],
+ ["buy","buys","buying","fresh bread",""],["try","tries","trying","new food",""],["fly","flies","flying","kites",""],
+ ["make","makes","making","cakes","makeing"],["take","takes","taking","photos","takeing"],["feed","feeds","feeding","the ducks",""],
+ ["paint","paints","painting","pictures",""],["teach","teaches","teaching","maths",""],["do","does","doing","homework",""],
+ ["go","goes","going","to the gym",""],["have","has","having","lunch at home","haveing"],["finish","finishes","finishing","work early",""],
+ ["water","waters","watering","the plants",""],["brush","brushes","brushing","the dog",""],["mix","mixes","mixing","the colours",""],
+ ["enjoy","enjoys","enjoying","jazz music",""],["dance","dances","dancing","salsa","danceing"],["plan","plans","planning","the trips","planing"],
+ ["swim","swims","swimming","in the sea","swiming"],["run","runs","running","in the park","runing"],["shop","shops","shopping","online","shoping"],
+ ["sit","sits","sitting","by the window","siting"],["travel","travels","travelling","by train",""],["chat","chats","chatting","with friends","chating"]
+];
+const ING_SPELL = [["lie","lying","lieing"],["die","dying","dieing"],["tie","tying","tieing"],["begin","beginning","begining"],["stop","stopping","stoping"],
+ ["get","getting","geting"],["put","putting","puting"],["cut","cutting","cuting"],["hope","hoping","hopeing"],["smile","smiling","smileing"],["come","coming","comeing"],
+ ["hit","hitting","hiting"],["win","winning","wining"],["forget","forgetting","forgeting"],["argue","arguing","argueing"],["see","seeing","seing"],["agree","agreeing","agreing"]];
+
+// irregular verbs: [base, past, participle, level, object]
+const IV = [
+ ["go","went","gone",1,"to the beach"],["eat","ate","eaten",1,"a big sandwich"],["see","saw","seen",1,"a rainbow"],["have","had","had",1,"a party"],
+ ["make","made","made",1,"a snowman"],["sit","sat","sat",1,"under a tree"],["run","ran","run",1,"to the shop"],["say","said","said",1,"goodbye"],["put","put","put",1,"the keys on the table"],
+ ["give","gave","given",2,"me a present"],["take","took","taken",2,"a lot of photos"],["write","wrote","written",2,"a long letter"],["swim","swam","swum",2,"across the lake"],
+ ["sing","sang","sung",2,"a beautiful song"],["drink","drank","drunk",2,"some hot chocolate"],["buy","bought","bought",2,"a new jacket"],["bring","brought","brought",2,"a cake"],
+ ["think","thought","thought",2,"about the problem"],["teach","taught","taught",2,"us a new game"],["find","found","found",2,"a wallet in the street"],["sleep","slept","slept",2,"for ten hours"],
+ ["leave","left","left",2,"the house early"],["meet","met","met",2,"an old friend"],["speak","spoke","spoken",2,"to the manager"],["break","broke","broken",2,"a glass"],
+ ["drive","drove","driven",2,"to Eilat"],["know","knew","known",2,"the answer"],["spend","spent","spent",2,"all the money"],["send","sent","sent",2,"a message"],
+ ["lose","lost","lost",2,"the match"],["win","won","won",2,"a prize"],["tell","told","told",2,"a funny story"],["sell","sold","sold",2,"the old car"],["keep","kept","kept",2,"a diary"],
+ ["catch","caught","caught",3,"a huge fish"],["fight","fought","fought",3,"for the ball"],["choose","chose","chosen",3,"the blue one"],["ride","rode","ridden",3,"a camel"],
+ ["fly","flew","flown",3,"to Paris"],["draw","drew","drawn",3,"a map"],["throw","threw","thrown",3,"the ball"],["grow","grew","grown",3,"tomatoes"],["begin","began","begun",3,"a new course"],
+ ["forget","forgot","forgotten",3,"my password"],["hide","hid","hidden",3,"the present"],["steal","stole","stolen",3,"the jewels"],["wear","wore","worn",3,"a costume"],
+ ["build","built","built",3,"a treehouse"],["lend","lent","lent",3,"me some money"],["pay","paid","paid",3,"the bill"],["hold","held","held",3,"the baby"],["dig","dug","dug",3,"a hole"],["bite","bit","bitten",3,"a hard apple"],
+ ["feed","fed","fed",3,"the cat"],["tear","tore","torn",4,"the paper"],["freeze","froze","frozen",4,"the water"],["shake","shook","shaken",4,"the bottle"],["lead","led","led",4,"the team"],
+ ["bend","bent","bent",4,"the wire"],["swing","swung","swung",4,"the bat"],["strike","struck","struck",4,"the rock"],
+ ["seek","sought","sought",5,"advice"],["forbid","forbade","forbidden",5,"the meeting"],["weave","wove","woven",5,"a basket"],["withdraw","withdrew","withdrawn",5,"some cash"],
+ ["overcome","overcame","overcome",5,"the problem"],["undertake","undertook","undertaken",5,"the task"],["foresee","foresaw","foreseen",5,"the danger"],["mislead","misled","misled",5,"the public"],
+ ["bind","bound","bound",5,"the books"],["cling","clung","clung",5,"to the rope"],["tread","trod","trodden",5,"on the grass"]
+];
+
+// plurals: [singular, plural, wrong, level]
+const PL = [
+ ["bus","buses","buss",1],["glass","glasses","glasss",1],["watch","watches","watchs",1],["dish","dishes","dishs",1],["fox","foxes","foxs",1],["toy","toys","toies",1],["boy","boys","boies",1],
+ ["city","cities","citys",2],["lady","ladies","ladys",2],["party","parties","partys",2],["story","stories","storys",2],["key","keys","keies",2],["day","days","daies",2],
+ ["woman","women","womans",2],["foot","feet","foots",2],["sheep","sheep","sheeps",2],["person","people","peoples",2],["tooth","teeth","tooths",2],
+ ["leaf","leaves","leafs",3],["wolf","wolves","wolfs",3],["life","lives","lifes",3],["wife","wives","wifes",3],["shelf","shelves","shelfs",3],["half","halves","halfs",3],
+ ["thief","thieves","thiefs",3],["potato","potatoes","potatos",3],["tomato","tomatoes","tomatos",3],["hero","heroes","heros",3],["photo","photos","photoes",3],
+ ["piano","pianos","pianoes",3],["goose","geese","gooses",3],["deer","deer","deers",3],
+ ["roof","roofs","roofes",4],["chief","chiefs","chieves",4],["ox","oxen","oxes",4],["series","series","serieses",4],["species","species","specieses",4],
+ ["crisis","crises","crisises",5],["analysis","analyses","analysises",5],["thesis","theses","thesises",5],["basis","bases","basises",5],["oasis","oases","oasises",5],["stimulus","stimuli","stimuluses",5]
+];
+
+// adjectives: [adj, comparative, superlative, wrong comparative, level, noun]
+const AJ = [
+ ["tall","taller","tallest","more tall",1,"tree"],["small","smaller","smallest","more small",1,"room"],["old","older","oldest","more old",1,"car"],
+ ["fast","faster","fastest","more fast",1,"train"],["long","longer","longest","more long",1,"road"],["cheap","cheaper","cheapest","more cheap",1,"shirt"],
+ ["big","bigger","biggest","biger",2,"house"],["hot","hotter","hottest","hoter",2,"cup of tea"],["thin","thinner","thinnest","thiner",2,"book"],["sad","sadder","saddest","sader",2,"song"],
+ ["wet","wetter","wettest","weter",2,"towel"],["happy","happier","happiest","happyer",2,"dog"],["easy","easier","easiest","easyer",2,"test"],["heavy","heavier","heaviest","heavyer",2,"box"],
+ ["busy","busier","busiest","busyer",2,"street"],["funny","funnier","funniest","funnyer",2,"story"],["noisy","noisier","noisiest","noisyer",2,"class"],["nice","nicer","nicest","niceer",2,"hotel"],
+ ["safe","safer","safest","safeer",2,"path"],["wide","wider","widest","wideer",2,"river"],["good","better","best","gooder",2,"plan"],["bad","worse","worst","badder",2,"idea"],
+ ["beautiful","more beautiful","most beautiful","beautifuller",2,"painting"],["expensive","more expensive","most expensive","expensiver",2,"phone"],
+ ["interesting","more interesting","most interesting","interestinger",3,"book"],["important","more important","most important","importanter",3,"meeting"],
+ ["dangerous","more dangerous","most dangerous","dangerouser",3,"road"],["comfortable","more comfortable","most comfortable","comfortabler",3,"chair"],
+ ["difficult","more difficult","most difficult","difficulter",3,"question"],["pretty","prettier","prettiest","prettyer",3,"garden"],["early","earlier","earliest","more early",3,"bus"],
+ ["useful","more useful","most useful","usefuller",3,"tool"],["modern","more modern","most modern","moderner",4,"building"],["crowded","more crowded","most crowded","crowdeder",4,"beach"],
+ ["tiring","more tiring","most tiring","tiringer",4,"job"]
+];
+
+// a / an: [word, article, level]
+const ART = [["apple","an",1],["egg","an",1],["orange","an",1],["banana","a",1],["dog","a",1],["elephant","an",1],["ant","an",1],["pencil","a",1],["owl","an",1],["lemon","a",1],
+ ["umbrella","an",2],["island","an",2],["idea","an",2],["engineer","an",2],["old castle","an",2],["interesting film","an",2],["horse","a",2],["ugly fish","an",2],["easy test","an",2],
+ ["hour","an",3],["honest answer","an",3],["uniform","a",3],["university","a",3],["useful tool","a",3],["unicorn","a",3],["heavy bag","a",3],
+ ["European city","a",4],["one-way street","a",4],["honour","an",4],["UFO","a",4],["euro","a",4],["hourly bus","an",4],
+ ["MP3 player","an",5],["X-ray","an",5],["heir","an",5],["FBI agent","an",5],["union leader","a",5],["NGO","an",5]];
+
+// prepositions: [phrase after the gap, right, wrong, level]
+const PT = [["July","in","on",1],["Monday","on","in",1],["7 o'clock","at","in",1],["the morning","in","at",1],["winter","in","on",1],["night","at","in",2],["2010","in","on",2],
+ ["my birthday","on","in",2],["noon","at","on",2],["Friday evening","on","in",3],["5 March","on","in",2],["midnight","at","in",2],["the 1990s","in","on",3],["New Year's Day","on","in",3],
+ ["Christmas","at","in",3],["the afternoon","in","on",2],["sunset","at","in",3],["the summer of 2022","in","on",3],["a cold Tuesday","on","in",4],["the end of the month","at","on",4]];
+const PP = [["the kitchen","in","on",1],["the bus stop","at","in",1],["the door","at","on",2],["the car","in","on",2],["the bus","on","in",3],["school","at","on",1],["home","at","in",1],
+ ["London","in","at",2],["the second floor","on","in",3],["the rain","in","on",3],["the station","at","on",2],["the platform","on","in",3],["the corner of the room","in","on",4],
+ ["the queue","in","on",4],["the bench","on","in",2],["the garden","in","on",1],["the hall","in","on",2],["the reception desk","at","on",4]];
+
+// word types
+const NOUNS = ["apple","chair","river","teacher","window","city","pencil","mountain","kitchen","island","library","rabbit","jacket","sister","hospital","lemon","village","tiger","uncle","airport","giraffe","onion"];
+const VERBS = ["eat","sing","write","carry","listen","choose","forget","borrow","explain","arrive","remember","decide","describe","enjoy","teach","deliver","bring","grow","become","understand"];
+const ADJS = ["happy","tall","noisy","tiny","angry","heavy","clever","beautiful","hungry","lazy","famous","careful","dangerous","honest","polite","delicious","enormous","ugly","proud","gentle"];
+const ADVS = ["quickly","slowly","quietly","happily","carefully","loudly","badly","easily","gently","suddenly","politely","angrily","softly","bravely","honestly"];
+const SENT_N = ["rabbit","teacher","tiger","girl","boy","baby","farmer","singer","cat","student","doctor","puppy","pilot","clown"];
+const SENT_V = ["eats","sings","sleeps","runs","laughs","swims","waits","listens","smiles","talks","works","dances","reads","writes","plays","cries","jumps","walks"];
+const ROOTS = [["decision","decide","a verb"],["beauty","beautiful","an adjective"],["success","succeed","a verb"],["danger","dangerous","an adjective"],["knowledge","know","a verb"],
+ ["growth","grow","a verb"],["strength","strong","an adjective"],["width","wide","an adjective"],["depth","deep","an adjective"],["choice","choose","a verb"],["freedom","free","an adjective"],
+ ["happiness","happy","an adjective"],["friendship","friendly","an adjective"],["explanation","explain","a verb"],["truth","true","an adjective"],["arrival","arrive","a verb"],["agreement","agree","a verb"]];
+const OBJN = ["pencil","lemon","jacket","apple","onion","key","ball","box","coin","map","shell","feather"];
+const ADJ_ADV = [["careful","carefully"],["quick","quickly"],["quiet","quietly"],["slow","slowly"],["easy","easily"],["polite","politely"],["happy","happily"],["angry","angrily"],["safe","safely"],["loud","loudly"]];
+const FOR_SINCE = [["Monday","since"],["2015","since"],["last summer","since"],["I was five","since"],["breakfast","since"],["8 o'clock","since"],["my birthday","since"],["yesterday","since"],
+ ["the party","since"],["we moved here","since"],["two hours","for"],["three weeks","for"],["ten years","for"],["a long time","for"],["ages","for"],["a few minutes","for"],["six months","for"],["half an hour","for"]];
+const PP_PHRASE = [["lived here"],["worked there"],["known her"],["had this bike"],["studied English"],["played the piano"],["been in the team"],["waited"]];
+const PASSIVE = [["write","The letter","my grandmother",1],["eat","The cake","the children",1],["break","The window","a football",1],["steal","The money","a thief",1],["take","These photos","my uncle",0],
+ ["give","This prize","the mayor",1],["draw","This picture","a famous artist",1],["sing","The song","a young girl",1],["drive","The bus","Mr Cohen",1],["throw","The ball","the goalkeeper",1],
+ ["hide","The treasure","pirates",1],["bite","The postman","a dog",1],["wear","This dress","a famous actress",1],["grow","These tomatoes","my dad",0],["choose","The winners","the judges",0],
+ ["speak","These words","the king",0],["forget","The rules","everyone",0],["shake","The walls","the earthquake",0],["tear","My notes","the baby",0],["freeze","The lake","the icy wind",1]];
+
+function genBank(){
+  const out=[]; const add=(topic,lvl,type,q,c,w,why,w2)=>{ if(c!==w) out.push([topic,q,c,w,why,Math.max(1,Math.min(5,lvl)),type,(w2&&w2!==c&&w2!==w)?w2:""]); };
+  // present simple
+  RV.forEach(([b,s,ing,obj])=>{
+    const [S]=pick(SING), [P]=pick(PLUR), f=pick(FREQ), es=s.endsWith("es")||s==="has"||s==="does";
+    add("Present simple",es?2:1,"G",`${S} ___ ${obj} ${f}.`,s,b,`${S} = he or she, so the verb takes -s or -es: ${s}.`,ing);
+    add("Present simple",1,"G",`${P} ___ ${obj} ${f}.`,b,s,`With ${P.toLowerCase()==="you"?"you":"a plural subject"}, the verb has no -s.`);
+    add("Present simple",2,"G",`${pick(SING)[0]} ___ ${b} ${obj} on weekdays.`,"doesn't","don't","He, she and it use doesn't.");
+    add("Present simple",2,"G",`___ ${lc(pick(SING)[0])} ${b} ${obj}?`,"Does","Do","A question about he or she starts with Does.");
+    add("Present simple",3,"M",`Find the mistake: ${S} ${b} ${obj} ${f}.`,b,f.split(" ")[0]==="on"||f.split(" ")[0]==="in"||f.split(" ")[0]==="at"?f.split(" ")[1]:f.split(" ")[0],`${S} = he or she, so we need ${s}.`);
+    // present continuous
+    const [S2,one]=pick(SUBJ);
+    add("Present continuous",1,"G",`Look! ${S2} ___ ${ing} ${obj} right now.`,S2==="You"||!one?"are":"is",S2==="You"||!one?"is":"are",`${one&&S2!=="You"?"One person: is":"More than one person, or you: are"} + -ing.`);
+    add("Present continuous",2,"G",`Be quiet! ${pick(SING)[0]} ___ ${obj} at the moment.`,"is "+ing,s,"At the moment shows an action happening now: is + -ing.");
+    // past continuous
+    const [S3,one3]=pick(SUBJ), wasw=one3&&S3!=="You"?"was":"were";
+    add("Past continuous",2,"G",`${S3} ___ ${ing} ${obj} when the lights went out.`,wasw,wasw==="was"?"were":"was",`${wasw==="was"?"One person: was":"More than one person, or you: were"} + -ing.`);
+    add("Past continuous",3,"G",`At 6 pm yesterday, ${lc(S3)} ___ ${obj}.`,`${wasw} ${ing}`,`${wasw==="was"?"were":"was"} ${ing}`,`An action in progress at a time in the past: ${wasw} + -ing.`);
+    // future
+    add("Future",1,"G",`Next week, ${lc(pick(SUBJ)[0])} will ___ ${obj}.`,b,s===b+"s"||s===b+"es"?s:"to "+b,"After will we use the base verb.");
+    const [S4,one4]=pick(SUBJ), be=S4==="You"||!one4?"are":"is";
+    add("Future",2,"G",`${S4} ${be} going ___ ${obj} tomorrow.`,"to "+b,ing,"Be going to + base verb.");
+    // word order with frequency adverbs
+    const adv=pick(["always","usually","often","sometimes","never"]);
+    add("Sentence structure",2,"O","Which order is correct?",`${S} ${adv} ${s} ${obj}.`,`${S} ${s} ${adv} ${obj}.`,`${cap(adv)} goes before the main verb.`);
+    add("Sentence structure",3,"O","Which question is correct?",`When does ${lc(S)} ${b} ${obj}?`,`When ${lc(S)} does ${b} ${obj}?`,"Question word, does, subject, verb.");
+  });
+  ING_SPELL.forEach(([b,ing,wr])=>add("Present continuous",2,"F",`${b} + ing = ___`,ing,wr,`The spelling changes: ${ing}.`));
+  RV.filter(r=>r[4]).forEach(([b,,ing,,wr])=>add("Present continuous",2,"F",`${b} + ing = ___`,ing,wr,`The spelling changes: ${ing}.`));
+  // past simple & perfect
+  IV.forEach(([b,p,pp,lv,obj])=>{
+    const t=pick(PAST_T), [S]=pick(SUBJ);
+    add("Past simple",lv,"F",`What is the past of '${b}'?`,p,edWrong(b),`${cap(b)} is irregular: ${b}, ${p}, ${pp}.`);
+    if(pp!==p && b!==p) add("Past simple",lv,"G",`${t}, ${lc(S)} ___ ${obj}.`,p,pp,`${t} is finished past time. ${cap(b)} becomes ${p}.`,b);
+    else add("Past simple",lv,"G",`${t}, ${lc(S)} ___ ${obj}.`,p,pick(pp!==p?[pp,b]:[b,edWrong(b)]),`${t} is finished past time. ${cap(b)} becomes ${p}.`);
+    add("Past simple",Math.max(2,lv),"G",`${t}, ${lc(S)} didn't ___ ${obj}.`,b,p,"After didn't we use the base verb.");
+    const [S2,one]=pick(SUBJ), hv=one&&S2!=="You"?"has":"have";
+    if(pp!==p){
+      add("Present perfect",lv+1,"F",`Past participle of '${b}'?`,pp,p,`${cap(b)}, ${p}, ${pp}. Present perfect uses the third form: ${pp}.`,edWrong(b));
+      add("Present perfect",lv+1,"G",`${S2} ${hv} already ___ ${obj}.`,pp,p,`Present perfect = ${hv} + past participle (${pp}).`);
+    }else{
+      add("Present perfect",lv,"G",`${S2} ___ just ${pp} ${obj}.`,hv,hv==="has"?"have":"has",`${hv==="has"?"One person: has":"More than one person, or you: have"}.`);
+    }
+    add("Past perfect",Math.max(3,lv),"G",`When we arrived, ${lc(S2)} had already ___ ${obj}.`,pp,pp!==p?p:b,`Past perfect = had + past participle (${pp}).`);
+  });
+  // plurals
+  PL.forEach(([s,p,w,lv])=>{
+    add("Nouns",lv,"F",`The plural of '${s}' is:`,p,w,s===p?`${cap(s)} stays the same in the plural.`:`One ${s}, two ${p}.`);
+    if(lv<=3) add("Nouns",lv,"G",`I can see three ___ in the picture.`,p,w,`One ${s}, three ${p}.`);
+  });
+  // comparatives
+  AJ.forEach(([a,c,s,w,lv,n])=>{
+    add("Comparatives",lv,"F",`${a} → ___ (comparative)`,c,w,c.startsWith("more")?`Long adjectives use more: ${c}.`:`${cap(a)} becomes ${c}.`);
+    add("Comparatives",lv,"G",`This ${n} is ___ than that one.`,c,w,c.startsWith("more")?`Long adjectives use more: ${c}.`:`${cap(a)} becomes ${c}.`,s);
+    add("Comparatives",lv+1,"G",`It's the ___ ${n} in the whole town.`,s,s.startsWith("most")?a+"est":"most "+a,`The superlative of ${a} is ${s}.`);
+    add("Comparatives",lv+1,"G",`This ${n} is not as ___ as that one.`,a,c,"As ... as uses the normal adjective.");
+  });
+  // articles
+  ART.forEach(([w,a,lv])=>add("Articles",lv,"G",`Choose the article: ___ ${w}`,a,a==="a"?"an":"a",a==="an"?`${cap(w)} starts with a vowel sound, so we use an.`:`${cap(w)} starts with a consonant sound, so we use a.`));
+  // prepositions
+  PT.forEach(([x,r,w,lv])=>add("Prepositions",lv,"G",`We met ___ ${x}.`,r,w,{in:"In for months, years, seasons and parts of the day.",on:"On for days and dates.",at:"At for clock times and special times like night or Christmas."}[r]));
+  PP.forEach(([x,r,w,lv])=>add("Prepositions",lv,"G",`She waited ___ ${x}.`,r,w,{in:"In for inside a space, a city or a vehicle like a car.",on:"On for surfaces, floors, buses, trains and platforms.",at:"At for a point or a place where something happens, like a stop or a door."}[r]));
+  // word types
+  for(let i=0;i<12;i++){
+    add("Nouns",1,"W","Which word is a noun?",pick(NOUNS),pick(Math.random()<.5?VERBS:ADJS),"A noun is a person, place, animal or thing.");
+    add("Verbs",1,"W","Which word is a verb?",pick(VERBS),pick(Math.random()<.5?NOUNS:ADJS),"A verb is an action or a state.");
+    add("Adjectives & adverbs",1,"W","Which word is an adjective?",pick(ADJS),pick(Math.random()<.5?NOUNS:VERBS),"An adjective describes a noun.");
+    add("Adjectives & adverbs",2,"W","Which word is an adverb?",pick(ADVS),pick(ADJS),"An adverb tells us how something happens. Many end in -ly.");
+    const ad=pick(ADJS), n=pick(SENT_N), v=pick(SENT_V), av=pick(ADVS), sent=`The ${ad} ${n} ${v} ${av}.`;
+    add("Adjectives & adverbs",1,"W",`Find the adjective: ${sent}`,ad,n,`${cap(ad)} describes the ${n}.`);
+    add("Adjectives & adverbs",2,"W",`Find the adverb: ${sent}`,av,v,`${cap(av)} tells us how the ${n} ${v}.`);
+    add("Verbs",1,"W",`Find the verb: ${sent}`,v,n,`${cap(v)} is the action.`);
+    add("Nouns",1,"W",`Find the noun: ${sent}`,n,ad,`The ${n} is a person or animal, so it's a noun.`);
+    add("Subject & object",2,"W",`Find the subject: ${sent}`,`The ${ad} ${n}`,av,`The ${ad} ${n} does the action.`);
+    const n2=pick(OBJN), art=/^(honest|hour|[aeiou])/i.test(ad)?"an":"a", sent2=`The ${n} found ${art} ${ad} ${n2} yesterday.`;
+    add("Subject & object",3,"W",`Find the object: ${sent2}`,`${art} ${ad} ${n2}`,`The ${n}`,`The object receives the action: the ${n} found it.`);
+  }
+  ROOTS.forEach(([n,x,k])=>add("Nouns",3,"W","Which word is a noun?",n,x,`${cap(n)} is the noun. ${cap(x)} is ${k}.`));
+  ADJ_ADV.forEach(([a,av])=>{
+    const n=pick(SENT_N), v=pick(["drives","speaks","works","walks","plays"]);
+    add("Adjectives & adverbs",2,"G",`The ${n} ${v} very ___.`,av,a,"We use an adverb to describe how someone does something.");
+    add("Adjectives & adverbs",3,"G",`The ${n} is very ___.`,a,av,"After be we use an adjective.");
+  });
+  add("Adjectives & adverbs",4,"W","Which word is an adjective?","friendly","quickly","Friendly ends in -ly, but it is an adjective: a friendly dog.");
+  add("Adjectives & adverbs",4,"W","Which word is an adjective?","lovely","slowly","Lovely ends in -ly, but it is an adjective: a lovely day.");
+  // pronouns
+  NAMES.forEach(([nm,g])=>{
+    const o=g==="m"?"him":"her", s=g==="m"?"He":"She", ps=g==="m"?"his":"her";
+    add("Pronouns",1,"G",`${nm} is my friend. I like ___ a lot.`,o,g==="m"?"he":"she","After a verb we use an object pronoun.");
+    add("Subject & object",1,"G",`I know ${nm}. ___ lives near the school.`,s,o.replace(/^./,c=>c.toUpperCase()),"Before a verb we use a subject pronoun.");
+    add("Pronouns",2,"G",`${nm} can't find ___ keys.`,ps,g==="m"?"him":"she","His and her show who something belongs to.");
+    add("Pronouns",3,"G",`${nm} hurt ___ while playing football.`,g==="m"?"himself":"herself",g==="m"?"hisself":"herselves",`The reflexive pronoun is ${g==="m"?"himself":"herself"}.`);
+  });
+  // for / since
+  FOR_SINCE.forEach(([x,r])=>{ const [S,one]=pick(SUBJ), hv=one&&S!=="You"?"has":"have";
+    add("Present perfect",3,"G",`${S} ${hv} ${pick(PP_PHRASE)[0]} ___ ${x}.`,r,r==="for"?"since":"for",r==="for"?"For + a length of time.":"Since + the point when it started."); });
+  // passive
+  PASSIVE.forEach(([v,obj,ag,one])=>{ const e=IV.find(x=>x[0]===v); if(!e) return; const [,p,pp,lv]=e; const be=one?"was":"were";
+    add("Passive voice",Math.max(3,lv),"G",`${obj} ${be} ___ by ${ag}.`,pp,p,`Passive = be + past participle: ${be} ${pp}.`,v);
+    add("Passive voice",Math.max(4,lv),"G",`${obj} ___ ${pp} by ${ag}.`,be,one?"were":"was",`${obj} is ${one?"singular, so we use was":"plural, so we use were"}.`);
+    add("Passive voice",Math.max(4,lv),"C","Which sentence is passive?",`${obj} ${be} ${pp} by ${ag}.`,`${cap(ag)} ${p} ${obj.toLowerCase()}.`,"In the passive, the thing receives the action and the doer comes after by.");
+  });
+  // indirect questions
+  NAMES.slice(0,8).forEach(([nm])=>{ const v=pick([["live","lives","lived"],["work","works","worked"],["study","studies","studied"],["park","parks","parked"],["eat","eats","ate"],["sleep","sleeps","slept"]]);
+    add("Sentence structure",4,"O","Which order is correct?",`Do you know where ${nm} ${v[1]}?`,`Do you know where does ${nm} ${v[0]}?`,"Indirect question: normal word order, no does.");
+    add("Reported speech",5,"O","Which reported question is correct?",`She asked where ${nm} ${v[2]}.`,`She asked where did ${nm} ${v[0]}.`,"Reported questions use normal word order.");
+  });
+  return out;
+}
+
+
+let BANK = STATIC.concat(genBank());
+function refreshBank(){ BANK = STATIC.concat(genBank()); }
+
+
+/* ---------- Settings ---------- */
+const LEVELS = {
+  veryeasy: {label:"Very easy", q:[1,1], goal:6,  lives:5, hits:5, forkTime:0,  enemy:.15, enemyTime:20, heal:true, forks:"off",
+             desc:"Beginner questions (A1). 6 forks, 5 wrong turns and 5 hearts, no time limit, very few monsters."},
+  easy:     {label:"Easy",      q:[1,2], goal:8,  lives:4, hits:4, forkTime:0,  enemy:.3,  enemyTime:12, heal:true, forks:"off",
+             desc:"Elementary questions (A1–A2). 8 forks, 4 wrong turns and 4 hearts, no time limit."},
+  normal:   {label:"Normal",    q:[2,3], goal:10, lives:3, hits:3, forkTime:0,  enemy:.5,  enemyTime:8,  heal:false, forks:"mix",
+             desc:"Pre-intermediate questions (A2–B1). 10 forks, 3 wrong turns and 3 hearts. Monsters give you 8 seconds."},
+  hard:     {label:"Hard",      q:[3,4], goal:12, lives:2, hits:2, forkTime:30, enemy:.5,  enemyTime:6,  heal:false, forks:"on",
+             desc:"Intermediate questions (B1–B2). 12 forks, 2 wrong turns and 2 hearts, 30 seconds for each question."},
+  veryhard: {label:"Very hard", q:[4,5], goal:15, lives:2, hits:2, forkTime:15, enemy:.7,  enemyTime:5,  heal:false, forks:"on",
+             desc:"Upper-intermediate and advanced questions (B2–C1). 15 forks, 2 wrong turns and 2 hearts, 15 seconds for each question."},
+  nightmare:{label:"Nightmare 💀", q:[5,5], goal:20, lives:1, hits:1, forkTime:10, enemy:.9, enemyTime:4, heal:false, forks:"on",
+             desc:"Advanced questions only (C1). 20 forks, one wrong turn or one monster hit and you're dead, 10 seconds for each question, monsters everywhere."}
+};
+const settings = { level:"normal", topics:new Set(TOPICS), types:new Set(Object.keys(TYPES)), custom:"off", customText:"", speak:false, tweaked:false,
+  mode:"solo", teamNames:["Team Blue","Team Orange"], forks:"mix", hebrew:true, big:false };
+function applyLevel(k){ const L=LEVELS[k]; settings.level=k; settings.tweaked=false;
+  Object.assign(settings,{goal:L.goal,lives:L.lives,hits:L.hits,forkTime:L.forkTime,enemy:L.enemy,enemyTime:L.enemyTime,heal:L.heal,forks:L.forks}); }
+applyLevel("normal");
+
+const SKEY="grammarMaze.settings";
+function saveSettings(){ try{ store.set(SKEY, JSON.stringify({...settings, teamNames:settings.teamNames.slice(), topics:[...settings.topics], types:[...settings.types], lives:isFinite(settings.lives)?settings.lives:0, hits:isFinite(settings.hits)?settings.hits:0})); }catch(e){} }
+function loadSettings(){ try{
+  const s=JSON.parse(store.get(SKEY)||"null"); if(!s) return;
+  Object.assign(settings,s);
+  settings.topics=new Set((s.topics||TOPICS).filter(t=>TOPICS.includes(t)));
+  settings.types=new Set((s.types||[]).filter(t=>TYPES[t])); if(!settings.types.size) settings.types=new Set(Object.keys(TYPES));
+  if(!settings.lives) settings.lives=Infinity;
+  if(s.hits===0) settings.hits=Infinity; else if(!settings.hits) settings.hits=LEVELS[settings.level]?LEVELS[settings.level].hits:3;
+  if(!LEVELS[settings.level]) applyLevel("normal");
+  if(!Array.isArray(settings.teamNames)||settings.teamNames.length!==2) settings.teamNames=["Team Blue","Team Orange"];
+  if(!["off","mix","on"].includes(settings.forks)) settings.forks="mix";
+}catch(e){} }
+
+function parseCustom(text){
+  const out=[], bad=[];
+  String(text||"").split("\n").forEach((line,i)=>{ if(!line.trim()) return;
+    const p=line.split("|").map(s=>s.trim());
+    if(p.length<3||!p[0]||!p[1]||!p[2]||p[1]===p[2]){ bad.push(i+1); return; }
+    const w2 = p.length>=5 && p[3] && p[3]!==p[1] && p[3]!==p[2] ? p[3] : "";
+    const why = (w2 ? p[4] : p[3]) || `The right answer is “${p[1]}”.`;
+    out.push(["My questions",p[0],p[1],p[2],why,2,"X",w2]); });
+  return {out,bad};
+}
+function buildPool(){
+  const custom=parseCustom(settings.customText).out;
+  if(settings.custom==="only") return {pool:custom, widened:false};
+  const base=BANK.filter(q=>settings.topics.has(q[0])&&settings.types.has(q[6]));
+  let [lo,hi]=LEVELS[settings.level].q, pool, widened=false;
+  for(;;){ pool=base.filter(q=>q[5]>=lo&&q[5]<=hi); if(pool.length>=8||(lo<=1&&hi>=5)) break; lo=Math.max(1,lo-1); hi=Math.min(5,hi+1); widened=true; }
+  if(settings.custom==="mix") pool=pool.concat(custom);
+  return {pool,widened};
+}
+
+function makeChips(el, items, type, name, isOn, onChange){
+  el.innerHTML="";
+  items.forEach(it=>{
+    const lab=document.createElement("label"); lab.className="chip";
+    const inp=document.createElement("input"); inp.type=type; inp.name=name; inp.checked=isOn(it.v);
+    inp.addEventListener("change",()=>onChange(it.v,inp.checked));
+    const sp=document.createElement("span"); sp.textContent=it.t; lab.append(inp,sp); el.append(lab);
+  });
+}
+function opt(id,name,list,key){
+  makeChips($(id), list.map(([v,t])=>({t,v})), "radio", name, v=>v===settings[key], v=>{ settings[key]=v; changed(true); });
+}
+function renderSettings(){
+  makeChips($("levelChips"), Object.entries(LEVELS).map(([v,l])=>({t:l.label,v})), "radio","level",
+    v=>v===settings.level, v=>{ applyLevel(v); renderSettings(); saveSettings(); });
+  const tc=$("topicChips"); tc.innerHTML="";
+  TOPIC_GROUPS.forEach(([g,list])=>{
+    const h=document.createElement("div"); h.className="subhead"; h.textContent=g;
+    const box=document.createElement("div"); box.className="chips"; tc.append(h,box);
+    makeChips(box, list.map(t=>({t,v:t})), "checkbox","topics", v=>settings.topics.has(v),
+      (v,on)=>{ on?settings.topics.add(v):settings.topics.delete(v); changed(); });
+  });
+  makeChips($("typeChips"), Object.entries(TYPES).map(([v,t])=>({t,v})), "checkbox","types", v=>settings.types.has(v),
+    (v,on)=>{ on?settings.types.add(v):settings.types.delete(v); changed(); });
+  makeChips($("modeChips"), [{t:"👤 One player / whole class",v:"solo"},{t:"⚔ Two teams",v:"teams"}], "radio","mode", v=>v===settings.mode, v=>{ settings.mode=v; renderMode(); changed(); });
+  makeChips($("forkChips"), [{t:"2 ways",v:"off"},{t:"Mixed",v:"mix"},{t:"3 ways when possible",v:"on"}], "radio","forks", v=>v===settings.forks, v=>{ settings.forks=v; changed(true); });
+  makeChips($("displayChips"), [{t:"Hebrew hints (עברית)",v:"hebrew"},{t:"Extra-large text",v:"big"}], "checkbox","display", v=>!!settings[v], (v,on)=>{ settings[v]=on; applyDisplay(); changed(); });
+  $("t0in").value=settings.teamNames[0]; $("t1in").value=settings.teamNames[1]; renderMode(); applyDisplay();
+  opt("goalChips","goal",[5,8,10,12,15,20,30].map(v=>[v,""+v]),"goal");
+  opt("livesChips","lives",[[1,"1"],[2,"2"],[3,"3"],[4,"4"],[5,"5"],[7,"7"],[10,"10"],[Infinity,"∞ (no trap)"]],"lives");
+  opt("hitsChips","hits",[[1,"1"],[2,"2"],[3,"3"],[4,"4"],[5,"5"],[7,"7"],[10,"10"],[Infinity,"∞"]],"hits");
+  $("deathCount").textContent=getDeaths();
+  opt("forkTimeChips","forkTime",[[0,"No limit"],[5,"5 sec"],[10,"10 sec"],[15,"15 sec"],[20,"20 sec"],[30,"30 sec"],[45,"45 sec"],[60,"1 min"]],"forkTime");
+  opt("enemyChips","enemy",[[0,"Off"],[.15,"Very few"],[.3,"Few"],[.5,"Some"],[.7,"Many"],[.9,"Swarm"]],"enemy");
+  opt("enemyTimeChips","enemyTime",[[3,"3 sec"],[4,"4 sec"],[5,"5 sec"],[6,"6 sec"],[8,"8 sec"],[12,"12 sec"],[20,"20 sec"]],"enemyTime");
+  opt("healChips","heal",[[true,"On"],[false,"Off"]],"heal");
+  makeChips($("speakChips"), [{t:"On",v:true},{t:"Off",v:false}], "radio","speak", v=>v===settings.speak, v=>{ settings.speak=v; changed(); });
+  makeChips($("customChips"), [{t:"Off",v:"off"},{t:"Mix with the maze questions",v:"mix"},{t:"Only my questions",v:"only"}], "radio","custom",
+    v=>v===settings.custom, v=>{ settings.custom=v; changed(); });
+  $("customText").value=settings.customText;
+  updateLevelDesc(); updatePoolInfo();
+}
+function updateLevelDesc(){ $("levelDesc").textContent=LEVELS[settings.level].desc+(settings.tweaked?" You changed some options under More options.":""); }
+function changed(tweak){ if(tweak){ settings.tweaked=true; updateLevelDesc(); } updatePoolInfo(); saveSettings(); }
+function updatePoolInfo(){
+  const {pool,widened}=buildPool(), c=parseCustom(settings.customText);
+  const pi=$("poolInfo");
+  pi.className="poolInfo"+(pool.length<2?" bad":"");
+  pi.textContent = pool.length>=2
+    ? `${pool.length} questions match your choices.`+(widened?" There aren't many at this level for these topics, so some easier or harder ones are mixed in.":"")
+    : settings.custom==="only" ? "Write at least 2 of your own questions under More options." : "No questions match. Choose more topics or question types.";
+  $("customInfo").textContent = settings.customText.trim()
+    ? `${c.out.length} of your questions ${c.out.length===1?"is":"are"} ready.`+(c.bad.length?` Check line ${c.bad.slice(0,6).join(", ")}: each line needs a question, a right answer and a different wrong answer.`:"")
+    : "";
+}
+$("customText").addEventListener("input",e=>{ settings.customText=e.target.value; changed(); });
+function renderMode(){ const t=settings.mode==="teams"; $("teamNames").style.display=t?"flex":"none";
+  $("modeHelp").textContent = t ? "Teams take turns: one fork each. Right answers earn gold for your team. Wrong turns and monster hits hurt everyone, so help each other!" : "One explorer. The whole class can play together on the board."; }
+function applyDisplay(){ document.body.classList.toggle("big",!!settings.big); }
+["t0in","t1in"].forEach((id,i)=>$(id).addEventListener("input",e=>{ settings.teamNames[i]=e.target.value.trim()||(i?"Team Orange":"Team Blue"); saveSettings(); }));
+$("clearDeaths").addEventListener("click",()=>{ try{ store.set("grammarMaze.deaths",0); }catch(e){} $("deathCount").textContent=0; $("deaths").textContent=0; });
+$("allTopics").addEventListener("click",()=>{ settings.topics=new Set(TOPICS); renderSettings(); saveSettings(); });
+$("noTopics").addEventListener("click",()=>{ settings.topics=new Set(); renderSettings(); saveSettings(); });
+try{ loadSettings(); }catch(e){ console.warn("settings not loaded",e); }
+try{ renderSettings(); }catch(e){ console.warn("settings UI",e); }
+
+/* ---------- Music and sound effects (all generated live, no files needed) ---------- */
+const AU = { ctx:null, musicOn:true, sfxOn:true, mode:"off", intensity:0, lastLife:false, step:0, next:0 };
+const mtof = m => 440*Math.pow(2,(m-69)/12);
+
+function safeResume(){ try{ const p=AU.ctx&&AU.ctx.resume&&AU.ctx.resume(); if(p&&p.catch) p.catch(()=>{}); }catch(e){} }
+function safeSuspend(){ try{ const p=AU.ctx&&AU.ctx.suspend&&AU.ctx.suspend(); if(p&&p.catch) p.catch(()=>{}); }catch(e){} }
+function initAudio(){
+  try{ return initAudioInner(); }catch(e){ console.warn("audio unavailable",e); AU.ctx=null; return false; }
+}
+function initAudioInner(){
+  const C = window.AudioContext || window.webkitAudioContext;
+  if(!C) return false;
+  if(AU.ctx){ if(AU.ctx.state!=="running") safeResume(); return true; }
+  const ac = new C();
+  AU.ctx = null;
+  const comp = ac.createDynamicsCompressor(); comp.threshold.value=-16; comp.ratio.value=4; comp.connect(ac.destination);
+  AU.master = ac.createGain(); AU.master.gain.value=.9; AU.master.connect(comp);
+  // cave reverb
+  const len = ac.sampleRate*3, ir = ac.createBuffer(2,len,ac.sampleRate);
+  for(let ch=0;ch<2;ch++){ const d=ir.getChannelData(ch); for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6); }
+  AU.verb = ac.createConvolver(); AU.verb.buffer = ir;
+  const wet = ac.createGain(); wet.gain.value=.38; AU.verb.connect(wet).connect(AU.master);
+  AU.musicFade = ac.createGain(); AU.musicFade.gain.value=1;
+  AU.music = ac.createGain(); AU.music.gain.value = AU.musicOn ? .5 : 0;
+  AU.musicFade.connect(AU.music); AU.music.connect(AU.master); AU.music.connect(AU.verb);
+  AU.sfx = ac.createGain(); AU.sfx.gain.value = AU.sfxOn ? 1 : 0;
+  AU.sfx.connect(AU.master); AU.sfx.connect(AU.verb);
+  const nb = ac.createBuffer(1, ac.sampleRate*2, ac.sampleRate), nd = nb.getChannelData(0);
+  for(let i=0;i<nd.length;i++) nd[i]=Math.random()*2-1;
+  AU.noise = nb;
+  AU.next = ac.currentTime + .1;
+  AU.ctx = ac; // only publish the context once every node exists
+  if(ac.state!=="running") safeResume();
+  setInterval(()=>{ try{ schedule(); }catch(e){} }, 25);
+  return true;
+}
+/* iOS / autoplay rules: create and unlock audio on the first tap or key anywhere */
+["pointerdown","touchend","keydown"].forEach(ev=>document.addEventListener(ev,()=>{ initAudio(); }, {passive:true}));
+
+/* building blocks */
+function tone(type, freq, t, dur, vol, dest, o={}){
+  const ac=AU.ctx, osc=ac.createOscillator(), g=ac.createGain();
+  osc.type=type; osc.frequency.setValueAtTime(freq,t);
+  if(o.to) osc.frequency.exponentialRampToValueAtTime(o.to, t+(o.glide||dur));
+  if(o.detune) osc.detune.value=o.detune;
+  const a=o.a||.005;
+  g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+a); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  let node=osc;
+  if(o.lp){ const f=ac.createBiquadFilter(); f.type="lowpass"; f.frequency.value=o.lp; f.Q.value=o.q||.7; osc.connect(f); node=f; }
+  node.connect(g).connect(dest); osc.start(t); osc.stop(t+dur+.05);
+}
+function noise(t, dur, vol, dest, type="lowpass", freq=800, o={}){
+  const ac=AU.ctx, s=ac.createBufferSource(), f=ac.createBiquadFilter(), g=ac.createGain();
+  s.buffer=AU.noise; s.loop=true;
+  f.type=type; f.frequency.setValueAtTime(freq,t); if(o.to) f.frequency.exponentialRampToValueAtTime(o.to,t+dur); f.Q.value=o.q||.7;
+  const a=o.a||.003;
+  g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+a); g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  s.connect(f).connect(g).connect(dest); s.start(t, Math.random()*1.5); s.stop(t+dur+.05);
+}
+
+/* instruments */
+const drum = (t,v,d) => { tone("sine",130,t,.55,v,d,{to:42,glide:.35}); noise(t,.14,v*.5,d,"lowpass",350); };
+const heart = (t,d) => { tone("sine",75,t,.16,.55,d,{to:40}); tone("sine",70,t+.19,.2,.4,d,{to:38}); };
+const tick = (t,d) => noise(t,.035,.05,d,"highpass",7000);
+function pad(notes,t,dur,bright,d){
+  notes.forEach(n=>{ [-9,9].forEach(dt=>tone("sawtooth",mtof(n),t,dur,.045,d,{a:dur*.35,lp:600+bright*1600,detune:dt})); });
+}
+const bass = (n,t,dur,d) => { tone("triangle",mtof(n),t,dur,.26,d,{a:.03,lp:380}); tone("sine",mtof(n-12),t,dur,.2,d,{a:.03}); };
+const pluck = (n,t,v,d) => tone("triangle",mtof(n),t,.4,v,d,{lp:2600});
+
+/* chord progressions: D minor for the maze, D major for the treasure */
+const MAZE = [ {b:38,c:[62,65,69]}, {b:34,c:[58,62,65]}, {b:36,c:[60,64,67]}, {b:33,c:[61,64,69]} ];
+const VIC  = [ {b:38,c:[62,66,69]}, {b:43,c:[62,67,71]}, {b:45,c:[61,64,69]}, {b:38,c:[62,66,69,74]} ];
+
+function playStep(step,t,sd){
+  const d=AU.musicFade, I=AU.battle?1:AU.intensity, s=step%8, bar=Math.floor(step/8)%4;
+  const prog = AU.mode==="victory" ? VIC : MAZE, ch = prog[bar];
+  if(s===0){ pad(ch.c,t,sd*8.4,AU.mode==="victory"?.8:I,d); bass(ch.b,t,sd*7.8,d); }
+  if(AU.mode==="victory"){
+    pluck(ch.c[[0,1,2,1][s%4]]+(s>=4?24:12),t,.09,d);
+    if(s===0||s===4) drum(t,.45,d);
+    return;
+  }
+  if(AU.mode==="menu"){ if(s===0) drum(t,.3,d); if(s%2===0) pluck(ch.c[[0,2,1,2][s/2]]+12,t,.04,d); return; }
+  const pat=[0,1,2,1,0,2,1,2];
+  if(s%2===0 || I>.2) pluck(ch.c[pat[s]]+12+(I>.5&&s>=4?12:0), t, .06+I*.05, d);
+  if(s===0||s===4) drum(t,.55+I*.35,d);
+  if(I>.3 && s===6) drum(t,.4,d);
+  if(I>.6 && (s===3||s===7)) drum(t,.35,d);
+  if(I>.5) tick(t,d);
+  if(AU.battle && s%2===1) drum(t,.3,d);
+  if(AU.lastLife && s===2) heart(t,AU.sfx);
+}
+
+function schedule(){
+  const ac=AU.ctx; if(!ac) return;
+  while(AU.next < ac.currentTime+.15){
+    const bpm = AU.mode==="victory" ? 92 : AU.mode==="menu" ? 60 : 66+(AU.battle?1.25:AU.intensity)*48, sd=60/bpm/2;
+    if(AU.mode!=="off") playStep(AU.step, AU.next, sd);
+    // torch crackle while walking the tunnels
+    if(AU.mode==="maze" && Math.random()<.35) noise(AU.next+Math.random()*sd, .02+Math.random()*.03, .02+Math.random()*.05, AU.sfx, "bandpass", 1500+Math.random()*2500, {q:4});
+    AU.next += sd; AU.step++;
+  }
+}
+
+function setMusic(mode){
+  AU.mode = mode;
+  if(!AU.ctx) return;
+  const t=AU.ctx.currentTime;
+  AU.musicFade.gain.cancelScheduledValues(t);
+  AU.musicFade.gain.setValueAtTime(1,t);
+  AU.step=0; AU.next=Math.max(AU.next, t+.05);
+}
+function stopMusic(fade=.6){
+  AU.mode="off"; if(!AU.ctx) return;
+  const t=AU.ctx.currentTime;
+  AU.musicFade.gain.cancelScheduledValues(t); AU.musicFade.gain.setValueAtTime(AU.musicFade.gain.value,t);
+  AU.musicFade.gain.linearRampToValueAtTime(.0001,t+fade);
+}
+function setDanger(){ AU.intensity = dangerLevel(); AU.lastLife = (isFinite(G.maxWrong)&&G.maxWrong-G.wrong===1) || (isFinite(G.maxHits)&&G.maxHits-G.hits===1); }
+
+/* sound effects */
+const sfx = {
+  gate(){ if(!AU.ctx) return; const t=AU.ctx.currentTime, d=AU.sfx;
+    drum(t,.9,d); drum(t+.45,.9,d); noise(t,1.4,.25,d,"bandpass",200,{to:1200,a:.6,q:1});
+    tone("sawtooth",mtof(38),t+.45,2.2,.12,d,{a:.2,lp:500}); tone("sawtooth",mtof(45),t+.45,2.2,.09,d,{a:.2,lp:500}); },
+  ok(){ if(!AU.ctx) return; const t=AU.ctx.currentTime, d=AU.sfx;
+    [1,2.76,5.4].forEach((m,i)=>tone("sine",880*m,t,1.2-i*.3,.16/(i+1),d));
+    [74,78,81,86].forEach((n,i)=>tone("triangle",mtof(n),t+.08+i*.07,.5,.09,d)); },
+  bad(){ if(!AU.ctx) return; const t=AU.ctx.currentTime, d=AU.sfx;
+    [0,.34].forEach((o,k)=>{ [38,39,45].forEach(n=>tone("sawtooth",mtof(n-k),t+o,1.1,.11,d,{a:.01,lp:700})); drum(t+o,1,d); });
+    noise(t+.34,1.2,.15,d,"lowpass",400,{to:80}); },
+  steps(total){ if(!AU.ctx) return; const t=AU.ctx.currentTime, d=AU.sfx, n=4;
+    for(let i=0;i<n;i++){ const at=t+.05+i*total/n; noise(at,.09,.35,d,"lowpass",420); tone("sine",95,at,.09,.25,d,{to:50}); } },
+  whoosh(dur){ if(!AU.ctx) return; noise(AU.ctx.currentTime,dur+.15,.22,AU.sfx,"bandpass",300,{to:2400,a:dur*.6,q:1.4}); },
+  rumble(dur){ if(!AU.ctx) return; const t=AU.ctx.currentTime, d=AU.sfx;
+    noise(t,dur,.7,d,"lowpass",130,{a:.25}); tone("sine",38,t,dur,.4,d,{a:.2});
+    for(let i=0;i<10;i++) noise(t+Math.random()*dur, .06+Math.random()*.12, .25, d, "bandpass", 500+Math.random()*1200, {q:2}); },
+  crash(){ if(!AU.ctx) return; const t=AU.ctx.currentTime, d=AU.sfx;
+    tone("sine",90,t,1.6,1,d,{to:28}); noise(t,1.2,.7,d,"lowpass",1600,{to:120});
+    [523,739,1046].forEach((f,i)=>tone("square",f*(1+i*.013),t+.02,.7,.06,d,{lp:3500}));
+    [50,46,43,38].forEach((n,i)=>{ tone("sawtooth",mtof(n),t+.9+i*.55,1.4,.1,d,{a:.05,lp:600}); tone("sawtooth",mtof(n-12),t+.9+i*.55,1.4,.08,d,{a:.05,lp:400}); });
+    drum(t+.9+3*.55,1,d); },
+  fanfare(){ if(!AU.ctx) return; const t=AU.ctx.currentTime, d=AU.sfx;
+    const brass=(n,at,dur,v=.08)=>{ tone("sawtooth",mtof(n),at,dur,v,d,{a:.03,lp:1800}); tone("sawtooth",mtof(n),at,dur,v*.7,d,{a:.03,lp:1800,detune:8}); };
+    [[62,0,.18],[62,.2,.18],[62,.4,.18],[69,.6,.5],[66,1.15,.3],[69,1.5,.3],[74,1.85,1.6]].forEach(([n,o,l])=>brass(n,t+o,l));
+    [50,54,57].forEach(n=>brass(n,t+1.85,1.8,.06));
+    for(let i=0;i<8;i++) drum(t+1.2+i*.08,.25+i*.05,d);
+    drum(t+1.85,1,d);
+    for(let i=0;i<45;i++){ const at=t+1.9+Math.random()*2.2, f=2200+Math.random()*2600; tone("sine",f,at,.25,.05,d); tone("sine",f*1.5,at+.01,.18,.025,d); } }
+};
+
+/* toggles */
+function muteAll(){ const on = AU.musicOn||AU.sfxOn; AU.musicOn=AU.sfxOn=!on;
+  setToggle($("musicBtn"),AU.musicOn,"🎵 Music"); setToggle($("sfxBtn"),AU.sfxOn,"🔊 Sounds");
+  if(AU.ctx){ AU.music.gain.setTargetAtTime(AU.musicOn?.5:0,AU.ctx.currentTime,.1); AU.sfx.gain.setTargetAtTime(AU.sfxOn?1:0,AU.ctx.currentTime,.05); } }
+function setToggle(btn,on,label){ btn.setAttribute("aria-pressed",on); const i=label.indexOf(" "), icon=i>0?label.slice(0,i):label, txt=i>0?label.slice(i+1):"";
+  btn.innerHTML=(on?"":"✕ ")+icon+(txt?`<span class="lbl"> ${txt}</span>`:""); btn.title=txt+(on?" on":" off"); }
+$("musicBtn").addEventListener("click",e=>{
+  AU.musicOn=!AU.musicOn; setToggle(e.currentTarget,AU.musicOn,"🎵 Music");
+  if(AU.ctx) AU.music.gain.setTargetAtTime(AU.musicOn?.5:0,AU.ctx.currentTime,.1);
+});
+$("sfxBtn").addEventListener("click",e=>{
+  AU.sfxOn=!AU.sfxOn; setToggle(e.currentTarget,AU.sfxOn,"🔊 Sounds");
+  if(AU.ctx) AU.sfx.gain.setTargetAtTime(AU.sfxOn?1:0,AU.ctx.currentTime,.05);
+});
+
+Object.assign(sfx,{
+  growl(){ if(!AU.ctx) return; const t=AU.ctx.currentTime, d=AU.sfx;
+    tone("sawtooth",75,t,1.1,.2,d,{to:52,a:.12,lp:520}); tone("square",112,t+.05,.9,.05,d,{to:78,a:.1,lp:900});
+    noise(t,1,.22,d,"bandpass",320,{q:2.5,a:.12}); drum(t,.8,d); },
+  zap(){ if(!AU.ctx) return; const t=AU.ctx.currentTime, d=AU.sfx;
+    tone("square",1700,t,.3,.07,d,{to:220,lp:4500}); tone("sine",800,t,.28,.12,d,{to:2600}); noise(t,.25,.14,d,"highpass",3000); },
+  explode(){ if(!AU.ctx) return; const t=AU.ctx.currentTime, d=AU.sfx;
+    noise(t,.9,.7,d,"lowpass",2200,{to:90}); tone("sine",130,t,.8,.8,d,{to:30});
+    tone("sawtooth",1000,t+.02,.55,.06,d,{to:180,lp:3200}); },
+  claw(){ if(!AU.ctx) return; const t=AU.ctx.currentTime, d=AU.sfx;
+    [0,.07,.14].forEach(o=>noise(t+o,.16,.45,d,"bandpass",3200,{to:700,q:1.5})); drum(t+.05,1,d);
+    tone("sawtooth",62,t+.05,.6,.16,d,{lp:300}); },
+  poof(){ if(!AU.ctx) return; noise(AU.ctx.currentTime,.6,.25,AU.sfx,"bandpass",600,{to:3000,a:.05,q:.8}); },
+  tick(){ if(!AU.ctx) return; tone("square",1250,AU.ctx.currentTime,.06,.07,AU.sfx); },
+  coins(){ if(!AU.ctx) return; const t=AU.ctx.currentTime, d=AU.sfx;
+    for(let i=0;i<7;i++){ const at=t+.05+i*.06+Math.random()*.03, f=1900+Math.random()*1400; tone("sine",f,at,.18,.06,d); tone("triangle",f*1.5,at+.01,.12,.03,d); } },
+  swap(){ if(!AU.ctx) return; const t=AU.ctx.currentTime, d=AU.sfx; [67,72].forEach((n,i)=>tone("triangle",mtof(n),t+i*.09,.25,.09,d)); },
+  doom(){ if(!AU.ctx) return; const t=AU.ctx.currentTime, d=AU.sfx;
+    [50,46,43,38].forEach((n,i)=>{ tone("sawtooth",mtof(n),t+.2+i*.55,1.4,.1,d,{a:.05,lp:600}); tone("sawtooth",mtof(n-12),t+.2+i*.55,1.4,.08,d,{a:.05,lp:400}); });
+    drum(t+.2+3*.55,1,d); }
+});
+
+
+/* ---------- Game state ---------- */
+const G = { run:0, phase:"idle", deck:[], pool:[], i:0, wrong:0, right:0, kills:0, score:0, streak:0, bestStreak:0,
+            path:[], mistakes:[], cur:null, correctSide:"L", goal:10, maxWrong:3, lastFight:-9, fightResolve:null, killer:"",
+            deadline:0, total:1, lastTick:99, best:0, newBest:false, hits:0, maxHits:3, fightIdx:0,
+            three:false, team:0, ts:[0,0], tr:[0,0], tq:[0,0], log:[], paused:false, pauseLeft:0, timerOff:false, zone:-1, forkThree:false };
+let E = null; // current enemy
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const D = reduce ? {enter:500,walk:250,turn:200,out:250,pause:1800}
+                 : {enter:1500,walk:800,turn:550,out:600,pause:1800};
+
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function fillBlank(q,ans){ return esc(q).replace("___",`<b>${esc(ans)}</b>`); }
+const ease = k=>k<.5 ? 2*k*k : 1-Math.pow(-2*k+2,2)/2;
+const easeOut = k=>1-Math.pow(1-k,3);
+const wait = ms=>new Promise(r=>setTimeout(r,ms));
+function tween(dur, fn){
+  const run=G.run;
+  return new Promise(res=>{
+    const t0=performance.now();
+    (function step(now){ if(run!==G.run){ res(); return; } const k=Math.min(1,(now-t0)/dur); fn(k); if(k<1) requestAnimationFrame(step); else res(); })(t0);
+  });
+}
+
+/* read aloud */
+function speak(text){ try{ if(!settings.speak || !("speechSynthesis" in window) || typeof SpeechSynthesisUtterance==="undefined") return; }catch(e){ return; }
+  try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.lang="en-US"; u.rate=.92; speechSynthesis.speak(u); }catch(e){} }
+function hush(){ try{ if("speechSynthesis" in window) speechSynthesis.cancel(); }catch(e){} }
+function speakQ(q,a){ speak(`${q[1].replace("___","blank")}. Left: ${a.L}.${a.M?` Straight on: ${a.M}.`:""} Right: ${a.R}.`); }
+
+/* timers */
+function startTimer(sec){ if(G.timerOff) sec=0;
+  if(sec>0){ G.total=sec*1000; G.lastTick=99; if(G.paused){ G.pauseLeft=G.total; G.deadline=0; } else G.deadline=performance.now()+G.total; } else { G.deadline=0; G.pauseLeft=0; } }
+function timeLeft(){ return G.deadline ? Math.max(0,G.deadline-performance.now()) : 0; }
+
+/* score */
+const bestKey=()=>"grammarMaze.best."+settings.level;
+function getBest(){ try{ return +(store.get(bestKey())||0); }catch(e){ return 0; } }
+function saveBest(v){ try{ store.set(bestKey(),v); }catch(e){} }
+function award(base,left){
+  G.streak++; G.bestStreak=Math.max(G.bestStreak,G.streak);
+  const pts = base + (left?Math.round(base*.5*left/G.total):0) + Math.min(G.streak-1,10)*10;
+  G.score+=pts; if(settings.mode==="teams"){ G.ts[G.team]+=pts; } return pts;
+}
+function healCheck(){
+  if(!(settings.heal && G.streak>0 && G.streak%3===0)) return "";
+  if(G.hits>0 && isFinite(G.maxHits)){ G.hits--; view.heartPulse=1; setDanger(); return `<span class="why">🔥 ${G.streak} in a row! You won back a heart.</span>`; }
+  if(G.wrong>0 && isFinite(G.maxWrong)){ G.wrong--; setDanger(); return `<span class="why">🔥 ${G.streak} in a row! You won back a safe turn.</span>`; }
+  return "";
+}
+function dangerLevel(){ const a=isFinite(G.maxWrong)?G.wrong/G.maxWrong:0, b=isFinite(G.maxHits)?G.hits/G.maxHits:0; return Math.max(a,b); }
+/* deaths: skulls on the floor */
+function getDeaths(){ return +(store.get("grammarMaze.deaths")||0) || 0; }
+function addDeath(){ store.set("grammarMaze.deaths",getDeaths()+1); }
+/* questions seen recently, so new games show new questions first */
+const SEEN_KEY="grammarMaze.seen";
+function getSeen(){ try{ return new Set(JSON.parse(store.get(SEEN_KEY)||"[]")); }catch(e){ return new Set(); } }
+function markSeen(q){ try{ const a=JSON.parse(store.get(SEEN_KEY)||"[]"); a.push(q[1]+"|"+q[2]); store.set(SEEN_KEY,JSON.stringify(a.slice(-400))); }catch(e){} }
+function nextFightQ(){
+  if(G.fightIdx>G.i+1 && G.fightIdx<G.deck.length){ const q=G.deck[G.fightIdx]; G.fightIdx--; return q; }
+  return G.pool[Math.floor(Math.random()*G.pool.length)];
+}
+
+function updateHud(){
+  $("forkLabel").textContent=`Fork ${Math.min(G.i+1,G.goal)} of ${G.goal}`;
+  $("kills").textContent=G.kills; $("deaths").textContent=getDeaths(); $("score").textContent=G.score;
+  $("streak").textContent = G.streak>=2 ? `🔥${G.streak}` : "";
+  $("t0n").textContent=settings.teamNames[0]; $("t1n").textContent=settings.teamNames[1];
+  $("t0s").textContent=G.ts[0]; $("t1s").textContent=G.ts[1];
+  $("team0").classList.toggle("active",G.team===0); $("team1").classList.toggle("active",G.team===1);
+  $("timerBtn").classList.toggle("on",!G.timerOff); $("timerBtn").title=G.timerOff?"Timer is OFF (T)":"Timer is ON (T)";
+}
+function teamTag(){ return settings.mode==="teams" ? `${G.team?"🟠":"🔵"} ${esc(settings.teamNames[G.team])}: ` : ""; }
+function setButtons(on){ $("btnL").disabled=!on; $("btnR").disabled=!on; $("btnM").disabled=!on; }
+function canThree(q){ return !!q[7] && settings.forks!=="off"; }
+function wantThree(q){ return canThree(q) && (settings.forks==="on" || Math.random()<.5); }
+function setAnswers(q,three){
+  three = !!three && !!q[7];
+  const sides = three ? ["L","M","R"] : ["L","R"];
+  const order = shuffle(three ? [q[2],q[3],q[7]] : [q[2],q[3]]);
+  const a={}; sides.forEach((sd,i)=>a[sd]=order[i]);
+  G.correctSide = sides[order.indexOf(q[2])]; G.three=three;
+  $("txtL").textContent=a.L; $("txtR").textContent=a.R; $("txtM").textContent=a.M||"";
+  $("btnM").hidden=!three; $("kR").textContent=three?"3":"2";
+  document.querySelector(".choices").style.setProperty("--nch",three?3:2);
+  return a;
+}
+function sideText(sd){ return sd==="L"?"left":sd==="R"?"right":"straight"; }
+
+function startGame(){
+  refreshBank();
+  const {pool}=buildPool();
+  if(pool.length<2){ $("warn").textContent = settings.custom==="only" ? "Write at least 2 of your own questions first (under More options)." : "Choose more topics or question types."; return; }
+  $("warn").textContent="";
+  G.run++; G.pool=pool;
+  // no repeats: unique questions, ones not seen recently first
+  const uniq=[...new Map(pool.map(q=>[q[1]+"|"+q[2],q])).values()], seen=getSeen();
+  G.deck=shuffle(uniq.filter(q=>!seen.has(q[1]+"|"+q[2]))).concat(shuffle(uniq.filter(q=>seen.has(q[1]+"|"+q[2]))));
+  while(G.deck.length<settings.goal) G.deck=G.deck.concat(shuffle(uniq.slice()));
+  if(settings.forks==="on"){ const a=G.deck.filter(q=>q[7]), b=G.deck.filter(q=>!q[7]); G.deck=a.concat(b); } // 3-way questions first
+  G.fightIdx=G.deck.length-1;
+  G.goal=settings.goal; G.maxWrong=settings.lives; G.maxHits=settings.hits; G.hits=0; view.heartPulse=0; view.stepPulse=0;
+  G.i=0; G.wrong=0; G.right=0; G.kills=0; G.score=0; G.streak=0; G.bestStreak=0; G.deadline=0;
+  G.path=[]; G.mistakes=[]; G.lastFight=-9; G.phase="busy"; E=null; G.best=getBest(); G.newBest=false;
+  G.team=0; G.ts=[0,0]; G.tr=[0,0]; G.tq=[0,0]; G.log=[]; G.zone=-1; G.paused=false; G.pauseLeft=0; $("pauseScreen").hidden=true; $("hint").textContent="";
+  document.body.classList.toggle("teams",settings.mode==="teams"); view.floats=[]; view.banner=null;
+  Object.assign(view,{mode:"corridor",fade:1,red:0,flash:0,shake:0,fall:0,slash:0,signsAlpha:0,bolt:null,fightAns:null});
+  view.parts.length=0;
+  $("startScreen").hidden=true; $("endScreen").hidden=true;
+  setButtons(false); updateHud(); drawMap();
+  initAudio(); setDanger(); AU.battle=false;
+  try{ setMusic("maze"); sfx.gate(); }catch(e){ console.warn("sound",e); }
+  $("topic").className="topic"; $("topic").innerHTML="&nbsp;"; $("question").className=""; $("question").textContent="You step into the dark tunnel…";
+  arrive(G.run);
+}
+
+/* walk into the next tunnel, maybe meet a monster, then show the fork */
+async function arrive(run){
+  E=null; view.mode="corridor"; view.signsAlpha=0; view.fightAns=null; updateHud(); $("hint").textContent="";
+  const z=zoneOf(G.i);
+  if(z!==G.zone){ G.zone=z; buildTextures(THEMES[z]); view.banner={title:`Zone ${z+1} of ${THEMES.length}`, name:THEMES[z].name, t:performance.now()}; if(G.i>0) sfx.gate(); }
+  G.forkThree = wantThree(G.deck[G.i]); setJunction(G.forkThree);
+  if(settings.mode==="teams"){ $("topic").className="topic"; $("topic").innerHTML=`${teamTag()}get ready!`; }
+  const c=view.cam; c.x=6.5; c.y=7.6; c.a=-Math.PI/2; c.walk=0; view.fade=1;
+  sfx.steps(D.enter/1000);
+  await tween(D.enter,k=>{ walkTo(6.5,lerp(7.6,3.7,easeOut(k))); view.fade=Math.max(0,1-k*2.5); });
+  if(run!==G.run) return;
+  c.bob=0;
+  if(settings.enemy>0 && G.i>0 && G.i-G.lastFight>=2 && Math.random()<settings.enemy){
+    await fight(run);
+    if(run!==G.run) return;
+    if(G.hits>=G.maxHits) return endGame("defeat",run);
+  }
+  showQuestion();
+  await tween(350,k=>view.signsAlpha=k);
+  if(run!==G.run) return;
+  G.phase="fork"; setButtons(true); startTimer(settings.forkTime);
+}
+function walkTo(x,y){ const c=view.cam; c.walk+=Math.hypot(x-c.x,y-c.y); c.x=x; c.y=y; c.bob=reduce?0:Math.sin(c.walk*Math.PI*1.7)*.012; }
+
+function topicLabel(q){ return q[6]==="X" ? "My questions" : `${q[0]} · ${TYPES[q[6]]}`; }
+function showQuestion(){
+  const q=G.deck[G.i]; G.cur=q;
+  view.signs=setAnswers(q,G.forkThree);
+  $("topic").className="topic"; $("topic").innerHTML=teamTag()+esc(topicLabel(q)); $("hint").textContent="";
+  const qe=$("question"); qe.className=""; qe.innerHTML=esc(q[1]).replace("___","<b>___</b>");
+  updateHud(); speakQ(q,view.signs); markSeen(q);
+}
+
+function choose(side){
+  if(G.paused) return;
+  if(side==="M" && !G.three) return;
+  if(G.phase==="fork") forkChoice(side,false);
+  else if(G.phase==="fight") fightAnswer(side);
+}
+
+async function forkChoice(side,timedOut){
+  if(G.phase!=="fork") return;
+  const left=timeLeft(); G.deadline=0;
+  G.phase="busy"; setButtons(false); hush();
+  const run=G.run, q=G.cur;
+  if(timedOut) side = G.correctSide==="L"?"R":"L";
+  const ok=!timedOut && side===G.correctSide;
+  const picked = timedOut ? null : view.signs[side];
+  const hr = view.hits.find(h=>h.side===side);
+  G.log.push({q, picked, ok, team:settings.mode==="teams"?G.team:-1, kind:"fork", timedOut});
+  if(settings.mode==="teams"){ G.tq[G.team]++; if(ok) G.tr[G.team]++; }
+  view.chosen={side,ok};
+  G.path.push({dir:side,ok});
+  const qe=$("question");
+  if(ok){
+    G.right++; sfx.ok();
+    const pts=award(100+25*(Math.max(1,q[5])-1),left), heal=healCheck();
+    qe.className="ok"; qe.innerHTML=`${settings.mode==="teams"?esc(settings.teamNames[G.team])+": c":"C"}orrect! <span class="pts">+${pts} gold</span><span class="why">${q[1].includes("___")?fillBlank(q[1],q[2]):esc(q[4])}</span>${heal}`;
+    sfx.coins(); if(hr){ burst(hr.x+hr.w/2,hr.y+hr.h/2,["#ffd04a","#f5c02e","#fff2a8","#e0a51c"],44); view.floats.push({x:hr.x+hr.w/2,y:hr.y,text:`+${pts}`,t:0}); }
+  }else{
+    G.wrong++; G.streak=0; sfx.bad(); G.mistakes.push({q,picked}); view.flash=1; view.shake=1; view.stepPulse=1;
+    qe.className="bad"; qe.innerHTML=`${timedOut?"Time's up!":"Not quite."} The answer is “${esc(q[2])}”.<span class="why">${esc(q[4])}</span>${heLine(q)}`;
+  }
+  updateHud(); drawMap(); setDanger();
+  await wait(ok?500:D.pause); if(run!==G.run) return;
+  sfx.steps(D.walk/1000);
+  await tween(D.walk,k=>{ walkTo(6.5,lerp(3.7,2.5,ease(k))); view.signsAlpha=Math.max(0,1-k*1.5); });
+  view.chosen=null;
+  sfx.whoosh(D.turn/1000);
+  if(side==="M"){
+    sfx.steps((D.turn+D.out)/1000);
+    await tween(D.turn+D.out,k=>{ walkTo(6.5,lerp(2.5,0.9,k)); view.fade=k; });
+  }else{
+    const a0=-Math.PI/2, a1=side==="L"?-Math.PI:0, dir=side==="L"?-1:1;
+    await tween(D.turn,k=>{ view.cam.a=lerp(a0,a1,ease(k)); });
+    await tween(D.out,k=>{ walkTo(6.5+dir*1.8*k,2.5); view.fade=k; });
+  }
+  if(run!==G.run) return;
+  G.i++;
+  if(settings.mode==="teams" && G.i<G.goal && G.wrong<G.maxWrong){ G.team^=1; sfx.swap(); }
+  if(G.wrong>=G.maxWrong) return endGame("trap",run);
+  if(G.i>=G.goal) return endGame("gold",run);
+  arrive(run);
+}
+
+/* ---------- Monsters ---------- */
+async function fight(run){
+  G.lastFight=G.i;
+  const type=ENEMIES[Math.floor(Math.random()*ENEMIES.length)], from=Math.random()<.5?-1:1;
+  E={type, x:6.5+from*3, y:2.45, dead:0, lunge:0, alpha:1, sx:-999, sy:0};
+  $("topic").className="topic fight"; $("topic").textContent="Monster!";
+  $("question").className=""; $("question").textContent=`A ${type.name} jumps out of the dark!`;
+  AU.battle=true; sfx.growl(); view.banner=null;
+  await tween(reduce?250:1100,k=>{ E.x=lerp(6.5+from*3,6.5,easeOut(k)); });
+  if(run!==G.run) return;
+  const q=nextFightQ(); G.cur=q; markSeen(q);
+  view.fightAns=setAnswers(q,canThree(q));
+  $("topic").innerHTML=teamTag()+esc(G.timerOff?`${type.name}: answer to defeat it!`:`${type.name}: answer in ${settings.enemyTime} seconds to defeat it!`); $("hint").textContent="";
+  $("question").innerHTML=esc(q[1]).replace("___","<b>___</b>");
+  speakQ(q,view.fightAns);
+  G.phase="fight"; setButtons(true); startTimer(settings.enemyTime);
+  await new Promise(res=>G.fightResolve=res);
+  AU.battle=false;
+}
+
+async function fightAnswer(side){
+  if(G.phase!=="fight" || !E) return;
+  const left=timeLeft(); G.deadline=0;
+  G.phase="busy"; setButtons(false); hush();
+  const run=G.run, q=G.cur, ok=side===G.correctSide;
+  const picked = side ? view.fightAns[side] : null;
+  G.log.push({q, picked, ok, team:settings.mode==="teams"?G.team:-1, kind:"monster", timedOut:!side});
+  if(settings.mode==="teams"){ G.tq[G.team]++; if(ok) G.tr[G.team]++; }
+  view.fightAns=null;
+  const qe=$("question");
+  if(ok){
+    G.kills++; G.right++;
+    const pts=award(150,left), heal=healCheck(); updateHud();
+    qe.className="ok"; qe.innerHTML=`Direct hit! The ${esc(E.type.name)} is defeated. <span class="pts">+${pts}</span><span class="why">${q[1].includes("___")?fillBlank(q[1],q[2]):esc(q[4])}</span>${heal}`;
+    sfx.zap(); view.bolt={k:0};
+    await tween(reduce?120:300,k=>view.bolt.k=k); view.bolt=null;
+    sfx.explode(); burst(E.sx,E.sy,E.type.colors,46); view.shake=.7;
+    await tween(550,k=>E.dead=k);
+    await wait(900);
+  }else{
+    G.hits++; G.streak=0; G.mistakes.push({q,picked}); setDanger(); updateHud(); view.heartPulse=1;
+    qe.className="bad"; qe.innerHTML=`${picked?"Wrong answer!":"Too slow!"} The ${esc(E.type.name)} hits you and you lose a heart. The answer was “${esc(q[2])}”.<span class="why">${esc(q[4])}</span>${heLine(q)}`;
+    sfx.claw(); await tween(220,k=>E.lunge=k);
+    view.slash=1; view.shake=1.2; view.flash=1;
+    if(G.hits<G.maxHits){
+      await wait(500); sfx.poof(); burst(E.sx,E.sy,["#555","#777","#333"],30,true);
+      await tween(450,k=>{ E.alpha=1-k; });
+      await wait(D.pause-500);
+    }else{ G.killer=E.type.name; await wait(700); }
+  }
+  if(run!==G.run) return;
+  if(G.hits<G.maxHits) E=null;
+  const r=G.fightResolve; G.fightResolve=null; r&&r();
+}
+
+/* ---------- Endings ---------- */
+async function endGame(kind,run){
+  G.phase="end"; G.deadline=0; setButtons(false); view.signsAlpha=0; view.fightAns=null; hush();
+  $("topic").innerHTML="&nbsp;";
+  if(kind==="gold"){
+    G.score += 500 + (isFinite(G.maxWrong) ? 100*(G.maxWrong-G.wrong) : 0) + (isFinite(G.maxHits) ? 100*(G.maxHits-G.hits) : 0); updateHud();
+    view.mode="gold"; stopMusic(.4); sfx.fanfare();
+    setTimeout(()=>{ if(view.mode==="gold" && run===G.run) setMusic("victory"); },3800);
+    $("question").className="ok"; $("question").textContent="You found the mountain of gold!";
+    await tween(900,k=>{ view.fade=1-k; });
+  }else if(kind==="trap"){
+    view.mode="trap"; view.fall=0; stopMusic(.3); sfx.rumble(1.6);
+    $("question").className="bad"; $("question").textContent="The floor gives way…";
+    await tween(500,k=>{ view.fade=1-k; });
+    view.shake=1; sfx.crash();
+    await tween(reduce?300:1300,k=>{ view.fall=k; });
+  }else{
+    stopMusic(.3); sfx.doom();
+    $("question").className="bad"; $("question").textContent=`The ${G.killer} defeated you…`;
+    await tween(1400,k=>{ view.red=k; });
+  }
+  if(kind!=="gold"){ addDeath(); updateHud(); }
+  if(G.score>G.best){ G.newBest=G.best>0||G.score>0; G.best=G.score; saveBest(G.score); }
+  if(run!==G.run) return;
+  await wait(700);
+  if(run!==G.run) return;
+  showEnd(kind);
+}
+function showEnd(kind){
+  const asked=G.right+G.mistakes.length;
+  $("endTitle").textContent = kind==="gold"?"You found the gold!" : kind==="trap"?"You fell into the trap!" : "You were defeated!";
+  $("endText").textContent = (kind==="gold"
+    ? "You answered your way through the whole maze. Well done!"
+    : kind==="trap" ? "Too many wrong turns led you into the spike pit. Check the answers below and try again."
+    : `The ${G.killer} was too strong this time. Check the answers below and try again.`)
+    + ` Level: ${LEVELS[settings.level].label}.`;
+  let win="";
+  if(settings.mode==="teams"){ const [a,b]=G.ts, n=settings.teamNames;
+    win = a===b ? `🤝 It's a draw! ${a} – ${b}` : `🏆 ${esc(a>b?n[0]:n[1])} wins! ${Math.max(a,b)} – ${Math.min(a,b)}`; }
+  $("endText").insertAdjacentHTML("beforeend", win?`<span class="winner" style="display:block">${win}</span>`:"");
+  $("stats").innerHTML=
+    `<div><strong>${G.score}</strong>score${G.newBest?' <em class="newbest">New best!</em>':""}</div>`+
+    `<div><strong>${G.best}</strong>best on this level</div>`+
+    `<div><strong>${G.right}/${asked}</strong>right answers</div>`+
+    `<div><strong>${G.bestStreak}</strong>best streak</div>`+
+    `<div><strong>${G.kills}</strong>monsters defeated</div>`+
+    `<div><strong>${getDeaths()}</strong>deaths so far</div>`+
+    `<div><strong>${Math.min(G.i,G.goal)}/${G.goal}</strong>forks passed</div>`+
+    (settings.mode==="teams" ? settings.teamNames.map((n,i)=>`<div><strong>${G.ts[i]}</strong>${esc(n)} gold · ${G.tr[i]}/${G.tq[i]} right</div>`).join("") : "");
+  const ul=$("review"); ul.innerHTML=""; ul.classList.remove("onlybad"); $("onlyBadBtn").textContent="Show only mistakes";
+  const head=document.createElement("li"); head.innerHTML=`<b>Answer key – all ${G.log.length} questions</b> <small>(✓ right · ✗ wrong · ⏭ skipped)</small>`; ul.append(head);
+  G.log.forEach((m,i)=>{
+    const li=document.createElement("li"); li.className=m.skipped?"skip":m.ok?"ok":"bad";
+    const qt = m.q[1].includes("___") ? fillBlank(m.q[1],m.q[2]) : `${esc(m.q[1])} <b>${esc(m.q[2])}</b>`;
+    const tm = m.team>=0 ? `<span class="tm" style="color:${m.team?"#ffb35c":"#7cc4ff"}">${esc(settings.teamNames[m.team])}</span>` : "";
+    const mark = m.skipped?"⏭":m.ok?"✓":"✗";
+    const said = m.skipped ? "Skipped by the teacher." : m.ok ? "" : m.picked ? `Chose “${esc(m.picked)}”.` : "Ran out of time.";
+    li.innerHTML=`<span class="q"><span class="mark">${mark} ${i+1}.</span>${qt}${tm}${m.kind==="monster"?" 👹":""}</span><small>${said} ${esc(m.q[4])}</small>`;
+    ul.append(li);
+  });
+  $("endScreen").hidden=false; $("againBtn").focus({preventScroll:true}); $("endScreen").querySelector(".card").scrollTop=0;
+}
+
+/* ---------- Controls ---------- */
+$("btnL").addEventListener("click",()=>choose("L"));
+$("btnR").addEventListener("click",()=>choose("R"));
+$("btnM").addEventListener("click",()=>choose("M"));
+function heLine(q){ return settings.hebrew && HE[q[0]] ? `<span class="he">💡 ${esc(HE[q[0]])}</span>` : ""; }
+function showHint(){ if(!(G.phase==="fork"||G.phase==="fight") || !G.cur) return; const h=HE[G.cur[0]];
+  $("hint").textContent = h ? "💡 "+h : "💡 אין רמז לשאלה הזאת – קראו שוב את המשפט בעיון."; }
+function togglePause(force){
+  const inGame = $("startScreen").hidden && $("endScreen").hidden && G.phase!=="idle" && G.phase!=="end";
+  const want = force!==undefined ? force : !G.paused;
+  if(want && !inGame) return;
+  if(want===G.paused) return;
+  G.paused=want;
+  if(want){ G.pauseLeft = G.deadline ? Math.max(0,G.deadline-performance.now()) : 0; G.deadline=0; hush(); safeSuspend(); }
+  else { if(G.pauseLeft>0){ G.deadline=performance.now()+G.pauseLeft; G.lastTick=99; } G.pauseLeft=0; safeResume(); }
+  $("pauseScreen").hidden=!want; $("pauseBtn").classList.toggle("on",want);
+  if(want) $("resumeBtn").focus();
+}
+function toggleTimer(){ G.timerOff=!G.timerOff;
+  if(G.timerOff){ G.deadline=0; G.pauseLeft=0; }
+  else if(G.phase==="fork") startTimer(settings.forkTime); else if(G.phase==="fight") startTimer(settings.enemyTime);
+  updateHud(); }
+async function skipQuestion(){
+  if(G.paused) return;
+  if(G.phase==="fork"){
+    G.log.push({q:G.cur, picked:null, ok:false, skipped:true, team:settings.mode==="teams"?G.team:-1, kind:"fork"});
+    G.deck.splice(G.i,1);
+    while(G.deck.length<G.goal+1) G.deck.push(G.pool[Math.floor(Math.random()*G.pool.length)]);
+    hush(); sfx.poof(); view.signsAlpha=0; G.phase="busy"; setButtons(false);
+    const run=G.run;
+    if(G.forkThree && !canThree(G.deck[G.i])){ G.forkThree=false; setJunction(false); }
+    showQuestion(); await tween(300,k=>view.signsAlpha=k); if(run!==G.run) return;
+    G.phase="fork"; setButtons(true); startTimer(settings.forkTime);
+  }else if(G.phase==="fight" && E){
+    G.log.push({q:G.cur, picked:null, ok:false, skipped:true, team:settings.mode==="teams"?G.team:-1, kind:"monster"});
+    G.phase="busy"; G.deadline=0; setButtons(false); hush(); view.fightAns=null;
+    $("question").className=""; $("question").textContent=`The ${E.type.name} runs away into the dark…`;
+    const run=G.run; sfx.poof(); burst(E.sx,E.sy,["#555","#777","#333"],30,true);
+    await tween(450,k=>{ if(E) E.alpha=1-k; }); if(run!==G.run) return;
+    E=null; const r=G.fightResolve; G.fightResolve=null; r&&r();
+  }
+}
+$("pauseBtn").addEventListener("click",()=>togglePause());
+$("resumeBtn").addEventListener("click",()=>togglePause(false));
+$("skipBtn").addEventListener("click",skipQuestion);
+$("hintBtn").addEventListener("click",showHint);
+$("timerBtn").addEventListener("click",toggleTimer);
+$("onlyBadBtn").addEventListener("click",()=>{ const on=$("review").classList.toggle("onlybad"); $("onlyBadBtn").textContent=on?"Show all questions":"Show only mistakes"; });
+$("printBtn").addEventListener("click",()=>{ try{ window.print(); }catch(e){}
+  $("printBtn").title="If no print window opens (e.g. inside a chat preview), download the file and open it in Chrome or Edge."; });
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape" && document.body.classList.contains("pseudo-full")){ document.body.classList.remove("pseudo-full"); fsLabel(); return; }
+  if(e.target && (e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA")) return;
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  const k=e.key.length===1?e.key.toLowerCase():e.key;
+  if(k==="f"){ e.preventDefault(); $("fsBtn").click(); return; }
+  if(k==="m"){ e.preventDefault(); muteAll(); return; }
+  if(!$("startScreen").hidden || !$("endScreen").hidden) return;
+  if(k==="p"||k===" "&&G.paused){ e.preventDefault(); togglePause(); return; }
+  if(G.paused) return;
+  if(k==="s"){ e.preventDefault(); skipQuestion(); return; }
+  if(k==="h"){ e.preventDefault(); showHint(); return; }
+  if(k==="t"){ e.preventDefault(); toggleTimer(); return; }
+  if(k==="ArrowLeft"||k==="a"||k==="1"){ e.preventDefault(); choose("L"); }
+  else if(k==="ArrowUp"||k==="w"){ e.preventDefault(); choose("M"); }
+  else if(k==="2"){ e.preventDefault(); choose(G.three?"M":"R"); }
+  else if(k==="ArrowRight"||k==="d"||k==="3"){ e.preventDefault(); if(k!=="3"||G.three) choose("R"); }
+});
+$("startBtn").addEventListener("click",startGame);
+$("againBtn").addEventListener("click",startGame);
+function openMenu(){ if(G.paused) togglePause(false); G.run++; G.phase="idle"; G.deadline=0; E=null; setButtons(false); hush(); AU.battle=false; if(AU.ctx) setMusic("menu");
+  updatePoolInfo(); $("deathCount").textContent=getDeaths(); $("endScreen").hidden=true; $("startScreen").hidden=false; try{ $("startBtn").focus({preventScroll:true}); }catch(e){} }
+$("settingsBtn").addEventListener("click",openMenu);
+$("menuBtn").addEventListener("click",openMenu);
+
+function isFull(){ return !!(document.fullscreenElement||document.webkitFullscreenElement) || document.body.classList.contains("pseudo-full"); }
+function fsLabel(){ $("fsBtn").innerHTML = isFull() ? "✕<span class=\"lbl\"> Exit full screen</span>" : "⛶<span class=\"lbl\"> Full screen</span>"; }
+$("fsBtn").addEventListener("click",async()=>{
+  if(document.fullscreenElement||document.webkitFullscreenElement){ try{ const p=(document.exitFullscreen||document.webkitExitFullscreen).call(document); if(p&&p.catch) p.catch(()=>{}); }catch(e){} return; }
+  if(document.body.classList.contains("pseudo-full")){ document.body.classList.remove("pseudo-full"); fsLabel(); return; }
+  const el=$("app"), fn=el.requestFullscreen||el.webkitRequestFullscreen;
+  let ok=false;
+  if(fn && !IS_IOS && document.fullscreenEnabled!==false){
+    try{ const p=fn.call(el); if(p&&p.then) await p; ok=!!(document.fullscreenElement||document.webkitFullscreenElement); }catch(err){ ok=false; }
+  }
+  if(!ok){ document.body.classList.add("pseudo-full"); window.scrollTo(0,0); rotateTip(); }
+  fsLabel(); setTimeout(()=>{ try{ resize(); }catch(e){} },120);
+});
+function rotateTip(){ const t=$("rotateTip"); if(!t) return;
+  const portrait = window.innerHeight>window.innerWidth && Math.min(window.innerWidth,window.innerHeight)<700;
+  if(!portrait){ t.hidden=true; return; }
+  t.hidden=false; clearTimeout(rotateTip.tm); rotateTip.tm=setTimeout(()=>t.hidden=true,4500); }
+$("rotateTip").addEventListener("click",()=>$("rotateTip").hidden=true);
+window.addEventListener("orientationchange",()=>setTimeout(()=>{ try{ resize(); }catch(e){} if(window.innerWidth>window.innerHeight) $("rotateTip").hidden=true; },250));
+document.addEventListener("fullscreenchange",fsLabel);
+document.addEventListener("webkitfullscreenchange",fsLabel);
+
+/* clicking the signs inside the 3D view */
+const cv=$("view"), ctx=cv.getContext("2d");
+function hitAt(e){ const r=cv.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
+  return view.hits.find(h=>x>=h.x&&x<=h.x+h.w&&y>=h.y&&y<=h.y+h.h); }
+cv.addEventListener("pointerdown",e=>{ const h=hitAt(e); if(h){ e.preventDefault(); choose(h.side); } });
+cv.addEventListener("pointermove",e=>{ const h=hitAt(e); cv.style.cursor=h?"pointer":"default"; view.hover=h?h.side:null; });
+cv.addEventListener("pointerleave",()=>{ view.hover=null; });
+
+/* ---------- 3D renderer (textured raycaster) ---------- */
+const MAP=[
+"#############",
+"#############",
+"##.........##",
+"######.######",
+"######.######",
+"######.######",
+"######.######",
+"######.######",
+"######.######",
+"#############"];
+const MAP3=MAP.slice(); MAP3[0]="######.######"; MAP3[1]="######.######"; // 3-way: a tunnel straight ahead
+const MW=13, MH=10, GRID=new Uint8Array(MW*MH);
+function setJunction(three){ const M=three?MAP3:MAP; for(let y=0;y<MH;y++) for(let x=0;x<MW;x++) GRID[y*MW+x]=M[y][x]==="#"?1:0; }
+setJunction(false);
+const wall=(x,y)=> x<0||y<0||x>=MW||y>=MH ? 1 : GRID[y*MW+x];
+/* four zones, each with its own stone, light and torch colour */
+const THEMES=[
+ {name:"The Stone Halls",  wall:[18,40,5,13,32,46],  floor:[22,36,8,16,25,35],  ceil:[20,35,4,10,15,23],  moss:"70,100,40",  lan:[1,.88,.72],  tor:[1,.6,.27],   amb:[.06,.065,.09], flame:["#ff9a2e","#ffe9a8"], glow:"255,170,70"},
+ {name:"The Mossy Caves",  wall:[75,115,10,20,27,39], floor:[60,95,10,20,22,31], ceil:[85,125,8,14,13,21], moss:"90,170,50",  lan:[.85,1,.7],   tor:[.7,1,.42],   amb:[.05,.08,.06],  flame:["#b6ff5a","#f0ffc8"], glow:"170,255,90"},
+ {name:"The Crystal Mines",wall:[200,230,15,30,30,44],floor:[205,225,12,22,22,32],ceil:[210,240,10,20,14,22],moss:"120,200,255",lan:[.75,.9,1.15], tor:[.45,.8,1.25], amb:[.05,.06,.11],  flame:["#5ad1ff","#e0f8ff"], glow:"90,200,255"},
+ {name:"The Lava Depths",  wall:[0,18,25,45,24,36],   floor:[5,20,30,50,18,28],  ceil:[0,15,20,35,10,18],  moss:"255,90,20",  lan:[1.2,.75,.55],tor:[1.35,.55,.2],amb:[.1,.04,.04],   flame:["#ff5a1e","#ffd27a"], glow:"255,90,30"}
+];
+let TH=THEMES[0];
+function zoneOf(i){ return Math.min(THEMES.length-1, Math.floor(i*THEMES.length/Math.max(1,G.goal))); }
+
+const LIGHTS=[ {x:6.13,y:3.4,z:.66,i:1.1}, {x:6.87,y:6.2,z:.66,i:1.1}, {x:6.5,y:2.13,z:.86,i:1}, {x:3.6,y:2.87,z:.66,i:1.1}, {x:9.4,y:2.87,z:.66,i:1.1} ];
+const TORCHES=[ {x:6.0,y:3.4,z:.66}, {x:7.0,y:6.2,z:.66}, {x:6.5,y:2.0,z:.86}, {x:3.6,y:3.0,z:.66}, {x:9.4,y:3.0,z:.66} ];
+const NL=LIGHTS.length, LX=new Float32Array(NL), LY=new Float32Array(NL), LZ=new Float32Array(NL), LI=new Float32Array(NL), D2=new Float32Array(NL);
+LIGHTS.forEach((l,i)=>{ LX[i]=l.x; LY[i]=l.y; LZ[i]=l.z; });
+
+const ZS=24, ZL=new Float32Array(ZS);
+// static light maps for floor (z=0) and ceiling (z=1); flicker is applied per frame
+const LM=12, LMW=MW*LM, LMH=MH*LM, LMF=new Float32Array(LMW*LMH), LMC=new Float32Array(LMW*LMH);
+for(let j=0;j<LMH;j++) for(let i=0;i<LMW;i++){ const x=(i+.5)/LM, y=(j+.5)/LM; let f=0,c=0;
+  LIGHTS.forEach(l=>{ const d=(x-l.x)**2+(y-l.y)**2; f+=l.i/(1+(d+l.z*l.z)*4); c+=l.i/(1+(d+(1-l.z)**2)*4); });
+  LMF[j*LMW+i]=f; LMC[j*LMW+i]=c; }
+const TS=128, HOR=.42; // horizon height: below the middle so we see more floor
+const rnd=(a,b)=>a+Math.random()*(b-a);
+function stoneBlock(g,x,y,w,h,hue,sat,lit){
+  g.fillStyle=`hsl(${hue},${sat}%,${lit}%)`; g.fillRect(x,y,w,h);
+  for(let i=0;i<w*h/25;i++){ g.fillStyle=Math.random()<.5?`rgba(0,0,0,${rnd(.03,.12)})`:`rgba(255,255,255,${rnd(.02,.07)})`; g.fillRect(x+rnd(0,w-2),y+rnd(0,h-2),rnd(1,4),rnd(1,3)); }
+  g.fillStyle="rgba(255,255,255,.16)"; g.fillRect(x,y,w,2);
+  g.fillStyle="rgba(255,255,255,.07)"; g.fillRect(x,y,2,h);
+  g.fillStyle="rgba(0,0,0,.42)"; g.fillRect(x,y+h-2.5,w,2.5);
+  g.fillStyle="rgba(0,0,0,.22)"; g.fillRect(x+w-2,y,2,h);
+}
+function cracks(g,n,a){ g.strokeStyle=`rgba(0,0,0,${a})`; g.lineWidth=1; for(let i=0;i<n;i++){ g.beginPath(); let x=rnd(0,TS),y=rnd(0,TS); g.moveTo(x,y); for(let k=0;k<5;k++){ x+=rnd(-7,7); y+=rnd(-7,7); g.lineTo(x,y); } g.stroke(); } }
+function makeTex(paint){
+  const c=document.createElement("canvas"); c.width=c.height=TS; const g=c.getContext("2d"); paint(g);
+  const d=g.getImageData(0,0,TS,TS).data, out=new Float32Array(TS*TS*3);
+  for(let i=0;i<TS*TS;i++){ const n=(Math.random()-.5)*12; out[i*3]=Math.max(0,d[i*4]+n); out[i*3+1]=Math.max(0,d[i*4+1]+n); out[i*3+2]=Math.max(0,d[i*4+2]+n); }
+  return out;
+}
+let TW,TF,TC;
+function buildTextures(th){
+  TH=th; const w=th.wall, f=th.floor, c=th.ceil;
+  TW=makeTex(g=>{
+    g.fillStyle="#211d19"; g.fillRect(0,0,TS,TS);
+    const rows=8, bh=TS/rows, bw=TS/2;
+    for(let r=0;r<rows;r++){ const off=r%2?TS/4:0;
+      for(let i=0;i<2;i++){ const x=off+i*bw, hue=rnd(w[0],w[1]), sat=rnd(w[2],w[3]), lit=rnd(w[4],w[5]);
+        for(const ox of [0,-TS]) stoneBlock(g,x+ox+1.5,r*bh+1.5,bw-3,bh-3,hue,sat,lit); } }
+    for(let i=0;i<70;i++){ g.fillStyle=`rgba(${th.moss},${rnd(.15,.35)})`; g.fillRect(rnd(0,TS),rnd(TS*.72,TS),rnd(2,6),rnd(1,3)); }
+    if(th===THEMES[2]) for(let i=0;i<14;i++){ g.fillStyle=`rgba(160,230,255,${rnd(.35,.7)})`; const x=rnd(0,TS),y=rnd(0,TS),s=rnd(2,5); g.beginPath(); g.moveTo(x,y-s*2); g.lineTo(x+s,y); g.lineTo(x,y+s*2); g.lineTo(x-s,y); g.fill(); }
+    if(th===THEMES[3]) for(let i=0;i<6;i++){ g.strokeStyle=`rgba(255,${rnd(80,160)|0},20,.8)`; g.lineWidth=rnd(1,2.5); g.beginPath(); let x=rnd(0,TS),y=rnd(0,TS); g.moveTo(x,y); for(let k=0;k<5;k++){ x+=rnd(-9,9); y+=rnd(-9,9); g.lineTo(x,y); } g.stroke(); }
+    cracks(g,5,.45);
+  });
+  TF=makeTex(g=>{
+    g.fillStyle="#15120e"; g.fillRect(0,0,TS,TS); const s=TS/2;
+    for(let j=0;j<2;j++) for(let i=0;i<2;i++) stoneBlock(g,i*s+2,j*s+2,s-4,s-4,rnd(f[0],f[1]),rnd(f[2],f[3]),rnd(f[4],f[5]));
+    cracks(g,6,.5);
+    for(let i=0;i<40;i++){ g.fillStyle=`rgba(20,15,10,${rnd(.1,.3)})`; g.beginPath(); g.arc(rnd(0,TS),rnd(0,TS),rnd(2,6),0,7); g.fill(); }
+  });
+  TC=makeTex(g=>{
+    g.fillStyle="#100d0a"; g.fillRect(0,0,TS,TS); const s=TS/4;
+    for(let j=0;j<4;j++) for(let i=0;i<4;i++) stoneBlock(g,i*s+1,j*s+1,s-2,s-2,rnd(c[0],c[1]),rnd(c[2],c[3]),rnd(c[4],c[5]));
+  });
+}
+buildTextures(THEMES[0]);
+
+let W=800,H=450,DPR=1,cx=400,cy=210,F=600,FOVK=.66,RW=480,RH=270,FI=360;
+const off=document.createElement("canvas"), octx=off.getContext("2d");
+let IMG=null, BUF=null, ZB=new Float32Array(1);
+const view={ floats:[], banner:null, mode:"corridor", cam:{x:6.5,y:4.1,a:-Math.PI/2,bob:0,walk:0}, fade:1, red:0, flash:0, shake:0, fall:0, slash:0,
+  signs:{L:"",R:""}, signsAlpha:0, chosen:null, fightAns:null, hits:[], hover:null, bolt:null, parts:[] };
+
+function resize(){
+  const r=cv.getBoundingClientRect(); DPR=Math.min(2,window.devicePixelRatio||1);
+  W=Math.max(1,r.width); H=Math.max(1,r.height);
+  cv.width=Math.round(W*DPR); cv.height=Math.round(H*DPR);
+  cx=W/2; cy=H*.47;
+  F=Math.max(W/1.7,H*.85); FOVK=W/(2*F);
+  RW=Math.max(260,Math.min(840,Math.round(Math.min(W,1200)*Math.min(DPR,1.5)*.7)));
+  RH=Math.max(120,Math.round(RW*H/W)); FI=F*RW/W;
+  off.width=RW; off.height=RH; IMG=octx.createImageData(RW,RH); BUF=new Uint32Array(IMG.data.buffer); ZB=new Float32Array(RW);
+  const m=$("map"), mr=m.getBoundingClientRect(); m.width=mr.width*DPR; m.height=mr.height*DPR; drawMap();
+}
+try{ new ResizeObserver(()=>resize()).observe($("stage")); }catch(e){}
+window.addEventListener("resize",()=>resize());
+
+function render3D(t){
+  const c=view.cam, rw=RW, rh=RH, buf=BUF, Fi=FI;
+  const dX=Math.cos(c.a), dY=Math.sin(c.a), pX=-dY*FOVK, pY=dX*FOVK;
+  const h0=rh*HOR+c.bob*rh, posZ=.5*Fi;
+  const danger=dangerLevel(), dim=1-danger*.4;
+  for(let i=0;i<NL;i++) LI[i]=LIGHTS[i].i*dim*(1+.08*Math.sin(t*.012+i*1.7)+.05*Math.sin(t*.029+i*2.3));
+  const flick=dim*(1+.06*Math.sin(t*.012)+.04*Math.sin(t*.029));
+  const aR=TH.amb[0]+danger*.1, aG=TH.amb[1], aB=TH.amb[2], LANT=.7, EXPO=1.3;
+  const l0=TH.lan[0], l1=TH.lan[1], l2=TH.lan[2], t0=TH.tor[0], t1=TH.tor[1], t2=TH.tor[2];
+  const rx0=dX-pX, ry0=dY-pY, rx1=dX+pX, ry1=dY+pY;
+  // floor and ceiling
+  for(let y=0;y<rh;y++){
+    const p=y-h0, ad=p<0?-p:p; let idx=y*rw;
+    if(ad<.5){ buf.fill(0xff000000,idx,idx+rw); continue; }
+    const isF=p>0, rd=posZ/ad, tex=isF?TF:TC, lmap=isF?LMF:LMC;
+    const sx=rd*(rx1-rx0)/rw, sy=rd*(ry1-ry0)/rw;
+    let fx=c.x+rd*rx0, fy=c.y+rd*ry0;
+    const base=Math.exp(-rd*.15)*EXPO*(isF?1:.75), lan=LANT/(1+rd*rd*.5);
+    for(let x=0;x<rw;x++,idx++){
+      const mx=Math.floor(fx), my=Math.floor(fy), ux=fx-mx, uy=fy-my;
+      const ti=(((uy*TS)|0)*TS+((ux*TS)|0))*3;
+      const k=(fx<0||fy<0||fx>=MW||fy>=MH)?0:lmap[((fy*LM)|0)*LMW+((fx*LM)|0)]*flick;
+      const lr=aR+lan*l0+k*t0, lg=aG+lan*l1+k*t1, lb=aB+lan*l2+k*t2;
+      let ao=1;
+      if(ux<.25){ if(wall(mx-1,my)) ao*=.4+ux*2.4; } else if(ux>.75){ if(wall(mx+1,my)) ao*=.4+(1-ux)*2.4; }
+      if(uy<.25){ if(wall(mx,my-1)) ao*=.4+uy*2.4; } else if(uy>.75){ if(wall(mx,my+1)) ao*=.4+(1-uy)*2.4; }
+      const m=base*ao;
+      const r=tex[ti]*lr*m, g=tex[ti+1]*lg*m, b=tex[ti+2]*lb*m;
+      buf[idx]=0xff000000|((b>255?255:b)<<16)|((g>255?255:g)<<8)|(r>255?255:r);
+      fx+=sx; fy+=sy;
+    }
+  }
+  // walls
+  for(let x=0;x<rw;x++){
+    const camX=2*x/rw-1, rdx=dX+pX*camX, rdy=dY+pY*camX;
+    let mx=Math.floor(c.x), my=Math.floor(c.y);
+    const ddx=Math.abs(1/rdx), ddy=Math.abs(1/rdy);
+    let stx,sty,sdx,sdy,side=0;
+    if(rdx<0){ stx=-1; sdx=(c.x-mx)*ddx; } else { stx=1; sdx=(mx+1-c.x)*ddx; }
+    if(rdy<0){ sty=-1; sdy=(c.y-my)*ddy; } else { sty=1; sdy=(my+1-c.y)*ddy; }
+    for(let n=0;n<64;n++){ if(sdx<sdy){ sdx+=ddx; mx+=stx; side=0; } else { sdy+=ddy; my+=sty; side=1; } if(wall(mx,my)) break; }
+    const perp=Math.max(.02, side===0?sdx-ddx:sdy-ddy);
+    ZB[x]=perp;
+    let wx=side===0?c.y+perp*rdy:c.x+perp*rdx; wx-=Math.floor(wx);
+    let tx=(wx*TS)|0; if((side===0&&rdx>0)||(side===1&&rdy<0)) tx=TS-1-tx;
+    const lh=Fi/perp, top=h0-lh*.5;
+    const y0=Math.max(0,Math.ceil(top)), y1=Math.min(rh,Math.ceil(top+lh));
+    const hx=c.x+perp*rdx*.985, hy=c.y+perp*rdy*.985;
+    for(let i=0;i<NL;i++){ const ex=hx-LX[i], ey=hy-LY[i]; D2[i]=ex*ex+ey*ey; }
+    for(let j=0;j<ZS;j++){ const z=1-(j+.5)/ZS; let k=0; for(let i=0;i<NL;i++){ const ez=z-LZ[i]; k+=LI[i]/(1+(D2[i]+ez*ez)*4); } ZL[j]=k; }
+    const base=Math.exp(-perp*.15)*EXPO*(side?.8:1), lan=LANT/(1+perp*perp*.5);
+    // soft shadow in the inside corners where walls meet
+    const edge=wx<.5?wx:1-wx, corner=edge<.08?.55+edge*5.6:1;
+    for(let y=y0;y<y1;y++){
+      const v=(y-top)/lh, ti=(((v*TS)|0)*TS+tx)*3;
+      const k=ZL[(v*ZS)|0], lr=aR+lan*l0+k*t0, lg=aG+lan*l1+k*t1, lb=aB+lan*l2+k*t2;
+      const e=v<.5?v:1-v, ao=e<.1?.45+e*5.5:1, m=base*ao*corner;
+      const r=TW[ti]*lr*m, g=TW[ti+1]*lg*m, b=TW[ti+2]*lb*m;
+      buf[y*rw+x]=0xff000000|((b>255?255:b)<<16)|((g>255?255:g)<<8)|(r>255?255:r);
+    }
+  }
+  octx.putImageData(IMG,0,0);
+}
+
+function proj(wx,wy,wz){
+  const c=view.cam, dX=Math.cos(c.a), dY=Math.sin(c.a), pX=-dY*FOVK, pY=dX*FOVK;
+  const dx=wx-c.x, dy=wy-c.y, inv=1/(pX*dY-dX*pY);
+  const tx=inv*(dY*dx-dX*dy), ty=inv*(-pY*dx+pX*dy);
+  if(ty<.08) return null;
+  return { x:W/2*(1+tx/ty), y:H*HOR+c.bob*H+(.5-wz)*F/ty, d:ty, u:F/ty };
+}
+// screen x-range of a sprite that is not hidden behind walls
+function visClip(x0,x1,d,tol){
+  const c0=Math.max(0,Math.floor(x0/W*RW)), c1=Math.min(RW-1,Math.ceil(x1/W*RW));
+  let a=-1,b=-1; for(let c=c0;c<=c1;c++) if(ZB[c]>=d-tol){ if(a<0) a=c; b=c; }
+  return a<0?null:[a/RW*W,(b+1)/RW*W];
+}
+
+/* skulls of fallen adventurers */
+const SKULLS=[]; (function(){ let r=7; const R=()=>(r=(r*9301+49297)%233280)/233280;
+  const spots=[];
+  // the floor of the fork, in front of the signs and into the side tunnels
+  [[6.2,2.45],[6.8,2.5],[6.45,2.25],[5.95,2.3],[7.05,2.3],[6.65,2.62],[5.7,2.55],[7.3,2.55],[6.3,2.7],[5.45,2.3],[7.55,2.35],
+   [6.95,2.75],[6.05,2.75],[5.2,2.6],[7.8,2.6],[4.9,2.35],[8.1,2.4],[4.5,2.6],[8.5,2.6],[6.25,3.0],[6.75,3.1]].forEach(([x,y])=>spots.push([x+(R()-.5)*.06,y+(R()-.5)*.06]));
+  for(let y=3.4;y<7.4;y+=.45){ spots.push([6.2+R()*.1,y]); spots.push([6.7+R()*.1,y]); }
+  spots.forEach(([x,y])=>SKULLS.push({x,y,s:.75+R()*.3,r:(R()-.5)*.8,bones:R()<.6}));
+})();
+function drawSkull(x,y,u,rot,bones){
+  const w=u*.05; ctx.save(); ctx.translate(x,y); ctx.rotate(rot*.3);
+  ctx.fillStyle="rgba(0,0,0,.45)"; ctx.beginPath(); ctx.ellipse(0,0,w*1.3,w*.35,0,0,Math.PI*2); ctx.fill();
+  if(bones){ ctx.strokeStyle="#cfc6b0"; ctx.lineCap="round"; ctx.lineWidth=w*.22;
+    ctx.beginPath(); ctx.moveTo(-w*1.5,-w*.05); ctx.lineTo(w*1.5,-w*.35); ctx.moveTo(-w*1.4,-w*.4); ctx.lineTo(w*1.4,-w*.02); ctx.stroke(); }
+  const g=ctx.createRadialGradient(-w*.3,-w*1.15,w*.1,0,-w*.8,w*1.1); g.addColorStop(0,"#f4eedf"); g.addColorStop(1,"#9c927c");
+  ctx.fillStyle=g; ctx.beginPath(); ctx.ellipse(0,-w*.85,w*.78,w*.72,0,0,Math.PI*2); ctx.fill();
+  ctx.fillRect(-w*.42,-w*.45,w*.84,w*.4);
+  ctx.fillStyle="#1a1410"; ctx.beginPath(); ctx.ellipse(-w*.3,-w*.82,w*.2,w*.22,0,0,Math.PI*2); ctx.ellipse(w*.3,-w*.82,w*.2,w*.22,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(0,-w*.6); ctx.lineTo(-w*.08,-w*.45); ctx.lineTo(w*.08,-w*.45); ctx.closePath(); ctx.fill();
+  ctx.strokeStyle="#1a1410"; ctx.lineWidth=Math.max(1,w*.06); for(let i=-1;i<=1;i++){ ctx.beginPath(); ctx.moveTo(i*w*.18,-w*.4); ctx.lineTo(i*w*.18,-w*.08); ctx.stroke(); }
+  ctx.restore();
+}
+/* hearts and safe turns, drawn in the top-left of the view */
+function heartPath(x,y,r){ ctx.beginPath(); ctx.moveTo(x,y+r*.9); ctx.bezierCurveTo(x-r*1.4,y,x-r*1.1,y-r*1.1,x,y-r*.45); ctx.bezierCurveTo(x+r*1.1,y-r*1.1,x+r*1.4,y,x,y+r*.9); ctx.closePath(); }
+function shieldPath(x,y,r){ ctx.beginPath(); ctx.moveTo(x,y-r); ctx.lineTo(x+r*.85,y-r*.65); ctx.quadraticCurveTo(x+r*.8,y+r*.5,x,y+r); ctx.quadraticCurveTo(x-r*.8,y+r*.5,x-r*.85,y-r*.65); ctx.closePath(); }
+function drawLifeHUD(t){
+  if(G.phase==="idle") return;
+  const r=Math.max(9,Math.min(15,H*.028)), gap=r*2.5, x0=16+r, y1=16+r, y2=y1+r*2.9;
+  ctx.save();
+  const rows=[[y1,G.maxHits,G.hits,"heart",view.heartPulse,"Hearts"],[y2,G.maxWrong,G.wrong,"shield",view.stepPulse,"Safe turns"]];
+  rows.forEach(([y,max,used,kind,pulse,label])=>{
+    const n=isFinite(max)?Math.min(max,10):1, w=n*gap+ (isFinite(max)?0:gap);
+    ctx.fillStyle="rgba(8,10,14,.55)"; roundRect(x0-r*1.6,y-r*1.4,w+r*1.2+gap*0,r*2.8,r*.9); ctx.fill();
+    for(let i=0;i<n;i++){
+      const x=x0+i*gap, full=!isFinite(max)||i<max-used, last=i===max-used-1;
+      const pr=r*(full&&last&&dangerLevel()>0? 1+Math.sin(t*.012)*.08 : 1)*(i===max-used&&pulse>0?1+pulse*.6:1);
+      if(kind==="heart") heartPath(x,y,pr); else shieldPath(x,y,pr);
+      if(full){ const g=ctx.createLinearGradient(x,y-pr,x,y+pr);
+        if(kind==="heart"){ g.addColorStop(0,"#ff7a7a"); g.addColorStop(1,"#c21d2a"); } else { g.addColorStop(0,"#a9dd7c"); g.addColorStop(1,"#4c8a2a"); }
+        ctx.fillStyle=g; ctx.fill(); ctx.strokeStyle="rgba(0,0,0,.5)"; ctx.lineWidth=1.5; ctx.stroke();
+        ctx.fillStyle="rgba(255,255,255,.45)"; ctx.beginPath(); ctx.ellipse(x-pr*.35,y-pr*.35,pr*.22,pr*.14,-.6,0,Math.PI*2); ctx.fill();
+      }else{ ctx.fillStyle="rgba(40,40,46,.85)"; ctx.fill(); ctx.strokeStyle="rgba(255,255,255,.35)"; ctx.lineWidth=1.5; ctx.stroke(); }
+    }
+    if(!isFinite(max)){ ctx.fillStyle="#fff"; ctx.font=`700 ${r*1.5}px 'Atkinson Hyperlegible',sans-serif`; ctx.textAlign="left"; ctx.textBaseline="middle"; ctx.fillText("∞",x0+gap*.75,y+1); }
+    if(isFinite(max)&&max>10){ ctx.fillStyle="#fff"; ctx.font=`700 ${r}px 'Atkinson Hyperlegible',sans-serif`; ctx.textAlign="left"; ctx.textBaseline="middle"; ctx.fillText(`${max-used}`,x0+n*gap-r*.6,y); }
+  });
+  ctx.restore();
+  view.heartPulse=Math.max(0,(view.heartPulse||0)-.03); view.stepPulse=Math.max(0,(view.stepPulse||0)-.03);
+}
+function drawTorch(x,y,u,t,seed){
+  const fl=1+Math.sin(t*.013+seed)*.09+Math.sin(t*.031+seed*2)*.05;
+  const g=ctx.createRadialGradient(x,y-u*.1,0,x,y-u*.1,u*.55*fl);
+  g.addColorStop(0,`rgba(${TH.glow},.38)`); g.addColorStop(1,`rgba(${TH.glow},0)`);
+  ctx.save(); ctx.globalCompositeOperation="lighter"; ctx.fillStyle=g; ctx.fillRect(x-u*.6,y-u*.7,u*1.2,u*1.25); ctx.restore();
+  ctx.strokeStyle="#2a1c10"; ctx.lineWidth=Math.max(2,u*.035); ctx.lineCap="round";
+  ctx.beginPath(); ctx.moveTo(x,y+u*.12); ctx.lineTo(x,y-u*.02); ctx.stroke();
+  ctx.fillStyle="#4a3a28"; ctx.fillRect(x-u*.035,y-u*.05,u*.07,u*.045);
+  ctx.fillStyle=TH.flame[0]; ctx.beginPath(); ctx.ellipse(x,y-u*.1*fl,u*.04,u*.085*fl,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=TH.flame[1]; ctx.beginPath(); ctx.ellipse(x,y-u*.08*fl,u*.018,u*.04*fl,0,0,Math.PI*2); ctx.fill();
+}
+
+function plaque(x,y,w,h,text,side,o={}){
+  ctx.save(); ctx.globalAlpha=o.alpha??1; ctx.translate(x,y);
+  if(o.chains){ ctx.strokeStyle="#6b5a3e"; ctx.lineWidth=Math.max(1,h*.05);
+    ctx.beginPath(); ctx.moveTo(-w*.35,-h*.5); ctx.lineTo(-w*.3,-h*1.05); ctx.moveTo(w*.35,-h*.5); ctx.lineTo(w*.3,-h*1.05); ctx.stroke(); }
+  const st=o.state;
+  if(st){ ctx.shadowColor=st.ok?"rgba(143,191,99,.95)":"rgba(224,87,78,.95)"; ctx.shadowBlur=h*.7; }
+  else if(o.hover){ ctx.shadowColor=o.rune?"rgba(170,140,255,.9)":"rgba(255,200,90,.9)"; ctx.shadowBlur=h*.6; }
+  else if(o.rune){ ctx.shadowColor="rgba(150,110,255,.6)"; ctx.shadowBlur=h*.4; }
+  // frame with a little depth
+  ctx.fillStyle=o.rune?"#241a3a":"#4a3019"; roundRect(-w/2-h*.09,-h/2-h*.09+h*.05,w+h*.18,h+h*.18,h*.2); ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.fillStyle=o.rune?"#3b2b5e":"#6b4423"; roundRect(-w/2-h*.09,-h/2-h*.09,w+h*.18,h+h*.18,h*.2); ctx.fill();
+  const face=ctx.createLinearGradient(0,-h/2,0,h/2);
+  if(o.rune){ face.addColorStop(0,"#d9ccff"); face.addColorStop(1,"#a996e6"); }
+  else if(st){ face.addColorStop(0,st.ok?"#e2f2cf":"#f7d0c8"); face.addColorStop(1,st.ok?"#b9d79a":"#e6a196"); }
+  else { face.addColorStop(0,"#f3e6c2"); face.addColorStop(1,"#d5bf8c"); }
+  ctx.fillStyle=face; roundRect(-w/2,-h/2,w,h,h*.14); ctx.fill();
+  const a=side==="R"?1:-1, ax=a*(w/2-h*.36);
+  ctx.fillStyle=o.rune?"#3b2b5e":"#7a4a12";
+  ctx.beginPath();
+  if(side==="M"){ ctx.moveTo(ax,-h*.24); ctx.lineTo(ax+h*.19,h*.14); ctx.lineTo(ax-h*.19,h*.14); }
+  else { ctx.moveTo(ax+a*h*.2,0); ctx.lineTo(ax-a*h*.12,-h*.22); ctx.lineTo(ax-a*h*.12,h*.22); }
+  ctx.closePath(); ctx.fill();
+  const maxW=w-h*.95, font=s=>`700 ${s}px 'Atkinson Hyperlegible', system-ui, sans-serif`;
+  let fs=h*.4, lines=[text]; ctx.font=font(fs); const tw=ctx.measureText(text).width;
+  if(tw>maxW){
+    const one=fs*maxW/tw, words=text.split(" "); fs=one;
+    if(words.length>1){ let bi=1,bd=1e9;
+      for(let i=1;i<words.length;i++){ const d=Math.max(ctx.measureText(words.slice(0,i).join(" ")).width, ctx.measureText(words.slice(i).join(" ")).width); if(d<bd){ bd=d; bi=i; } }
+      const two=Math.min(h*.36, h*.4*maxW/bd);
+      if(two>one*1.08){ lines=[words.slice(0,bi).join(" "),words.slice(bi).join(" ")]; fs=two; } }
+    ctx.font=font(fs);
+  }
+  ctx.fillStyle="#2b1b0b"; ctx.textAlign="center"; ctx.textBaseline="middle";
+  if(lines.length===1) ctx.fillText(text,-a*h*.2,h*.03);
+  else { ctx.fillText(lines[0],-a*h*.2,h*.03-fs*.56); ctx.fillText(lines[1],-a*h*.2,h*.03+fs*.56); }
+  ctx.restore();
+  return {x:x-w/2-h*.1,y:y-h/2-h*.1,w:w+h*.2,h:h+h*.2};
+}
+
+/* monsters, drawn with their feet at (0,0); u = pixels per metre at their distance */
+function glowEyes(xs,y,r,color){ ctx.save(); ctx.shadowColor=color; ctx.shadowBlur=r*5; ctx.fillStyle=color; xs.forEach(x=>{ ctx.beginPath(); ctx.ellipse(x,y,r*1.2,r,0,0,Math.PI*2); ctx.fill(); }); ctx.restore(); }
+function drawGoblin(u,t){
+  const h=.74*u, b=Math.sin(t*.008)*h*.02; ctx.translate(0,b);
+  ctx.fillStyle="#2b1e12"; ctx.fillRect(-h*.15,-h*.3,h*.11,h*.3); ctx.fillRect(h*.04,-h*.3,h*.11,h*.3);
+  let g=ctx.createRadialGradient(-h*.06,-h*.52,h*.02,0,-h*.45,h*.28); g.addColorStop(0,"#7a5532"); g.addColorStop(1,"#2a1b0e");
+  ctx.fillStyle=g; ctx.beginPath(); ctx.ellipse(0,-h*.46,h*.24,h*.22,0,0,Math.PI*2); ctx.fill();
+  ctx.lineCap="round"; ctx.strokeStyle="#4f7a2c"; ctx.lineWidth=h*.08;
+  ctx.beginPath(); ctx.moveTo(-h*.2,-h*.56); ctx.lineTo(-h*.34,-h*.34); ctx.stroke();
+  const sw=Math.sin(t*.01)*.15;
+  ctx.beginPath(); ctx.moveTo(h*.2,-h*.56); ctx.lineTo(h*.33,-h*.76); ctx.stroke();
+  ctx.save(); ctx.translate(h*.33,-h*.76); ctx.rotate(.3+sw); ctx.fillStyle="#5a3a1c"; roundRect(-h*.05,-h*.36,h*.1,h*.38,h*.04); ctx.fill();
+  ctx.fillStyle="#3a2510"; ctx.beginPath(); ctx.arc(0,-h*.34,h*.08,0,7); ctx.fill(); ctx.restore();
+  ctx.fillStyle="#4f7a2c";
+  ctx.beginPath(); ctx.moveTo(-h*.15,-h*.84); ctx.lineTo(-h*.42,-h*.95); ctx.lineTo(-h*.17,-h*.74); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(h*.15,-h*.84); ctx.lineTo(h*.42,-h*.95); ctx.lineTo(h*.17,-h*.74); ctx.fill();
+  g=ctx.createRadialGradient(-h*.06,-h*.84,h*.02,0,-h*.79,h*.22); g.addColorStop(0,"#8fc256"); g.addColorStop(1,"#35561b");
+  ctx.fillStyle=g; ctx.beginPath(); ctx.ellipse(0,-h*.79,h*.19,h*.17,0,0,Math.PI*2); ctx.fill();
+  glowEyes([-h*.07,h*.07],-h*.82,h*.028,"#ffe14a");
+  ctx.fillStyle="#1a0e05"; ctx.beginPath(); ctx.ellipse(0,-h*.71,h*.09,h*.035,0,0,Math.PI); ctx.fill();
+  ctx.fillStyle="#efe6c8"; for(let i=-2;i<=2;i++){ ctx.beginPath(); ctx.moveTo(i*h*.03-h*.012,-h*.71); ctx.lineTo(i*h*.03,-h*.685); ctx.lineTo(i*h*.03+h*.012,-h*.71); ctx.fill(); }
+}
+function drawWraith(u,t){
+  const h=.9*u, f=Math.sin(t*.004)*h*.05; ctx.translate(0,-h*.12+f);
+  const g=ctx.createLinearGradient(0,-h,0,0); g.addColorStop(0,"#43306a"); g.addColorStop(1,"rgba(12,8,22,.2)");
+  ctx.fillStyle=g; ctx.beginPath(); ctx.moveTo(0,-h);
+  ctx.bezierCurveTo(h*.24,-h*.98,h*.3,-h*.7,h*.34,-h*.4);
+  for(let i=0;i<=8;i++){ const x=h*.34-i*h*.085, y=(i%2?-h*.08:0)+Math.sin(t*.008+i)*h*.03; ctx.lineTo(x,y); }
+  ctx.bezierCurveTo(-h*.3,-h*.7,-h*.24,-h*.98,0,-h); ctx.fill();
+  ctx.fillStyle="#05030a"; ctx.beginPath(); ctx.ellipse(0,-h*.78,h*.13,h*.15,0,0,Math.PI*2); ctx.fill();
+  glowEyes([-h*.05,h*.05],-h*.8,h*.024,"#8ff2ff");
+  ctx.strokeStyle="#d8d2c4"; ctx.lineWidth=h*.018; ctx.lineCap="round";
+  [[-1,-.5],[1,-.5]].forEach(([s,y])=>{ const bx=s*h*.36, by=h*y+Math.sin(t*.006)*h*.02; for(let k=-1;k<=1;k++){ ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(bx+s*h*.08,by+k*h*.05+h*.04); ctx.stroke(); } });
+}
+function drawImp(u,t){
+  const h=.62*u, f=Math.sin(t*.007)*h*.08; ctx.translate(0,-h*.5+f);
+  const aura=ctx.createRadialGradient(0,-h*.4,0,0,-h*.4,h*.9); aura.addColorStop(0,"rgba(255,120,30,.45)"); aura.addColorStop(1,"rgba(255,60,0,0)");
+  ctx.fillStyle=aura; ctx.fillRect(-h,-h*1.4,h*2,h*2);
+  const flap=.6+Math.abs(Math.sin(t*.02))*.6;
+  ctx.fillStyle="#5c1410";
+  [-1,1].forEach(s=>{ ctx.save(); ctx.scale(s,1); ctx.beginPath(); ctx.moveTo(h*.1,-h*.5);
+    ctx.lineTo(h*.7,-h*(.5+.4*flap)); ctx.lineTo(h*.6,-h*.45); ctx.lineTo(h*.5,-h*(.4+.1*flap)); ctx.lineTo(h*.38,-h*.3); ctx.closePath(); ctx.fill(); ctx.restore(); });
+  ctx.strokeStyle="#9c2a1a"; ctx.lineWidth=h*.04; ctx.beginPath(); ctx.moveTo(0,-h*.15); ctx.quadraticCurveTo(h*.35,h*.1,h*.28,-h*.12); ctx.stroke();
+  let g=ctx.createRadialGradient(-h*.05,-h*.45,h*.02,0,-h*.4,h*.3); g.addColorStop(0,"#ff6a3d"); g.addColorStop(1,"#7a1a10");
+  ctx.fillStyle=g; ctx.beginPath(); ctx.ellipse(0,-h*.38,h*.17,h*.22,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle="#e8d9c0";
+  [-1,1].forEach(s=>{ ctx.beginPath(); ctx.moveTo(s*h*.08,-h*.78); ctx.quadraticCurveTo(s*h*.24,-h*.95,s*h*.2,-h*1.05); ctx.quadraticCurveTo(s*h*.17,-h*.88,s*h*.03,-h*.8); ctx.fill(); });
+  g=ctx.createRadialGradient(-h*.04,-h*.74,h*.02,0,-h*.7,h*.18); g.addColorStop(0,"#ff7b4f"); g.addColorStop(1,"#8a2014");
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,-h*.7,h*.15,0,Math.PI*2); ctx.fill();
+  glowEyes([-h*.055,h*.055],-h*.72,h*.026,"#ffd23a");
+  ctx.strokeStyle="#2a0605"; ctx.lineWidth=h*.02; ctx.beginPath(); ctx.arc(0,-h*.66,h*.06,.2,Math.PI-.2); ctx.stroke();
+}
+const ENEMIES=[
+  {name:"Cave Goblin", draw:drawGoblin, colors:["#8fc256","#ffe14a","#5a3a1c"]},
+  {name:"Shadow Wraith", draw:drawWraith, colors:["#8ff2ff","#6a4fa8","#d8d2c4"]},
+  {name:"Fire Imp", draw:drawImp, colors:["#ff7b4f","#ffd23a","#ff3b1a"]}
+];
+
+function burst(x,y,colors,n,smoke){
+  for(let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, s=smoke?rnd(20,90):rnd(120,520);
+    view.parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-(smoke?40:80),life:0,max:rnd(.5,1.1),size:smoke?rnd(10,26):rnd(3,8),c:colors[i%colors.length],smoke}); }
+}
+function drawParts(dt){
+  const P=view.parts;
+  for(let i=P.length-1;i>=0;i--){ const p=P[i]; p.life+=dt; if(p.life>p.max){ P.splice(i,1); continue; }
+    p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=(p.smoke?-30:420)*dt; p.vx*=.98;
+    const k=1-p.life/p.max; ctx.globalAlpha=k*(p.smoke?.5:1); ctx.fillStyle=p.c;
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.size*(p.smoke?(2-k):k+.3),0,Math.PI*2); ctx.fill(); }
+  ctx.globalAlpha=1;
+}
+
+function drawScene(t){
+  const danger=dangerLevel();
+  render3D(t);
+  ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality="high";
+  ctx.drawImage(off,0,0,RW,RH,0,0,W,H);
+  view.hits=[];
+  TORCHES.forEach((T,i)=>{ const p=proj(T.x,T.y,T.z); if(!p) return;
+    const cl=visClip(p.x-p.u*.12,p.x+p.u*.12,p.d,.25); if(!cl) return;
+    ctx.save(); ctx.beginPath(); ctx.rect(cl[0],0,cl[1]-cl[0],H); ctx.clip(); drawTorch(p.x,p.y,p.u,t,i*1.9); ctx.restore(); });
+  // one skull on the floor for every death
+  const nd=Math.min(getDeaths(),SKULLS.length);
+  for(let i=0;i<nd;i++){ const k=SKULLS[i], p=proj(k.x,k.y,0); if(!p||p.d>9) continue;
+    const cl=visClip(p.x-p.u*.12,p.x+p.u*.12,p.d,.05); if(!cl) continue;
+    ctx.save(); ctx.beginPath(); ctx.rect(cl[0],0,cl[1]-cl[0],H); ctx.clip(); drawSkull(p.x,p.y,p.u*k.s,k.r,k.bones); ctx.restore(); }
+  // signs on the wall at the fork
+  if(view.signsAlpha>0 && view.signs.L){
+    const three=!!view.signs.M, sw=three?.4:.45;
+    (three?[["L",5.6,2.02],["M",6.5,2.0],["R",7.4,2.02]]:[["L",6.27,2.02],["R",6.73,2.02]]).forEach(([s,sx,sy])=>{
+      const p=proj(sx,sy,.56); if(!p) return;
+      const st=view.chosen&&view.chosen.side===s?view.chosen:null;
+      const r=plaque(p.x,p.y,sw*p.u,.2*p.u,view.signs[s],s,{chains:true,alpha:view.signsAlpha,state:st,hover:G.phase==="fork"&&view.hover===s});
+      if(G.phase==="fork") view.hits.push({side:s,...r});
+    });
+  }
+  // monster
+  if(E){
+    const p=proj(E.x,E.y+E.lunge*.95,0);
+    if(p){
+      const cl=visClip(p.x-p.u*.5,p.x+p.u*.5,p.d,.05);
+      if(cl){
+        ctx.save(); ctx.beginPath(); ctx.rect(cl[0],0,cl[1]-cl[0],H); ctx.clip();
+        ctx.globalAlpha=E.alpha*(1-E.dead);
+        ctx.fillStyle="rgba(0,0,0,.45)"; ctx.beginPath(); ctx.ellipse(p.x,p.y,p.u*.19,p.u*.04,0,0,Math.PI*2); ctx.fill();
+        ctx.translate(p.x,p.y); const sc=(1-E.dead*.4)*.74; ctx.scale(sc,sc);
+        if(E.dead>0 && E.dead<.35) ctx.filter="brightness(3)";
+        E.type.draw(p.u,t); ctx.filter="none";
+        ctx.restore();
+      }
+      E.sx=p.x; E.sy=p.y-p.u*.3;
+    }
+  }
+  if(view.bolt && E){
+    const k=view.bolt.k, x0=W/2, y0=H*1.02, x=lerp(x0,E.sx,k), y=lerp(y0,E.sy,k)-Math.sin(k*Math.PI)*H*.08;
+    ctx.save(); ctx.globalCompositeOperation="lighter";
+    for(let i=0;i<6;i++){ const kk=Math.max(0,k-i*.04); const tx=lerp(x0,E.sx,kk), ty=lerp(y0,E.sy,kk)-Math.sin(kk*Math.PI)*H*.08;
+      const r=(18-i*2.2)*(H/450); const g=ctx.createRadialGradient(tx,ty,0,tx,ty,r*2); g.addColorStop(0,"rgba(220,240,255,.9)"); g.addColorStop(.4,"rgba(120,160,255,.6)"); g.addColorStop(1,"rgba(80,60,255,0)");
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(tx,ty,r*2,0,Math.PI*2); ctx.fill(); }
+    ctx.restore();
+  }
+  // floating dust in the torch light
+  if(!reduce){ ctx.save(); ctx.globalCompositeOperation="lighter";
+    for(let i=0;i<46;i++){ const sp=.00002+(i%7)*.000006, x=((i*137.5+t*sp*W*3)%(W+40))-20, y=(H*(.15+((i*61)%70)/100)+Math.sin(t*.0006+i)*H*.03);
+      const a=.10+.10*Math.sin(t*.002+i*1.3); ctx.fillStyle=`rgba(${TH.glow},${Math.max(0,a)})`; ctx.beginPath(); ctx.arc(x,y,1+(i%3)*.7,0,7); ctx.fill(); }
+    ctx.restore(); }
+  // depth vignette and danger tint
+  const g=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.25,W/2,H/2,Math.max(W,H)*.75);
+  g.addColorStop(0,"rgba(0,0,0,0)"); g.addColorStop(1,danger>0?`rgba(90,0,0,${.35+danger*.4})`:"rgba(0,0,0,.45)");
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+}
+
+function drawTimerUI(now){
+  const fighting = G.phase==="fight" && E;
+  if(!fighting && G.phase!=="fork") return;
+  const by=Math.max(14,H*.04); let yy=by;
+  ctx.textAlign="center"; ctx.textBaseline="top";
+  if(fighting){
+    ctx.fillStyle="#ffd6cf"; ctx.font=`${Math.round(Math.max(16,H*.045))}px Metamorphous, Georgia, serif`;
+    ctx.fillText(E.type.name,W/2,by); yy=by+Math.max(22,H*.06);
+  }
+  if(G.deadline){
+    const left=Math.max(0,G.deadline-now), k=left/G.total;
+    const bw=Math.min(W*.5,520), bx=W/2-bw/2, bh=Math.max(14,H*.025);
+    ctx.fillStyle="rgba(0,0,0,.6)"; roundRect(bx,yy,bw,bh,bh/2); ctx.fill();
+    ctx.fillStyle=k>.5?"#f2a33a":k>.25?"#ff7a3d":"#ff3b30"; roundRect(bx,yy,Math.max(bh,bw*k),bh,bh/2); ctx.fill();
+    ctx.fillStyle="#fff"; ctx.font=`700 ${Math.round(Math.max(18,H*.05))}px 'Atkinson Hyperlegible',sans-serif`;
+    ctx.shadowColor="#000"; ctx.shadowBlur=6; ctx.fillText(Math.ceil(left/1000)+"s",W/2,yy+bh+4); ctx.shadowBlur=0;
+    const sec=Math.ceil(left/1000);
+    if(sec<=3 && sec!==G.lastTick && left>0){ G.lastTick=sec; sfx.tick(); }
+    if(left<=0){ if(fighting) fightAnswer(null); else forkChoice(null,true); return; }
+  }
+  if(fighting && view.fightAns){
+    const three=!!view.fightAns.M, w=Math.min(W*(three?.27:.3),three?280:320), h=w*.34, y=H*.58;
+    (three?["L","M","R"]:["L","R"]).forEach(s=>{
+      const x=s==="M"?W/2:s==="L"?Math.max(w/2+12,W*.18):Math.min(W-w/2-12,W*.82), yy=s==="M"?Math.min(H-h*.7,H*.84):y;
+      const r=plaque(x,yy,w,h,view.fightAns[s],s,{rune:true,hover:view.hover===s});
+      view.hits.push({side:s,...r});
+    });
+  }
+}
+
+/* ---------- 2D helpers and ending scenes ---------- */
+// perspective rectangle of the corridor cross-section at depth z
+function R(z){
+  const s = 1/(1+Math.max(z,-.86));
+  const hw = Math.max(W*.56, H*.75)*s, hh = H*.62*s;
+  return { l:cx-hw, r:cx+hw, t:cy-hh, b:cy+hh*.95, s };
+}
+function poly(pts, fill){ ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]); for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0],pts[i][1]); ctx.closePath(); if(fill){ ctx.fillStyle=fill; ctx.fill(); } }
+function lin(x0,y0,x1,y1,stops){ const g=ctx.createLinearGradient(x0,y0,x1,y1); stops.forEach((c,i)=>g.addColorStop(i/(stops.length-1),c)); return g; }
+const lerp=(a,b,t)=>a+(b-a)*t;
+
+function bricksOnRect(Rc, rows, color){
+  ctx.strokeStyle=color; ctx.lineWidth=Math.max(1,Rc.s*2);
+  const h=(Rc.b-Rc.t)/rows, w=(Rc.r-Rc.l)/6;
+  for(let i=1;i<rows;i++){ const y=Rc.t+i*h; ctx.beginPath(); ctx.moveTo(Rc.l,y); ctx.lineTo(Rc.r,y); ctx.stroke(); }
+  for(let i=0;i<rows;i++){
+    const off = (i%2)*w/2;
+    for(let x=Rc.l+off+w; x<Rc.r; x+=w){ ctx.beginPath(); ctx.moveTo(x,Rc.t+i*h); ctx.lineTo(x,Rc.t+(i+1)*h); ctx.stroke(); }
+  }
+}
+
+function sideWall(A,B,side,z0,z1,p){
+  const x0 = side==="L"?A.l:A.r, x1 = side==="L"?B.l:B.r;
+  poly([[x0,A.t],[x1,B.t],[x1,B.b],[x0,A.b]], lin(x0,0,x1,0,["#6a7282","#3c4350","#1b1f27"]));
+  ctx.strokeStyle="rgba(0,0,0,.35)"; ctx.lineWidth=1.5;
+  const rows=7;
+  for(let i=1;i<rows;i++){ const f=i/rows; ctx.beginPath(); ctx.moveTo(x0,lerp(A.t,A.b,f)); ctx.lineTo(x1,lerp(B.t,B.b,f)); ctx.stroke(); }
+  for(let z=Math.ceil(z0*5)/5; z<z1; z+=.2){
+    if(z-p < -.85) continue;
+    const Q=R(z-p), x=side==="L"?Q.l:Q.r;
+    for(let i=0;i<rows;i++){ if((i+Math.round(z*5))%2) continue; ctx.beginPath(); ctx.moveTo(x,lerp(Q.t,Q.b,i/rows)); ctx.lineTo(x,lerp(Q.t,Q.b,(i+1)/rows)); ctx.stroke(); }
+  }
+}
+
+function roundRect(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+/* gold chamber */
+const coins=[]; for(let i=0;i<650;i++){ const u=Math.random()*2-1; const hmax=Math.pow(1-u*u,.8); coins.push({u, v:Math.random()*hmax, r:.7+Math.random()*.6, tilt:Math.random()}); }
+coins.sort((a,b)=>b.v-a.v);
+const sparks=[]; for(let i=0;i<40;i++) sparks.push({c:coins[Math.floor(Math.random()*coins.length)], ph:Math.random()*6.28, sp:.002+Math.random()*.004});
+function drawGold(t){
+  ctx.fillStyle="#1b140c"; ctx.fillRect(0,0,W,H);
+  const Rb={l:W*.08,r:W*.92,t:H*.05,b:H*.72,s:1};
+  ctx.fillStyle=lin(0,Rb.t,0,Rb.b,["#3d3021","#5a4630"]); ctx.fillRect(Rb.l,Rb.t,Rb.r-Rb.l,Rb.b-Rb.t);
+  bricksOnRect(Rb,9,"rgba(0,0,0,.28)");
+  poly([[0,H],[W,H],[Rb.r,Rb.b],[Rb.l,Rb.b]], lin(0,Rb.b,0,H,["#4b3a26","#6e5434"]));
+  poly([[0,0],[W,0],[Rb.r,Rb.t],[Rb.l,Rb.t]], "#140f09");
+  poly([[0,0],[Rb.l,Rb.t],[Rb.l,Rb.b],[0,H]], lin(0,0,Rb.l,0,["#5e4a33","#3a2d1e"]));
+  poly([[W,0],[Rb.r,Rb.t],[Rb.r,Rb.b],[W,H]], lin(W,0,Rb.r,0,["#5e4a33","#3a2d1e"]));
+  const base=H*.86, mw=Math.min(W*.36,H*.75), mh=H*.5, cr=Math.max(3,mw*.022);
+  const glow=ctx.createRadialGradient(cx,base-mh*.4,0,cx,base-mh*.4,Math.max(W,H)*.6);
+  glow.addColorStop(0,"rgba(255,208,74,.55)"); glow.addColorStop(1,"rgba(255,180,40,0)");
+  ctx.save(); ctx.globalCompositeOperation="lighter"; ctx.fillStyle=glow; ctx.fillRect(0,0,W,H); ctx.restore();
+  for(const c of coins){
+    const x=cx+c.u*mw, y=base-c.v*mh, r=cr*c.r;
+    ctx.fillStyle = c.tilt>.5 ? "#f5c02e" : "#e0a51c";
+    ctx.beginPath(); ctx.ellipse(x,y,r*1.4,r*(.55+c.tilt*.45),0,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle="#9a6a0c"; ctx.lineWidth=1; ctx.stroke();
+  }
+  // a chest at the top
+  const chx=cx, chy=base-mh*1.02, cw=mw*.32, chh=cw*.55;
+  ctx.fillStyle="#6b3d18"; roundRect(chx-cw/2,chy-chh/2,cw,chh,chh*.12); ctx.fill();
+  ctx.fillStyle="#f2c33c"; ctx.fillRect(chx-cw/2,chy-chh*.08,cw,chh*.12); ctx.fillRect(chx-cw*.06,chy-chh/2,cw*.12,chh);
+  ctx.fillStyle="#ffe680"; ctx.beginPath(); ctx.ellipse(chx,chy-chh*.55,cw*.42,chh*.22,0,Math.PI,0); ctx.fill();
+  for(const s of sparks){
+    const a=Math.max(0,Math.sin(t*s.sp+s.ph)); if(a<.1) continue;
+    const x=cx+s.c.u*mw, y=base-s.c.v*mh, L=cr*3.5*a;
+    ctx.strokeStyle=`rgba(255,255,230,${a})`; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(x-L,y); ctx.lineTo(x+L,y); ctx.moveTo(x,y-L); ctx.lineTo(x,y+L); ctx.stroke();
+  }
+}
+
+/* trap */
+function drawTrap(t){
+  const k=view.fall;
+  ctx.save();
+  // fall: zoom into the pit and tip the view down
+  const pz=1+k*k*3.2, py=-k*H*.55;
+  ctx.translate(cx,cy+H*.25); ctx.scale(pz,pz); ctx.translate(-cx,-(cy+H*.25)+py/pz);
+  const A=R(-.2), C=R(1.6);
+  ctx.fillStyle="#07080b"; ctx.fillRect(-W,-H,W*3,H*3);
+  ctx.fillStyle="#2e333c"; ctx.fillRect(C.l,C.t,C.r-C.l,C.b-C.t); bricksOnRect(C,8,"rgba(0,0,0,.4)");
+  poly([[A.l,A.t],[A.r,A.t],[C.r,C.t],[C.l,C.t]], "#111318");
+  poly([[A.l,A.b],[A.r,A.b],[C.r,C.b],[C.l,C.b]], lin(0,A.b,0,C.b,["#3b3128","#1a1612"]));
+  sideWall(A,C,"L",0,1.6,.2); sideWall(A,C,"R",0,1.6,.2);
+  // pit
+  const n=R(.15), f=R(1.25), inset=.82;
+  const P=[[lerp(cx,n.l,inset),n.b],[lerp(cx,n.r,inset),n.b],[lerp(cx,f.r,inset),f.b],[lerp(cx,f.l,inset),f.b]];
+  ctx.save(); poly(P); ctx.clip();
+  ctx.fillStyle=lin(0,f.b,0,n.b,["#140303","#3a0606","#120202"]); ctx.fillRect(-W,-H,W*3,H*3);
+  // spikes
+  const depthY=(y)=>y+ (n.b-f.b)*.15;
+  for(let row=0; row<4; row++){
+    const zz=lerp(1.2,.25,row/3), Q=R(zz), y=depthY(Q.b)+(n.b-f.b)*.25, xl=lerp(cx,Q.l,inset*.95), xr=lerp(cx,Q.r,inset*.95);
+    const cnt=8+row*2, sw=(xr-xl)/cnt, sh=sw*2.4;
+    for(let i=0;i<cnt;i++){
+      const x=xl+sw*(i+.5);
+      ctx.fillStyle=lin(0,y-sh,0,y,["#d7d2cc","#6d6863"]);
+      ctx.beginPath(); ctx.moveTo(x-sw*.38,y); ctx.lineTo(x,y-sh); ctx.lineTo(x+sw*.38,y); ctx.closePath(); ctx.fill();
+      ctx.fillStyle="rgba(170,20,20,.8)"; ctx.beginPath(); ctx.moveTo(x-sw*.08,y-sh*.8); ctx.lineTo(x,y-sh); ctx.lineTo(x+sw*.08,y-sh*.8); ctx.closePath(); ctx.fill();
+    }
+  }
+  ctx.restore();
+  // broken edge
+  ctx.strokeStyle="#0a0705"; ctx.lineWidth=3; poly(P); ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle=`rgba(150,0,0,${.15+k*.4})`; ctx.fillRect(0,0,W,H);
+}
+
+
+
+
+/* ---------- frame loop ---------- */
+let lastT=performance.now();
+function frame(t){
+  const dt=Math.min(.05,(t-lastT)/1000); lastT=t;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  ctx.save();
+  if(view.shake>0){ const a=view.shake*10; ctx.translate((Math.random()-.5)*a,(Math.random()-.5)*a); view.shake=Math.max(0,view.shake-.03); }
+  if(view.mode==="gold") drawGold(t);
+  else if(view.mode==="trap") drawTrap(t);
+  else drawScene(t);
+  ctx.restore();
+  drawParts(dt);
+  if(view.mode==="corridor"){ drawTimerUI(t); drawLifeHUD(t); drawFloats(dt); drawBanner(t); }
+  if(view.slash>0){
+    ctx.save(); ctx.strokeStyle=`rgba(200,20,20,${view.slash})`; ctx.lineCap="round"; ctx.lineWidth=Math.max(6,W*.012);
+    for(let i=0;i<3;i++){ ctx.beginPath(); ctx.moveTo(W*(.3+i*.12),H*.15); ctx.lineTo(W*(.45+i*.12),H*.85); ctx.stroke(); }
+    ctx.restore(); view.slash=Math.max(0,view.slash-.015);
+  }
+  if(view.flash>0){ ctx.fillStyle=`rgba(220,30,30,${view.flash*.35})`; ctx.fillRect(0,0,W,H); view.flash=Math.max(0,view.flash-.03); }
+  if(view.red>0){ ctx.fillStyle=`rgba(60,0,0,${view.red*.9})`; ctx.fillRect(0,0,W,H); }
+  if(view.fade>0){ ctx.fillStyle=`rgba(0,0,0,${view.fade})`; ctx.fillRect(0,0,W,H); }
+  requestAnimationFrame(frame);
+}
+
+/* floating "+gold" numbers and the zone banner */
+function drawFloats(dt){ const F=view.floats||[]; ctx.save(); ctx.textAlign="center"; ctx.textBaseline="middle";
+  for(let i=F.length-1;i>=0;i--){ const f=F[i]; f.t+=dt; if(f.t>1.6){ F.splice(i,1); continue; }
+    const k=f.t/1.6; ctx.globalAlpha=1-k*k; ctx.font=`700 ${Math.round(Math.max(26,H*.08))}px Metamorphous, Georgia, serif`;
+    ctx.fillStyle="#ffd04a"; ctx.strokeStyle="rgba(60,30,0,.9)"; ctx.lineWidth=5; const y=f.y-k*H*.18;
+    ctx.strokeText(f.text+" 💰",f.x,y); ctx.fillText(f.text+" 💰",f.x,y); }
+  ctx.restore(); }
+function drawBanner(t){ const b=view.banner; if(!b) return; const e=(t-b.t)/1000; if(e>3.2){ view.banner=null; return; }
+  const a=Math.min(1,e/.4)*Math.min(1,(3.2-e)/.6); ctx.save(); ctx.globalAlpha=Math.max(0,a); ctx.textAlign="center"; ctx.textBaseline="middle";
+  const y=H*.8; ctx.fillStyle="rgba(0,0,0,.55)"; ctx.fillRect(0,y-H*.11,W,H*.22);
+  ctx.fillStyle=`rgb(${TH.glow})`; ctx.font=`700 ${Math.round(Math.max(16,H*.04))}px 'Atkinson Hyperlegible',sans-serif`; ctx.fillText(b.title.toUpperCase(),W/2,y-H*.05);
+  ctx.fillStyle="#fff"; ctx.font=`${Math.round(Math.max(28,H*.09))}px Metamorphous, Georgia, serif`; ctx.fillText(b.name,W/2,y+H*.03);
+  ctx.restore(); }
+/* minimap */
+function drawMap(){
+  const m=$("map"), c=m.getContext("2d"); const w=m.width, h=m.height;
+  c.setTransform(1,0,0,1,0,0); c.clearRect(0,0,w,h);
+  let x=0,y=0,dx=0,dy=-1; const segs=[], stubs=[];
+  const pts=[[0,0]];
+  for(const st of G.path){
+    x+=dx; y+=dy; pts.push([x,y]);
+    const L=[dy,-dx], Rr=[-dy,dx], S=[dx,dy];
+    (st.dir==="L"?[Rr]:st.dir==="R"?[L]:[L,Rr]).forEach(o=>stubs.push([x,y,x+o[0]*.45,y+o[1]*.45]));
+    const nd = st.dir==="L"?L:st.dir==="R"?Rr:S; dx=nd[0]; dy=nd[1];
+    segs.push([x,y,x+dx,y+dy,st.ok]); x+=dx; y+=dy; pts.push([x,y]);
+  }
+  let minx=0,maxx=0,miny=0,maxy=0; pts.forEach(([a,b])=>{minx=Math.min(minx,a);maxx=Math.max(maxx,a);miny=Math.min(miny,b);maxy=Math.max(maxy,b);});
+  const pad=14*DPR, sc=Math.min((w-pad*2)/Math.max(2,maxx-minx), (h-pad*2)/Math.max(2,maxy-miny));
+  const ox=w/2-(minx+maxx)/2*sc, oy=h/2-(miny+maxy)/2*sc, X=v=>ox+v*sc, Y=v=>oy+v*sc;
+  c.lineCap="round"; c.lineWidth=Math.max(2,sc*.18);
+  c.strokeStyle="rgba(234,217,174,.18)";
+  stubs.forEach(s=>{ c.beginPath(); c.moveTo(X(s[0]),Y(s[1])); c.lineTo(X(s[2]),Y(s[3])); c.stroke(); });
+  c.strokeStyle="rgba(234,217,174,.55)";
+  for(let i=0;i<pts.length-1;i+=2){ c.beginPath(); c.moveTo(X(pts[i][0]),Y(pts[i][1])); c.lineTo(X(pts[i+1][0]),Y(pts[i+1][1])); c.stroke(); }
+  segs.forEach(s=>{ c.strokeStyle=s[4]?"#8fbf63":"#e0574e"; c.beginPath(); c.moveTo(X(s[0]),Y(s[1])); c.lineTo(X(s[2]),Y(s[3])); c.stroke(); });
+  c.fillStyle="#f2a33a"; c.beginPath(); c.arc(X(x),Y(y),Math.max(3,sc*.2),0,Math.PI*2); c.fill();
+}
+
+
+resize(); updateHud(); setButtons(false);
+view.fade=0; view.cam.y=4.6;
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

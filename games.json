@@ -1,0 +1,17 @@
+{
+  "categories": ["Grammar", "Vocabulary", "Reading", "Quiz"],
+  "games": [
+    {
+      "id": "grammar-maze",
+      "title": "Grammar Maze",
+      "subtitleHe": "מבוך הדקדוק",
+      "description": "A torch-lit 3D maze for the classroom. Every fork is an English question: choose the sign with the right answer and the class walks that way. Four zones lead to the gold, with timers, monsters, and topics for grades 10–12.",
+      "category": "Grammar",
+      "tags": ["Tenses", "Sentences", "Bagrut", "Word types"],
+      "level": "Grades 10–12",
+      "path": "games/grammar-maze/",
+      "thumbnail": "assets/thumbs/grammar-maze.png",
+      "featured": true
+    }
+  ]
+}
