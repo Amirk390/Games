@@ -234,6 +234,60 @@ body.pseudo-full #app{height:100vh; height:100dvh; padding-left:env(safe-area-in
   .card{padding:14px}
   .card h2{font-size:1.5rem}
 }
+#mpOpenBtn{line-height:1.35}
+#mpScreen{z-index:45}
+#mpScreen .card{max-width:640px}
+#mpScreen.hosting .card{max-width:1100px}
+#mpScreen h2{margin-bottom:4px}
+#mpScreen h3{margin:18px 0 8px; font-size:1.15rem}
+#mpScreen .mp-he{font-weight:700}
+#mpScreen .kicker-mp{color:var(--muted); letter-spacing:.04em; text-transform:uppercase; font-size:.85rem; margin:0}
+#mpScreen .mp-code{font-size:clamp(3.2rem,12vw,6.4rem); letter-spacing:.16em; text-align:center; color:var(--gold); font-weight:800; line-height:.95; margin:6px 0 10px; font-family:'Atkinson Hyperlegible',sans-serif}
+#mpScreen input{display:block; width:100%; min-height:48px; font:inherit; font-size:16px; background:var(--bg); color:var(--ink); border:1.5px solid var(--line); border-radius:10px; padding:8px 12px}
+#mpScreen input:focus-visible{outline:3px solid var(--torch); outline-offset:1px}
+#mpScreen .mp-msg{color:#ff9a90; min-height:1.2em; margin-top:8px}
+#mpScreen .mp-chips{display:flex; flex-wrap:wrap; gap:8px}
+#mpScreen .mp-chip{font:inherit; font-weight:700; font-size:.95rem; padding:8px 14px; border-radius:999px; border:1.5px solid var(--line); background:transparent; color:var(--muted); cursor:pointer}
+#mpScreen .mp-chip.on{border-color:var(--torch); color:var(--ink); background:rgba(242,163,58,.16)}
+#mpScreen .mp-chip:focus-visible{outline:3px solid var(--torch); outline-offset:2px}
+#mpScreen .mp-mini{display:flex; gap:8px; align-items:center; margin-bottom:8px}
+#mpScreen .mp-person{font-size:1.25rem; padding:4px 0; border-bottom:1px solid var(--line)}
+#mpScreen canvas{display:block; margin:12px auto; background:#fff; border-radius:12px; max-width:100%}
+#mpScreen .mp-q{font-size:clamp(1.4rem,3.2vw,2.5rem); line-height:1.3; margin:8px 0 12px}
+#mpScreen.hosting .mp-q{font-size:clamp(1.8rem,4.2vw,3.3rem)}
+#mpScreen .mp-q b{color:var(--gold)}
+#mpScreen .mp-topic{color:var(--parch); margin:4px 0}
+#mpScreen .mp-clock{font-size:clamp(2rem,6vw,4rem); font-weight:800; color:var(--torch); line-height:1}
+#mpScreen .mp-choices{display:grid; grid-template-columns:1fr; gap:10px; margin-top:8px}
+@media (min-width:700px){#mpScreen .mp-choices{grid-template-columns:1fr 1fr}}
+#mpScreen .mp-choice{font:inherit; font-weight:700; font-size:1.15rem; text-align:start; min-height:64px; padding:14px; border-radius:12px; border:2px solid var(--line); background:#272f3b; color:var(--ink); cursor:pointer}
+#mpScreen .mp-choice:focus-visible{outline:3px solid var(--torch); outline-offset:2px}
+#mpScreen .mp-choice:disabled{cursor:default}
+#mpScreen .mp-choice.ok{border-color:var(--moss); background:rgba(143,191,99,.16)}
+#mpScreen .mp-choice.bad{border-color:var(--blood); background:rgba(224,87,78,.16)}
+#mpScreen .mp-why{color:var(--moss); font-size:1.05rem; line-height:1.4}
+#mpScreen .mp-hint{font-size:1.15rem; line-height:1.45; margin-top:8px}
+#mpScreen .mp-me{font-size:clamp(1.2rem,3vw,1.8rem); font-weight:800; margin-top:12px}
+#mpScreen .mp-row{display:flex; justify-content:space-between; gap:12px; align-items:baseline; font-size:clamp(1.2rem,2.6vw,2rem); padding:7px 2px; border-bottom:1px solid var(--line)}
+#mpScreen.hosting .mp-row{font-size:clamp(1.5rem,3.2vw,2.6rem)}
+#mpScreen .mp-row.me{color:var(--gold)}
+#mpScreen .mp-row.bump{animation:mp-bump .6s ease}
+#mpScreen .mp-podium{display:flex; align-items:flex-end; justify-content:center; gap:10px; margin:14px 0}
+#mpScreen .mp-place{flex:1; max-width:220px; text-align:center; border:1px solid var(--line); border-radius:12px; padding:12px 8px; background:rgba(242,163,58,.1); animation:mp-pop .45s ease}
+#mpScreen .mp-place span{display:block; color:var(--muted)}
+#mpScreen .mp-place b{display:block; font-size:clamp(1.3rem,3vw,2.2rem); margin:6px 0}
+#mpScreen .mp-place.p1{min-height:150px; order:2; background:rgba(255,208,74,.2)}
+#mpScreen .mp-place.p2{min-height:120px; order:1}
+#mpScreen .mp-place.p3{min-height:100px; order:3}
+#mpScreen .mp-key{margin:8px 0 0; padding-left:1.2em}
+#mpScreen .mp-key li{margin:8px 0; line-height:1.4}
+#mpScreen .mp-key div{color:var(--gold); font-weight:700}
+@keyframes mp-pop{from{transform:translateY(10px); opacity:.2} to{transform:none; opacity:1}}
+@keyframes mp-bump{40%{background:rgba(242,163,58,.28)}}
+@media (prefers-reduced-motion:reduce){
+  #mpScreen .mp-place,#mpScreen .mp-row.bump{animation:none}
+}
+
 </style>
 </head>
 <body>
@@ -310,6 +364,7 @@ body.pseudo-full #app{height:100vh; height:100dvh; padding-left:env(safe-area-in
       <div class="help">☠ Deaths so far: <span id="deathCount">0</span>. Each one leaves a skull in the maze. <button type="button" class="link" id="clearDeaths">Clear the skulls</button></div>
       <div class="warn" id="warn"></div>
       <button class="go" id="startBtn">Enter the maze</button>
+      <button class="go secondary" id="mpOpenBtn" type="button">Multiplayer / <span lang="he" dir="rtl">משחק מרובה משתתפים</span></button>
     </div>
   </div>
 
@@ -344,9 +399,13 @@ body.pseudo-full #app{height:100vh; height:100dvh; padding-left:env(safe-area-in
       </div>
     </div>
   </div>
+  <div class="overlay" id="mpScreen" hidden>
+    <div class="card" id="mpCard"></div>
+  </div>
 </div>
 <div id="rotateTip" hidden>🔄 Turn your phone sideways (landscape) for the best view</div>
 
+<script src="firebase-config.js"></script>
 <script>
 const $ = id=>document.getElementById(id);
 /* Storage that never throws: in a sandboxed preview (no allow-same-origin) even reading
@@ -2533,6 +2592,8 @@ function drawTrap(t){
 /* ---------- frame loop ---------- */
 let lastT=performance.now();
 function frame(t){
+  const mpLive=$("mpScreen");
+  if(mpLive && !mpLive.hidden){ lastT=t; requestAnimationFrame(frame); return; }
   const dt=Math.min(.05,(t-lastT)/1000); lastT=t;
   ctx.setTransform(DPR,0,0,DPR,0,0);
   ctx.save();
@@ -2596,6 +2657,981 @@ function drawMap(){
 resize(); updateHud(); setButtons(false);
 view.fade=0; view.cam.y=4.6;
 requestAnimationFrame(frame);
+const mpQrMatrix = (function () {
+// QR Code byte mode, ECC M, versions 1–6. Returns a 0/1 matrix or null.
+const EXP = new Uint8Array(512), LOG = new Uint8Array(256);
+(() => {
+  let x = 1;
+  for (let i = 0; i < 255; i++) { EXP[i] = x; LOG[x] = i; x <<= 1; if (x & 256) x ^= 0x11d; }
+  for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255];
+})();
+const gfMul = (a, b) => (a && b) ? EXP[LOG[a] + LOG[b]] : 0;
+
+const ECC_M = [0, 10, 16, 26, 18, 24, 16];
+const BLOCKS_M = [0, 1, 1, 1, 2, 2, 4];
+const ALIGN = [null, [], [6, 18], [6, 22], [6, 26], [6, 30], [6, 34]];
+const REMAINDER = [0, 0, 7, 7, 7, 7, 7];
+
+function rsGenerator(deg) {
+  let poly = [1];
+  for (let i = 0; i < deg; i++) {
+    const next = new Array(poly.length + 1).fill(0);
+    for (let j = 0; j < poly.length; j++) {
+      next[j] ^= poly[j];
+      next[j + 1] ^= gfMul(poly[j], EXP[i]);
+    }
+    poly = next;
+  }
+  return poly;
+}
+const RS_CACHE = {};
+function rsRemainder(data, deg) {
+  const gen = RS_CACHE[deg] || (RS_CACHE[deg] = rsGenerator(deg));
+  const res = Uint8Array.from([...data, ...new Array(deg).fill(0)]);
+  for (let i = 0; i < data.length; i++) {
+    const c = res[i];
+    if (!c) continue;
+    for (let j = 1; j < gen.length; j++) res[i + j] ^= gfMul(gen[j], c);
+  }
+  return Array.from(res.slice(data.length));
+}
+
+function bitsPush(bits, value, len) {
+  for (let i = len - 1; i >= 0; i--) bits.push((value >>> i) & 1);
+}
+
+function dataCodewords(v) {
+  return totalCW(v) - BLOCKS_M[v] * ECC_M[v];
+}
+function totalCW(v) {
+  const size = 17 + 4 * v;
+  let fn = 0;
+  const mark = Array.from({ length: size }, () => Array(size).fill(false));
+  const occ = (r, c) => { if (r < 0 || c < 0 || r >= size || c >= size || mark[r][c]) return; mark[r][c] = true; fn++; };
+  const finder = (r, c) => { for (let y = -1; y <= 7; y++) for (let x = -1; x <= 7; x++) occ(r + y, c + x); };
+  finder(0, 0); finder(0, size - 7); finder(size - 7, 0);
+  for (let i = 0; i < size; i++) { occ(6, i); occ(i, 6); }
+  for (const r of ALIGN[v]) for (const c of ALIGN[v]) {
+    if (mark[r][c]) continue;
+    for (let y = -2; y <= 2; y++) for (let x = -2; x <= 2; x++) occ(r + y, c + x);
+  }
+  occ(size - 8, 8);
+  for (let i = 0; i < 9; i++) { occ(8, i); occ(i, 8); }
+  for (let i = 0; i < 8; i++) { occ(8, size - 1 - i); occ(size - 1 - i, 8); }
+  const modules = size * size - fn;
+  return Math.floor(modules / 8);
+}
+
+function formatBits(mask) {
+  const data = mask; // M is 00
+  let rem = data << 10;
+  for (let i = 14; i >= 10; i--) if ((rem >>> i) & 1) rem ^= 0x537 << (i - 10);
+  return ((data << 10) | (rem & 0x3ff)) ^ 0x5412;
+}
+
+function mpQrMatrix(text) {
+  const bytes = Array.from(new TextEncoder().encode(text));
+  if (!bytes.length || bytes.length > 80) return null;
+  let version = 0;
+  for (let v = 1; v <= 6; v++) {
+    if ((4 + 8 + bytes.length * 8 + 4) <= dataCodewords(v) * 8) { version = v; break; }
+  }
+  if (!version) return null;
+  const size = 17 + 4 * version;
+  const dataCW = dataCodewords(version);
+  const bits = [];
+  bitsPush(bits, 0b0100, 4);
+  bitsPush(bits, bytes.length, 8);
+  bytes.forEach(b => bitsPush(bits, b, 8));
+  for (let i = 0; i < 4 && bits.length < dataCW * 8; i++) bits.push(0);
+  while (bits.length % 8) bits.push(0);
+  const data = [];
+  for (let i = 0; i < bits.length; i += 8) {
+    let n = 0;
+    for (let b = 0; b < 8; b++) n = (n << 1) | bits[i + b];
+    data.push(n);
+  }
+  for (let p = 0; data.length < dataCW; p++) data.push(p % 2 ? 0x11 : 0xec);
+  const blocks = BLOCKS_M[version];
+  const eccN = ECC_M[version];
+  const per = data.length / blocks;
+  const dataBlocks = [], eccBlocks = [];
+  for (let b = 0; b < blocks; b++) {
+    const chunk = data.slice(b * per, (b + 1) * per);
+    dataBlocks.push(chunk);
+    eccBlocks.push(rsRemainder(chunk, eccN));
+  }
+  const interleaved = [];
+  for (let i = 0; i < per; i++) for (const chunk of dataBlocks) interleaved.push(chunk[i]);
+  for (let i = 0; i < eccN; i++) for (const chunk of eccBlocks) interleaved.push(chunk[i]);
+  const allBits = [];
+  interleaved.forEach(n => bitsPush(allBits, n, 8));
+  for (let i = 0; i < REMAINDER[version]; i++) allBits.push(0);
+
+  const m = Array.from({ length: size }, () => Array(size).fill(0));
+  const fn = Array.from({ length: size }, () => Array(size).fill(false));
+  const setF = (r, c, dark) => { if (r < 0 || c < 0 || r >= size || c >= size) return; m[r][c] = dark ? 1 : 0; fn[r][c] = true; };
+  const finder = (r, c) => {
+    for (let y = -1; y <= 7; y++) for (let x = -1; x <= 7; x++) {
+      const on = y >= 0 && y <= 6 && x >= 0 && x <= 6;
+      const dark = on && (y === 0 || y === 6 || x === 0 || x === 6 || (y >= 2 && y <= 4 && x >= 2 && x <= 4));
+      setF(r + y, c + x, dark);
+    }
+  };
+  finder(0, 0); finder(0, size - 7); finder(size - 7, 0);
+  for (let i = 0; i < size; i++) {
+    if (!fn[6][i]) setF(6, i, i % 2 === 0);
+    if (!fn[i][6]) setF(i, 6, i % 2 === 0);
+  }
+  for (const r of ALIGN[version]) for (const c of ALIGN[version]) {
+    if (fn[r][c]) continue;
+    for (let y = -2; y <= 2; y++) for (let x = -2; x <= 2; x++) setF(r + y, c + x, Math.max(Math.abs(x), Math.abs(y)) !== 1);
+  }
+  setF(size - 8, 8, true);
+  for (let i = 0; i < 9; i++) { fn[8][i] = true; fn[i][8] = true; }
+  for (let i = 0; i < 8; i++) { fn[8][size - 1 - i] = true; fn[size - 1 - i][8] = true; }
+
+  let bi = 0;
+  for (let right = size - 1; right >= 1; right -= 2) {
+    if (right === 6) right = 5;
+    for (let vert = 0; vert < size; vert++) {
+      for (let j = 0; j < 2; j++) {
+        const x = right - j;
+        const upward = ((right + 1) & 2) === 0;
+        const y = upward ? size - 1 - vert : vert;
+        if (fn[y][x]) continue;
+        m[y][x] = bi < allBits.length ? allBits[bi++] : 0;
+      }
+    }
+  }
+
+  const masked = (mask, r, c) => {
+    if (mask === 0) return ((r + c) & 1) === 0;
+    if (mask === 1) return (r & 1) === 0;
+    if (mask === 2) return c % 3 === 0;
+    if (mask === 3) return (r + c) % 3 === 0;
+    if (mask === 4) return (Math.floor(r / 2) + Math.floor(c / 3)) % 2 === 0;
+    if (mask === 5) return ((r * c) % 2) + ((r * c) % 3) === 0;
+    if (mask === 6) return (((r * c) % 2) + ((r * c) % 3)) % 2 === 0;
+    return (((r + c) % 2) + ((r * c) % 3)) % 2 === 0;
+  };
+  const penalty = (grid) => {
+    let p = 0;
+    const run = (get) => {
+      for (let a = 0; a < size; a++) {
+        let prev = -1, n = 0;
+        for (let b = 0; b < size; b++) {
+          const v = get(a, b);
+          if (v === prev) n++;
+          else { if (n >= 5) p += 3 + (n - 5); prev = v; n = 1; }
+        }
+        if (n >= 5) p += 3 + (n - 5);
+      }
+    };
+    run((r, c) => grid[r][c]);
+    run((c, r) => grid[r][c]);
+    for (let r = 0; r < size - 1; r++) for (let c = 0; c < size - 1; c++) {
+      const v = grid[r][c];
+      if (v === grid[r][c + 1] && v === grid[r + 1][c] && v === grid[r + 1][c + 1]) p += 3;
+    }
+    const pat = (row) => {
+      const s = row.join("");
+      const a = "10111010000", b = "00001011101";
+      for (let i = 0; i + 11 <= s.length; i++) if (s.startsWith(a, i) || s.startsWith(b, i)) p += 40;
+    };
+    for (let r = 0; r < size; r++) pat(grid[r]);
+    for (let c = 0; c < size; c++) pat(grid.map(row => row[c]));
+    let dark = 0;
+    for (const row of grid) for (const v of row) dark += v;
+    p += Math.floor(Math.abs(dark * 100 / (size * size) - 50) / 5) * 10;
+    return p;
+  };
+  let best = null, bestP = Infinity, bestMask = 0;
+  for (let mask = 0; mask < 8; mask++) {
+    const g = m.map(row => row.slice());
+    for (let r = 0; r < size; r++) for (let c = 0; c < size; c++) if (!fn[r][c] && masked(mask, r, c)) g[r][c] ^= 1;
+    const bits15 = formatBits(mask);
+    const put = (r, c, i) => { g[r][c] = (bits15 >>> i) & 1; };
+    for (let i = 0; i <= 5; i++) put(i, 8, i);
+    put(7, 8, 6); put(8, 8, 7); put(8, 7, 8);
+    for (let i = 9; i < 15; i++) put(8, 14 - i, i);
+    for (let i = 0; i < 8; i++) put(8, size - 1 - i, i);
+    for (let i = 8; i < 15; i++) put(size - 15 + i, 8, i);
+    const pen = penalty(g);
+    if (pen < bestP) { bestP = pen; best = g; bestMask = mask; }
+  }
+  best.mask = bestMask;
+  return best;
+}
+
+
+return mpQrMatrix;
+})();
+
+/* Multiplayer. Failures stay in this block and never stop the maze. */
+const MP_ZONES = [
+  ["veryeasy", "Zone 1 · Very easy"],
+  ["easy", "Zone 2 · Easy"],
+  ["normal", "Zone 3 · Normal"],
+  ["hard", "Zone 4 · Hard"]
+];
+const MP_COUNTS = [10, 12, 15];
+const MP_TIMERS = [15, 20, 30];
+const MP = {
+  open: false, view: "home", note: "", msg: "", code: "", codeDraft: "", nameDraft: "",
+  role: "", watch: false, room: null, uid: "", app: null, auth: null, db: null, fb: null, authM: null,
+  unsub: null, zone: "normal", topicsAll: true, topics: new Set(typeof TOPICS !== "undefined" ? TOPICS : []),
+  count: 12, timer: 20, settingsReady: false, pick: { index: -1, choice: -1 }, hint: false,
+  advancing: false, prevIndex: -1, allAnsweredAt: 0, lastSig: "", sdkPromise: null
+};
+let mpBuilt = "";
+
+function mpConfigured() {
+  try {
+    const c = window.FIREBASE_CONFIG;
+    if (!c || typeof c !== "object") return false;
+    const blob = [c.apiKey, c.authDomain, c.databaseURL, c.projectId, c.appId].map(v => String(v || "")).join("|");
+    if (!c.apiKey || !c.databaseURL || !c.projectId || !c.appId) return false;
+    if (/YOUR_|PLACEHOLDER|changeme/i.test(blob)) return false;
+    if (!/^https:\/\/.+\.(?:firebasedatabase\.app|firebaseio\.com)\/?$/i.test(c.databaseURL) && !/^https?:\/\/(127\.0\.0\.1|localhost)(?::\d+)?(?:[/?]|$)/i.test(c.databaseURL)) return false;
+    return true;
+  } catch (e) { return false; }
+}
+function mpErrText(e) {
+  const m = String(e && (e.code || e.message) || e || "");
+  if (/auth\/|admin-restricted|operation-not-allowed|unauthorized/i.test(m)) return "Multiplayer sign-in is not turned on yet. You can still play alone.";
+  if (/permission-denied|PERMISSION_DENIED/i.test(m)) return "The room rules blocked that. Check the Firebase setup. You can still play alone.";
+  if (/network|offline|unavailable|failed to fetch|import/i.test(m)) return "Could not reach multiplayer. You can still play alone.";
+  return "Multiplayer hit a problem. You can still play alone.";
+}
+function mpSay(text) {
+  MP.msg = text || "";
+  const node = $("mpMsg");
+  if (node) node.textContent = MP.msg;
+}
+function mpCleanName(s) { return String(s || "").replace(/\s+/g, " ").trim().slice(0, 16); }
+function mpParam() {
+  try { return (new URLSearchParams(location.search).get("room") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 5); }
+  catch (e) { return ""; }
+}
+function mpLink(code) {
+  try {
+    const u = new URL(location.href);
+    return u.origin + u.pathname + "?room=" + code;
+  } catch (e) { return "?room=" + code; }
+}
+function mpSetRoomUrl(code) {
+  try {
+    const u = new URL(location.href);
+    u.searchParams.set("room", code);
+    history.replaceState(null, "", u.pathname + u.search);
+  } catch (e) {}
+}
+function mpOrdinal(n) {
+  const s = ["th", "st", "nd", "rd"], v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+function mpArr(v) {
+  if (!v) return [];
+  if (Array.isArray(v)) return v.filter(item => item != null && item !== "");
+  return Object.keys(v).sort((a, b) => Number(a) - Number(b)).map(k => v[k]).filter(item => item != null && item !== "");
+}
+function mpPlayerList(v) {
+  if (!v || typeof v !== "object") return [];
+  return Object.keys(v).map(id => Object.assign({ id }, v[id])).filter(p => p && typeof p.name === "string" && p.name);
+}
+function mpRank(list) {
+  return list.slice().sort((a, b) => (b.score || 0) - (a.score || 0) || (b.answered || 0) - (a.answered || 0) || String(a.name).localeCompare(String(b.name)));
+}
+function mpCurrentQ() {
+  try {
+    if (!MP.room || MP.room.status !== "play") return null;
+    return mpArr(MP.room.questions)[MP.room.qIndex || 0] || null;
+  } catch (e) { return null; }
+}
+function mpTimeLeft() {
+  const room = MP.room;
+  if (!room || !room.roundStart) return room && room.timerMs ? room.timerMs : 0;
+  return Math.max(0, room.roundStart + (room.timerMs || 0) - Date.now());
+}
+function mpRevealed() {
+  const room = MP.room;
+  if (!room || room.status !== "play") return false;
+  const idx = room.qIndex || 0;
+  if (MP.pick.index === idx) return true;
+  if (room.roundStart && mpTimeLeft() <= 0) return true;
+  const players = mpPlayerList(room.players);
+  return players.length > 0 && players.every(p => (p.answered || 0) > idx);
+}
+function el(tag, props, kids) {
+  const node = document.createElement(tag);
+  if (props) Object.keys(props).forEach(k => {
+    const v = props[k];
+    if (v == null) return;
+    if (k === "class") node.className = v;
+    else if (k === "text") node.textContent = v;
+    else if (k === "hidden") node.hidden = !!v;
+    else node.setAttribute(k, String(v));
+  });
+  (kids || []).forEach(kid => { if (kid != null) node.append(kid); });
+  return node;
+}
+function mpHe(text) {
+  return el("span", { class: "mp-he", lang: "he", dir: "rtl", text });
+}
+function mpBtn(en, he, className, fn) {
+  const b = el("button", { type: "button", class: className }, [en, he ? mpHe(" " + he) : null]);
+  b.addEventListener("click", () => { try { const r = fn(); if (r && r.catch) r.catch(err => mpSay(mpErrText(err))); } catch (e) { mpSay(mpErrText(e)); } });
+  return b;
+}
+function mpDrawQr(canvas, text) {
+  try {
+    const qr = mpQrMatrix(text);
+    if (!qr) { canvas.hidden = true; return; }
+    const quiet = 4, scale = 4;
+    const n = qr.length + quiet * 2;
+    canvas.width = n * scale; canvas.height = n * scale;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#14120e";
+    for (let y = 0; y < qr.length; y++) for (let x = 0; x < qr.length; x++) if (qr[y][x]) ctx.fillRect((x + quiet) * scale, (y + quiet) * scale, scale, scale);
+    canvas.hidden = false;
+    canvas.setAttribute("aria-label", "QR code for the join link");
+  } catch (e) { canvas.hidden = true; }
+}
+function mpPrompt(text) {
+  const frag = document.createDocumentFragment();
+  String(text || "").split("___").forEach((part, i) => {
+    if (i) { const b = document.createElement("b"); b.textContent = "___"; frag.append(b); }
+    frag.append(document.createTextNode(part));
+  });
+  return frag;
+}
+function mpUnlisten() { if (MP.unsub) { try { MP.unsub(); } catch (e) {} MP.unsub = null; } }
+async function mpSdk() {
+  if (!MP.sdkPromise) {
+    const base = "https://www.gstatic.com/firebasejs/10.14.1/";
+    MP.sdkPromise = Promise.all([
+      import(base + "firebase-app.js"),
+      import(base + "firebase-auth.js"),
+      import(base + "firebase-database.js")
+    ]).then(([appM, authM, dbM]) => ({ appM, authM, dbM })).catch(err => { MP.sdkPromise = null; throw err; });
+  }
+  return MP.sdkPromise;
+}
+async function mpEnsure() {
+  if (MP.db && MP.uid) return;
+  if (!mpConfigured()) throw new Error("not-configured");
+  const { appM, authM, dbM } = await mpSdk();
+  if (!MP.app) MP.app = appM.initializeApp(window.FIREBASE_CONFIG);
+  if (!MP.auth) {
+    try {
+      MP.auth = authM.initializeAuth(MP.app, { persistence: [authM.indexedDBLocalPersistence, authM.browserLocalPersistence, authM.inMemoryPersistence] });
+    } catch (e) { MP.auth = authM.getAuth(MP.app); }
+  }
+  if (!MP.db) {
+    MP.db = dbM.getDatabase(MP.app);
+    const url = String(window.FIREBASE_CONFIG.databaseURL || "");
+    if (/^https?:\/\/(127\.0\.0\.1|localhost)/i.test(url)) {
+      try {
+        const u = new URL(url);
+        dbM.connectDatabaseEmulator(MP.db, u.hostname, Number(u.port) || 9000);
+        authM.connectAuthEmulator(MP.auth, "http://" + u.hostname + ":9099", { disableWarnings: true });
+      } catch (e) {}
+    }
+  }
+  MP.fb = dbM;
+  if (!MP.uid) {
+    const cred = await authM.signInAnonymously(MP.auth);
+    MP.uid = cred.user.uid;
+  }
+}
+function mpListen(code) {
+  mpUnlisten();
+  MP.unsub = MP.fb.onValue(MP.fb.ref(MP.db, "rooms/" + code), snap => {
+    try {
+      const room = snap.val();
+      const prev = MP.prevIndex;
+      MP.room = room;
+      if (!room) { MP.view = "ended"; mpBuilt = ""; mpSync(); return; }
+      if (room.createdAt && Date.now() - room.createdAt > 8 * 3600 * 1000 && room.status !== "done") MP.view = "expired";
+      if (room.hostId === MP.uid) MP.role = "host";
+      else MP.role = "player";
+      if (MP.role === "host" && !MP.settingsReady && room.settings) {
+        if (MP_COUNTS.includes(room.settings.count)) MP.count = room.settings.count;
+        if (MP_TIMERS.includes(room.settings.timer)) MP.timer = room.settings.timer;
+        if (MP_ZONES.some(z => z[0] === room.settings.zone)) MP.zone = room.settings.zone;
+        if (room.settings.topics && room.settings.topics !== "all") {
+          MP.topicsAll = false;
+          MP.topics = new Set(String(room.settings.topics).split("|").filter(t => TOPICS.includes(t)));
+        }
+        MP.settingsReady = true;
+        mpBuilt = "";
+      }
+      if (room.qIndex !== prev) {
+        MP.prevIndex = room.qIndex;
+        MP.allAnsweredAt = 0;
+        if (MP.pick.index !== room.qIndex) MP.pick = { index: -1, choice: -1 };
+      }
+      mpSync();
+    } catch (e) { mpSay("The room hit a problem. You can still play alone."); }
+  }, () => mpSay("Could not open that room. You can still play alone."));
+}
+function mpCodeNew() {
+  const abc = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let s = "";
+  for (let i = 0; i < 4; i++) s += abc[Math.floor(Math.random() * abc.length)];
+  return s;
+}
+async function mpCreate() {
+  mpSay("");
+  if (!mpConfigured()) { MP.view = "note"; MP.note = "Multiplayer not set up yet"; mpBuilt = ""; mpSync(); return; }
+  await mpEnsure();
+  let code = "";
+  for (let i = 0; i < 6 && !code; i++) {
+    const tryCode = mpCodeNew();
+    const snap = await MP.fb.get(MP.fb.ref(MP.db, "rooms/" + tryCode));
+    if (!snap.exists()) code = tryCode;
+  }
+  if (!code) { mpSay("Could not open a room. Try again."); return; }
+  MP.settingsReady = true;
+  MP.role = "host";
+  MP.watch = false;
+  MP.code = code;
+  await MP.fb.set(MP.fb.ref(MP.db, "rooms/" + code), {
+    createdAt: MP.fb.serverTimestamp(),
+    hostId: MP.uid,
+    hostName: "Teacher",
+    status: "lobby",
+    qIndex: 0,
+    roundStart: 0,
+    timerMs: MP.timer * 1000,
+    settings: { count: MP.count, timer: MP.timer, zone: MP.zone, topics: "all" }
+  });
+  mpSetRoomUrl(code);
+  mpListen(code);
+}
+async function mpJoin(code, name) {
+  mpSay("");
+  code = String(code || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 5);
+  name = mpCleanName(name);
+  if (code.length < 4) { mpSay("Enter the 4-letter room code."); return; }
+  if (!name) { mpSay("Enter a first name or nickname."); return; }
+  if (!mpConfigured()) { MP.view = "note"; MP.note = "Multiplayer not set up yet"; mpBuilt = ""; mpSync(); return; }
+  await mpEnsure();
+  const snap = await MP.fb.get(MP.fb.ref(MP.db, "rooms/" + code));
+  const room = snap.val();
+  if (!room) { mpSay("No room with that code. Check the letters and try again."); return; }
+  if (room.createdAt && Date.now() - room.createdAt > 8 * 3600 * 1000) { mpSay("That room has expired."); return; }
+  try { store.set("mpNick", name); } catch (e) {}
+  MP.nameDraft = name;
+  MP.code = code;
+  MP.watch = false;
+  if (room.hostId === MP.uid) MP.role = "host";
+  else {
+    MP.role = "player";
+    const mine = room.players && room.players[MP.uid];
+    if (!mine && room.status !== "lobby") MP.watch = true;
+    else if (!mine) {
+      await MP.fb.set(MP.fb.ref(MP.db, "rooms/" + code + "/players/" + MP.uid), {
+        name, score: 0, answered: 0, lastCorrect: false, lastPoints: 0, joinedAt: Date.now()
+      });
+    }
+  }
+  mpSetRoomUrl(code);
+  mpListen(code);
+}
+function mpPushSettings() {
+  if (MP.role !== "host" || !MP.code || !MP.fb) return;
+  MP.fb.update(MP.fb.ref(MP.db, "rooms/" + MP.code), {
+    timerMs: MP.timer * 1000,
+    "settings/count": MP.count,
+    "settings/timer": MP.timer,
+    "settings/zone": MP.zone,
+    "settings/topics": MP.topicsAll ? "all" : Array.from(MP.topics).join("|")
+  }).catch(() => {});
+}
+function mpPack(q) {
+  const correctText = String(q[2] || "").trim();
+  const raw = [q[2], q[3]].concat(q[7] ? [q[7]] : []);
+  const choices = [];
+  shuffle(raw.slice()).forEach(choice => {
+    const text = String(choice || "").trim();
+    if (text && choices.indexOf(text) < 0 && choices.length < 3) choices.push(text.slice(0, 180));
+  });
+  const correct = choices.indexOf(correctText);
+  if (correct < 0 || choices.length < 2) return null;
+  return {
+    topic: String(q[0] || "").slice(0, 40),
+    type: String(q[6] || "").slice(0, 4),
+    prompt: String(q[1] || "").slice(0, 400),
+    choices,
+    correct,
+    why: String(q[4] || "").slice(0, 400)
+  };
+}
+function mpBuildDeck() {
+  const band = LEVELS[MP.zone] ? LEVELS[MP.zone].q : [2, 3];
+  let lo = band[0], hi = band[1];
+  const topics = MP.topicsAll ? new Set(TOPICS) : MP.topics;
+  let pool = [];
+  for (;;) {
+    pool = BANK.filter(q => topics.has(q[0]) && q[5] >= lo && q[5] <= hi && q[1] && q[2] && q[3]);
+    if (pool.length >= MP.count || (lo <= 1 && hi >= 5)) break;
+    lo = Math.max(1, lo - 1); hi = Math.min(5, hi + 1);
+  }
+  const seen = new Set();
+  const uniq = [];
+  shuffle(pool.slice()).forEach(q => {
+    const key = q[1] + "|" + q[2];
+    if (seen.has(key)) return;
+    seen.add(key);
+    uniq.push(q);
+  });
+  return uniq.slice(0, MP.count).map(mpPack).filter(Boolean);
+}
+async function mpStart() {
+  mpSay("");
+  const players = mpPlayerList(MP.room && MP.room.players);
+  if (!players.length) { mpSay("Waiting for at least one player."); return; }
+  const deck = mpBuildDeck();
+  if (deck.length < 8) { mpSay("Choose more topics or an easier zone. Need at least 8 questions."); return; }
+  MP.pick = { index: -1, choice: -1 };
+  await MP.fb.update(MP.fb.ref(MP.db, "rooms/" + MP.code), {
+    status: "play",
+    questions: deck,
+    qIndex: 0,
+    roundStart: Date.now(),
+    timerMs: MP.timer * 1000
+  });
+}
+async function mpAnswer(choice) {
+  const room = MP.room;
+  if (!room || MP.role !== "player" || MP.watch || room.status !== "play") return;
+  const idx = room.qIndex || 0;
+  const q = mpArr(room.questions)[idx];
+  const me = (room.players || {})[MP.uid] || {};
+  if (!q || (me.answered || 0) !== idx || MP.pick.index === idx) return;
+  if (choice < 0 || choice >= q.choices.length) return;
+  MP.pick = { index: idx, choice };
+  mpRefresh();
+  const correct = choice === q.correct;
+  const left = Math.max(0, mpTimeLeft());
+  const pts = correct ? 1000 + Math.round(500 * ((room.timerMs || 1) ? left / room.timerMs : 0)) : 0;
+  try {
+    await MP.fb.update(MP.fb.ref(MP.db, "rooms/" + MP.code + "/players/" + MP.uid), {
+      score: (me.score || 0) + pts,
+      answered: (me.answered || 0) + 1,
+      lastCorrect: !!correct,
+      lastPoints: pts
+    });
+  } catch (e) {
+    MP.pick = { index: -1, choice: -1 };
+    mpSay("Your answer did not save. Try again.");
+    mpRefresh();
+  }
+}
+async function mpMaybeAdvance() {
+  const room = MP.room;
+  if (!room || MP.role !== "host" || room.status !== "play" || MP.advancing || !MP.fb) return;
+  const qs = mpArr(room.questions);
+  const idx = room.qIndex || 0;
+  if (!qs.length || idx >= qs.length || !room.roundStart) return;
+  const players = mpPlayerList(room.players);
+  const all = players.length > 0 && players.every(p => (p.answered || 0) > idx);
+  if (all && !MP.allAnsweredAt) MP.allAnsweredAt = Date.now();
+  if (!all) MP.allAnsweredAt = 0;
+  const hold = MP.allAnsweredAt && Date.now() > MP.allAnsweredAt + 2200;
+  const expired = Date.now() > room.roundStart + (room.timerMs || 20000) + 400;
+  if (!hold && !expired) return;
+  MP.advancing = true;
+  const next = idx + 1;
+  const patch = next >= qs.length ? { status: "done", qIndex: next } : { qIndex: next, roundStart: Date.now() };
+  try { await MP.fb.update(MP.fb.ref(MP.db, "rooms/" + MP.code), patch); }
+  catch (e) { mpSay("Could not move to the next question."); }
+  MP.advancing = false;
+}
+async function mpEnd() {
+  if (!MP.code || !MP.fb) return;
+  await MP.fb.remove(MP.fb.ref(MP.db, "rooms/" + MP.code));
+}
+async function mpAgain() {
+  const players = mpPlayerList(MP.room && MP.room.players);
+  const patch = { status: "lobby", questions: null, qIndex: 0, roundStart: 0 };
+  players.forEach(p => {
+    patch["players/" + p.id + "/score"] = 0;
+    patch["players/" + p.id + "/answered"] = 0;
+    patch["players/" + p.id + "/lastCorrect"] = false;
+    patch["players/" + p.id + "/lastPoints"] = 0;
+  });
+  MP.pick = { index: -1, choice: -1 };
+  await MP.fb.update(MP.fb.ref(MP.db, "rooms/" + MP.code), patch);
+}
+function mpClose() {
+  MP.open = false;
+  mpUnlisten();
+  mpBuilt = "";
+  const screen = $("mpScreen");
+  if (screen) screen.hidden = true;
+}
+function mpModeKey() {
+  if (!MP.open) return "closed";
+  if (MP.view === "note") return "note";
+  if (MP.view === "ended") return "ended";
+  if (MP.view === "expired") return "expired";
+  if (!MP.room) return MP.view === "join" ? "join" : "home";
+  const st = MP.room.status || "lobby";
+  if (st === "lobby") return MP.role === "host" ? "lobby-host" : "lobby-player";
+  if (st === "play") return "play-" + MP.role + "-" + (MP.room.qIndex || 0) + (MP.watch ? "-w" : "");
+  if (st === "done") return "done-" + MP.role;
+  return "ended";
+}
+function mpChipRow(items, current, onPick) {
+  const row = el("div", { class: "mp-chips" });
+  items.forEach(item => {
+    const on = item.value === current;
+    const b = el("button", { type: "button", class: "mp-chip" + (on ? " on" : ""), "aria-pressed": on ? "true" : "false", text: item.label });
+    b.addEventListener("click", () => onPick(item.value));
+    row.append(b);
+  });
+  return row;
+}
+function mpFillRoster(node) {
+  const players = mpRank(mpPlayerList(MP.room && MP.room.players));
+  node.replaceChildren();
+  if (!players.length) {
+    node.append(el("p", { class: "help" }, ["Waiting for players… ", mpHe("מחכים לשחקנים")]));
+    return;
+  }
+  players.forEach(p => node.append(el("div", { class: "mp-person", text: p.name })));
+}
+function mpFillBoard(node) {
+  const ranked = mpRank(mpPlayerList(MP.room && MP.room.players));
+  const sig = ranked.map(p => [p.id, p.score || 0, p.answered || 0, p.lastCorrect ? 1 : 0].join(":")).join("|");
+  if (sig === MP.lastSig && node.childElementCount) return;
+  const prev = MP.lastSig;
+  MP.lastSig = sig;
+  const top = ranked.slice(0, MP.role === "host" ? 10 : 8);
+  node.replaceChildren();
+  if (!top.length) { node.append(el("p", { class: "help", text: "No scores yet." })); return; }
+  top.forEach((p, i) => {
+    const bump = prev && (p.score || 0) > 0 && prev.indexOf(p.id + ":" + (p.score || 0) + ":") < 0;
+    const row = el("div", { class: "mp-row" + (bump ? " bump" : "") + (p.id === MP.uid ? " me" : "") });
+    row.append(el("span", { text: (i + 1) + ". " + p.name }));
+    const extra = p.lastCorrect && p.answered ? " +" + (p.lastPoints || 0) : "";
+    row.append(el("span", { text: String(p.score || 0) + extra }));
+    node.append(row);
+  });
+}
+function mpMeText() {
+  const ranked = mpRank(mpPlayerList(MP.room && MP.room.players));
+  const i = ranked.findIndex(p => p.id === MP.uid);
+  if (i < 0) return "";
+  return "You are " + mpOrdinal(i + 1) + " of " + ranked.length + " · " + (ranked[i].score || 0) + " points";
+}
+function mpRefresh() {
+  const roster = $("mpRoster"); if (roster) mpFillRoster(roster);
+  const board = $("mpBoard"); if (board) mpFillBoard(board);
+  const clock = $("mpClock"); if (clock) clock.textContent = MP.room && MP.room.status === "play" ? Math.ceil(mpTimeLeft() / 1000) + "s" : "";
+  const me = $("mpMe"); if (me) me.textContent = mpMeText();
+  const meHe = $("mpMeHe");
+  if (meHe) {
+    const ranked = mpRank(mpPlayerList(MP.room && MP.room.players));
+    const i = ranked.findIndex(p => p.id === MP.uid);
+    meHe.textContent = i < 0 ? "" : "מקום " + (i + 1) + " מתוך " + ranked.length;
+  }
+  const hint = $("mpHint");
+  const q = mpCurrentQ();
+  if (hint) {
+    hint.hidden = !MP.hint;
+    hint.textContent = MP.hint ? (q && HE[q.topic] ? HE[q.topic] : "אין רמז לשאלה הזאת.") : "";
+  }
+  const why = $("mpWhy");
+  if (why) {
+    const show = mpRevealed() && q;
+    why.hidden = !show;
+    why.textContent = show ? (q.choices[q.correct] + (q.why ? " — " + q.why : "")) : "";
+  }
+  document.querySelectorAll("#mpScreen .mp-choice").forEach(btn => {
+    const i = Number(btn.getAttribute("data-i"));
+    const revealed = mpRevealed();
+    const idx = MP.room ? MP.room.qIndex : -1;
+    btn.classList.toggle("ok", !!(revealed && q && i === q.correct));
+    btn.classList.toggle("bad", !!(revealed && MP.pick.index === idx && i === MP.pick.choice && q && i !== q.correct));
+    if (btn.tagName === "BUTTON") btn.disabled = revealed || MP.role !== "player" || MP.watch;
+  });
+  const msg = $("mpMsg"); if (msg && msg.textContent !== MP.msg) msg.textContent = MP.msg;
+}
+function mpGroup(en, he, node) {
+  const g = el("div", { class: "group" });
+  const label = el("span", {}, [en + " ", he ? mpHe(he) : null]);
+  g.append(label, node);
+  return g;
+}
+function mpHome(card) {
+  card.append(
+    el("h2", { text: "Multiplayer" }),
+    el("p", {}, [mpHe("משחק מרובה משתתפים")]),
+    el("p", { text: "The teacher opens a room. Students join on their phones, then everyone answers the same questions." }),
+    mpBtn("Create room", "חדר חדש", "go", mpCreate),
+    mpBtn("Join with a code", "הצטרפות", "go secondary", () => { MP.view = "join"; MP.codeDraft = MP.codeDraft || mpParam(); mpBuilt = ""; mpSync(); }),
+    mpBtn("Back", "חזרה", "go secondary", mpClose),
+    el("p", { id: "mpMsg", class: "mp-msg", "aria-live": "polite", text: MP.msg })
+  );
+}
+function mpJoinForm(card) {
+  const code = el("input", { id: "mpCodeIn", type: "text", maxlength: "5", autocomplete: "off", autocapitalize: "characters", spellcheck: "false", "aria-label": "Room code" });
+  code.value = MP.codeDraft || mpParam();
+  const name = el("input", { id: "mpName", type: "text", maxlength: "16", autocomplete: "nickname", autocapitalize: "words", enterkeyhint: "done", "aria-label": "First name" });
+  name.value = MP.nameDraft || "";
+  const go = () => mpJoin(code.value, name.value);
+  code.addEventListener("input", () => { MP.codeDraft = code.value; });
+  name.addEventListener("input", () => { MP.nameDraft = name.value; });
+  name.addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+  card.append(
+    el("h2", { text: "Join a room" }),
+    el("p", {}, [mpHe("הצטרפות לחדר")]),
+    mpGroup("Room code", "קוד", code),
+    mpGroup("First name", "שם פרטי", name),
+    mpBtn("Join", "הצטרפות", "go", go),
+    mpBtn("Back", "חזרה", "go secondary", () => { MP.view = "home"; mpBuilt = ""; mpSync(); }),
+    el("p", { id: "mpMsg", class: "mp-msg", "aria-live": "polite", text: MP.msg })
+  );
+}
+function mpLobbyHost(card) {
+  const link = mpLink(MP.code);
+  const linkIn = el("input", { id: "mpLink", type: "url", readonly: "readonly", "aria-label": "Join link" });
+  linkIn.value = link;
+  const qr = el("canvas", { id: "mpQr" });
+  const roster = el("div", { id: "mpRoster" });
+  const zones = mpChipRow(MP_ZONES.map(z => ({ value: z[0], label: z[1] })), MP.zone, v => { MP.zone = v; mpPushSettings(); mpBuilt = ""; mpSync(); });
+  const counts = mpChipRow(MP_COUNTS.map(n => ({ value: n, label: String(n) })), MP.count, v => { MP.count = v; mpPushSettings(); mpBuilt = ""; mpSync(); });
+  const timers = mpChipRow(MP_TIMERS.map(n => ({ value: n, label: n + "s" })), MP.timer, v => { MP.timer = v; mpPushSettings(); mpBuilt = ""; mpSync(); });
+  const topicBox = el("div", { id: "mpTopics" });
+  const summary = el("span", { id: "mpTopicSum", text: MP.topicsAll ? "All topics" : (MP.topics.size + " topics") });
+  function paintTopics() {
+    topicBox.replaceChildren();
+    const bar = el("div", { class: "mp-mini" });
+    const all = el("button", { type: "button", class: "link", text: "All" });
+    const none = el("button", { type: "button", class: "link", text: "None" });
+    all.addEventListener("click", () => { MP.topicsAll = true; MP.topics = new Set(TOPICS); summary.textContent = "All topics"; paintTopics(); mpPushSettings(); });
+    none.addEventListener("click", () => { MP.topicsAll = false; MP.topics = new Set(); summary.textContent = "No topics"; paintTopics(); mpPushSettings(); });
+    bar.append(all, document.createTextNode(" · "), none);
+    topicBox.append(bar);
+    TOPIC_GROUPS.forEach(group => {
+      topicBox.append(el("div", { class: "subhead", text: group[0] }));
+      const chips = el("div", { class: "mp-chips" });
+      group[1].forEach(topic => {
+        const on = MP.topicsAll || MP.topics.has(topic);
+        const b = el("button", { type: "button", class: "mp-chip" + (on ? " on" : ""), "aria-pressed": on ? "true" : "false", text: topic });
+        b.addEventListener("click", () => {
+          if (MP.topicsAll) MP.topics = new Set(TOPICS);
+          MP.topicsAll = false;
+          if (MP.topics.has(topic)) MP.topics.delete(topic); else MP.topics.add(topic);
+          if (MP.topics.size === TOPICS.length) MP.topicsAll = true;
+          summary.textContent = MP.topicsAll ? "All topics" : (MP.topics.size ? MP.topics.size + " topics" : "No topics");
+          paintTopics();
+          mpPushSettings();
+        });
+        chips.append(b);
+      });
+      topicBox.append(chips);
+    });
+  }
+  paintTopics();
+  const details = el("details", { class: "more" }, [el("summary", {}, ["Topics · ", summary, " ", mpHe("נושאים")]), topicBox]);
+  card.append(
+    el("p", { class: "kicker-mp", text: "Room code" }),
+    el("div", { class: "mp-code", id: "mpCodeBig", text: MP.code }),
+    el("p", { class: "help" }, ["Students open this link, or scan the code. ", mpHe("התלמידים נכנסים עם הקישור או הקוד.")]),
+    linkIn,
+    mpBtn("Copy link", "העתקה", "go secondary", () => mpCopy(link, linkIn)),
+    qr,
+    el("h3", {}, ["Players ", mpHe("שחקנים")]),
+    roster,
+    mpGroup("Zone", "אזור", zones),
+    mpGroup("Questions", "שאלות", counts),
+    mpGroup("Seconds each", "שניות", timers),
+    details,
+    mpBtn("Start", "התחלה", "go", mpStart),
+    mpBtn("End room", "סיום החדר", "go secondary", mpEnd),
+    mpBtn("Back", "חזרה", "go secondary", mpClose),
+    el("p", { id: "mpMsg", class: "mp-msg", "aria-live": "polite", text: MP.msg })
+  );
+  mpDrawQr(qr, link);
+  mpFillRoster(roster);
+}
+async function mpCopy(text, input) {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(text); mpSay("Link copied."); return; }
+  } catch (e) {}
+  try { input.focus(); input.select(); document.execCommand("copy"); mpSay("Link copied."); }
+  catch (e) { mpSay("Select the link and copy it."); }
+}
+function mpLobbyPlayer(card) {
+  card.append(
+    el("h2", { text: "You're in" }),
+    el("div", { class: "mp-code", text: MP.code }),
+    el("p", {}, ["Waiting for the teacher to start… ", mpHe("מחכים למורה")]),
+    el("div", { id: "mpRoster" }),
+    mpBtn("Leave", "יציאה", "go secondary", mpClose),
+    el("p", { id: "mpMsg", class: "mp-msg", text: MP.msg })
+  );
+  mpFillRoster($("mpRoster") || card.lastChild);
+}
+function mpPlay(card) {
+  const q = mpCurrentQ();
+  const qs = mpArr(MP.room && MP.room.questions);
+  const idx = MP.room ? (MP.room.qIndex || 0) : 0;
+  const head = el("p", { class: "kicker-mp", text: "Question " + (idx + 1) + " of " + qs.length });
+  const topic = el("p", { class: "mp-topic", text: q ? (q.topic + (TYPES[q.type] ? " · " + TYPES[q.type] : "")) : "" });
+  const prompt = el("div", { class: "mp-q" });
+  if (q) prompt.append(mpPrompt(q.prompt));
+  const choices = el("div", { class: "mp-choices" });
+  (q ? q.choices : []).forEach((choice, i) => {
+    const tag = MP.role === "player" && !MP.watch ? "button" : "div";
+    const node = el(tag, { class: "mp-choice", "data-i": String(i) }, [mpPrompt(choice)]);
+    if (tag === "button") {
+      node.type = "button";
+      node.addEventListener("click", () => mpAnswer(i));
+    }
+    choices.append(node);
+  });
+  const hintBtn = MP.role === "player" && !MP.watch ? mpBtn("Hint", "רמז", "go secondary", () => { MP.hint = !MP.hint; mpRefresh(); }) : null;
+  card.append(
+    head, topic, prompt,
+    el("div", { class: "mp-clock", id: "mpClock", text: Math.ceil(mpTimeLeft() / 1000) + "s" }),
+    choices,
+    el("p", { id: "mpWhy", class: "mp-why", hidden: true }),
+    hintBtn,
+    el("p", { id: "mpHint", class: "mp-hint", lang: "he", dir: "rtl", hidden: true }),
+    el("p", { id: "mpMe", class: "mp-me", "aria-live": "polite" }),
+    el("p", { id: "mpMeHe", class: "mp-he", lang: "he", dir: "rtl" }),
+    el("h3", {}, [MP.role === "host" ? "Top 10" : "Scores", " ", mpHe("ניקוד")]),
+    el("div", { id: "mpBoard" }),
+    MP.role === "host" ? mpBtn("End room", "סיום החדר", "go secondary", mpEnd) : null,
+    el("p", { id: "mpMsg", class: "mp-msg", text: MP.msg })
+  );
+  if (MP.watch) card.insertBefore(el("p", { class: "help" }, ["This round already started. You can watch. ", mpHe("הסיבוב כבר התחיל. אפשר לצפות.")]), head.nextSibling);
+  mpRefresh();
+}
+function mpDone(card) {
+  const ranked = mpRank(mpPlayerList(MP.room && MP.room.players)).slice(0, 10);
+  const podium = el("div", { class: "mp-podium" });
+  [1, 0, 2].forEach(i => {
+    const p = ranked[i];
+    if (!p) return;
+    const place = el("div", { class: "mp-place p" + (i + 1) });
+    place.append(el("span", { text: mpOrdinal(i + 1) }), el("b", { text: p.name }), el("span", { text: String(p.score || 0) }));
+    podium.append(place);
+  });
+  const rest = el("div", { id: "mpBoard" });
+  const key = el("details", { class: "more" });
+  const list = el("ol", { class: "mp-key" });
+  mpArr(MP.room && MP.room.questions).forEach((q, i) => {
+    const item = el("li");
+    item.append(mpPrompt(q.prompt));
+    item.append(el("div", { text: q.choices[q.correct] || "" }));
+    list.append(item);
+  });
+  key.append(el("summary", { text: "Answer key" }), list);
+  card.append(
+    el("h2", { text: "Podium" }),
+    el("p", {}, [mpHe("הפודיום")]),
+    podium,
+    el("p", { id: "mpMe", class: "mp-me" }),
+    el("p", { id: "mpMeHe", class: "mp-he", lang: "he", dir: "rtl" }),
+    rest,
+    key,
+    MP.role === "host" ? mpBtn("New round", "סיבוב חדש", "go", mpAgain) : el("p", { class: "help" }, ["Waiting for the teacher. ", mpHe("מחכים למורה.")]),
+    MP.role === "host" ? mpBtn("End room", "סיום החדר", "go secondary", mpEnd) : mpBtn("Close", "סגירה", "go secondary", mpClose),
+    el("p", { id: "mpMsg", class: "mp-msg", text: MP.msg })
+  );
+  mpFillBoard(rest);
+  mpRefresh();
+}
+function mpBuild() {
+  const screen = $("mpScreen");
+  const card = $("mpCard");
+  if (!screen || !card) return;
+  const key = mpModeKey();
+  screen.hidden = !MP.open;
+  screen.classList.toggle("hosting", MP.role === "host" && !!MP.room);
+  if (!MP.open) return;
+  if (key === mpBuilt) { mpRefresh(); return; }
+  mpBuilt = key;
+  MP.lastSig = "";
+  card.replaceChildren();
+  if (key === "note") {
+    card.append(
+      el("h2", { text: "Multiplayer not set up yet" }),
+      el("p", {}, [mpHe("המשחק המשותף עוד לא הוגדר")]),
+      el("p", { text: "Single player still works. When Firebase is ready, this button opens a live room." }),
+      mpBtn("Back", "חזרה", "go secondary", mpClose)
+    );
+    return;
+  }
+  if (key === "ended" || key === "expired") {
+    card.append(
+      el("h2", { text: key === "expired" ? "This room has expired" : "The room has ended" }),
+      el("p", {}, [mpHe(key === "expired" ? "החדר פג תוקף" : "החדר נסגר")]),
+      mpBtn("Back", "חזרה", "go", mpClose)
+    );
+    return;
+  }
+  if (key === "home") { mpHome(card); return; }
+  if (key === "join") { mpJoinForm(card); return; }
+  if (key === "lobby-host") { mpLobbyHost(card); return; }
+  if (key === "lobby-player") { mpLobbyPlayer(card); return; }
+  if (key.indexOf("play-") === 0) { mpPlay(card); return; }
+  if (key.indexOf("done-") === 0) { mpDone(card); return; }
+}
+function mpSync() {
+  const screen = $("mpScreen");
+  if (screen) screen.hidden = !MP.open;
+  if (!MP.open) return;
+  mpBuild();
+}
+async function mpAuto() {
+  const code = mpParam();
+  if (!code) return;
+  MP.open = true;
+  if (!mpConfigured()) { MP.view = "note"; MP.note = "Multiplayer not set up yet"; mpBuilt = ""; mpSync(); return; }
+  try {
+    await mpEnsure();
+    const snap = await MP.fb.get(MP.fb.ref(MP.db, "rooms/" + code));
+    const room = snap.val();
+    if (room && room.hostId === MP.uid) { MP.code = code; MP.role = "host"; MP.watch = false; mpListen(code); return; }
+    if (room && room.players && room.players[MP.uid]) { MP.code = code; MP.role = "player"; MP.watch = false; mpListen(code); return; }
+    MP.view = "join"; MP.codeDraft = code; mpBuilt = ""; mpSync();
+  } catch (e) {
+    MP.view = "join"; MP.codeDraft = code; mpSay(mpErrText(e)); mpBuilt = ""; mpSync();
+  }
+}
+function mpBoot() {
+  try { MP.nameDraft = mpCleanName(store.get("mpNick") || ""); } catch (e) {}
+  const btn = $("mpOpenBtn");
+  if (btn) btn.addEventListener("click", () => {
+    MP.open = true;
+    MP.msg = "";
+    if (!mpConfigured()) { MP.view = "note"; MP.note = "Multiplayer not set up yet"; mpBuilt = ""; mpSync(); return; }
+    const code = mpParam();
+    if (code) { mpAuto(); return; }
+    MP.view = "home"; MP.room = null; mpBuilt = ""; mpSync();
+  });
+  if (mpParam()) { MP.open = true; mpAuto(); }
+  setInterval(() => { try { if (MP.open && MP.room) { mpMaybeAdvance(); mpRefresh(); } } catch (e) {} }, 400);
+  document.addEventListener("keydown", e => {
+    if (!MP.open || !MP.room || MP.room.status !== "play" || MP.role !== "player" || MP.watch) return;
+    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+    if (e.key === "1" || e.key === "2" || e.key === "3") {
+      const q = mpCurrentQ();
+      const n = Number(e.key) - 1;
+      if (q && q.choices && q.choices[n] != null) { e.preventDefault(); mpAnswer(n); }
+    } else if (e.key === "h" || e.key === "H") { MP.hint = !MP.hint; mpRefresh(); }
+  });
+}
+try { mpBoot(); } catch (e) {}
 </script>
 </body>
 </html>
