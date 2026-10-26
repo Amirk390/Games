@@ -15,6 +15,16 @@ const state = {
   source: "pending"
 };
 
+const scrollMemory = { home: 0 };
+let fullScroll = 0;
+
+function syncViewport() {
+  const viewport = window.visualViewport;
+  const height = viewport ? viewport.height : window.innerHeight;
+  if (!height) return;
+  document.documentElement.style.setProperty("--vvh", Math.round(height) + "px");
+}
+
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, (ch) => ({
     "&": "&amp;",
@@ -98,7 +108,7 @@ function tagsHTML(tags, limit) {
 function coverHTML(game, alt) {
   const src = safeRel(game.thumbnail);
   if (!src) return `<div class="ph" aria-hidden="true"><span>${esc(initial(game.title))}</span></div>`;
-  return `<img src="${esc(src)}" alt="${esc(alt || "")}" width="1280" height="720">`;
+  return `<img src="${esc(src)}" alt="${esc(alt || "")}" width="1280" height="720" decoding="async">`;
 }
 
 function heroHTML(game) {
@@ -157,7 +167,7 @@ function stageHTML(game, playing) {
   if (playing) {
     const src = safeRel(game.path);
     if (!src) return `<div class="stage live" id="stage"><p class="stage-msg">This game has no page to open.</p></div>`;
-    return `<div class="stage live" id="stage">${exit}<iframe id="gameFrame" title="${esc(game.title)}" src="${esc(src)}" allowfullscreen allow="fullscreen; autoplay"></iframe></div>`;
+    return `<div class="stage live" id="stage">${exit}<iframe id="gameFrame" title="${esc(game.title)}" src="${esc(src)}" scrolling="no" allowfullscreen allow="fullscreen; autoplay"></iframe></div>`;
   }
   return `
     <div class="stage" id="stage">
@@ -266,19 +276,55 @@ function renderChips() {
 }
 
 function render() {
+  const previous = document.body.dataset.view || "";
   const route = parseRoute();
+  if (previous === "home" && route.name === "home") scrollMemory.home = window.scrollY || scrollMemory.home;
   renderChips();
   const main = document.getElementById("main");
   if (route.name === "game") {
     const game = state.catalog.games.find((item) => item.id === route.id);
-    document.body.dataset.view = route.play && game ? "play" : "game";
+    const playing = !!(route.play && game);
+    document.body.dataset.view = playing ? "play" : "game";
     document.title = game ? `${game.title} · Englishia` : "Englishia";
     main.innerHTML = `${noticeHTML()}${game ? detailHTML(game, route.play) : missingHTML()}`;
+    if (playing) {
+      const active = document.activeElement;
+      if (active && active !== document.body && typeof active.blur === "function") {
+        try { active.blur(); } catch (err) {}
+      }
+    }
+    syncViewport();
+    applyRouteScroll(route);
     return;
   }
   document.body.dataset.view = "home";
   document.title = "Englishia";
   main.innerHTML = homeHTML();
+  applyRouteScroll(route);
+}
+
+function applyRouteScroll(route) {
+  const go = () => {
+    if (route.name === "home") window.scrollTo(0, scrollMemory.home || 0);
+    else if (!route.play) window.scrollTo(0, 0);
+  };
+  go();
+  requestAnimationFrame(go);
+}
+
+function lockScroll() {
+  if (document.body.classList.contains("locked")) return;
+  if (document.body.dataset.view !== "play") {
+    fullScroll = window.scrollY || 0;
+    document.body.style.top = `-${fullScroll}px`;
+  }
+  document.body.classList.add("locked");
+}
+
+function unlockScroll() {
+  document.body.classList.remove("locked");
+  document.body.style.top = "";
+  if (document.body.dataset.view !== "play" && fullScroll) window.scrollTo(0, fullScroll);
 }
 
 function goFull(el) {
@@ -286,7 +332,7 @@ function goFull(el) {
   const request = el.requestFullscreen || el.webkitRequestFullscreen;
   if (!request) {
     el.classList.add("is-full");
-    document.body.classList.add("locked");
+    lockScroll();
     return;
   }
   try {
@@ -294,12 +340,12 @@ function goFull(el) {
     if (pending && typeof pending.catch === "function") {
       pending.catch(() => {
         el.classList.add("is-full");
-        document.body.classList.add("locked");
+        lockScroll();
       });
     }
   } catch (err) {
     el.classList.add("is-full");
-    document.body.classList.add("locked");
+    lockScroll();
   }
 }
 
@@ -309,19 +355,30 @@ function leaveFull() {
     document.exitFullscreen().catch(() => {});
   }
   if (stage) stage.classList.remove("is-full");
-  document.body.classList.remove("locked");
+  unlockScroll();
+}
+
+function sameCatalog(a, b) {
+  try { return JSON.stringify(a) === JSON.stringify(b); }
+  catch (err) { return false; }
 }
 
 async function loadCatalog() {
+  let next = null;
+  let source = "fallback";
   try {
     const response = await fetch("games.json", { cache: "no-cache" });
     if (!response.ok) throw new Error(String(response.status));
-    state.catalog = normalize(await response.json());
-    state.source = "live";
+    next = normalize(await response.json());
+    source = "live";
   } catch (err) {
-    state.catalog = readFallback();
-    state.source = "fallback";
+    next = readFallback();
+    source = "fallback";
   }
+  const unchanged = sameCatalog(next, state.catalog);
+  state.catalog = next;
+  state.source = source;
+  if (unchanged && source === "live" && !document.querySelector(".notice")) return;
   render();
 }
 
@@ -331,6 +388,14 @@ document.getElementById("q").addEventListener("input", (event) => {
   if (parseRoute().name !== "home") location.hash = "#/";
   else render();
 });
+
+document.addEventListener("click", (event) => {
+  const link = event.target.closest("a[href]");
+  if (!link) return;
+  const href = link.getAttribute("href") || "";
+  if (!href.startsWith("#")) return;
+  if ((document.body.dataset.view || "home") === "home") scrollMemory.home = window.scrollY || 0;
+}, true);
 
 document.body.addEventListener("click", (event) => {
   const chip = event.target.closest("[data-category]");
@@ -358,10 +423,20 @@ document.addEventListener("keydown", (event) => {
 });
 
 document.addEventListener("fullscreenchange", () => {
-  if (!document.fullscreenElement) document.body.classList.remove("locked");
+  if (document.fullscreenElement) return;
+  const stage = document.getElementById("stage");
+  if (stage) stage.classList.remove("is-full");
+  unlockScroll();
 });
 
 window.addEventListener("hashchange", render);
+window.addEventListener("resize", syncViewport);
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("resize", syncViewport);
+  window.visualViewport.addEventListener("scroll", syncViewport);
+}
+if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+syncViewport();
 
 state.catalog = readFallback();
 render();
