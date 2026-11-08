@@ -40,3 +40,21 @@
 /workspace/engio/mila-quest/progress/causeway-v4.png
 /workspace/engio/mila-quest/progress/boss-v4.png
 מצב איכות חסכונית, מנעולי העולמות, המפתח, קוד המורה ופתיחה מקובץ במחשב ממשיכים לעבוד. ארזתי מחדש את תיקיית המשחק.
+הסרתי את הנשקים מידי הגיבורים — ליאם, מאיה ונובה רצים בידיים ריקות. לבוסים נשארים הנשקים.
+מילאתי את העמק שמתחת לגשר האבן בחול בהיר, ערפל קל ועצים וסלעים למטה, כדי שלא ייראה כמו חור שחור.
+בשלב הבוס הבוס רץ מאחורי השחקן, והמצלמה מאחור מסתכלת קדימה. עדכנתי את הטקסט: «הבוס רץ מאחוריכם! ענו נכון כדי להחליש אותו!»
+הוספתי טקסטורת דשא ופרטים קטנים על הקרקע כדי שהמישור הירוק לא ייראה שטוח וריק.
+תיקנתי את שלטי התשובות בשערים: הם צהובים וקריאים משני הצדדים, בפורמט רחב כמו כפתורי המסך, עומדים ישר בלי הטיה אחרי פנייה או גבעה, אחד בכל נתיב ובאותו מישור.
+הוספתי דגלי ישראל מתנופפים ברוח לאורך המסלול — זוגות בצידי הדרך בקו הזינוק ובסיום וגם על הגבעה, ולפעמים מעל עמודי השער. הדגל לבן, עם שני פסים כחולים ומגן דוד כחול במרכז.
+שמרתי צילומים חדשים:
+/workspace/engio/mila-quest/progress/hero-v5.png
+/workspace/engio/mila-quest/progress/curve-v5.png
+/workspace/engio/mila-quest/progress/hill-v5.png
+/workspace/engio/mila-quest/progress/turn-v5.png
+/workspace/engio/mila-quest/progress/causeway-v5.png
+/workspace/engio/mila-quest/progress/boss-v5.png
+/workspace/engio/mila-quest/progress/gates-v5.png
+/workspace/engio/mila-quest/progress/gates-hill-v5.png
+/workspace/engio/mila-quest/progress/gates-high-v5.png
+/workspace/engio/mila-quest/progress/flags-v5.png
+מצב איכות חסכונית, מנעולי העולמות, המפתח, קוד המורה ופתיחה מקובץ במחשב ממשיכים לעבוד. ארזתי מחדש את תיקיית המשחק.

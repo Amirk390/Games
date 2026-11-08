@@ -3,7 +3,7 @@ import { GLTFLoader } from "../assets/lib/jsm/loaders/GLTFLoader.js";
 import * as SkeletonUtils from "../assets/lib/jsm/utils/SkeletonUtils.js";
 import { WORDS } from "./data.js";
 import { KEY, NEED_CLEAN, PTS, HEROES, BOSSES, ST, WORLDS, ACH, INTRO } from "./config.js";
-import { buildCourse, pathAt, pathFrame, worldOnPath, makeStoneTexture, makeDirtTexture, makeSmoothTree, makeMountains, makeMist, makeRibbonGeometry, makeSkirtGeometry } from "./worldkit.js";
+import { buildCourse, pathAt, pathFrame, worldOnPath, makeStoneTexture, makeDirtTexture, makeGrassTexture, makeValleyTexture, makeSmoothTree, makeMountains, makeMist, makeRibbonGeometry, makeSkirtGeometry, populateValley, scatterGroundDetails, plantCourseFlags, updateFlagWave, makeIsraelFlag } from "./worldkit.js";
 
 function hasWebGL() {
   try {
@@ -317,6 +317,14 @@ function prepMeshes(root, cast = true) {
     }
   });
 }
+function isHeldWeapon(name) {
+  return /knife|dagger|crossbow|throwable|wand|staff|spellbook|sword|axe|shield|1h_|2h_|mug|bow/.test(String(name || "").toLowerCase());
+}
+function hideHeldWeapons(root) {
+  root.traverse((o) => {
+    if (isHeldWeapon(o.name)) o.visible = false;
+  });
+}
 function polishActorMaterials(root) {
   root.traverse((o) => {
     if (!o.isMesh) return;
@@ -342,12 +350,13 @@ function polishActorMaterials(root) {
     });
   });
 }
-async function createActor(file, height, faceNegZ = true) {
+async function createActor(file, height, faceNegZ = true, stripWeapons = false) {
   try {
     const gltf = await loadGLTF(file);
     const model = (gltf.animations && gltf.animations.length) ? SkeletonUtils.clone(gltf.scene) : gltf.scene.clone(true);
     prepMeshes(model);
     polishActorMaterials(model);
+    if (stripWeapons) hideHeldWeapons(model);
     normalize(model, height);
     if (faceNegZ) model.rotation.y = Math.PI;
     const mixer = new THREE.AnimationMixer(model);
@@ -435,8 +444,8 @@ function makeTextTexture(text, opt = {}) {
   const c = document.createElement("canvas");
   c.width = w; c.height = h;
   const ctx = c.getContext("2d");
-  ctx.clearRect(0, 0, w, h);
   ctx.fillStyle = opt.bg || "#ffe34a";
+  ctx.fillRect(0, 0, w, h);
   roundRect(ctx, 10, 10, w - 20, h - 20, 44); ctx.fill();
   ctx.strokeStyle = opt.bd || "#140818";
   ctx.lineWidth = 22; ctx.stroke();
@@ -482,22 +491,28 @@ function roundedBoardGeo(w, h, d, r) {
 }
 function makeSign(text, big = true) {
   const g = new THREE.Group();
-  const tex = makeTextTexture(text, big ? { w: 1024, h: 384, font: 168 } : { w: 512, h: 280, font: 160 });
-  const W = big ? 1.52 : 0.92;
-  const H = big ? 1.18 : 0.82;
-  const back = new THREE.Mesh(
-    roundedBoardGeo(W + 0.12, H + 0.12, 0.08, 0.16),
-    new THREE.MeshStandardMaterial({ color: 0x3a2410, roughness: 0.4, metalness: 0.18, emissive: 0x2a1848, emissiveIntensity: 0.12 })
+  const tw = big ? 1024 : 768;
+  const th = big ? 360 : 280;
+  const tex = makeTextTexture(text, { w: tw, h: th, font: big ? 176 : 140 });
+  const span = (typeof laneXs === "function") ? (laneXs()[2] - laneXs()[1]) : 2;
+  const W = big ? Math.min(1.86, span * 0.9) : 1.05;
+  const H = W * (th / tw);
+  const rim = new THREE.Mesh(
+    new THREE.BoxGeometry(W + 0.05, H + 0.05, 0.055),
+    new THREE.MeshBasicMaterial({ color: 0xffe34a, toneMapped: false })
   );
-  back.position.z = -0.1;
-  const face = new THREE.Mesh(
-    new THREE.PlaneGeometry(W, H),
-    new THREE.MeshBasicMaterial({ map: tex, toneMapped: false })
-  );
-  face.position.z = 0.12;
-  face.renderOrder = 2;
-  g.add(back, face);
+  const matF = new THREE.MeshBasicMaterial({ map: tex, toneMapped: false, fog: false });
+  const matB = new THREE.MeshBasicMaterial({ map: tex, toneMapped: false, fog: false });
+  const faceF = new THREE.Mesh(new THREE.PlaneGeometry(W, H), matF);
+  faceF.position.z = 0.03;
+  faceF.renderOrder = 2;
+  const faceB = new THREE.Mesh(new THREE.PlaneGeometry(W, H), matB);
+  faceB.position.z = -0.03;
+  faceB.rotation.y = Math.PI;
+  faceB.renderOrder = 2;
+  g.add(rim, faceF, faceB);
   g.userData.fit = tex.userData;
+  g.userData.signSize = { W, H };
   return g;
 }
 function makeGoldKey() {
@@ -617,7 +632,7 @@ async function buildMap() {
   mapScene.add(pod);
 
   for (let i = 0; i < HEROES.length; i++) {
-    const actor = await createActor(MP(HEROES[i].file), 1.45);
+    const actor = await createActor(MP(HEROES[i].file), 1.45, true, true);
     actor.model.position.set((i - 1) * 1.7, 0.32, 3.4);
     mapScene.add(actor.model);
     playAnim(actor, "idle");
@@ -790,10 +805,10 @@ function buildPath() {
   pathMat = new THREE.MeshStandardMaterial({ map: makeDirtTexture(), color: 0xe8c888, roughness: 0.82, flatShading: false });
   stoneMat = new THREE.MeshStandardMaterial({ map: makeStoneTexture(), color: 0xffffff, roughness: 0.54, metalness: 0.08, flatShading: false });
   stripeMat = new THREE.MeshBasicMaterial({ color: WORLDS[0].pathB });
-  sideMat = new THREE.MeshStandardMaterial({ color: WORLDS[0].ground, roughness: 1, flatShading: false });
+  sideMat = new THREE.MeshStandardMaterial({ map: makeGrassTexture(8, 36), color: WORLDS[0].ground, roughness: 0.92, flatShading: false });
   skirtMat = new THREE.MeshStandardMaterial({ color: 0x5a5348, roughness: 0.74, metalness: 0.06, flatShading: false, side: THREE.DoubleSide });
   railMat = new THREE.MeshStandardMaterial({ color: 0xc4a574, roughness: 0.45, metalness: 0.18, flatShading: false });
-  valleyMat = new THREE.MeshStandardMaterial({ color: 0x2a241c, roughness: 1, metalness: 0, flatShading: false });
+  valleyMat = new THREE.MeshStandardMaterial({ map: makeValleyTexture(), color: 0xe6d7b4, roughness: 0.94, metalness: 0, emissive: 0x6a5a3c, emissiveIntensity: 0.24, flatShading: false });
   for (let i = 0; i < 56; i++) {
     const m = new THREE.Mesh(new THREE.SphereGeometry(0.08, 6, 6), new THREE.MeshBasicMaterial({ color: 0xffc83d }));
     m.visible = false;
@@ -957,9 +972,9 @@ function rebuildCourseRibbon() {
   const stone = new THREE.Mesh(makeRibbonGeometry(course, { width: 6.8, yLift: 0.05, pred: (s) => s.kind === "causeway", vScale: 0.4, uRepeat: 3 }), stoneMat);
   stone.receiveShadow = true;
   stone.name = "ribbonStone";
-  const skirt = new THREE.Mesh(makeSkirtGeometry(course, { width: 6.8, depth: 2.8, pred: (s) => s.kind === "causeway" }), skirtMat);
+  const skirt = new THREE.Mesh(makeSkirtGeometry(course, { width: 6.8, depth: 4.4, pred: (s) => s.kind === "causeway" }), skirtMat);
   skirt.name = "ribbonSkirt";
-  const valley = new THREE.Mesh(makeRibbonGeometry(course, { width: 78, yLift: -8.6, pred: (s) => s.kind === "causeway", vScale: 0.03 }), valleyMat);
+  const valley = new THREE.Mesh(makeRibbonGeometry(course, { width: 92, yLift: -6.4, pred: (s) => s.kind === "causeway", vScale: 0.04 }), valleyMat);
   valley.receiveShadow = true;
   valley.name = "ribbonValley";
   const railL = new THREE.Mesh(makeRibbonGeometry(course, { width: 0.16, yLift: 0.56, xOffset: -3.32, pred: (s) => s.kind === "causeway" }), railMat);
@@ -979,15 +994,24 @@ function rebuildCourseRibbon() {
       group.add(post);
     }
   }
-    const follow = new THREE.Mesh(
+  const follow = new THREE.Mesh(
     new THREE.CircleGeometry(220, 64),
-    new THREE.MeshStandardMaterial({ color: sideMat.color, roughness: 1, flatShading: false })
+    new THREE.MeshStandardMaterial({ map: makeGrassTexture(30, 30), color: sideMat.color, roughness: 0.94, flatShading: false })
   );
   follow.rotation.x = -Math.PI / 2;
   follow.position.y = -0.32;
   follow.name = "followGround";
   follow.receiveShadow = true;
-  group.add(follow, grass, turnGrass, dirt, stripeL, stripeR, valley, skirt, stone, railL, railR);
+  const haze = new THREE.Mesh(
+    makeRibbonGeometry(course, { width: 58, yLift: -3.15, pred: (s) => s.kind === "causeway", vScale: 0.05 }),
+    new THREE.MeshBasicMaterial({ color: 0xffe6c2, transparent: true, opacity: 0.32, depthWrite: false, fog: true, side: THREE.DoubleSide })
+  );
+  haze.name = "valleyHaze";
+  const theme = ["jungle", "pirate", "magic", "space", "ice"][(run.world || 1) - 1] || "jungle";
+  const valleyBits = populateValley(course, theme, isHigh());
+  const scatter = scatterGroundDetails(course, theme, isHigh());
+  const flags = plantCourseFlags(course, isHigh());
+  group.add(follow, scatter, grass, turnGrass, dirt, stripeL, stripeR, valley, valleyBits, haze, skirt, stone, railL, railR, flags);
   courseVisual = group;
   runScene.add(courseVisual);
 }
@@ -995,7 +1019,7 @@ function layoutPathFromCourse() {
   if (!run || !run.course || !player) return;
   if (!courseVisual) rebuildCourseRibbon();
 }
-function placeOnCourse(obj, s, lane) {
+function placeOnCourse(obj, s, lane, upright) {
   if (!run || !run.course) {
     obj.position.set(typeof lane === "number" ? laneXs()[lane] : 0, 0, -s);
     return;
@@ -1004,8 +1028,9 @@ function placeOnCourse(obj, s, lane) {
   const off = (lane === 0 || lane === 1 || lane === 2) ? laneXs()[lane] : (lane || 0);
   obj.position.copy(f.pos).addScaledVector(f.right, off);
   obj.rotation.order = "YXZ";
-  obj.rotation.y = f.heading;
-  obj.rotation.x = f.pitch || 0;
+  obj.rotation.y = upright ? -f.heading : f.heading;
+  obj.rotation.x = upright ? 0 : (f.pitch || 0);
+  obj.rotation.z = 0;
   obj.userData.pathS = s;
 }
 function syncPlayerPose() {
@@ -1014,7 +1039,7 @@ function syncPlayerPose() {
   const x = player.laneShift != null ? player.laneShift : laneXs()[player.lane];
   player.group.position.copy(f.pos).addScaledVector(f.right, x).addScaledVector(f.up, player.y || 0);
   player.group.rotation.order = "YXZ";
-  player.group.rotation.y = f.heading;
+  player.group.rotation.y = -f.heading;
   player.group.rotation.x = (f.pitch || 0) * 0.45;
   player.z = -player.s;
 }
@@ -1035,7 +1060,7 @@ async function spawnDecor(world) {
     const m = makeSmoothTree(theme);
     m.userData.pathS = 6 + i * 10;
     m.userData.side = i % 2 === 0 ? -1 : 1;
-    m.userData.sideOff = 5.6 + (i % 5) * 0.35;
+    m.userData.sideOff = 6.9 + (i % 5) * 0.4;
     if (run && run.course) {
       const f = pathFrame(run.course, m.userData.pathS);
       m.position.copy(f.pos).addScaledVector(f.right, m.userData.side * m.userData.sideOff);
@@ -1049,7 +1074,7 @@ async function spawnDecor(world) {
 
 function buildGate(options) {
   const g = new THREE.Group();
-  const mat = new THREE.MeshStandardMaterial({ color: 0x6b3a14, roughness: 0.38, metalness: 0.2, emissive: 0xffb020, emissiveIntensity: 0.2 });
+  const mat = new THREE.MeshStandardMaterial({ color: 0xe0b15a, roughness: 0.42, metalness: 0.12, emissive: 0xc48a28, emissiveIntensity: 0.18 });
   [-3.45, 3.45].forEach((x) => {
     const post = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.24, 4.4, 10), mat);
     post.position.set(x, 2.2, 0); post.castShadow = true; g.add(post);
@@ -1057,15 +1082,6 @@ function buildGate(options) {
   const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 7.1, 10), mat);
   beam.rotation.z = Math.PI / 2;
   beam.position.set(0, 4.35, 0); beam.castShadow = true; g.add(beam);
-  if (isHigh()) {
-    const glow = new THREE.Mesh(
-      new THREE.PlaneGeometry(7.4, 4.6),
-      new THREE.MeshBasicMaterial({ color: 0xffc83d, transparent: true, opacity: 0.13, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false })
-    );
-    glow.position.set(0, 2.4, -0.06);
-    glow.name = "gateGlow";
-    g.add(glow);
-  }
   const xs = laneXs();
   options.forEach((opt, i) => {
     const sign = makeSign(opt, true);
@@ -1073,6 +1089,15 @@ function buildGate(options) {
     sign.name = "laneSign";
     g.add(sign);
   });
+  if (!run || run.i % 2 === 0) {
+    const hi = typeof isHigh === "function" ? isHigh() : true;
+    [-1, 1].forEach((side) => {
+      const fl = makeIsraelFlag({ size: 0.48, poleHeight: 0.92, high: hi });
+      fl.position.set(side * 3.45, 4.42, 0);
+      if (side < 0) fl.scale.x = -1;
+      g.add(fl);
+    });
+  }
   return g;
 }
 
@@ -1226,7 +1251,7 @@ function setupQuestion() {
   setPrompt(sub, q, emoji);
   const s = player.s + (gates.length ? 20 : 12);
   const group = buildGate(opts);
-  placeOnCourse(group, s, 0);
+  placeOnCourse(group, s, 0, true);
   runScene.add(group);
   gates.push({ group, s, z: -s, ans, word: w, resolved: false });
 }
@@ -1555,7 +1580,7 @@ async function startLevel(wid, st, lost) {
   updateHud();
   const title = lost ? "📚 ספריית המילים האבודות" : (boss ? "⚔️ " + BOSSES[wid - 1].name : ST[wid - 1][st][0]);
   showUI("hud");
-  showModal(`<h2>${title}</h2><p>${boss ? "ענו נכון כדי להחליש את הבוס!" : (st === 0 && !lost ? INTRO[wid - 1] : "קדימה, אתם יכולים!")}</p>
+  showModal(`<h2>${title}</h2><p>${boss ? "הבוס רץ מאחוריכם! ענו נכון כדי להחליש אותו!" : (st === 0 && !lost ? INTRO[wid - 1] : "קדימה, אתם יכולים!")}</p>
     <button class="btn g" id="mgo">יוצאים לדרך ▶</button>`);
   $("mgo").onclick = () => { hideModal(); paused = false; playAnim(player, "sprint"); };
   return true;
@@ -1564,7 +1589,7 @@ async function startLevel(wid, st, lost) {
 async function ensurePlayer() {
   if (player && player.hero === S.hero) return;
   if (player && player.group.parent) player.group.parent.remove(player.group);
-  const actor = await createActor(MP(HEROES[S.hero].file), 1.52);
+  const actor = await createActor(MP(HEROES[S.hero].file), 1.52, true, true);
   const group = new THREE.Group();
   group.add(actor.model);
   player = { ...actor, group, hero: S.hero, lane: 1, s: 0, z: 0, laneShift: 0, y: 0, vy: 0, jumping: false, sliding: false, slideT: 0, current: null };
@@ -1654,6 +1679,7 @@ function tick(now) {
     return;
   }
   if (appMode === "run" && player) {
+    updateFlagWave(now * 0.001);
     if (!paused) updateRunner(dt);
     else if (player.mixer) player.mixer.update(dt);
     updateKeyFx(dt);
@@ -1690,7 +1716,7 @@ function syncWorldFollowers() {
   if (runMist) {
     const onCauseway = f.kind === "causeway";
     runMist.visible = onCauseway;
-    runMist.position.copy(f.pos).addScaledVector(f.up, -3.8).addScaledVector(f.fwd, 6);
+    runMist.position.copy(f.pos).addScaledVector(f.up, -3.2).addScaledVector(f.fwd, 4);
   }
   if (runHills) runHills.position.set(f.x, 0, f.z);
   if (courseVisual) {
@@ -1698,17 +1724,17 @@ function syncWorldFollowers() {
     if (gnd) {
       gnd.position.set(f.x, -0.32, f.z);
       gnd.visible = f.kind !== "causeway";
-      if (sideMat) gnd.material.color.copy(sideMat.color).multiplyScalar(0.82);
+      if (sideMat) gnd.material.color.copy(sideMat.color);
     }
   }
   if (runSky) runSky.position.copy(camera.position);
   if (bossActor && run.boss) {
-    const bs = Math.max(0, player.s - 6.8);
+    const bs = Math.max(0, player.s - 3.4);
     const bf = pathFrame(run.course, bs);
-    const wobble = Math.sin(performance.now() * 0.002) * 0.35;
-    bossActor.model.position.copy(worldOnPath(run.course, bs, wobble, 0));
+    const sideOff = 1.7 + Math.sin(performance.now() * 0.002) * 0.2;
+    bossActor.model.position.copy(worldOnPath(run.course, bs, sideOff, 0));
     bossActor.model.rotation.order = "YXZ";
-    bossActor.model.rotation.y = bf.heading;
+    bossActor.model.rotation.y = -bf.heading;
     bossActor.model.rotation.x = bf.pitch || 0;
   }
 }
@@ -1835,23 +1861,24 @@ function updateRunCamera(dt) {
   }
   let sx = 0, sy = 0;
   if (shakeT > 0) { shakeT -= dt; sx = (Math.random() - 0.5) * 0.25; sy = (Math.random() - 0.5) * 0.18; }
+  const bossBias = run.boss ? -2.05 : 0;
   const back = f.pos.clone()
-    .addScaledVector(f.fwd, -7.7)
-    .addScaledVector(f.up, 3.85 + player.y * 0.25 + sy)
-    .addScaledVector(f.right, (player.laneShift || 0) * 0.42 + sx);
+    .addScaledVector(f.fwd, run.boss ? -8.6 : -7.7)
+    .addScaledVector(f.up, 3.7 + player.y * 0.25 + sy)
+    .addScaledVector(f.right, (player.laneShift || 0) * 0.42 + sx + bossBias);
   const side = f.pos.clone()
-    .addScaledVector(f.right, 6.2)
-    .addScaledVector(f.fwd, -1.6)
-    .addScaledVector(f.up, 2.55);
+    .addScaledVector(f.right, -4.4)
+    .addScaledVector(f.fwd, -8.4)
+    .addScaledVector(f.up, 3.25);
   const ideal = back.lerp(side, glance);
   const look = f.pos.clone()
-    .addScaledVector(f.fwd, 5.4 - glance * 8.6)
+    .addScaledVector(f.fwd, 4.6)
     .addScaledVector(f.up, 1.15 + player.y)
-    .addScaledVector(f.right, glance * -0.35);
+    .addScaledVector(f.right, glance * 0.8);
   if (glance > 0.15 && bossActor) {
     const bp = bossActor.model.position.clone();
-    bp.y += 1.35;
-    look.lerp(bp, glance * 0.84);
+    bp.y += 1.2;
+    look.lerp(bp, glance * 0.22);
   }
   camera.position.lerp(ideal, 1 - Math.pow(0.0008, dt));
   camera.lookAt(look);
@@ -2064,7 +2091,7 @@ window.MQ = {
     gates.length = 0;
     const s = (player.s || 0) + 11.5;
     const group = buildGate(opts);
-    placeOnCourse(group, s, 0);
+    placeOnCourse(group, s, 0, true);
     runScene.add(group);
     gates.push({ group, s, z: -s, ans: 0, word: run && run.cur, resolved: false });
     setLaneOpts(opts);
@@ -2149,17 +2176,14 @@ window.MQ = {
     player.s = Math.max(player.s, 48);
     player.z = -player.s;
     syncPlayerPose();
-    if (run) run.forceGlance = true;
+    if (run) run.forceGlance = false;
     syncWorldFollowers();
     const f = pathFrame(run.course, player.s);
-    const look = f.pos.clone().addScaledVector(f.fwd, -4.4).addScaledVector(f.up, 1.25);
-    if (bossActor) {
-      look.lerp(bossActor.model.position.clone().setY(bossActor.model.position.y + 1.3), 0.55);
-    }
     camera.position.copy(f.pos)
-      .addScaledVector(f.right, 5.6)
-      .addScaledVector(f.up, 2.45)
-      .addScaledVector(f.fwd, 2.2);
+      .addScaledVector(f.fwd, -9.1)
+      .addScaledVector(f.right, -3.7)
+      .addScaledVector(f.up, 3.35);
+    const look = f.pos.clone().addScaledVector(f.fwd, 4.2).addScaledVector(f.up, 1.2).addScaledVector(f.right, 0.7);
     camera.lookAt(look);
     if (runSky) runSky.position.copy(camera.position);
     return {

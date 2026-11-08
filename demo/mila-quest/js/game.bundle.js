@@ -3269,29 +3269,29 @@
       _edge2.subVectors(c, a);
       _normal$1.crossVectors(_edge1, _edge2);
       let DdN = this.direction.dot(_normal$1);
-      let sign2;
+      let sign;
       if (DdN > 0) {
         if (backfaceCulling) return null;
-        sign2 = 1;
+        sign = 1;
       } else if (DdN < 0) {
-        sign2 = -1;
+        sign = -1;
         DdN = -DdN;
       } else {
         return null;
       }
       _diff.subVectors(this.origin, a);
-      const DdQxE2 = sign2 * this.direction.dot(_edge2.crossVectors(_diff, _edge2));
+      const DdQxE2 = sign * this.direction.dot(_edge2.crossVectors(_diff, _edge2));
       if (DdQxE2 < 0) {
         return null;
       }
-      const DdE1xQ = sign2 * this.direction.dot(_edge1.cross(_diff));
+      const DdE1xQ = sign * this.direction.dot(_edge1.cross(_diff));
       if (DdE1xQ < 0) {
         return null;
       }
       if (DdQxE2 + DdE1xQ > DdN) {
         return null;
       }
-      const QdN = -sign2 * _diff.dot(_normal$1);
+      const QdN = -sign * _diff.dot(_normal$1);
       if (QdN < 0) {
         return null;
       }
@@ -6737,7 +6737,7 @@
       }
       return target;
     }
-    raycast(raycaster2, intersects2) {
+    raycast(raycaster2, intersects) {
       const geometry = this.geometry;
       const material = this.material;
       const matrixWorld = this.matrixWorld;
@@ -6755,9 +6755,9 @@
       if (geometry.boundingBox !== null) {
         if (_ray$3.intersectsBox(geometry.boundingBox) === false) return;
       }
-      this._computeIntersections(raycaster2, intersects2, _ray$3);
+      this._computeIntersections(raycaster2, intersects, _ray$3);
     }
-    _computeIntersections(raycaster2, intersects2, rayLocalSpace) {
+    _computeIntersections(raycaster2, intersects, rayLocalSpace) {
       let intersection;
       const geometry = this.geometry;
       const material = this.material;
@@ -6783,7 +6783,7 @@
               if (intersection) {
                 intersection.faceIndex = Math.floor(j / 3);
                 intersection.face.materialIndex = group.materialIndex;
-                intersects2.push(intersection);
+                intersects.push(intersection);
               }
             }
           }
@@ -6797,7 +6797,7 @@
             intersection = checkGeometryIntersection(this, material, raycaster2, rayLocalSpace, uv, uv1, normal, a, b, c);
             if (intersection) {
               intersection.faceIndex = Math.floor(i / 3);
-              intersects2.push(intersection);
+              intersects.push(intersection);
             }
           }
         }
@@ -6816,7 +6816,7 @@
               if (intersection) {
                 intersection.faceIndex = Math.floor(j / 3);
                 intersection.face.materialIndex = group.materialIndex;
-                intersects2.push(intersection);
+                intersects.push(intersection);
               }
             }
           }
@@ -6830,7 +6830,7 @@
             intersection = checkGeometryIntersection(this, material, raycaster2, rayLocalSpace, uv, uv1, normal, a, b, c);
             if (intersection) {
               intersection.faceIndex = Math.floor(i / 3);
-              intersects2.push(intersection);
+              intersects.push(intersection);
             }
           }
         }
@@ -18171,7 +18171,7 @@
       if (source.boundingSphere !== null) this.boundingSphere = source.boundingSphere.clone();
       return this;
     }
-    raycast(raycaster2, intersects2) {
+    raycast(raycaster2, intersects) {
       const material = this.material;
       const matrixWorld = this.matrixWorld;
       if (material === void 0) return;
@@ -18184,7 +18184,7 @@
       if (this.boundingBox !== null) {
         if (_ray$2.intersectsBox(this.boundingBox) === false) return;
       }
-      this._computeIntersections(raycaster2, intersects2, _ray$2);
+      this._computeIntersections(raycaster2, intersects, _ray$2);
     }
     getVertexPosition(index, target) {
       super.getVertexPosition(index, target);
@@ -18490,7 +18490,7 @@
     getMatrixAt(index, matrix) {
       matrix.fromArray(this.instanceMatrix.array, index * 16);
     }
-    raycast(raycaster2, intersects2) {
+    raycast(raycaster2, intersects) {
       const matrixWorld = this.matrixWorld;
       const raycastTimes = this.count;
       _mesh$1.geometry = this.geometry;
@@ -18509,7 +18509,7 @@
           const intersect = _instanceIntersects[i];
           intersect.instanceId = instanceId;
           intersect.object = this;
-          intersects2.push(intersect);
+          intersects.push(intersect);
         }
         _instanceIntersects.length = 0;
       }
@@ -18590,7 +18590,7 @@
       }
       return this;
     }
-    raycast(raycaster2, intersects2) {
+    raycast(raycaster2, intersects) {
       const geometry = this.geometry;
       const matrixWorld = this.matrixWorld;
       const threshold = raycaster2.params.Line.threshold;
@@ -18625,7 +18625,7 @@
           interRay.applyMatrix4(this.matrixWorld);
           const distance = raycaster2.ray.origin.distanceTo(interRay);
           if (distance < raycaster2.near || distance > raycaster2.far) continue;
-          intersects2.push({
+          intersects.push({
             distance,
             // What do we want? intersection point on the ray or on the segment??
             // point: raycaster.ray.at( distance ),
@@ -18647,7 +18647,7 @@
           interRay.applyMatrix4(this.matrixWorld);
           const distance = raycaster2.ray.origin.distanceTo(interRay);
           if (distance < raycaster2.near || distance > raycaster2.far) continue;
-          intersects2.push({
+          intersects.push({
             distance,
             // What do we want? intersection point on the ray or on the segment??
             // point: raycaster.ray.at( distance ),
@@ -18754,7 +18754,7 @@
       this.geometry = source.geometry;
       return this;
     }
-    raycast(raycaster2, intersects2) {
+    raycast(raycaster2, intersects) {
       const geometry = this.geometry;
       const matrixWorld = this.matrixWorld;
       const threshold = raycaster2.params.Points.threshold;
@@ -18777,14 +18777,14 @@
         for (let i = start, il = end; i < il; i++) {
           const a = index.getX(i);
           _position$2.fromBufferAttribute(positionAttribute, a);
-          testPoint(_position$2, a, localThresholdSq, matrixWorld, raycaster2, intersects2, this);
+          testPoint(_position$2, a, localThresholdSq, matrixWorld, raycaster2, intersects, this);
         }
       } else {
         const start = Math.max(0, drawRange.start);
         const end = Math.min(positionAttribute.count, drawRange.start + drawRange.count);
         for (let i = start, l = end; i < l; i++) {
           _position$2.fromBufferAttribute(positionAttribute, i);
-          testPoint(_position$2, i, localThresholdSq, matrixWorld, raycaster2, intersects2, this);
+          testPoint(_position$2, i, localThresholdSq, matrixWorld, raycaster2, intersects, this);
         }
       }
     }
@@ -18806,7 +18806,7 @@
       }
     }
   };
-  function testPoint(point, index, localThresholdSq, matrixWorld, raycaster2, intersects2, object) {
+  function testPoint(point, index, localThresholdSq, matrixWorld, raycaster2, intersects, object) {
     const rayPointDistanceSq = _ray.distanceSqToPoint(point);
     if (rayPointDistanceSq < localThresholdSq) {
       const intersectPoint = new Vector3();
@@ -18814,7 +18814,7 @@
       intersectPoint.applyMatrix4(matrixWorld);
       const distance = raycaster2.ray.origin.distanceTo(intersectPoint);
       if (distance < raycaster2.near || distance > raycaster2.far) return;
-      intersects2.push({
+      intersects.push({
         distance,
         distanceToRay: Math.sqrt(rayPointDistanceSq),
         point: intersectPoint,
@@ -20093,10 +20093,10 @@
         const vertex2 = new Vector3();
         let groupCount = 0;
         const radius = top === true ? radiusTop : radiusBottom;
-        const sign2 = top === true ? 1 : -1;
+        const sign = top === true ? 1 : -1;
         for (let x = 1; x <= radialSegments; x++) {
-          vertices.push(0, halfHeight * sign2, 0);
-          normals.push(0, sign2, 0);
+          vertices.push(0, halfHeight * sign, 0);
+          normals.push(0, sign, 0);
           uvs.push(0.5, 0.5);
           index++;
         }
@@ -20107,12 +20107,12 @@
           const cosTheta = Math.cos(theta);
           const sinTheta = Math.sin(theta);
           vertex2.x = radius * sinTheta;
-          vertex2.y = halfHeight * sign2;
+          vertex2.y = halfHeight * sign;
           vertex2.z = radius * cosTheta;
           vertices.push(vertex2.x, vertex2.y, vertex2.z);
-          normals.push(0, sign2, 0);
+          normals.push(0, sign, 0);
           uv.x = cosTheta * 0.5 + 0.5;
-          uv.y = sinTheta * 0.5 * sign2 + 0.5;
+          uv.y = sinTheta * 0.5 * sign + 0.5;
           uvs.push(uv.x, uv.y);
           index++;
         }
@@ -20316,879 +20316,6 @@
       return new _PolyhedronGeometry(data.vertices, data.indices, data.radius, data.details);
     }
   };
-  var Shape = class extends Path {
-    constructor(points) {
-      super(points);
-      this.uuid = generateUUID();
-      this.type = "Shape";
-      this.holes = [];
-    }
-    getPointsHoles(divisions) {
-      const holesPts = [];
-      for (let i = 0, l = this.holes.length; i < l; i++) {
-        holesPts[i] = this.holes[i].getPoints(divisions);
-      }
-      return holesPts;
-    }
-    // get points of shape and holes (keypoints based on segments parameter)
-    extractPoints(divisions) {
-      return {
-        shape: this.getPoints(divisions),
-        holes: this.getPointsHoles(divisions)
-      };
-    }
-    copy(source) {
-      super.copy(source);
-      this.holes = [];
-      for (let i = 0, l = source.holes.length; i < l; i++) {
-        const hole = source.holes[i];
-        this.holes.push(hole.clone());
-      }
-      return this;
-    }
-    toJSON() {
-      const data = super.toJSON();
-      data.uuid = this.uuid;
-      data.holes = [];
-      for (let i = 0, l = this.holes.length; i < l; i++) {
-        const hole = this.holes[i];
-        data.holes.push(hole.toJSON());
-      }
-      return data;
-    }
-    fromJSON(json) {
-      super.fromJSON(json);
-      this.uuid = json.uuid;
-      this.holes = [];
-      for (let i = 0, l = json.holes.length; i < l; i++) {
-        const hole = json.holes[i];
-        this.holes.push(new Path().fromJSON(hole));
-      }
-      return this;
-    }
-  };
-  var Earcut = {
-    triangulate: function(data, holeIndices, dim = 2) {
-      const hasHoles = holeIndices && holeIndices.length;
-      const outerLen = hasHoles ? holeIndices[0] * dim : data.length;
-      let outerNode = linkedList(data, 0, outerLen, dim, true);
-      const triangles = [];
-      if (!outerNode || outerNode.next === outerNode.prev) return triangles;
-      let minX, minY, maxX, maxY, x, y, invSize;
-      if (hasHoles) outerNode = eliminateHoles(data, holeIndices, outerNode, dim);
-      if (data.length > 80 * dim) {
-        minX = maxX = data[0];
-        minY = maxY = data[1];
-        for (let i = dim; i < outerLen; i += dim) {
-          x = data[i];
-          y = data[i + 1];
-          if (x < minX) minX = x;
-          if (y < minY) minY = y;
-          if (x > maxX) maxX = x;
-          if (y > maxY) maxY = y;
-        }
-        invSize = Math.max(maxX - minX, maxY - minY);
-        invSize = invSize !== 0 ? 32767 / invSize : 0;
-      }
-      earcutLinked(outerNode, triangles, dim, minX, minY, invSize, 0);
-      return triangles;
-    }
-  };
-  function linkedList(data, start, end, dim, clockwise) {
-    let i, last2;
-    if (clockwise === signedArea(data, start, end, dim) > 0) {
-      for (i = start; i < end; i += dim) last2 = insertNode(i, data[i], data[i + 1], last2);
-    } else {
-      for (i = end - dim; i >= start; i -= dim) last2 = insertNode(i, data[i], data[i + 1], last2);
-    }
-    if (last2 && equals(last2, last2.next)) {
-      removeNode(last2);
-      last2 = last2.next;
-    }
-    return last2;
-  }
-  function filterPoints(start, end) {
-    if (!start) return start;
-    if (!end) end = start;
-    let p = start, again;
-    do {
-      again = false;
-      if (!p.steiner && (equals(p, p.next) || area(p.prev, p, p.next) === 0)) {
-        removeNode(p);
-        p = end = p.prev;
-        if (p === p.next) break;
-        again = true;
-      } else {
-        p = p.next;
-      }
-    } while (again || p !== end);
-    return end;
-  }
-  function earcutLinked(ear, triangles, dim, minX, minY, invSize, pass) {
-    if (!ear) return;
-    if (!pass && invSize) indexCurve(ear, minX, minY, invSize);
-    let stop = ear, prev, next;
-    while (ear.prev !== ear.next) {
-      prev = ear.prev;
-      next = ear.next;
-      if (invSize ? isEarHashed(ear, minX, minY, invSize) : isEar(ear)) {
-        triangles.push(prev.i / dim | 0);
-        triangles.push(ear.i / dim | 0);
-        triangles.push(next.i / dim | 0);
-        removeNode(ear);
-        ear = next.next;
-        stop = next.next;
-        continue;
-      }
-      ear = next;
-      if (ear === stop) {
-        if (!pass) {
-          earcutLinked(filterPoints(ear), triangles, dim, minX, minY, invSize, 1);
-        } else if (pass === 1) {
-          ear = cureLocalIntersections(filterPoints(ear), triangles, dim);
-          earcutLinked(ear, triangles, dim, minX, minY, invSize, 2);
-        } else if (pass === 2) {
-          splitEarcut(ear, triangles, dim, minX, minY, invSize);
-        }
-        break;
-      }
-    }
-  }
-  function isEar(ear) {
-    const a = ear.prev, b = ear, c = ear.next;
-    if (area(a, b, c) >= 0) return false;
-    const ax = a.x, bx = b.x, cx = c.x, ay = a.y, by = b.y, cy = c.y;
-    const x0 = ax < bx ? ax < cx ? ax : cx : bx < cx ? bx : cx, y0 = ay < by ? ay < cy ? ay : cy : by < cy ? by : cy, x1 = ax > bx ? ax > cx ? ax : cx : bx > cx ? bx : cx, y1 = ay > by ? ay > cy ? ay : cy : by > cy ? by : cy;
-    let p = c.next;
-    while (p !== a) {
-      if (p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1 && pointInTriangle(ax, ay, bx, by, cx, cy, p.x, p.y) && area(p.prev, p, p.next) >= 0) return false;
-      p = p.next;
-    }
-    return true;
-  }
-  function isEarHashed(ear, minX, minY, invSize) {
-    const a = ear.prev, b = ear, c = ear.next;
-    if (area(a, b, c) >= 0) return false;
-    const ax = a.x, bx = b.x, cx = c.x, ay = a.y, by = b.y, cy = c.y;
-    const x0 = ax < bx ? ax < cx ? ax : cx : bx < cx ? bx : cx, y0 = ay < by ? ay < cy ? ay : cy : by < cy ? by : cy, x1 = ax > bx ? ax > cx ? ax : cx : bx > cx ? bx : cx, y1 = ay > by ? ay > cy ? ay : cy : by > cy ? by : cy;
-    const minZ = zOrder(x0, y0, minX, minY, invSize), maxZ = zOrder(x1, y1, minX, minY, invSize);
-    let p = ear.prevZ, n = ear.nextZ;
-    while (p && p.z >= minZ && n && n.z <= maxZ) {
-      if (p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1 && p !== a && p !== c && pointInTriangle(ax, ay, bx, by, cx, cy, p.x, p.y) && area(p.prev, p, p.next) >= 0) return false;
-      p = p.prevZ;
-      if (n.x >= x0 && n.x <= x1 && n.y >= y0 && n.y <= y1 && n !== a && n !== c && pointInTriangle(ax, ay, bx, by, cx, cy, n.x, n.y) && area(n.prev, n, n.next) >= 0) return false;
-      n = n.nextZ;
-    }
-    while (p && p.z >= minZ) {
-      if (p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1 && p !== a && p !== c && pointInTriangle(ax, ay, bx, by, cx, cy, p.x, p.y) && area(p.prev, p, p.next) >= 0) return false;
-      p = p.prevZ;
-    }
-    while (n && n.z <= maxZ) {
-      if (n.x >= x0 && n.x <= x1 && n.y >= y0 && n.y <= y1 && n !== a && n !== c && pointInTriangle(ax, ay, bx, by, cx, cy, n.x, n.y) && area(n.prev, n, n.next) >= 0) return false;
-      n = n.nextZ;
-    }
-    return true;
-  }
-  function cureLocalIntersections(start, triangles, dim) {
-    let p = start;
-    do {
-      const a = p.prev, b = p.next.next;
-      if (!equals(a, b) && intersects(a, p, p.next, b) && locallyInside(a, b) && locallyInside(b, a)) {
-        triangles.push(a.i / dim | 0);
-        triangles.push(p.i / dim | 0);
-        triangles.push(b.i / dim | 0);
-        removeNode(p);
-        removeNode(p.next);
-        p = start = b;
-      }
-      p = p.next;
-    } while (p !== start);
-    return filterPoints(p);
-  }
-  function splitEarcut(start, triangles, dim, minX, minY, invSize) {
-    let a = start;
-    do {
-      let b = a.next.next;
-      while (b !== a.prev) {
-        if (a.i !== b.i && isValidDiagonal(a, b)) {
-          let c = splitPolygon(a, b);
-          a = filterPoints(a, a.next);
-          c = filterPoints(c, c.next);
-          earcutLinked(a, triangles, dim, minX, minY, invSize, 0);
-          earcutLinked(c, triangles, dim, minX, minY, invSize, 0);
-          return;
-        }
-        b = b.next;
-      }
-      a = a.next;
-    } while (a !== start);
-  }
-  function eliminateHoles(data, holeIndices, outerNode, dim) {
-    const queue = [];
-    let i, len, start, end, list;
-    for (i = 0, len = holeIndices.length; i < len; i++) {
-      start = holeIndices[i] * dim;
-      end = i < len - 1 ? holeIndices[i + 1] * dim : data.length;
-      list = linkedList(data, start, end, dim, false);
-      if (list === list.next) list.steiner = true;
-      queue.push(getLeftmost(list));
-    }
-    queue.sort(compareX);
-    for (i = 0; i < queue.length; i++) {
-      outerNode = eliminateHole(queue[i], outerNode);
-    }
-    return outerNode;
-  }
-  function compareX(a, b) {
-    return a.x - b.x;
-  }
-  function eliminateHole(hole, outerNode) {
-    const bridge = findHoleBridge(hole, outerNode);
-    if (!bridge) {
-      return outerNode;
-    }
-    const bridgeReverse = splitPolygon(bridge, hole);
-    filterPoints(bridgeReverse, bridgeReverse.next);
-    return filterPoints(bridge, bridge.next);
-  }
-  function findHoleBridge(hole, outerNode) {
-    let p = outerNode, qx = -Infinity, m;
-    const hx = hole.x, hy = hole.y;
-    do {
-      if (hy <= p.y && hy >= p.next.y && p.next.y !== p.y) {
-        const x = p.x + (hy - p.y) * (p.next.x - p.x) / (p.next.y - p.y);
-        if (x <= hx && x > qx) {
-          qx = x;
-          m = p.x < p.next.x ? p : p.next;
-          if (x === hx) return m;
-        }
-      }
-      p = p.next;
-    } while (p !== outerNode);
-    if (!m) return null;
-    const stop = m, mx = m.x, my = m.y;
-    let tanMin = Infinity, tan;
-    p = m;
-    do {
-      if (hx >= p.x && p.x >= mx && hx !== p.x && pointInTriangle(hy < my ? hx : qx, hy, mx, my, hy < my ? qx : hx, hy, p.x, p.y)) {
-        tan = Math.abs(hy - p.y) / (hx - p.x);
-        if (locallyInside(p, hole) && (tan < tanMin || tan === tanMin && (p.x > m.x || p.x === m.x && sectorContainsSector(m, p)))) {
-          m = p;
-          tanMin = tan;
-        }
-      }
-      p = p.next;
-    } while (p !== stop);
-    return m;
-  }
-  function sectorContainsSector(m, p) {
-    return area(m.prev, m, p.prev) < 0 && area(p.next, m, m.next) < 0;
-  }
-  function indexCurve(start, minX, minY, invSize) {
-    let p = start;
-    do {
-      if (p.z === 0) p.z = zOrder(p.x, p.y, minX, minY, invSize);
-      p.prevZ = p.prev;
-      p.nextZ = p.next;
-      p = p.next;
-    } while (p !== start);
-    p.prevZ.nextZ = null;
-    p.prevZ = null;
-    sortLinked(p);
-  }
-  function sortLinked(list) {
-    let i, p, q, e, tail, numMerges, pSize, qSize, inSize = 1;
-    do {
-      p = list;
-      list = null;
-      tail = null;
-      numMerges = 0;
-      while (p) {
-        numMerges++;
-        q = p;
-        pSize = 0;
-        for (i = 0; i < inSize; i++) {
-          pSize++;
-          q = q.nextZ;
-          if (!q) break;
-        }
-        qSize = inSize;
-        while (pSize > 0 || qSize > 0 && q) {
-          if (pSize !== 0 && (qSize === 0 || !q || p.z <= q.z)) {
-            e = p;
-            p = p.nextZ;
-            pSize--;
-          } else {
-            e = q;
-            q = q.nextZ;
-            qSize--;
-          }
-          if (tail) tail.nextZ = e;
-          else list = e;
-          e.prevZ = tail;
-          tail = e;
-        }
-        p = q;
-      }
-      tail.nextZ = null;
-      inSize *= 2;
-    } while (numMerges > 1);
-    return list;
-  }
-  function zOrder(x, y, minX, minY, invSize) {
-    x = (x - minX) * invSize | 0;
-    y = (y - minY) * invSize | 0;
-    x = (x | x << 8) & 16711935;
-    x = (x | x << 4) & 252645135;
-    x = (x | x << 2) & 858993459;
-    x = (x | x << 1) & 1431655765;
-    y = (y | y << 8) & 16711935;
-    y = (y | y << 4) & 252645135;
-    y = (y | y << 2) & 858993459;
-    y = (y | y << 1) & 1431655765;
-    return x | y << 1;
-  }
-  function getLeftmost(start) {
-    let p = start, leftmost = start;
-    do {
-      if (p.x < leftmost.x || p.x === leftmost.x && p.y < leftmost.y) leftmost = p;
-      p = p.next;
-    } while (p !== start);
-    return leftmost;
-  }
-  function pointInTriangle(ax, ay, bx, by, cx, cy, px2, py2) {
-    return (cx - px2) * (ay - py2) >= (ax - px2) * (cy - py2) && (ax - px2) * (by - py2) >= (bx - px2) * (ay - py2) && (bx - px2) * (cy - py2) >= (cx - px2) * (by - py2);
-  }
-  function isValidDiagonal(a, b) {
-    return a.next.i !== b.i && a.prev.i !== b.i && !intersectsPolygon(a, b) && // dones't intersect other edges
-    (locallyInside(a, b) && locallyInside(b, a) && middleInside(a, b) && // locally visible
-    (area(a.prev, a, b.prev) || area(a, b.prev, b)) || // does not create opposite-facing sectors
-    equals(a, b) && area(a.prev, a, a.next) > 0 && area(b.prev, b, b.next) > 0);
-  }
-  function area(p, q, r) {
-    return (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
-  }
-  function equals(p1, p2) {
-    return p1.x === p2.x && p1.y === p2.y;
-  }
-  function intersects(p1, q1, p2, q2) {
-    const o1 = sign(area(p1, q1, p2));
-    const o2 = sign(area(p1, q1, q2));
-    const o3 = sign(area(p2, q2, p1));
-    const o4 = sign(area(p2, q2, q1));
-    if (o1 !== o2 && o3 !== o4) return true;
-    if (o1 === 0 && onSegment(p1, p2, q1)) return true;
-    if (o2 === 0 && onSegment(p1, q2, q1)) return true;
-    if (o3 === 0 && onSegment(p2, p1, q2)) return true;
-    if (o4 === 0 && onSegment(p2, q1, q2)) return true;
-    return false;
-  }
-  function onSegment(p, q, r) {
-    return q.x <= Math.max(p.x, r.x) && q.x >= Math.min(p.x, r.x) && q.y <= Math.max(p.y, r.y) && q.y >= Math.min(p.y, r.y);
-  }
-  function sign(num) {
-    return num > 0 ? 1 : num < 0 ? -1 : 0;
-  }
-  function intersectsPolygon(a, b) {
-    let p = a;
-    do {
-      if (p.i !== a.i && p.next.i !== a.i && p.i !== b.i && p.next.i !== b.i && intersects(p, p.next, a, b)) return true;
-      p = p.next;
-    } while (p !== a);
-    return false;
-  }
-  function locallyInside(a, b) {
-    return area(a.prev, a, a.next) < 0 ? area(a, b, a.next) >= 0 && area(a, a.prev, b) >= 0 : area(a, b, a.prev) < 0 || area(a, a.next, b) < 0;
-  }
-  function middleInside(a, b) {
-    let p = a, inside = false;
-    const px2 = (a.x + b.x) / 2, py2 = (a.y + b.y) / 2;
-    do {
-      if (p.y > py2 !== p.next.y > py2 && p.next.y !== p.y && px2 < (p.next.x - p.x) * (py2 - p.y) / (p.next.y - p.y) + p.x)
-        inside = !inside;
-      p = p.next;
-    } while (p !== a);
-    return inside;
-  }
-  function splitPolygon(a, b) {
-    const a2 = new Node(a.i, a.x, a.y), b2 = new Node(b.i, b.x, b.y), an = a.next, bp = b.prev;
-    a.next = b;
-    b.prev = a;
-    a2.next = an;
-    an.prev = a2;
-    b2.next = a2;
-    a2.prev = b2;
-    bp.next = b2;
-    b2.prev = bp;
-    return b2;
-  }
-  function insertNode(i, x, y, last2) {
-    const p = new Node(i, x, y);
-    if (!last2) {
-      p.prev = p;
-      p.next = p;
-    } else {
-      p.next = last2.next;
-      p.prev = last2;
-      last2.next.prev = p;
-      last2.next = p;
-    }
-    return p;
-  }
-  function removeNode(p) {
-    p.next.prev = p.prev;
-    p.prev.next = p.next;
-    if (p.prevZ) p.prevZ.nextZ = p.nextZ;
-    if (p.nextZ) p.nextZ.prevZ = p.prevZ;
-  }
-  function Node(i, x, y) {
-    this.i = i;
-    this.x = x;
-    this.y = y;
-    this.prev = null;
-    this.next = null;
-    this.z = 0;
-    this.prevZ = null;
-    this.nextZ = null;
-    this.steiner = false;
-  }
-  function signedArea(data, start, end, dim) {
-    let sum = 0;
-    for (let i = start, j = end - dim; i < end; i += dim) {
-      sum += (data[j] - data[i]) * (data[i + 1] + data[j + 1]);
-      j = i;
-    }
-    return sum;
-  }
-  var ShapeUtils = class _ShapeUtils {
-    // calculate area of the contour polygon
-    static area(contour) {
-      const n = contour.length;
-      let a = 0;
-      for (let p = n - 1, q = 0; q < n; p = q++) {
-        a += contour[p].x * contour[q].y - contour[q].x * contour[p].y;
-      }
-      return a * 0.5;
-    }
-    static isClockWise(pts) {
-      return _ShapeUtils.area(pts) < 0;
-    }
-    static triangulateShape(contour, holes) {
-      const vertices = [];
-      const holeIndices = [];
-      const faces = [];
-      removeDupEndPts(contour);
-      addContour(vertices, contour);
-      let holeIndex = contour.length;
-      holes.forEach(removeDupEndPts);
-      for (let i = 0; i < holes.length; i++) {
-        holeIndices.push(holeIndex);
-        holeIndex += holes[i].length;
-        addContour(vertices, holes[i]);
-      }
-      const triangles = Earcut.triangulate(vertices, holeIndices);
-      for (let i = 0; i < triangles.length; i += 3) {
-        faces.push(triangles.slice(i, i + 3));
-      }
-      return faces;
-    }
-  };
-  function removeDupEndPts(points) {
-    const l = points.length;
-    if (l > 2 && points[l - 1].equals(points[0])) {
-      points.pop();
-    }
-  }
-  function addContour(vertices, contour) {
-    for (let i = 0; i < contour.length; i++) {
-      vertices.push(contour[i].x);
-      vertices.push(contour[i].y);
-    }
-  }
-  var ExtrudeGeometry = class _ExtrudeGeometry extends BufferGeometry {
-    constructor(shapes = new Shape([new Vector2(0.5, 0.5), new Vector2(-0.5, 0.5), new Vector2(-0.5, -0.5), new Vector2(0.5, -0.5)]), options = {}) {
-      super();
-      this.type = "ExtrudeGeometry";
-      this.parameters = {
-        shapes,
-        options
-      };
-      shapes = Array.isArray(shapes) ? shapes : [shapes];
-      const scope = this;
-      const verticesArray = [];
-      const uvArray = [];
-      for (let i = 0, l = shapes.length; i < l; i++) {
-        const shape = shapes[i];
-        addShape(shape);
-      }
-      this.setAttribute("position", new Float32BufferAttribute(verticesArray, 3));
-      this.setAttribute("uv", new Float32BufferAttribute(uvArray, 2));
-      this.computeVertexNormals();
-      function addShape(shape) {
-        const placeholder = [];
-        const curveSegments = options.curveSegments !== void 0 ? options.curveSegments : 12;
-        const steps = options.steps !== void 0 ? options.steps : 1;
-        const depth = options.depth !== void 0 ? options.depth : 1;
-        let bevelEnabled = options.bevelEnabled !== void 0 ? options.bevelEnabled : true;
-        let bevelThickness = options.bevelThickness !== void 0 ? options.bevelThickness : 0.2;
-        let bevelSize = options.bevelSize !== void 0 ? options.bevelSize : bevelThickness - 0.1;
-        let bevelOffset = options.bevelOffset !== void 0 ? options.bevelOffset : 0;
-        let bevelSegments = options.bevelSegments !== void 0 ? options.bevelSegments : 3;
-        const extrudePath = options.extrudePath;
-        const uvgen = options.UVGenerator !== void 0 ? options.UVGenerator : WorldUVGenerator;
-        let extrudePts, extrudeByPath = false;
-        let splineTube, binormal, normal, position2;
-        if (extrudePath) {
-          extrudePts = extrudePath.getSpacedPoints(steps);
-          extrudeByPath = true;
-          bevelEnabled = false;
-          splineTube = extrudePath.computeFrenetFrames(steps, false);
-          binormal = new Vector3();
-          normal = new Vector3();
-          position2 = new Vector3();
-        }
-        if (!bevelEnabled) {
-          bevelSegments = 0;
-          bevelThickness = 0;
-          bevelSize = 0;
-          bevelOffset = 0;
-        }
-        const shapePoints = shape.extractPoints(curveSegments);
-        let vertices = shapePoints.shape;
-        const holes = shapePoints.holes;
-        const reverse = !ShapeUtils.isClockWise(vertices);
-        if (reverse) {
-          vertices = vertices.reverse();
-          for (let h = 0, hl = holes.length; h < hl; h++) {
-            const ahole = holes[h];
-            if (ShapeUtils.isClockWise(ahole)) {
-              holes[h] = ahole.reverse();
-            }
-          }
-        }
-        const faces = ShapeUtils.triangulateShape(vertices, holes);
-        const contour = vertices;
-        for (let h = 0, hl = holes.length; h < hl; h++) {
-          const ahole = holes[h];
-          vertices = vertices.concat(ahole);
-        }
-        function scalePt2(pt, vec, size) {
-          if (!vec) console.error("THREE.ExtrudeGeometry: vec does not exist");
-          return pt.clone().addScaledVector(vec, size);
-        }
-        const vlen = vertices.length, flen = faces.length;
-        function getBevelVec(inPt, inPrev, inNext) {
-          let v_trans_x, v_trans_y, shrink_by;
-          const v_prev_x = inPt.x - inPrev.x, v_prev_y = inPt.y - inPrev.y;
-          const v_next_x = inNext.x - inPt.x, v_next_y = inNext.y - inPt.y;
-          const v_prev_lensq = v_prev_x * v_prev_x + v_prev_y * v_prev_y;
-          const collinear0 = v_prev_x * v_next_y - v_prev_y * v_next_x;
-          if (Math.abs(collinear0) > Number.EPSILON) {
-            const v_prev_len = Math.sqrt(v_prev_lensq);
-            const v_next_len = Math.sqrt(v_next_x * v_next_x + v_next_y * v_next_y);
-            const ptPrevShift_x = inPrev.x - v_prev_y / v_prev_len;
-            const ptPrevShift_y = inPrev.y + v_prev_x / v_prev_len;
-            const ptNextShift_x = inNext.x - v_next_y / v_next_len;
-            const ptNextShift_y = inNext.y + v_next_x / v_next_len;
-            const sf = ((ptNextShift_x - ptPrevShift_x) * v_next_y - (ptNextShift_y - ptPrevShift_y) * v_next_x) / (v_prev_x * v_next_y - v_prev_y * v_next_x);
-            v_trans_x = ptPrevShift_x + v_prev_x * sf - inPt.x;
-            v_trans_y = ptPrevShift_y + v_prev_y * sf - inPt.y;
-            const v_trans_lensq = v_trans_x * v_trans_x + v_trans_y * v_trans_y;
-            if (v_trans_lensq <= 2) {
-              return new Vector2(v_trans_x, v_trans_y);
-            } else {
-              shrink_by = Math.sqrt(v_trans_lensq / 2);
-            }
-          } else {
-            let direction_eq = false;
-            if (v_prev_x > Number.EPSILON) {
-              if (v_next_x > Number.EPSILON) {
-                direction_eq = true;
-              }
-            } else {
-              if (v_prev_x < -Number.EPSILON) {
-                if (v_next_x < -Number.EPSILON) {
-                  direction_eq = true;
-                }
-              } else {
-                if (Math.sign(v_prev_y) === Math.sign(v_next_y)) {
-                  direction_eq = true;
-                }
-              }
-            }
-            if (direction_eq) {
-              v_trans_x = -v_prev_y;
-              v_trans_y = v_prev_x;
-              shrink_by = Math.sqrt(v_prev_lensq);
-            } else {
-              v_trans_x = v_prev_x;
-              v_trans_y = v_prev_y;
-              shrink_by = Math.sqrt(v_prev_lensq / 2);
-            }
-          }
-          return new Vector2(v_trans_x / shrink_by, v_trans_y / shrink_by);
-        }
-        const contourMovements = [];
-        for (let i = 0, il = contour.length, j = il - 1, k = i + 1; i < il; i++, j++, k++) {
-          if (j === il) j = 0;
-          if (k === il) k = 0;
-          contourMovements[i] = getBevelVec(contour[i], contour[j], contour[k]);
-        }
-        const holesMovements = [];
-        let oneHoleMovements, verticesMovements = contourMovements.concat();
-        for (let h = 0, hl = holes.length; h < hl; h++) {
-          const ahole = holes[h];
-          oneHoleMovements = [];
-          for (let i = 0, il = ahole.length, j = il - 1, k = i + 1; i < il; i++, j++, k++) {
-            if (j === il) j = 0;
-            if (k === il) k = 0;
-            oneHoleMovements[i] = getBevelVec(ahole[i], ahole[j], ahole[k]);
-          }
-          holesMovements.push(oneHoleMovements);
-          verticesMovements = verticesMovements.concat(oneHoleMovements);
-        }
-        for (let b = 0; b < bevelSegments; b++) {
-          const t = b / bevelSegments;
-          const z = bevelThickness * Math.cos(t * Math.PI / 2);
-          const bs2 = bevelSize * Math.sin(t * Math.PI / 2) + bevelOffset;
-          for (let i = 0, il = contour.length; i < il; i++) {
-            const vert = scalePt2(contour[i], contourMovements[i], bs2);
-            v(vert.x, vert.y, -z);
-          }
-          for (let h = 0, hl = holes.length; h < hl; h++) {
-            const ahole = holes[h];
-            oneHoleMovements = holesMovements[h];
-            for (let i = 0, il = ahole.length; i < il; i++) {
-              const vert = scalePt2(ahole[i], oneHoleMovements[i], bs2);
-              v(vert.x, vert.y, -z);
-            }
-          }
-        }
-        const bs = bevelSize + bevelOffset;
-        for (let i = 0; i < vlen; i++) {
-          const vert = bevelEnabled ? scalePt2(vertices[i], verticesMovements[i], bs) : vertices[i];
-          if (!extrudeByPath) {
-            v(vert.x, vert.y, 0);
-          } else {
-            normal.copy(splineTube.normals[0]).multiplyScalar(vert.x);
-            binormal.copy(splineTube.binormals[0]).multiplyScalar(vert.y);
-            position2.copy(extrudePts[0]).add(normal).add(binormal);
-            v(position2.x, position2.y, position2.z);
-          }
-        }
-        for (let s = 1; s <= steps; s++) {
-          for (let i = 0; i < vlen; i++) {
-            const vert = bevelEnabled ? scalePt2(vertices[i], verticesMovements[i], bs) : vertices[i];
-            if (!extrudeByPath) {
-              v(vert.x, vert.y, depth / steps * s);
-            } else {
-              normal.copy(splineTube.normals[s]).multiplyScalar(vert.x);
-              binormal.copy(splineTube.binormals[s]).multiplyScalar(vert.y);
-              position2.copy(extrudePts[s]).add(normal).add(binormal);
-              v(position2.x, position2.y, position2.z);
-            }
-          }
-        }
-        for (let b = bevelSegments - 1; b >= 0; b--) {
-          const t = b / bevelSegments;
-          const z = bevelThickness * Math.cos(t * Math.PI / 2);
-          const bs2 = bevelSize * Math.sin(t * Math.PI / 2) + bevelOffset;
-          for (let i = 0, il = contour.length; i < il; i++) {
-            const vert = scalePt2(contour[i], contourMovements[i], bs2);
-            v(vert.x, vert.y, depth + z);
-          }
-          for (let h = 0, hl = holes.length; h < hl; h++) {
-            const ahole = holes[h];
-            oneHoleMovements = holesMovements[h];
-            for (let i = 0, il = ahole.length; i < il; i++) {
-              const vert = scalePt2(ahole[i], oneHoleMovements[i], bs2);
-              if (!extrudeByPath) {
-                v(vert.x, vert.y, depth + z);
-              } else {
-                v(vert.x, vert.y + extrudePts[steps - 1].y, extrudePts[steps - 1].x + z);
-              }
-            }
-          }
-        }
-        buildLidFaces();
-        buildSideFaces();
-        function buildLidFaces() {
-          const start = verticesArray.length / 3;
-          if (bevelEnabled) {
-            let layer = 0;
-            let offset = vlen * layer;
-            for (let i = 0; i < flen; i++) {
-              const face = faces[i];
-              f3(face[2] + offset, face[1] + offset, face[0] + offset);
-            }
-            layer = steps + bevelSegments * 2;
-            offset = vlen * layer;
-            for (let i = 0; i < flen; i++) {
-              const face = faces[i];
-              f3(face[0] + offset, face[1] + offset, face[2] + offset);
-            }
-          } else {
-            for (let i = 0; i < flen; i++) {
-              const face = faces[i];
-              f3(face[2], face[1], face[0]);
-            }
-            for (let i = 0; i < flen; i++) {
-              const face = faces[i];
-              f3(face[0] + vlen * steps, face[1] + vlen * steps, face[2] + vlen * steps);
-            }
-          }
-          scope.addGroup(start, verticesArray.length / 3 - start, 0);
-        }
-        function buildSideFaces() {
-          const start = verticesArray.length / 3;
-          let layeroffset = 0;
-          sidewalls(contour, layeroffset);
-          layeroffset += contour.length;
-          for (let h = 0, hl = holes.length; h < hl; h++) {
-            const ahole = holes[h];
-            sidewalls(ahole, layeroffset);
-            layeroffset += ahole.length;
-          }
-          scope.addGroup(start, verticesArray.length / 3 - start, 1);
-        }
-        function sidewalls(contour2, layeroffset) {
-          let i = contour2.length;
-          while (--i >= 0) {
-            const j = i;
-            let k = i - 1;
-            if (k < 0) k = contour2.length - 1;
-            for (let s = 0, sl = steps + bevelSegments * 2; s < sl; s++) {
-              const slen1 = vlen * s;
-              const slen2 = vlen * (s + 1);
-              const a = layeroffset + j + slen1, b = layeroffset + k + slen1, c = layeroffset + k + slen2, d = layeroffset + j + slen2;
-              f4(a, b, c, d);
-            }
-          }
-        }
-        function v(x, y, z) {
-          placeholder.push(x);
-          placeholder.push(y);
-          placeholder.push(z);
-        }
-        function f3(a, b, c) {
-          addVertex(a);
-          addVertex(b);
-          addVertex(c);
-          const nextIndex = verticesArray.length / 3;
-          const uvs = uvgen.generateTopUV(scope, verticesArray, nextIndex - 3, nextIndex - 2, nextIndex - 1);
-          addUV(uvs[0]);
-          addUV(uvs[1]);
-          addUV(uvs[2]);
-        }
-        function f4(a, b, c, d) {
-          addVertex(a);
-          addVertex(b);
-          addVertex(d);
-          addVertex(b);
-          addVertex(c);
-          addVertex(d);
-          const nextIndex = verticesArray.length / 3;
-          const uvs = uvgen.generateSideWallUV(scope, verticesArray, nextIndex - 6, nextIndex - 3, nextIndex - 2, nextIndex - 1);
-          addUV(uvs[0]);
-          addUV(uvs[1]);
-          addUV(uvs[3]);
-          addUV(uvs[1]);
-          addUV(uvs[2]);
-          addUV(uvs[3]);
-        }
-        function addVertex(index) {
-          verticesArray.push(placeholder[index * 3 + 0]);
-          verticesArray.push(placeholder[index * 3 + 1]);
-          verticesArray.push(placeholder[index * 3 + 2]);
-        }
-        function addUV(vector2) {
-          uvArray.push(vector2.x);
-          uvArray.push(vector2.y);
-        }
-      }
-    }
-    copy(source) {
-      super.copy(source);
-      this.parameters = Object.assign({}, source.parameters);
-      return this;
-    }
-    toJSON() {
-      const data = super.toJSON();
-      const shapes = this.parameters.shapes;
-      const options = this.parameters.options;
-      return toJSON$1(shapes, options, data);
-    }
-    static fromJSON(data, shapes) {
-      const geometryShapes = [];
-      for (let j = 0, jl = data.shapes.length; j < jl; j++) {
-        const shape = shapes[data.shapes[j]];
-        geometryShapes.push(shape);
-      }
-      const extrudePath = data.options.extrudePath;
-      if (extrudePath !== void 0) {
-        data.options.extrudePath = new Curves[extrudePath.type]().fromJSON(extrudePath);
-      }
-      return new _ExtrudeGeometry(geometryShapes, data.options);
-    }
-  };
-  var WorldUVGenerator = {
-    generateTopUV: function(geometry, vertices, indexA, indexB, indexC) {
-      const a_x = vertices[indexA * 3];
-      const a_y = vertices[indexA * 3 + 1];
-      const b_x = vertices[indexB * 3];
-      const b_y = vertices[indexB * 3 + 1];
-      const c_x = vertices[indexC * 3];
-      const c_y = vertices[indexC * 3 + 1];
-      return [
-        new Vector2(a_x, a_y),
-        new Vector2(b_x, b_y),
-        new Vector2(c_x, c_y)
-      ];
-    },
-    generateSideWallUV: function(geometry, vertices, indexA, indexB, indexC, indexD) {
-      const a_x = vertices[indexA * 3];
-      const a_y = vertices[indexA * 3 + 1];
-      const a_z = vertices[indexA * 3 + 2];
-      const b_x = vertices[indexB * 3];
-      const b_y = vertices[indexB * 3 + 1];
-      const b_z = vertices[indexB * 3 + 2];
-      const c_x = vertices[indexC * 3];
-      const c_y = vertices[indexC * 3 + 1];
-      const c_z = vertices[indexC * 3 + 2];
-      const d_x = vertices[indexD * 3];
-      const d_y = vertices[indexD * 3 + 1];
-      const d_z = vertices[indexD * 3 + 2];
-      if (Math.abs(a_y - b_y) < Math.abs(a_x - b_x)) {
-        return [
-          new Vector2(a_x, 1 - a_z),
-          new Vector2(b_x, 1 - b_z),
-          new Vector2(c_x, 1 - c_z),
-          new Vector2(d_x, 1 - d_z)
-        ];
-      } else {
-        return [
-          new Vector2(a_y, 1 - a_z),
-          new Vector2(b_y, 1 - b_z),
-          new Vector2(c_y, 1 - c_z),
-          new Vector2(d_y, 1 - d_z)
-        ];
-      }
-    }
-  };
-  function toJSON$1(shapes, options, data) {
-    data.shapes = [];
-    if (Array.isArray(shapes)) {
-      for (let i = 0, l = shapes.length; i < l; i++) {
-        const shape = shapes[i];
-        data.shapes.push(shape.uuid);
-      }
-    } else {
-      data.shapes.push(shapes.uuid);
-    }
-    data.options = Object.assign({}, options);
-    if (options.extrudePath !== void 0) data.options.extrudePath = options.extrudePath.toJSON();
-    return data;
-  }
   var IcosahedronGeometry = class _IcosahedronGeometry extends PolyhedronGeometry {
     constructor(radius = 1, detail = 0) {
       const t = (1 + Math.sqrt(5)) / 2;
@@ -24451,30 +23578,30 @@
         console.error("THREE.Raycaster: Unsupported camera type: " + camera2.type);
       }
     }
-    intersectObject(object, recursive = true, intersects2 = []) {
-      intersectObject(object, this, intersects2, recursive);
-      intersects2.sort(ascSort);
-      return intersects2;
+    intersectObject(object, recursive = true, intersects = []) {
+      intersectObject(object, this, intersects, recursive);
+      intersects.sort(ascSort);
+      return intersects;
     }
-    intersectObjects(objects, recursive = true, intersects2 = []) {
+    intersectObjects(objects, recursive = true, intersects = []) {
       for (let i = 0, l = objects.length; i < l; i++) {
-        intersectObject(objects[i], this, intersects2, recursive);
+        intersectObject(objects[i], this, intersects, recursive);
       }
-      intersects2.sort(ascSort);
-      return intersects2;
+      intersects.sort(ascSort);
+      return intersects;
     }
   };
   function ascSort(a, b) {
     return a.distance - b.distance;
   }
-  function intersectObject(object, raycaster2, intersects2, recursive) {
+  function intersectObject(object, raycaster2, intersects, recursive) {
     if (object.layers.test(raycaster2.layers)) {
-      object.raycast(raycaster2, intersects2);
+      object.raycast(raycaster2, intersects);
     }
     if (recursive === true) {
       const children = object.children;
       for (let i = 0, l = children.length; i < l; i++) {
-        intersectObject(children[i], raycaster2, intersects2, true);
+        intersectObject(children[i], raycaster2, intersects, true);
       }
     }
   }
@@ -27467,29 +26594,29 @@
     c.height = 128;
     const ctx = c.getContext("2d");
     const grd = ctx.createRadialGradient(64, 64, 8, 64, 64, 62);
-    grd.addColorStop(0, "rgba(255,232,210,0.72)");
-    grd.addColorStop(0.42, "rgba(255,220,190,0.32)");
-    grd.addColorStop(1, "rgba(255,214,170,0)");
+    grd.addColorStop(0, "rgba(255,240,220,0.78)");
+    grd.addColorStop(0.4, "rgba(255,226,198,0.38)");
+    grd.addColorStop(1, "rgba(255,220,190,0)");
     ctx.fillStyle = grd;
     ctx.fillRect(0, 0, 128, 128);
     const tex = new CanvasTexture(c);
     const mat = new MeshBasicMaterial({
       map: tex,
       transparent: true,
-      opacity: 0.88,
+      opacity: 0.9,
       depthWrite: false,
       blending: NormalBlending,
       fog: false,
       side: DoubleSide
     });
-    for (let i = 0; i < 18; i++) {
-      const p = new Mesh(new PlaneGeometry(34, 12), mat);
-      if (i < 10) {
+    for (let i = 0; i < 22; i++) {
+      const p = new Mesh(new PlaneGeometry(38, 14), mat);
+      if (i < 12) {
         p.rotation.x = -Math.PI / 2;
-        p.position.set((i % 5 - 2) * 12, -4.6 - i % 4 * 0.8, -4 - i % 5 * 8);
+        p.position.set((i % 6 - 2.5) * 14, -1.1 - i % 4 * 0.55, (i % 5 - 2) * 9);
       } else {
-        p.rotation.y = i / 18 * Math.PI * 2;
-        p.position.set((i % 5 - 2) * 9, -3.4, -8 - i % 4 * 7);
+        p.rotation.y = i / 22 * Math.PI * 2;
+        p.position.set((i % 6 - 2.5) * 12, -0.4, (i % 4 - 1.5) * 8);
       }
       group.add(p);
     }
@@ -27606,6 +26733,312 @@
     geo.setIndex(indices);
     geo.computeVertexNormals();
     return geo;
+  }
+  function makeGrassTexture(repeatX = 16, repeatY = 16) {
+    const c = document.createElement("canvas");
+    c.width = 256;
+    c.height = 256;
+    const ctx = c.getContext("2d");
+    ctx.fillStyle = "#3a9348";
+    ctx.fillRect(0, 0, 256, 256);
+    const patches = ["#2e7a3a", "#4eaa55", "#267033", "#58b45e", "#3d8c40", "#6a9a3a"];
+    for (let i = 0; i < 90; i++) {
+      ctx.fillStyle = patches[i % patches.length];
+      ctx.globalAlpha = 0.22 + Math.random() * 0.35;
+      ctx.beginPath();
+      ctx.ellipse(Math.random() * 256, Math.random() * 256, 10 + Math.random() * 28, 8 + Math.random() * 22, Math.random() * 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    for (let i = 0; i < 2200; i++) {
+      const g = 80 + Math.random() * 110;
+      ctx.fillStyle = `rgba(${30 + Math.random() * 40},${g | 0},${30 + Math.random() * 35},${0.18 + Math.random() * 0.25})`;
+      ctx.fillRect(Math.random() * 256, Math.random() * 256, 1 + Math.random() * 2, 1 + Math.random() * 3);
+    }
+    const tex = new CanvasTexture(c);
+    tex.wrapS = tex.wrapT = RepeatWrapping;
+    tex.repeat.set(repeatX, repeatY);
+    tex.colorSpace = SRGBColorSpace;
+    tex.anisotropy = 4;
+    return tex;
+  }
+  function makeValleyTexture() {
+    const c = document.createElement("canvas");
+    c.width = 256;
+    c.height = 256;
+    const ctx = c.getContext("2d");
+    ctx.fillStyle = "#cbb892";
+    ctx.fillRect(0, 0, 256, 256);
+    const cols = ["#d8c8a0", "#b9a87a", "#c4c090", "#e2d4b0", "#a89870", "#d0b888"];
+    for (let i = 0; i < 70; i++) {
+      ctx.fillStyle = cols[i % cols.length];
+      ctx.globalAlpha = 0.25 + Math.random() * 0.35;
+      ctx.beginPath();
+      ctx.ellipse(Math.random() * 256, Math.random() * 256, 12 + Math.random() * 30, 8 + Math.random() * 20, Math.random() * 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    const tex = new CanvasTexture(c);
+    tex.wrapS = tex.wrapT = RepeatWrapping;
+    tex.repeat.set(4, 8);
+    tex.colorSpace = SRGBColorSpace;
+    return tex;
+  }
+  function makeRock(color = 8024160) {
+    const m = new Mesh(
+      new IcosahedronGeometry(0.42 + Math.random() * 0.5, 1),
+      new MeshStandardMaterial({ color, roughness: 0.88, metalness: 0.04, flatShading: false })
+    );
+    m.scale.set(1, 0.48 + Math.random() * 0.32, 0.82 + Math.random() * 0.3);
+    m.castShadow = true;
+    m.receiveShadow = true;
+    return m;
+  }
+  function makeGrassTuft(color = 3115578) {
+    const g = new Group();
+    const mat = new MeshStandardMaterial({ color, roughness: 0.72, flatShading: false });
+    const n = 4 + (Math.random() * 3 | 0);
+    for (let i = 0; i < n; i++) {
+      const h = 0.2 + Math.random() * 0.28;
+      const blade = new Mesh(new ConeGeometry(0.065 + Math.random() * 0.05, h, 5), mat);
+      blade.position.set((Math.random() - 0.5) * 0.3, h * 0.5, (Math.random() - 0.5) * 0.3);
+      blade.rotation.z = (Math.random() - 0.5) * 0.42;
+      blade.rotation.x = (Math.random() - 0.5) * 0.22;
+      g.add(blade);
+    }
+    return g;
+  }
+  function populateValley(course, theme = "jungle", high = true) {
+    const group = new Group();
+    group.name = "valleyDecor";
+    const step = high ? 2 : 4;
+    for (let i = 0; i < course.samples.length; i += step) {
+      const s = course.samples[i];
+      if (s.kind !== "causeway") continue;
+      const rx = Math.cos(s.heading), rz = Math.sin(s.heading);
+      for (const side of [-1, 1]) {
+        const dist = 8 + (i * 17 + (side > 0 ? 11 : 0)) % 22;
+        const x = s.x + rx * side * dist;
+        const z = s.z + rz * side * dist;
+        const y = s.y - 6.05;
+        const pick2 = (i + (side > 0 ? 1 : 0)) % 5;
+        if (pick2 <= 1) {
+          const tree = makeSmoothTree(theme);
+          tree.scale.setScalar(0.4 + i % 4 * 0.12);
+          tree.position.set(x, y, z);
+          tree.rotation.y = i * 0.7;
+          group.add(tree);
+        } else {
+          const rock = makeRock(pick2 === 2 ? 9075298 : 7234904);
+          rock.position.set(x, y + 0.18, z);
+          rock.scale.multiplyScalar(1.3 + i % 3 * 0.35);
+          group.add(rock);
+        }
+      }
+    }
+    return group;
+  }
+  function scatterGroundDetails(course, theme = "jungle", high = true) {
+    const group = new Group();
+    group.name = "groundScatter";
+    const n = high ? 72 : 34;
+    const colors = [3115578, 3840580, 2521139];
+    const len = course.length || 240;
+    for (let i = 0; i < n; i++) {
+      const sVal = (i * 6.7 + 1.5) % Math.max(12, len - 4);
+      const p = pathAt(course, sVal);
+      if (p.kind === "causeway") continue;
+      const rx = Math.cos(p.heading), rz = Math.sin(p.heading);
+      const side = i % 2 === 0 ? -1 : 1;
+      const off = 8.2 + i * 4.13 % 26;
+      const x = p.x + rx * side * off;
+      const z = p.z + rz * side * off;
+      const pick2 = i % 7;
+      if (pick2 === 0) {
+        const tree = makeSmoothTree(theme);
+        tree.scale.setScalar(0.48 + i % 5 * 0.1);
+        tree.position.set(x, p.y, z);
+        tree.rotation.y = i * 0.5;
+        group.add(tree);
+      } else if (pick2 <= 3) {
+        const tuft = makeGrassTuft(colors[i % colors.length]);
+        tuft.position.set(x, p.y - 0.02, z);
+        tuft.scale.setScalar(1.15 + i % 4 * 0.22);
+        group.add(tuft);
+      } else {
+        const rock = makeRock();
+        rock.position.set(x, p.y - 0.12, z);
+        group.add(rock);
+      }
+    }
+    for (let i = 0; i < 16; i++) {
+      const side = i % 2 === 0 ? -1 : 1;
+      const off = 5.4 + i % 8 * 2.2;
+      const sVal = i % 6 * 2;
+      const p = pathAt(course, sVal);
+      const rx = Math.cos(p.heading), rz = Math.sin(p.heading);
+      const tuft = makeGrassTuft(3443260);
+      tuft.position.set(p.x + rx * side * off, p.y - 0.02, p.z + rz * side * off);
+      tuft.scale.setScalar(1.35);
+      group.add(tuft);
+      if (i % 3 === 0) {
+        const rock = makeRock();
+        rock.position.set(p.x + rx * side * (off + 1.3), p.y - 0.1, p.z + rz * side * (off + 1.3));
+        group.add(rock);
+      }
+      if (i % 5 === 0) {
+        const tree = makeSmoothTree(theme);
+        tree.scale.setScalar(0.55);
+        tree.position.set(p.x + rx * side * (off + 3.2), p.y, p.z + rz * side * (off + 3.2));
+        group.add(tree);
+      }
+    }
+    return group;
+  }
+  var flagWaveTime = { value: 0 };
+  function updateFlagWave(t) {
+    flagWaveTime.value = t;
+  }
+  var FLAG_BLUE = "#0038b8";
+  var _flagTex = null;
+  var _flagMat = null;
+  var _poleMat = null;
+  var _finialMat = null;
+  function makeIsraelFlagTexture() {
+    if (_flagTex) return _flagTex;
+    const W = 550, H = 400;
+    const c = document.createElement("canvas");
+    c.width = W;
+    c.height = H;
+    const ctx = c.getContext("2d");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, W, H);
+    const topM = H * (15 / 160);
+    const stripeH = H * (25 / 160);
+    ctx.fillStyle = FLAG_BLUE;
+    ctx.fillRect(0, topM, W, stripeH);
+    ctx.fillRect(0, H - topM - stripeH, W, stripeH);
+    const cx = W / 2, cy = H / 2;
+    const R = H * 0.253;
+    ctx.strokeStyle = FLAG_BLUE;
+    ctx.lineWidth = Math.max(10, H * 0.03);
+    ctx.lineJoin = "miter";
+    ctx.miterLimit = 2.4;
+    ctx.lineCap = "butt";
+    function tri(up) {
+      ctx.beginPath();
+      for (let i = 0; i < 3; i++) {
+        const a = (up ? -Math.PI / 2 : Math.PI / 2) + i * (Math.PI * 2 / 3);
+        const x = cx + Math.cos(a) * R;
+        const y = cy + Math.sin(a) * R;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.stroke();
+    }
+    tri(true);
+    tri(false);
+    _flagTex = new CanvasTexture(c);
+    _flagTex.colorSpace = SRGBColorSpace;
+    _flagTex.minFilter = LinearFilter;
+    _flagTex.magFilter = LinearFilter;
+    _flagTex.anisotropy = 4;
+    _flagTex.needsUpdate = true;
+    return _flagTex;
+  }
+  function flagClothMaterial() {
+    if (_flagMat) return _flagMat;
+    _flagMat = new MeshBasicMaterial({
+      map: makeIsraelFlagTexture(),
+      side: DoubleSide,
+      toneMapped: false,
+      fog: true
+    });
+    _flagMat.onBeforeCompile = (shader) => {
+      shader.uniforms.uTime = flagWaveTime;
+      shader.vertexShader = "uniform float uTime;\n" + shader.vertexShader;
+      shader.vertexShader = shader.vertexShader.replace(
+        "#include <begin_vertex>",
+        `#include <begin_vertex>
+      {
+        float along = max(transformed.x, 0.0);
+        vec4 wp = modelMatrix * vec4(0.0, 0.0, 0.0, 1.0);
+        float phase = wp.x * 0.41 + wp.z * 0.27;
+        float wave = sin(uTime * 3.15 + along * 4.8 + transformed.y * 2.4 + phase) * along * 0.28;
+        float ripple = sin(uTime * 5.4 + along * 7.2 + phase * 1.3) * along * 0.10;
+        transformed.z += wave + ripple;
+        transformed.y += sin(uTime * 2.7 + along * 3.6 + phase) * along * 0.06;
+      }`
+      );
+    };
+    _flagMat.customProgramCacheKey = () => "israelFlagWave-v1";
+    return _flagMat;
+  }
+  function makeIsraelFlag(opt = {}) {
+    const size = opt.size != null ? opt.size : 1;
+    const high = opt.high !== false;
+    const flagW = 1.42 * size;
+    const flagH = flagW * (8 / 11);
+    const poleH = opt.poleHeight != null ? opt.poleHeight : 2.15 * size + flagH;
+    const segsX = high ? 18 : 8;
+    const segsY = high ? 12 : 6;
+    const g = new Group();
+    g.name = "israelFlag";
+    if (!_poleMat) {
+      _poleMat = new MeshStandardMaterial({ color: 11569480, roughness: 0.42, metalness: 0.18 });
+      _finialMat = new MeshStandardMaterial({ color: 16765514, roughness: 0.28, metalness: 0.65, emissive: 11171584, emissiveIntensity: 0.22 });
+    }
+    const pole = new Mesh(new CylinderGeometry(0.038 * Math.max(size, 0.55), 0.05 * Math.max(size, 0.55), poleH, 7), _poleMat);
+    pole.position.y = poleH * 0.5;
+    pole.castShadow = true;
+    const finial = new Mesh(new SphereGeometry(0.07 * Math.max(size, 0.55), 8, 6), _finialMat);
+    finial.position.y = poleH + 0.02;
+    const geo = new PlaneGeometry(flagW, flagH, segsX, segsY);
+    geo.translate(flagW * 0.5, 0, 0);
+    const cloth = new Mesh(geo, flagClothMaterial());
+    cloth.position.set(0.02, poleH - 0.1 - flagH * 0.5, 0);
+    cloth.name = "flagCloth";
+    cloth.renderOrder = 1;
+    g.add(pole, finial, cloth);
+    return g;
+  }
+  function plantCourseFlags(course, high = true) {
+    const group = new Group();
+    group.name = "israelFlags";
+    if (!course || !course.samples || !course.samples.length) return group;
+    const len = course.length || course.samples.length * (course.step || 1);
+    const spots = [
+      { s: 5, kind: "start", size: 1.2 },
+      { s: Math.max(24, len - 14), kind: "finish", size: 1.08 }
+    ];
+    if (course.landmarks && course.landmarks.hill != null) {
+      spots.push({ s: course.landmarks.hill, kind: "hill", size: 1.1 });
+    }
+    const gap = high ? 108 : 140;
+    for (let s = 6 + gap; s < len - 36; s += gap) {
+      spots.push({ s, kind: "road", size: 1 });
+    }
+    spots.sort((a, b) => a.s - b.s);
+    const kept = [];
+    for (const sp of spots) {
+      if (sp.kind === "road" && kept.some((k) => Math.abs(k.s - sp.s) < 40)) continue;
+      kept.push(sp);
+    }
+    for (const sp of kept) {
+      const f = pathFrame(course, sp.s);
+      if (f.kind === "causeway") continue;
+      const off = sp.kind === "start" ? 4.45 : sp.kind === "hill" ? 4.7 : 4.55;
+      for (const side of [-1, 1]) {
+        const flag = makeIsraelFlag({ size: sp.size, high });
+        flag.position.copy(f.pos).addScaledVector(f.right, side * off);
+        flag.rotation.order = "YXZ";
+        flag.rotation.y = -f.heading;
+        if (side < 0) flag.scale.x = -Math.abs(flag.scale.x);
+        group.add(flag);
+      }
+    }
+    return group;
   }
 
   // ../../workspace/engio/mila-quest/js/game.js
@@ -27947,6 +27380,14 @@
       }
     });
   }
+  function isHeldWeapon(name) {
+    return /knife|dagger|crossbow|throwable|wand|staff|spellbook|sword|axe|shield|1h_|2h_|mug|bow/.test(String(name || "").toLowerCase());
+  }
+  function hideHeldWeapons(root) {
+    root.traverse((o) => {
+      if (isHeldWeapon(o.name)) o.visible = false;
+    });
+  }
   function polishActorMaterials(root) {
     root.traverse((o) => {
       if (!o.isMesh) return;
@@ -27977,12 +27418,13 @@
       });
     });
   }
-  async function createActor(file, height, faceNegZ = true) {
+  async function createActor(file, height, faceNegZ = true, stripWeapons = false) {
     try {
       const gltf = await loadGLTF(file);
       const model = gltf.animations && gltf.animations.length ? clone(gltf.scene) : gltf.scene.clone(true);
       prepMeshes(model);
       polishActorMaterials(model);
+      if (stripWeapons) hideHeldWeapons(model);
       normalize2(model, height);
       if (faceNegZ) model.rotation.y = Math.PI;
       const mixer = new AnimationMixer(model);
@@ -28069,8 +27511,8 @@
     c.width = w;
     c.height = h;
     const ctx = c.getContext("2d");
-    ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = opt.bg || "#ffe34a";
+    ctx.fillRect(0, 0, w, h);
     roundRect(ctx, 10, 10, w - 20, h - 20, 44);
     ctx.fill();
     ctx.strokeStyle = opt.bd || "#140818";
@@ -28102,39 +27544,30 @@
     tex.userData = { font, textW: ctx.measureText(raw).width, canvasW: w, raw };
     return tex;
   }
-  function roundedBoardGeo(w, h, d, r) {
-    const s = new Shape();
-    const x = -w / 2, y = -h / 2;
-    const rr = Math.min(r, w / 2, h / 2);
-    s.moveTo(x + rr, y);
-    s.lineTo(x + w - rr, y);
-    s.quadraticCurveTo(x + w, y, x + w, y + rr);
-    s.lineTo(x + w, y + h - rr);
-    s.quadraticCurveTo(x + w, y + h, x + w - rr, y + h);
-    s.lineTo(x + rr, y + h);
-    s.quadraticCurveTo(x, y + h, x, y + h - rr);
-    s.lineTo(x, y + rr);
-    s.quadraticCurveTo(x, y, x + rr, y);
-    return new ExtrudeGeometry(s, { depth: d, bevelEnabled: true, bevelThickness: 0.035, bevelSize: 0.035, bevelSegments: 2 });
-  }
   function makeSign(text, big = true) {
     const g = new Group();
-    const tex = makeTextTexture(text, big ? { w: 1024, h: 384, font: 168 } : { w: 512, h: 280, font: 160 });
-    const W = big ? 1.52 : 0.92;
-    const H = big ? 1.18 : 0.82;
-    const back = new Mesh(
-      roundedBoardGeo(W + 0.12, H + 0.12, 0.08, 0.16),
-      new MeshStandardMaterial({ color: 3810320, roughness: 0.4, metalness: 0.18, emissive: 2758728, emissiveIntensity: 0.12 })
+    const tw = big ? 1024 : 768;
+    const th = big ? 360 : 280;
+    const tex = makeTextTexture(text, { w: tw, h: th, font: big ? 176 : 140 });
+    const span = typeof laneXs === "function" ? laneXs()[2] - laneXs()[1] : 2;
+    const W = big ? Math.min(1.86, span * 0.9) : 1.05;
+    const H = W * (th / tw);
+    const rim = new Mesh(
+      new BoxGeometry(W + 0.05, H + 0.05, 0.055),
+      new MeshBasicMaterial({ color: 16769866, toneMapped: false })
     );
-    back.position.z = -0.1;
-    const face = new Mesh(
-      new PlaneGeometry(W, H),
-      new MeshBasicMaterial({ map: tex, toneMapped: false })
-    );
-    face.position.z = 0.12;
-    face.renderOrder = 2;
-    g.add(back, face);
+    const matF = new MeshBasicMaterial({ map: tex, toneMapped: false, fog: false });
+    const matB = new MeshBasicMaterial({ map: tex, toneMapped: false, fog: false });
+    const faceF = new Mesh(new PlaneGeometry(W, H), matF);
+    faceF.position.z = 0.03;
+    faceF.renderOrder = 2;
+    const faceB = new Mesh(new PlaneGeometry(W, H), matB);
+    faceB.position.z = -0.03;
+    faceB.rotation.y = Math.PI;
+    faceB.renderOrder = 2;
+    g.add(rim, faceF, faceB);
     g.userData.fit = tex.userData;
+    g.userData.signSize = { W, H };
     return g;
   }
   function makeGoldKey() {
@@ -28250,7 +27683,7 @@
     pod.receiveShadow = true;
     mapScene.add(pod);
     for (let i = 0; i < HEROES.length; i++) {
-      const actor = await createActor(MP(HEROES[i].file), 1.45);
+      const actor = await createActor(MP(HEROES[i].file), 1.45, true, true);
       actor.model.position.set((i - 1) * 1.7, 0.32, 3.4);
       mapScene.add(actor.model);
       playAnim(actor, "idle");
@@ -28443,10 +27876,10 @@
     pathMat = new MeshStandardMaterial({ map: makeDirtTexture(), color: 15255688, roughness: 0.82, flatShading: false });
     stoneMat = new MeshStandardMaterial({ map: makeStoneTexture(), color: 16777215, roughness: 0.54, metalness: 0.08, flatShading: false });
     stripeMat = new MeshBasicMaterial({ color: WORLDS[0].pathB });
-    sideMat = new MeshStandardMaterial({ color: WORLDS[0].ground, roughness: 1, flatShading: false });
+    sideMat = new MeshStandardMaterial({ map: makeGrassTexture(8, 36), color: WORLDS[0].ground, roughness: 0.92, flatShading: false });
     skirtMat = new MeshStandardMaterial({ color: 5919560, roughness: 0.74, metalness: 0.06, flatShading: false, side: DoubleSide });
     railMat = new MeshStandardMaterial({ color: 12887412, roughness: 0.45, metalness: 0.18, flatShading: false });
-    valleyMat = new MeshStandardMaterial({ color: 2761756, roughness: 1, metalness: 0, flatShading: false });
+    valleyMat = new MeshStandardMaterial({ map: makeValleyTexture(), color: 15128500, roughness: 0.94, metalness: 0, emissive: 6969916, emissiveIntensity: 0.24, flatShading: false });
     for (let i = 0; i < 56; i++) {
       const m = new Mesh(new SphereGeometry(0.08, 6, 6), new MeshBasicMaterial({ color: 16762941 }));
       m.visible = false;
@@ -28600,9 +28033,9 @@
     const stone = new Mesh(makeRibbonGeometry(course, { width: 6.8, yLift: 0.05, pred: (s) => s.kind === "causeway", vScale: 0.4, uRepeat: 3 }), stoneMat);
     stone.receiveShadow = true;
     stone.name = "ribbonStone";
-    const skirt = new Mesh(makeSkirtGeometry(course, { width: 6.8, depth: 2.8, pred: (s) => s.kind === "causeway" }), skirtMat);
+    const skirt = new Mesh(makeSkirtGeometry(course, { width: 6.8, depth: 4.4, pred: (s) => s.kind === "causeway" }), skirtMat);
     skirt.name = "ribbonSkirt";
-    const valley = new Mesh(makeRibbonGeometry(course, { width: 78, yLift: -8.6, pred: (s) => s.kind === "causeway", vScale: 0.03 }), valleyMat);
+    const valley = new Mesh(makeRibbonGeometry(course, { width: 92, yLift: -6.4, pred: (s) => s.kind === "causeway", vScale: 0.04 }), valleyMat);
     valley.receiveShadow = true;
     valley.name = "ribbonValley";
     const railL = new Mesh(makeRibbonGeometry(course, { width: 0.16, yLift: 0.56, xOffset: -3.32, pred: (s) => s.kind === "causeway" }), railMat);
@@ -28624,13 +28057,22 @@
     }
     const follow = new Mesh(
       new CircleGeometry(220, 64),
-      new MeshStandardMaterial({ color: sideMat.color, roughness: 1, flatShading: false })
+      new MeshStandardMaterial({ map: makeGrassTexture(30, 30), color: sideMat.color, roughness: 0.94, flatShading: false })
     );
     follow.rotation.x = -Math.PI / 2;
     follow.position.y = -0.32;
     follow.name = "followGround";
     follow.receiveShadow = true;
-    group.add(follow, grass, turnGrass, dirt, stripeL, stripeR, valley, skirt, stone, railL, railR);
+    const haze = new Mesh(
+      makeRibbonGeometry(course, { width: 58, yLift: -3.15, pred: (s) => s.kind === "causeway", vScale: 0.05 }),
+      new MeshBasicMaterial({ color: 16770754, transparent: true, opacity: 0.32, depthWrite: false, fog: true, side: DoubleSide })
+    );
+    haze.name = "valleyHaze";
+    const theme = ["jungle", "pirate", "magic", "space", "ice"][(run.world || 1) - 1] || "jungle";
+    const valleyBits = populateValley(course, theme, isHigh());
+    const scatter = scatterGroundDetails(course, theme, isHigh());
+    const flags = plantCourseFlags(course, isHigh());
+    group.add(follow, scatter, grass, turnGrass, dirt, stripeL, stripeR, valley, valleyBits, haze, skirt, stone, railL, railR, flags);
     courseVisual = group;
     runScene.add(courseVisual);
   }
@@ -28638,7 +28080,7 @@
     if (!run || !run.course || !player) return;
     if (!courseVisual) rebuildCourseRibbon();
   }
-  function placeOnCourse(obj, s, lane) {
+  function placeOnCourse(obj, s, lane, upright) {
     if (!run || !run.course) {
       obj.position.set(typeof lane === "number" ? laneXs()[lane] : 0, 0, -s);
       return;
@@ -28647,8 +28089,9 @@
     const off = lane === 0 || lane === 1 || lane === 2 ? laneXs()[lane] : lane || 0;
     obj.position.copy(f.pos).addScaledVector(f.right, off);
     obj.rotation.order = "YXZ";
-    obj.rotation.y = f.heading;
-    obj.rotation.x = f.pitch || 0;
+    obj.rotation.y = upright ? -f.heading : f.heading;
+    obj.rotation.x = upright ? 0 : f.pitch || 0;
+    obj.rotation.z = 0;
     obj.userData.pathS = s;
   }
   function syncPlayerPose() {
@@ -28657,7 +28100,7 @@
     const x = player.laneShift != null ? player.laneShift : laneXs()[player.lane];
     player.group.position.copy(f.pos).addScaledVector(f.right, x).addScaledVector(f.up, player.y || 0);
     player.group.rotation.order = "YXZ";
-    player.group.rotation.y = f.heading;
+    player.group.rotation.y = -f.heading;
     player.group.rotation.x = (f.pitch || 0) * 0.45;
     player.z = -player.s;
   }
@@ -28680,7 +28123,7 @@
       const m = makeSmoothTree(theme);
       m.userData.pathS = 6 + i * 10;
       m.userData.side = i % 2 === 0 ? -1 : 1;
-      m.userData.sideOff = 5.6 + i % 5 * 0.35;
+      m.userData.sideOff = 6.9 + i % 5 * 0.4;
       if (run && run.course) {
         const f = pathFrame(run.course, m.userData.pathS);
         m.position.copy(f.pos).addScaledVector(f.right, m.userData.side * m.userData.sideOff);
@@ -28693,7 +28136,7 @@
   }
   function buildGate(options) {
     const g = new Group();
-    const mat = new MeshStandardMaterial({ color: 7027220, roughness: 0.38, metalness: 0.2, emissive: 16756768, emissiveIntensity: 0.2 });
+    const mat = new MeshStandardMaterial({ color: 14725466, roughness: 0.42, metalness: 0.12, emissive: 12880424, emissiveIntensity: 0.18 });
     [-3.45, 3.45].forEach((x) => {
       const post = new Mesh(new CylinderGeometry(0.2, 0.24, 4.4, 10), mat);
       post.position.set(x, 2.2, 0);
@@ -28705,22 +28148,22 @@
     beam.position.set(0, 4.35, 0);
     beam.castShadow = true;
     g.add(beam);
-    if (isHigh()) {
-      const glow = new Mesh(
-        new PlaneGeometry(7.4, 4.6),
-        new MeshBasicMaterial({ color: 16762941, transparent: true, opacity: 0.13, blending: AdditiveBlending, depthWrite: false, side: DoubleSide, fog: false })
-      );
-      glow.position.set(0, 2.4, -0.06);
-      glow.name = "gateGlow";
-      g.add(glow);
-    }
     const xs = laneXs();
     options.forEach((opt, i) => {
-      const sign2 = makeSign(opt, true);
-      sign2.position.set(xs[i], 2.32, 0.2);
-      sign2.name = "laneSign";
-      g.add(sign2);
+      const sign = makeSign(opt, true);
+      sign.position.set(xs[i], 2.32, 0.2);
+      sign.name = "laneSign";
+      g.add(sign);
     });
+    if (!run || run.i % 2 === 0) {
+      const hi = typeof isHigh === "function" ? isHigh() : true;
+      [-1, 1].forEach((side) => {
+        const fl = makeIsraelFlag({ size: 0.48, poleHeight: 0.92, high: hi });
+        fl.position.set(side * 3.45, 4.42, 0);
+        if (side < 0) fl.scale.x = -1;
+        g.add(fl);
+      });
+    }
     return g;
   }
   function clearDyn() {
@@ -28868,7 +28311,7 @@
     setPrompt(sub, q, emoji);
     const s = player.s + (gates.length ? 20 : 12);
     const group = buildGate(opts);
-    placeOnCourse(group, s, 0);
+    placeOnCourse(group, s, 0, true);
     runScene.add(group);
     gates.push({ group, s, z: -s, ans, word: w, resolved: false });
   }
@@ -28886,12 +28329,12 @@
             glyph = String.fromCharCode(65 + Math.floor(Math.random() * 26));
           } while (glyph === ch);
         }
-        const sign2 = makeSign(glyph, false);
-        sign2.scale.setScalar(1.15);
-        placeOnCourse(sign2, s, lane);
-        sign2.position.y += 1.25 + Math.sin(idx) * 0.08;
-        runScene.add(sign2);
-        letters.push({ mesh: sign2, lane, ch: glyph, need: ch, index: idx, taken: false, s });
+        const sign = makeSign(glyph, false);
+        sign.scale.setScalar(1.15);
+        placeOnCourse(sign, s, lane);
+        sign.position.y += 1.25 + Math.sin(idx) * 0.08;
+        runScene.add(sign);
+        letters.push({ mesh: sign, lane, ch: glyph, need: ch, index: idx, taken: false, s });
       }
     });
   }
@@ -29236,7 +28679,7 @@
     updateHud();
     const title = lost ? "\u{1F4DA} \u05E1\u05E4\u05E8\u05D9\u05D9\u05EA \u05D4\u05DE\u05D9\u05DC\u05D9\u05DD \u05D4\u05D0\u05D1\u05D5\u05D3\u05D5\u05EA" : boss ? "\u2694\uFE0F " + BOSSES[wid - 1].name : ST[wid - 1][st][0];
     showUI("hud");
-    showModal(`<h2>${title}</h2><p>${boss ? "\u05E2\u05E0\u05D5 \u05E0\u05DB\u05D5\u05DF \u05DB\u05D3\u05D9 \u05DC\u05D4\u05D7\u05DC\u05D9\u05E9 \u05D0\u05EA \u05D4\u05D1\u05D5\u05E1!" : st === 0 && !lost ? INTRO[wid - 1] : "\u05E7\u05D3\u05D9\u05DE\u05D4, \u05D0\u05EA\u05DD \u05D9\u05DB\u05D5\u05DC\u05D9\u05DD!"}</p>
+    showModal(`<h2>${title}</h2><p>${boss ? "\u05D4\u05D1\u05D5\u05E1 \u05E8\u05E5 \u05DE\u05D0\u05D7\u05D5\u05E8\u05D9\u05DB\u05DD! \u05E2\u05E0\u05D5 \u05E0\u05DB\u05D5\u05DF \u05DB\u05D3\u05D9 \u05DC\u05D4\u05D7\u05DC\u05D9\u05E9 \u05D0\u05D5\u05EA\u05D5!" : st === 0 && !lost ? INTRO[wid - 1] : "\u05E7\u05D3\u05D9\u05DE\u05D4, \u05D0\u05EA\u05DD \u05D9\u05DB\u05D5\u05DC\u05D9\u05DD!"}</p>
     <button class="btn g" id="mgo">\u05D9\u05D5\u05E6\u05D0\u05D9\u05DD \u05DC\u05D3\u05E8\u05DA \u25B6</button>`);
     $("mgo").onclick = () => {
       hideModal();
@@ -29248,7 +28691,7 @@
   async function ensurePlayer() {
     if (player && player.hero === S.hero) return;
     if (player && player.group.parent) player.group.parent.remove(player.group);
-    const actor = await createActor(MP(HEROES[S.hero].file), 1.52);
+    const actor = await createActor(MP(HEROES[S.hero].file), 1.52, true, true);
     const group = new Group();
     group.add(actor.model);
     player = { ...actor, group, hero: S.hero, lane: 1, s: 0, z: 0, laneShift: 0, y: 0, vy: 0, jumping: false, sliding: false, slideT: 0, current: null };
@@ -29365,6 +28808,7 @@
       return;
     }
     if (appMode === "run" && player) {
+      updateFlagWave(now * 1e-3);
       if (!paused) updateRunner(dt);
       else if (player.mixer) player.mixer.update(dt);
       updateKeyFx(dt);
@@ -29400,7 +28844,7 @@
     if (runMist) {
       const onCauseway = f.kind === "causeway";
       runMist.visible = onCauseway;
-      runMist.position.copy(f.pos).addScaledVector(f.up, -3.8).addScaledVector(f.fwd, 6);
+      runMist.position.copy(f.pos).addScaledVector(f.up, -3.2).addScaledVector(f.fwd, 4);
     }
     if (runHills) runHills.position.set(f.x, 0, f.z);
     if (courseVisual) {
@@ -29408,17 +28852,17 @@
       if (gnd) {
         gnd.position.set(f.x, -0.32, f.z);
         gnd.visible = f.kind !== "causeway";
-        if (sideMat) gnd.material.color.copy(sideMat.color).multiplyScalar(0.82);
+        if (sideMat) gnd.material.color.copy(sideMat.color);
       }
     }
     if (runSky) runSky.position.copy(camera.position);
     if (bossActor && run.boss) {
-      const bs = Math.max(0, player.s - 6.8);
+      const bs = Math.max(0, player.s - 3.4);
       const bf = pathFrame(run.course, bs);
-      const wobble = Math.sin(performance.now() * 2e-3) * 0.35;
-      bossActor.model.position.copy(worldOnPath(run.course, bs, wobble, 0));
+      const sideOff = 1.7 + Math.sin(performance.now() * 2e-3) * 0.2;
+      bossActor.model.position.copy(worldOnPath(run.course, bs, sideOff, 0));
       bossActor.model.rotation.order = "YXZ";
-      bossActor.model.rotation.y = bf.heading;
+      bossActor.model.rotation.y = -bf.heading;
       bossActor.model.rotation.x = bf.pitch || 0;
     }
   }
@@ -29568,14 +29012,15 @@
       sx = (Math.random() - 0.5) * 0.25;
       sy = (Math.random() - 0.5) * 0.18;
     }
-    const back = f.pos.clone().addScaledVector(f.fwd, -7.7).addScaledVector(f.up, 3.85 + player.y * 0.25 + sy).addScaledVector(f.right, (player.laneShift || 0) * 0.42 + sx);
-    const side = f.pos.clone().addScaledVector(f.right, 6.2).addScaledVector(f.fwd, -1.6).addScaledVector(f.up, 2.55);
+    const bossBias = run.boss ? -2.05 : 0;
+    const back = f.pos.clone().addScaledVector(f.fwd, run.boss ? -8.6 : -7.7).addScaledVector(f.up, 3.7 + player.y * 0.25 + sy).addScaledVector(f.right, (player.laneShift || 0) * 0.42 + sx + bossBias);
+    const side = f.pos.clone().addScaledVector(f.right, -4.4).addScaledVector(f.fwd, -8.4).addScaledVector(f.up, 3.25);
     const ideal = back.lerp(side, glance);
-    const look = f.pos.clone().addScaledVector(f.fwd, 5.4 - glance * 8.6).addScaledVector(f.up, 1.15 + player.y).addScaledVector(f.right, glance * -0.35);
+    const look = f.pos.clone().addScaledVector(f.fwd, 4.6).addScaledVector(f.up, 1.15 + player.y).addScaledVector(f.right, glance * 0.8);
     if (glance > 0.15 && bossActor) {
       const bp = bossActor.model.position.clone();
-      bp.y += 1.35;
-      look.lerp(bp, glance * 0.84);
+      bp.y += 1.2;
+      look.lerp(bp, glance * 0.22);
     }
     camera.position.lerp(ideal, 1 - Math.pow(8e-4, dt));
     camera.lookAt(look);
@@ -29851,7 +29296,7 @@
       gates.length = 0;
       const s = (player.s || 0) + 11.5;
       const group = buildGate(opts);
-      placeOnCourse(group, s, 0);
+      placeOnCourse(group, s, 0, true);
       runScene.add(group);
       gates.push({ group, s, z: -s, ans: 0, word: run && run.cur, resolved: false });
       setLaneOpts(opts);
@@ -29938,14 +29383,11 @@
       player.s = Math.max(player.s, 48);
       player.z = -player.s;
       syncPlayerPose();
-      if (run) run.forceGlance = true;
+      if (run) run.forceGlance = false;
       syncWorldFollowers();
       const f = pathFrame(run.course, player.s);
-      const look = f.pos.clone().addScaledVector(f.fwd, -4.4).addScaledVector(f.up, 1.25);
-      if (bossActor) {
-        look.lerp(bossActor.model.position.clone().setY(bossActor.model.position.y + 1.3), 0.55);
-      }
-      camera.position.copy(f.pos).addScaledVector(f.right, 5.6).addScaledVector(f.up, 2.45).addScaledVector(f.fwd, 2.2);
+      camera.position.copy(f.pos).addScaledVector(f.fwd, -9.1).addScaledVector(f.right, -3.7).addScaledVector(f.up, 3.35);
+      const look = f.pos.clone().addScaledVector(f.fwd, 4.2).addScaledVector(f.up, 1.2).addScaledVector(f.right, 0.7);
       camera.lookAt(look);
       if (runSky) runSky.position.copy(camera.position);
       return {
