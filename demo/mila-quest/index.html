@@ -24,8 +24,8 @@ button{font:inherit;cursor:pointer}
 .sign{background:linear-gradient(#d49240,#8a5420);border:5px solid #4a2c0c;border-radius:24px;padding:8px 40px 12px;box-shadow:0 10px 0 #0005,0 18px 40px #0004;transform:rotate(-1deg)}
 .sign h1{margin:0;font-size:clamp(34px,7vw,64px);color:#ffd23d;font-family:Fredoka,Rubik,sans-serif;-webkit-text-stroke:2px #5b2d00;paint-order:stroke fill;text-shadow:0 4px 0 #5b2d00}
 .sub{display:inline-block;background:#5b3fb5;color:#fff;padding:7px 20px;border-radius:999px;font-weight:700;box-shadow:0 6px 0 #35227a;margin:12px 0}
-.glass{background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,253,246,.14));backdrop-filter:blur(18px) saturate(1.35);border:1px solid rgba(255,255,255,.42);border-radius:22px;box-shadow:0 16px 40px #0004,inset 0 1px 0 #fff6}
-.btn{border:0;border-radius:18px;padding:12px 28px;background:var(--gold);color:var(--ink);font-weight:800;font-size:clamp(16px,2.5vw,22px);box-shadow:0 6px 0 var(--gold-d);transition:transform .08s,box-shadow .08s,filter .12s}
+.glass{background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,253,246,.16));backdrop-filter:blur(22px) saturate(1.45);border:1px solid rgba(255,255,255,.5);border-radius:28px;box-shadow:0 18px 46px #0004,inset 0 1px 0 #fff8}
+.btn{border:0;border-radius:999px;padding:12px 28px;background:var(--gold);color:var(--ink);font-weight:800;font-size:clamp(16px,2.5vw,22px);box-shadow:0 6px 0 var(--gold-d);transition:transform .16s cubic-bezier(.2,1.3,.3,1),box-shadow .16s,filter .12s}
 .btn:hover{filter:brightness(1.06)}
 .btn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--gold-d)}
 .btn.g{background:var(--leaf);color:#fff;box-shadow:0 6px 0 var(--leaf-d)}
@@ -33,10 +33,10 @@ button{font:inherit;cursor:pointer}
 .btn.s{font-size:15px;padding:8px 14px;border-radius:14px}
 .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center}
 .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px;text-align:center}
-.pill{background:rgba(255,253,246,.92);border:3px solid #8a5a2b;border-radius:16px;padding:5px 14px;font-weight:800;display:inline-flex;align-items:center;gap:6px}
+.pill{background:rgba(255,253,246,.92);border:3px solid #8a5a2b;border-radius:999px;padding:6px 16px;font-weight:800;display:inline-flex;align-items:center;gap:6px}
 #hud{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:10px 14px 16px;pointer-events:none}
 #hud .hud-top,#hud .hud-bot{pointer-events:auto;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap}
-.prompt{background:linear-gradient(180deg,#fffdf4ee,#ffe8b8ee);border:4px solid #8a5a2b;border-radius:22px;padding:8px 22px;text-align:center;box-shadow:0 10px 0 #0003,0 0 30px #ffc83d55;min-width:min(640px,80vw);margin:0 auto}
+.prompt{background:linear-gradient(180deg,#fffdf8f2,#ffe8c0ee);border:3px solid rgba(138,90,43,.75);border-radius:28px;padding:10px 24px;text-align:center;box-shadow:0 12px 0 #0002,0 0 34px #ffc83d66;min-width:min(640px,80vw);margin:0 auto}
 .prompt small{display:block;font-size:16px;font-weight:700;opacity:.7}
 .prompt .q{font-size:clamp(28px,5.5vw,48px);font-weight:800;line-height:1.15}
 .prompt .emoji{font-size:52px;line-height:1}
@@ -66,14 +66,18 @@ table{width:100%;border-collapse:collapse;font-size:15px} th,td{padding:5px 6px;
 @keyframes shake{25%{transform:translate(-4px,2px)}75%{transform:translate(4px,-2px)}}
 .pop{animation:pop .32s cubic-bezier(.2,1.4,.3,1)}
 @keyframes pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
-.lane-opts{display:flex;direction:ltr;gap:10px;justify-content:center;width:100%;margin:8px auto 0;pointer-events:none}
-.lane-opt{background:#ffe34a;color:#140818;border:5px solid #140818;border-radius:16px;padding:8px 14px;min-width:22%;text-align:center;font-weight:800;font-size:clamp(26px,3.8vw,48px);font-family:Fredoka,Rubik,Arial,sans-serif;box-shadow:0 6px 0 #140818,0 0 20px #ffc83d99;direction:ltr;unicode-bidi:isolate;line-height:1.15}
+.lane-opts{display:flex;direction:ltr;gap:22px;justify-content:center;width:min(920px,94vw);margin:8px auto 0;pointer-events:none}
+.lane-opt{flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:#ffe34a;color:#140818;border:5px solid #140818;border-radius:22px;padding:8px 12px;text-align:center;font-weight:800;font-size:clamp(22px,3.4vw,42px);font-family:Fredoka,Rubik,Arial,sans-serif;box-shadow:0 6px 0 #140818,0 0 20px #ffc83d99;direction:ltr;unicode-bidi:isolate;line-height:1.15}
+.deco-emoji{font-size:.7em;margin-inline-end:8px;vertical-align:middle;filter:drop-shadow(0 2px 0 #0002)}
+#btn-quality{position:fixed;top:10px;left:64px;z-index:8}
 .prompt{transition:transform .2s}
+.turn-cue{position:absolute;bottom:20%;left:50%;transform:translateX(-50%);background:#ffe34af5;color:#140818;border:5px solid #140818;border-radius:999px;padding:10px 24px;font-weight:800;font-size:clamp(20px,3vw,34px);box-shadow:0 8px 0 #140818,0 0 26px #ffc83dbb;z-index:6;pointer-events:none;font-family:Fredoka,Rubik,sans-serif}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
 <button class="btn s" id="mute" aria-label="השתקה">🔊</button>
+<button class="btn s" id="btn-quality" aria-label="איכות גרפית">✨ גבוהה</button>
 <div class="ui">
 
   <section id="s-load" class="center">
@@ -100,11 +104,13 @@ table{width:100%;border-collapse:collapse;font-size:15px} th,td{padding:5px 6px;
   <section id="s-help" class="center hidden">
     <div class="glass" style="max-width:640px;padding:20px;text-align:right">
       <h2 style="text-align:center">איך משחקים?</h2>
-      <p>רצים במסלול תלת-ממדי כמו בהרפתקה. מולכם שלושה שערים — לכל שער מילה. בחרו את הנתיב הנכון עם החצים או בהחלקה על המסך.</p>
+      <p>רצים במסלול תלת-ממדי כמו בהרפתקה. מולכם שלושה שלטים נפרדים — לכל שלט מילה. בחרו את הנתיב הנכון עם החצים או בהחלקה על המסך.</p>
       <p>כל עולם נעול במנעול. כשמנצחים את הבוס מקבלים מפתח זהב שפותח את האי הבא.</p>
-      <p>⬆ / רווח — קפיצה מעל מכשולים &nbsp; ⬇ — החלקה</p>
+      <p>כל שלב מרגיש אחרת: פניות, גשרים, מסלול צר, תאורה ומהירות משתנים.</p>
+      <p>⬆ / רווח — קפיצה מעל בורות ומכשולים נמוכים &nbsp; ←→ — מעבר נתיב, ובפנייה חדה של 90° חייבים להחליק לכיוון הפנייה &nbsp; ⬇ — החלקה מתחת לקורה</p>
+      <p>בשלב 2 בכל עולם מקשיבים למילה באנגלית ורצים אל הפירוש בעברית.</p>
       <p>🦉 תקועים? לחצו ״צריכים עזרה?״ — שלושה רמזים בלי עונש.</p>
-      <p>🔊 המילה באנגלית מושמעת בקול. לבבות מתמלאים מחדש בכל שלב.</p>
+      <p>🔊 המילה באנגלית מושמעת בקול. לבבות מתמלאים מחדש בכל שלב. איכות גרפית חסכונית זמינה למחשבים חלשים.</p>
     </div>
     <button class="btn" id="btn-help-back" style="margin-top:12px">הבנתי</button>
   </section>
@@ -155,6 +161,7 @@ table{width:100%;border-collapse:collapse;font-size:15px} th,td{padding:5px 6px;
       <span class="pill" id="hud-prog">1/8</span>
       <span class="pill" id="hud-coins">🪙 0</span>
     </div>
+    <div id="turn-cue" class="turn-cue hidden"></div>
   </section>
 
   <section id="modal" class="hidden"><div class="box" id="modal-box"></div></section>

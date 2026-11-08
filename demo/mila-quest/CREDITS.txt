@@ -11,8 +11,7 @@ GLTFLoader ו-SkeletonUtils מתוך דוגמאות three.js.
 מודלים מונפשים וסביבות מתוך חבילות Kenney (kenney.nl), רישיון CC0 1.0:
 
   • Mini Characters     https://kenney.nl/assets/mini-characters
-      גיבורים (מיקי, נועה, תמר) עם אנימציות idle/walk/sprint/jump/crouch/fall
-      הקוסם השומר (אביר) ורובוט החלל
+      נשמרו בתיקייה אך אינם משמשים כגיבורים (הוחלפו בדמויות Quaternius חלקות יותר)
   • Nature Kit          https://kenney.nl/assets/nature-kit
       עצים, פטריות, שיחים, גזעים — אי הג'ונגל ושומר הג'ונגל
   • Pirate Kit          https://kenney.nl/assets/pirate-kit
@@ -24,7 +23,7 @@ GLTFLoader ו-SkeletonUtils מתוך דוגמאות three.js.
   • Holiday Kit         https://kenney.nl/assets/holiday-kit
       איש שלג, עצים מושלגים, מזחלת ומתנות
   • Blocky Characters   https://kenney.nl/assets/blocky-characters
-      הורדה לשימוש אפשרי; נבחרו Mini Characters בגלל אנימציות ריצה וקפיצה מלאות.
+      לא בשימוש במשחק הפעיל — נשמרו כחלופה אפשרית בלבד.
 
 גופנים
 ------
@@ -32,7 +31,7 @@ Rubik ו-Fredoka מגוגל פונטס.
 
 סמלולי המילים
 -------------
-אימוג'י סטנדרטיים ליד כל מילה בשאלות.
+אימוג'י סטנדרטיים לקישוט ליד מילה כתובה בלבד (לא כשאלה בפני עצמה).
 
 גרסת גיבוי
 ----------
@@ -41,3 +40,23 @@ index-v1-quiz.html — גרסת החידון השטוחה, אם המכשיר ל�
 למורה בלבד
 -----------
 כדי לפתוח את כל העולמות: במסך "המסע שלי" לחצו לחיצה ארוכה על הכותרת, והזינו את הקוד 3141.
+
+
+גיבורים ובוסים אנושיים
+----------------------
+Quaternius — Ultimate Animated Character Pack (CC0 / נחלת הכלל)
+https://quaternius.com
+https://opengameart.org/content/ultimate-animated-character-pack
+דגמים: Casual2_Male (ליאם), Casual_Female (מאיה), Casual3_Female (נובה),
+Pirate_Male (קפטן הפיראטים), Wizard (הקוסם השומר), BlueSoldier_Male (חייל החלל).
+הומרו מ-FBX ל-glTF מקומית.
+שומר הג'ונגל (עץ) ומלכת הקרח (איש שלג) נשארו ממודלי Kenney.
+
+
+גיבורים (עדכון)
+----------------
+Kay Lousberg — KayKit Character Pack: Adventurers (CC0)
+https://kaylousberg.com/game-assets/characters-adventurers
+https://kaylousberg.itch.io/kaykit-adventurers
+דגמים: Rogue (ליאם), Mage (מאיה), Rogue Hooded (נובה), Barbarian (קפטן הפיראטים), Knight (חייל החלל).
+הקוסם השומר נשאר מ-Quaternius Ultimate Animated Character Pack (CC0).

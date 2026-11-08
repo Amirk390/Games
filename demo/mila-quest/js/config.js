@@ -3,25 +3,25 @@ export const NEED_CLEAN = 3;
 export const PTS = [100, 80, 60, 40];
 
 export const HEROES = [
-  { name: "מיקי", file: "mini/character-male-a.glb" },
-  { name: "נועה", file: "mini/character-female-b.glb" },
-  { name: "תמר", file: "mini/character-female-c.glb" }
+  { name: "ליאם", file: "heroes/hero-liam.glb" },
+  { name: "מאיה", file: "heroes/hero-maya.glb" },
+  { name: "נובה", file: "heroes/hero-nova.glb" }
 ];
 
 export const BOSSES = [
   { name: "שומר הג'ונגל", file: "nature/tree_detailed.glb", height: 3.4, animated: false },
-  { name: "קפטן הפיראטים", file: "pirate/ship-pirate-small.glb", height: 2.6, animated: false },
-  { name: "הקוסם השומר", file: "mini/character-knight.glb", height: 2.5, animated: true },
-  { name: "רובוט החלל", file: "mini/character-robot.glb", height: 2.5, animated: true },
+  { name: "קפטן הפיראטים", file: "heroes/boss-pirate.glb", height: 2.55, animated: true },
+  { name: "הקוסם השומר", file: "heroes/boss-wizard.glb", height: 2.55, animated: true },
+  { name: "חייל החלל", file: "heroes/boss-soldier.glb", height: 2.55, animated: true },
   { name: "מלכת הקרח", file: "holiday/snowman-hat.glb", height: 2.6, animated: false }
 ];
 
 export const ST = [
-  [["ריצה במסלול", "tr"], ["בחירת מילה", "pic"], ["איסוף אותיות", "build"], ["חידת מילים", "match"], ["אתגר הבוס", "boss"]],
-  [["שיט בספינה", "tr"], ["זיהוי תמונות", "pic"], ["צלילה במים", "let"], ["התאמת מילים", "match"], ["אתגר הבוס", "boss"]],
-  [["ריצה על גגות", "tr"], ["השלמת מילים", "let"], ["זיכרון מילים", "memory"], ["התאמה להקשר", "rev"], ["אתגר הבוס", "boss"]],
-  [["טיסה בחללית", "tr"], ["בחירה מהירה", "pic"], ["מילים והגייה", "rev"], ["בניית מילים", "build"], ["אתגר הבוס", "boss"]],
-  [["גלישה בשלג", "tr"], ["התאמת תמונות", "pic"], ["השלמת אותיות", "let"], ["חידת אוצר", "memory"], ["אתגר הבוס", "boss"]]
+  [["תרגום לעברית", "tr"], ["האזנה ופירוש", "rev"], ["איסוף אותיות", "build"], ["אות חסרה", "let"], ["אתגר הבוס", "boss"]],
+  [["תרגום על הסיפון", "tr"], ["האזנה ופירוש", "rev"], ["אות חסרה", "let"], ["איסוף אותיות", "build"], ["אתגר הבוס", "boss"]],
+  [["תרגום על הגגות", "tr"], ["האזנה ופירוש", "rev"], ["אות חסרה", "let"], ["איסוף אותיות", "build"], ["אתגר הבוס", "boss"]],
+  [["תרגום בחלל", "tr"], ["האזנה ופירוש", "rev"], ["איסוף אותיות", "build"], ["אות חסרה", "let"], ["אתגר הבוס", "boss"]],
+  [["תרגום בשלג", "tr"], ["האזנה ופירוש", "rev"], ["אות חסרה", "let"], ["איסוף אותיות", "build"], ["אתגר הבוס", "boss"]]
 ];
 
 export const WORLDS = [
@@ -88,9 +88,9 @@ export const ACH = [
 ];
 
 export const INTRO = [
-  "תרגמו מילה מעברית לאנגלית ורצו אל השער הנכון. קפצו מעל הגזעים!",
-  "זהו את התמונה ובחרו את המילה. זהרו מחביות על המזח!",
-  "השלימו אות חסרה או האזינו למילה. העיר הקסומה מחכה!",
-  "שומעים את המילה באנגלית ובוחרים תרגום. התחמקו ממטאורים!",
-  "כל סוגי השאלות על דרך הקרח החלקה. מלכת הקרח בסוף הדרך!"
+  "תרגמו מילה מעברית לאנגלית ורצו אל השלט הנכון. קפצו מעל בורות ומכשולים!",
+  "תרגמו על הסיפון ורצו בין השערים. זהרו מקירות וחביות מתגלגלות!",
+  "תרגמו על גגות העיר הקסומה. המסלול מתעקל והתאורה משתנה!",
+  "תרגמו בין הכוכבים. התחמקו ממטאורים ומקירות באור החלל!",
+  "תרגמו על דרך הקרח החלקה. מלכת הקרח מחכה בסוף הדרך!"
 ];

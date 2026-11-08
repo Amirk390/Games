@@ -1,5 +1,5 @@
 (() => {
-  // engio/mila-quest/assets/lib/three.module.js
+  // ../../workspace/engio/mila-quest/assets/lib/three.module.js
   var REVISION = "160";
   var CullFaceNone = 0;
   var CullFaceBack = 1;
@@ -3269,29 +3269,29 @@
       _edge2.subVectors(c, a);
       _normal$1.crossVectors(_edge1, _edge2);
       let DdN = this.direction.dot(_normal$1);
-      let sign;
+      let sign2;
       if (DdN > 0) {
         if (backfaceCulling) return null;
-        sign = 1;
+        sign2 = 1;
       } else if (DdN < 0) {
-        sign = -1;
+        sign2 = -1;
         DdN = -DdN;
       } else {
         return null;
       }
       _diff.subVectors(this.origin, a);
-      const DdQxE2 = sign * this.direction.dot(_edge2.crossVectors(_diff, _edge2));
+      const DdQxE2 = sign2 * this.direction.dot(_edge2.crossVectors(_diff, _edge2));
       if (DdQxE2 < 0) {
         return null;
       }
-      const DdE1xQ = sign * this.direction.dot(_edge1.cross(_diff));
+      const DdE1xQ = sign2 * this.direction.dot(_edge1.cross(_diff));
       if (DdE1xQ < 0) {
         return null;
       }
       if (DdQxE2 + DdE1xQ > DdN) {
         return null;
       }
-      const QdN = -sign * _diff.dot(_normal$1);
+      const QdN = -sign2 * _diff.dot(_normal$1);
       if (QdN < 0) {
         return null;
       }
@@ -6737,7 +6737,7 @@
       }
       return target;
     }
-    raycast(raycaster2, intersects) {
+    raycast(raycaster2, intersects2) {
       const geometry = this.geometry;
       const material = this.material;
       const matrixWorld = this.matrixWorld;
@@ -6755,9 +6755,9 @@
       if (geometry.boundingBox !== null) {
         if (_ray$3.intersectsBox(geometry.boundingBox) === false) return;
       }
-      this._computeIntersections(raycaster2, intersects, _ray$3);
+      this._computeIntersections(raycaster2, intersects2, _ray$3);
     }
-    _computeIntersections(raycaster2, intersects, rayLocalSpace) {
+    _computeIntersections(raycaster2, intersects2, rayLocalSpace) {
       let intersection;
       const geometry = this.geometry;
       const material = this.material;
@@ -6783,7 +6783,7 @@
               if (intersection) {
                 intersection.faceIndex = Math.floor(j / 3);
                 intersection.face.materialIndex = group.materialIndex;
-                intersects.push(intersection);
+                intersects2.push(intersection);
               }
             }
           }
@@ -6797,7 +6797,7 @@
             intersection = checkGeometryIntersection(this, material, raycaster2, rayLocalSpace, uv, uv1, normal, a, b, c);
             if (intersection) {
               intersection.faceIndex = Math.floor(i / 3);
-              intersects.push(intersection);
+              intersects2.push(intersection);
             }
           }
         }
@@ -6816,7 +6816,7 @@
               if (intersection) {
                 intersection.faceIndex = Math.floor(j / 3);
                 intersection.face.materialIndex = group.materialIndex;
-                intersects.push(intersection);
+                intersects2.push(intersection);
               }
             }
           }
@@ -6830,7 +6830,7 @@
             intersection = checkGeometryIntersection(this, material, raycaster2, rayLocalSpace, uv, uv1, normal, a, b, c);
             if (intersection) {
               intersection.faceIndex = Math.floor(i / 3);
-              intersects.push(intersection);
+              intersects2.push(intersection);
             }
           }
         }
@@ -18171,7 +18171,7 @@
       if (source.boundingSphere !== null) this.boundingSphere = source.boundingSphere.clone();
       return this;
     }
-    raycast(raycaster2, intersects) {
+    raycast(raycaster2, intersects2) {
       const material = this.material;
       const matrixWorld = this.matrixWorld;
       if (material === void 0) return;
@@ -18184,7 +18184,7 @@
       if (this.boundingBox !== null) {
         if (_ray$2.intersectsBox(this.boundingBox) === false) return;
       }
-      this._computeIntersections(raycaster2, intersects, _ray$2);
+      this._computeIntersections(raycaster2, intersects2, _ray$2);
     }
     getVertexPosition(index, target) {
       super.getVertexPosition(index, target);
@@ -18490,7 +18490,7 @@
     getMatrixAt(index, matrix) {
       matrix.fromArray(this.instanceMatrix.array, index * 16);
     }
-    raycast(raycaster2, intersects) {
+    raycast(raycaster2, intersects2) {
       const matrixWorld = this.matrixWorld;
       const raycastTimes = this.count;
       _mesh$1.geometry = this.geometry;
@@ -18509,7 +18509,7 @@
           const intersect = _instanceIntersects[i];
           intersect.instanceId = instanceId;
           intersect.object = this;
-          intersects.push(intersect);
+          intersects2.push(intersect);
         }
         _instanceIntersects.length = 0;
       }
@@ -18590,7 +18590,7 @@
       }
       return this;
     }
-    raycast(raycaster2, intersects) {
+    raycast(raycaster2, intersects2) {
       const geometry = this.geometry;
       const matrixWorld = this.matrixWorld;
       const threshold = raycaster2.params.Line.threshold;
@@ -18625,7 +18625,7 @@
           interRay.applyMatrix4(this.matrixWorld);
           const distance = raycaster2.ray.origin.distanceTo(interRay);
           if (distance < raycaster2.near || distance > raycaster2.far) continue;
-          intersects.push({
+          intersects2.push({
             distance,
             // What do we want? intersection point on the ray or on the segment??
             // point: raycaster.ray.at( distance ),
@@ -18647,7 +18647,7 @@
           interRay.applyMatrix4(this.matrixWorld);
           const distance = raycaster2.ray.origin.distanceTo(interRay);
           if (distance < raycaster2.near || distance > raycaster2.far) continue;
-          intersects.push({
+          intersects2.push({
             distance,
             // What do we want? intersection point on the ray or on the segment??
             // point: raycaster.ray.at( distance ),
@@ -18754,7 +18754,7 @@
       this.geometry = source.geometry;
       return this;
     }
-    raycast(raycaster2, intersects) {
+    raycast(raycaster2, intersects2) {
       const geometry = this.geometry;
       const matrixWorld = this.matrixWorld;
       const threshold = raycaster2.params.Points.threshold;
@@ -18777,14 +18777,14 @@
         for (let i = start, il = end; i < il; i++) {
           const a = index.getX(i);
           _position$2.fromBufferAttribute(positionAttribute, a);
-          testPoint(_position$2, a, localThresholdSq, matrixWorld, raycaster2, intersects, this);
+          testPoint(_position$2, a, localThresholdSq, matrixWorld, raycaster2, intersects2, this);
         }
       } else {
         const start = Math.max(0, drawRange.start);
         const end = Math.min(positionAttribute.count, drawRange.start + drawRange.count);
         for (let i = start, l = end; i < l; i++) {
           _position$2.fromBufferAttribute(positionAttribute, i);
-          testPoint(_position$2, i, localThresholdSq, matrixWorld, raycaster2, intersects, this);
+          testPoint(_position$2, i, localThresholdSq, matrixWorld, raycaster2, intersects2, this);
         }
       }
     }
@@ -18806,7 +18806,7 @@
       }
     }
   };
-  function testPoint(point, index, localThresholdSq, matrixWorld, raycaster2, intersects, object) {
+  function testPoint(point, index, localThresholdSq, matrixWorld, raycaster2, intersects2, object) {
     const rayPointDistanceSq = _ray.distanceSqToPoint(point);
     if (rayPointDistanceSq < localThresholdSq) {
       const intersectPoint = new Vector3();
@@ -18814,7 +18814,7 @@
       intersectPoint.applyMatrix4(matrixWorld);
       const distance = raycaster2.ray.origin.distanceTo(intersectPoint);
       if (distance < raycaster2.near || distance > raycaster2.far) return;
-      intersects.push({
+      intersects2.push({
         distance,
         distanceToRay: Math.sqrt(rayPointDistanceSq),
         point: intersectPoint,
@@ -20093,10 +20093,10 @@
         const vertex2 = new Vector3();
         let groupCount = 0;
         const radius = top === true ? radiusTop : radiusBottom;
-        const sign = top === true ? 1 : -1;
+        const sign2 = top === true ? 1 : -1;
         for (let x = 1; x <= radialSegments; x++) {
-          vertices.push(0, halfHeight * sign, 0);
-          normals.push(0, sign, 0);
+          vertices.push(0, halfHeight * sign2, 0);
+          normals.push(0, sign2, 0);
           uvs.push(0.5, 0.5);
           index++;
         }
@@ -20107,12 +20107,12 @@
           const cosTheta = Math.cos(theta);
           const sinTheta = Math.sin(theta);
           vertex2.x = radius * sinTheta;
-          vertex2.y = halfHeight * sign;
+          vertex2.y = halfHeight * sign2;
           vertex2.z = radius * cosTheta;
           vertices.push(vertex2.x, vertex2.y, vertex2.z);
-          normals.push(0, sign, 0);
+          normals.push(0, sign2, 0);
           uv.x = cosTheta * 0.5 + 0.5;
-          uv.y = sinTheta * 0.5 * sign + 0.5;
+          uv.y = sinTheta * 0.5 * sign2 + 0.5;
           uvs.push(uv.x, uv.y);
           index++;
         }
@@ -20155,6 +20155,1152 @@
     }
     static fromJSON(data) {
       return new _ConeGeometry(data.radius, data.height, data.radialSegments, data.heightSegments, data.openEnded, data.thetaStart, data.thetaLength);
+    }
+  };
+  var PolyhedronGeometry = class _PolyhedronGeometry extends BufferGeometry {
+    constructor(vertices = [], indices = [], radius = 1, detail = 0) {
+      super();
+      this.type = "PolyhedronGeometry";
+      this.parameters = {
+        vertices,
+        indices,
+        radius,
+        detail
+      };
+      const vertexBuffer = [];
+      const uvBuffer = [];
+      subdivide(detail);
+      applyRadius(radius);
+      generateUVs();
+      this.setAttribute("position", new Float32BufferAttribute(vertexBuffer, 3));
+      this.setAttribute("normal", new Float32BufferAttribute(vertexBuffer.slice(), 3));
+      this.setAttribute("uv", new Float32BufferAttribute(uvBuffer, 2));
+      if (detail === 0) {
+        this.computeVertexNormals();
+      } else {
+        this.normalizeNormals();
+      }
+      function subdivide(detail2) {
+        const a = new Vector3();
+        const b = new Vector3();
+        const c = new Vector3();
+        for (let i = 0; i < indices.length; i += 3) {
+          getVertexByIndex(indices[i + 0], a);
+          getVertexByIndex(indices[i + 1], b);
+          getVertexByIndex(indices[i + 2], c);
+          subdivideFace(a, b, c, detail2);
+        }
+      }
+      function subdivideFace(a, b, c, detail2) {
+        const cols = detail2 + 1;
+        const v = [];
+        for (let i = 0; i <= cols; i++) {
+          v[i] = [];
+          const aj = a.clone().lerp(c, i / cols);
+          const bj = b.clone().lerp(c, i / cols);
+          const rows = cols - i;
+          for (let j = 0; j <= rows; j++) {
+            if (j === 0 && i === cols) {
+              v[i][j] = aj;
+            } else {
+              v[i][j] = aj.clone().lerp(bj, j / rows);
+            }
+          }
+        }
+        for (let i = 0; i < cols; i++) {
+          for (let j = 0; j < 2 * (cols - i) - 1; j++) {
+            const k = Math.floor(j / 2);
+            if (j % 2 === 0) {
+              pushVertex(v[i][k + 1]);
+              pushVertex(v[i + 1][k]);
+              pushVertex(v[i][k]);
+            } else {
+              pushVertex(v[i][k + 1]);
+              pushVertex(v[i + 1][k + 1]);
+              pushVertex(v[i + 1][k]);
+            }
+          }
+        }
+      }
+      function applyRadius(radius2) {
+        const vertex2 = new Vector3();
+        for (let i = 0; i < vertexBuffer.length; i += 3) {
+          vertex2.x = vertexBuffer[i + 0];
+          vertex2.y = vertexBuffer[i + 1];
+          vertex2.z = vertexBuffer[i + 2];
+          vertex2.normalize().multiplyScalar(radius2);
+          vertexBuffer[i + 0] = vertex2.x;
+          vertexBuffer[i + 1] = vertex2.y;
+          vertexBuffer[i + 2] = vertex2.z;
+        }
+      }
+      function generateUVs() {
+        const vertex2 = new Vector3();
+        for (let i = 0; i < vertexBuffer.length; i += 3) {
+          vertex2.x = vertexBuffer[i + 0];
+          vertex2.y = vertexBuffer[i + 1];
+          vertex2.z = vertexBuffer[i + 2];
+          const u = azimuth(vertex2) / 2 / Math.PI + 0.5;
+          const v = inclination(vertex2) / Math.PI + 0.5;
+          uvBuffer.push(u, 1 - v);
+        }
+        correctUVs();
+        correctSeam();
+      }
+      function correctSeam() {
+        for (let i = 0; i < uvBuffer.length; i += 6) {
+          const x0 = uvBuffer[i + 0];
+          const x1 = uvBuffer[i + 2];
+          const x2 = uvBuffer[i + 4];
+          const max = Math.max(x0, x1, x2);
+          const min = Math.min(x0, x1, x2);
+          if (max > 0.9 && min < 0.1) {
+            if (x0 < 0.2) uvBuffer[i + 0] += 1;
+            if (x1 < 0.2) uvBuffer[i + 2] += 1;
+            if (x2 < 0.2) uvBuffer[i + 4] += 1;
+          }
+        }
+      }
+      function pushVertex(vertex2) {
+        vertexBuffer.push(vertex2.x, vertex2.y, vertex2.z);
+      }
+      function getVertexByIndex(index, vertex2) {
+        const stride = index * 3;
+        vertex2.x = vertices[stride + 0];
+        vertex2.y = vertices[stride + 1];
+        vertex2.z = vertices[stride + 2];
+      }
+      function correctUVs() {
+        const a = new Vector3();
+        const b = new Vector3();
+        const c = new Vector3();
+        const centroid = new Vector3();
+        const uvA = new Vector2();
+        const uvB = new Vector2();
+        const uvC = new Vector2();
+        for (let i = 0, j = 0; i < vertexBuffer.length; i += 9, j += 6) {
+          a.set(vertexBuffer[i + 0], vertexBuffer[i + 1], vertexBuffer[i + 2]);
+          b.set(vertexBuffer[i + 3], vertexBuffer[i + 4], vertexBuffer[i + 5]);
+          c.set(vertexBuffer[i + 6], vertexBuffer[i + 7], vertexBuffer[i + 8]);
+          uvA.set(uvBuffer[j + 0], uvBuffer[j + 1]);
+          uvB.set(uvBuffer[j + 2], uvBuffer[j + 3]);
+          uvC.set(uvBuffer[j + 4], uvBuffer[j + 5]);
+          centroid.copy(a).add(b).add(c).divideScalar(3);
+          const azi = azimuth(centroid);
+          correctUV(uvA, j + 0, a, azi);
+          correctUV(uvB, j + 2, b, azi);
+          correctUV(uvC, j + 4, c, azi);
+        }
+      }
+      function correctUV(uv, stride, vector, azimuth2) {
+        if (azimuth2 < 0 && uv.x === 1) {
+          uvBuffer[stride] = uv.x - 1;
+        }
+        if (vector.x === 0 && vector.z === 0) {
+          uvBuffer[stride] = azimuth2 / 2 / Math.PI + 0.5;
+        }
+      }
+      function azimuth(vector) {
+        return Math.atan2(vector.z, -vector.x);
+      }
+      function inclination(vector) {
+        return Math.atan2(-vector.y, Math.sqrt(vector.x * vector.x + vector.z * vector.z));
+      }
+    }
+    copy(source) {
+      super.copy(source);
+      this.parameters = Object.assign({}, source.parameters);
+      return this;
+    }
+    static fromJSON(data) {
+      return new _PolyhedronGeometry(data.vertices, data.indices, data.radius, data.details);
+    }
+  };
+  var Shape = class extends Path {
+    constructor(points) {
+      super(points);
+      this.uuid = generateUUID();
+      this.type = "Shape";
+      this.holes = [];
+    }
+    getPointsHoles(divisions) {
+      const holesPts = [];
+      for (let i = 0, l = this.holes.length; i < l; i++) {
+        holesPts[i] = this.holes[i].getPoints(divisions);
+      }
+      return holesPts;
+    }
+    // get points of shape and holes (keypoints based on segments parameter)
+    extractPoints(divisions) {
+      return {
+        shape: this.getPoints(divisions),
+        holes: this.getPointsHoles(divisions)
+      };
+    }
+    copy(source) {
+      super.copy(source);
+      this.holes = [];
+      for (let i = 0, l = source.holes.length; i < l; i++) {
+        const hole = source.holes[i];
+        this.holes.push(hole.clone());
+      }
+      return this;
+    }
+    toJSON() {
+      const data = super.toJSON();
+      data.uuid = this.uuid;
+      data.holes = [];
+      for (let i = 0, l = this.holes.length; i < l; i++) {
+        const hole = this.holes[i];
+        data.holes.push(hole.toJSON());
+      }
+      return data;
+    }
+    fromJSON(json) {
+      super.fromJSON(json);
+      this.uuid = json.uuid;
+      this.holes = [];
+      for (let i = 0, l = json.holes.length; i < l; i++) {
+        const hole = json.holes[i];
+        this.holes.push(new Path().fromJSON(hole));
+      }
+      return this;
+    }
+  };
+  var Earcut = {
+    triangulate: function(data, holeIndices, dim = 2) {
+      const hasHoles = holeIndices && holeIndices.length;
+      const outerLen = hasHoles ? holeIndices[0] * dim : data.length;
+      let outerNode = linkedList(data, 0, outerLen, dim, true);
+      const triangles = [];
+      if (!outerNode || outerNode.next === outerNode.prev) return triangles;
+      let minX, minY, maxX, maxY, x, y, invSize;
+      if (hasHoles) outerNode = eliminateHoles(data, holeIndices, outerNode, dim);
+      if (data.length > 80 * dim) {
+        minX = maxX = data[0];
+        minY = maxY = data[1];
+        for (let i = dim; i < outerLen; i += dim) {
+          x = data[i];
+          y = data[i + 1];
+          if (x < minX) minX = x;
+          if (y < minY) minY = y;
+          if (x > maxX) maxX = x;
+          if (y > maxY) maxY = y;
+        }
+        invSize = Math.max(maxX - minX, maxY - minY);
+        invSize = invSize !== 0 ? 32767 / invSize : 0;
+      }
+      earcutLinked(outerNode, triangles, dim, minX, minY, invSize, 0);
+      return triangles;
+    }
+  };
+  function linkedList(data, start, end, dim, clockwise) {
+    let i, last2;
+    if (clockwise === signedArea(data, start, end, dim) > 0) {
+      for (i = start; i < end; i += dim) last2 = insertNode(i, data[i], data[i + 1], last2);
+    } else {
+      for (i = end - dim; i >= start; i -= dim) last2 = insertNode(i, data[i], data[i + 1], last2);
+    }
+    if (last2 && equals(last2, last2.next)) {
+      removeNode(last2);
+      last2 = last2.next;
+    }
+    return last2;
+  }
+  function filterPoints(start, end) {
+    if (!start) return start;
+    if (!end) end = start;
+    let p = start, again;
+    do {
+      again = false;
+      if (!p.steiner && (equals(p, p.next) || area(p.prev, p, p.next) === 0)) {
+        removeNode(p);
+        p = end = p.prev;
+        if (p === p.next) break;
+        again = true;
+      } else {
+        p = p.next;
+      }
+    } while (again || p !== end);
+    return end;
+  }
+  function earcutLinked(ear, triangles, dim, minX, minY, invSize, pass) {
+    if (!ear) return;
+    if (!pass && invSize) indexCurve(ear, minX, minY, invSize);
+    let stop = ear, prev, next;
+    while (ear.prev !== ear.next) {
+      prev = ear.prev;
+      next = ear.next;
+      if (invSize ? isEarHashed(ear, minX, minY, invSize) : isEar(ear)) {
+        triangles.push(prev.i / dim | 0);
+        triangles.push(ear.i / dim | 0);
+        triangles.push(next.i / dim | 0);
+        removeNode(ear);
+        ear = next.next;
+        stop = next.next;
+        continue;
+      }
+      ear = next;
+      if (ear === stop) {
+        if (!pass) {
+          earcutLinked(filterPoints(ear), triangles, dim, minX, minY, invSize, 1);
+        } else if (pass === 1) {
+          ear = cureLocalIntersections(filterPoints(ear), triangles, dim);
+          earcutLinked(ear, triangles, dim, minX, minY, invSize, 2);
+        } else if (pass === 2) {
+          splitEarcut(ear, triangles, dim, minX, minY, invSize);
+        }
+        break;
+      }
+    }
+  }
+  function isEar(ear) {
+    const a = ear.prev, b = ear, c = ear.next;
+    if (area(a, b, c) >= 0) return false;
+    const ax = a.x, bx = b.x, cx = c.x, ay = a.y, by = b.y, cy = c.y;
+    const x0 = ax < bx ? ax < cx ? ax : cx : bx < cx ? bx : cx, y0 = ay < by ? ay < cy ? ay : cy : by < cy ? by : cy, x1 = ax > bx ? ax > cx ? ax : cx : bx > cx ? bx : cx, y1 = ay > by ? ay > cy ? ay : cy : by > cy ? by : cy;
+    let p = c.next;
+    while (p !== a) {
+      if (p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1 && pointInTriangle(ax, ay, bx, by, cx, cy, p.x, p.y) && area(p.prev, p, p.next) >= 0) return false;
+      p = p.next;
+    }
+    return true;
+  }
+  function isEarHashed(ear, minX, minY, invSize) {
+    const a = ear.prev, b = ear, c = ear.next;
+    if (area(a, b, c) >= 0) return false;
+    const ax = a.x, bx = b.x, cx = c.x, ay = a.y, by = b.y, cy = c.y;
+    const x0 = ax < bx ? ax < cx ? ax : cx : bx < cx ? bx : cx, y0 = ay < by ? ay < cy ? ay : cy : by < cy ? by : cy, x1 = ax > bx ? ax > cx ? ax : cx : bx > cx ? bx : cx, y1 = ay > by ? ay > cy ? ay : cy : by > cy ? by : cy;
+    const minZ = zOrder(x0, y0, minX, minY, invSize), maxZ = zOrder(x1, y1, minX, minY, invSize);
+    let p = ear.prevZ, n = ear.nextZ;
+    while (p && p.z >= minZ && n && n.z <= maxZ) {
+      if (p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1 && p !== a && p !== c && pointInTriangle(ax, ay, bx, by, cx, cy, p.x, p.y) && area(p.prev, p, p.next) >= 0) return false;
+      p = p.prevZ;
+      if (n.x >= x0 && n.x <= x1 && n.y >= y0 && n.y <= y1 && n !== a && n !== c && pointInTriangle(ax, ay, bx, by, cx, cy, n.x, n.y) && area(n.prev, n, n.next) >= 0) return false;
+      n = n.nextZ;
+    }
+    while (p && p.z >= minZ) {
+      if (p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1 && p !== a && p !== c && pointInTriangle(ax, ay, bx, by, cx, cy, p.x, p.y) && area(p.prev, p, p.next) >= 0) return false;
+      p = p.prevZ;
+    }
+    while (n && n.z <= maxZ) {
+      if (n.x >= x0 && n.x <= x1 && n.y >= y0 && n.y <= y1 && n !== a && n !== c && pointInTriangle(ax, ay, bx, by, cx, cy, n.x, n.y) && area(n.prev, n, n.next) >= 0) return false;
+      n = n.nextZ;
+    }
+    return true;
+  }
+  function cureLocalIntersections(start, triangles, dim) {
+    let p = start;
+    do {
+      const a = p.prev, b = p.next.next;
+      if (!equals(a, b) && intersects(a, p, p.next, b) && locallyInside(a, b) && locallyInside(b, a)) {
+        triangles.push(a.i / dim | 0);
+        triangles.push(p.i / dim | 0);
+        triangles.push(b.i / dim | 0);
+        removeNode(p);
+        removeNode(p.next);
+        p = start = b;
+      }
+      p = p.next;
+    } while (p !== start);
+    return filterPoints(p);
+  }
+  function splitEarcut(start, triangles, dim, minX, minY, invSize) {
+    let a = start;
+    do {
+      let b = a.next.next;
+      while (b !== a.prev) {
+        if (a.i !== b.i && isValidDiagonal(a, b)) {
+          let c = splitPolygon(a, b);
+          a = filterPoints(a, a.next);
+          c = filterPoints(c, c.next);
+          earcutLinked(a, triangles, dim, minX, minY, invSize, 0);
+          earcutLinked(c, triangles, dim, minX, minY, invSize, 0);
+          return;
+        }
+        b = b.next;
+      }
+      a = a.next;
+    } while (a !== start);
+  }
+  function eliminateHoles(data, holeIndices, outerNode, dim) {
+    const queue = [];
+    let i, len, start, end, list;
+    for (i = 0, len = holeIndices.length; i < len; i++) {
+      start = holeIndices[i] * dim;
+      end = i < len - 1 ? holeIndices[i + 1] * dim : data.length;
+      list = linkedList(data, start, end, dim, false);
+      if (list === list.next) list.steiner = true;
+      queue.push(getLeftmost(list));
+    }
+    queue.sort(compareX);
+    for (i = 0; i < queue.length; i++) {
+      outerNode = eliminateHole(queue[i], outerNode);
+    }
+    return outerNode;
+  }
+  function compareX(a, b) {
+    return a.x - b.x;
+  }
+  function eliminateHole(hole, outerNode) {
+    const bridge = findHoleBridge(hole, outerNode);
+    if (!bridge) {
+      return outerNode;
+    }
+    const bridgeReverse = splitPolygon(bridge, hole);
+    filterPoints(bridgeReverse, bridgeReverse.next);
+    return filterPoints(bridge, bridge.next);
+  }
+  function findHoleBridge(hole, outerNode) {
+    let p = outerNode, qx = -Infinity, m;
+    const hx = hole.x, hy = hole.y;
+    do {
+      if (hy <= p.y && hy >= p.next.y && p.next.y !== p.y) {
+        const x = p.x + (hy - p.y) * (p.next.x - p.x) / (p.next.y - p.y);
+        if (x <= hx && x > qx) {
+          qx = x;
+          m = p.x < p.next.x ? p : p.next;
+          if (x === hx) return m;
+        }
+      }
+      p = p.next;
+    } while (p !== outerNode);
+    if (!m) return null;
+    const stop = m, mx = m.x, my = m.y;
+    let tanMin = Infinity, tan;
+    p = m;
+    do {
+      if (hx >= p.x && p.x >= mx && hx !== p.x && pointInTriangle(hy < my ? hx : qx, hy, mx, my, hy < my ? qx : hx, hy, p.x, p.y)) {
+        tan = Math.abs(hy - p.y) / (hx - p.x);
+        if (locallyInside(p, hole) && (tan < tanMin || tan === tanMin && (p.x > m.x || p.x === m.x && sectorContainsSector(m, p)))) {
+          m = p;
+          tanMin = tan;
+        }
+      }
+      p = p.next;
+    } while (p !== stop);
+    return m;
+  }
+  function sectorContainsSector(m, p) {
+    return area(m.prev, m, p.prev) < 0 && area(p.next, m, m.next) < 0;
+  }
+  function indexCurve(start, minX, minY, invSize) {
+    let p = start;
+    do {
+      if (p.z === 0) p.z = zOrder(p.x, p.y, minX, minY, invSize);
+      p.prevZ = p.prev;
+      p.nextZ = p.next;
+      p = p.next;
+    } while (p !== start);
+    p.prevZ.nextZ = null;
+    p.prevZ = null;
+    sortLinked(p);
+  }
+  function sortLinked(list) {
+    let i, p, q, e, tail, numMerges, pSize, qSize, inSize = 1;
+    do {
+      p = list;
+      list = null;
+      tail = null;
+      numMerges = 0;
+      while (p) {
+        numMerges++;
+        q = p;
+        pSize = 0;
+        for (i = 0; i < inSize; i++) {
+          pSize++;
+          q = q.nextZ;
+          if (!q) break;
+        }
+        qSize = inSize;
+        while (pSize > 0 || qSize > 0 && q) {
+          if (pSize !== 0 && (qSize === 0 || !q || p.z <= q.z)) {
+            e = p;
+            p = p.nextZ;
+            pSize--;
+          } else {
+            e = q;
+            q = q.nextZ;
+            qSize--;
+          }
+          if (tail) tail.nextZ = e;
+          else list = e;
+          e.prevZ = tail;
+          tail = e;
+        }
+        p = q;
+      }
+      tail.nextZ = null;
+      inSize *= 2;
+    } while (numMerges > 1);
+    return list;
+  }
+  function zOrder(x, y, minX, minY, invSize) {
+    x = (x - minX) * invSize | 0;
+    y = (y - minY) * invSize | 0;
+    x = (x | x << 8) & 16711935;
+    x = (x | x << 4) & 252645135;
+    x = (x | x << 2) & 858993459;
+    x = (x | x << 1) & 1431655765;
+    y = (y | y << 8) & 16711935;
+    y = (y | y << 4) & 252645135;
+    y = (y | y << 2) & 858993459;
+    y = (y | y << 1) & 1431655765;
+    return x | y << 1;
+  }
+  function getLeftmost(start) {
+    let p = start, leftmost = start;
+    do {
+      if (p.x < leftmost.x || p.x === leftmost.x && p.y < leftmost.y) leftmost = p;
+      p = p.next;
+    } while (p !== start);
+    return leftmost;
+  }
+  function pointInTriangle(ax, ay, bx, by, cx, cy, px2, py2) {
+    return (cx - px2) * (ay - py2) >= (ax - px2) * (cy - py2) && (ax - px2) * (by - py2) >= (bx - px2) * (ay - py2) && (bx - px2) * (cy - py2) >= (cx - px2) * (by - py2);
+  }
+  function isValidDiagonal(a, b) {
+    return a.next.i !== b.i && a.prev.i !== b.i && !intersectsPolygon(a, b) && // dones't intersect other edges
+    (locallyInside(a, b) && locallyInside(b, a) && middleInside(a, b) && // locally visible
+    (area(a.prev, a, b.prev) || area(a, b.prev, b)) || // does not create opposite-facing sectors
+    equals(a, b) && area(a.prev, a, a.next) > 0 && area(b.prev, b, b.next) > 0);
+  }
+  function area(p, q, r) {
+    return (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
+  }
+  function equals(p1, p2) {
+    return p1.x === p2.x && p1.y === p2.y;
+  }
+  function intersects(p1, q1, p2, q2) {
+    const o1 = sign(area(p1, q1, p2));
+    const o2 = sign(area(p1, q1, q2));
+    const o3 = sign(area(p2, q2, p1));
+    const o4 = sign(area(p2, q2, q1));
+    if (o1 !== o2 && o3 !== o4) return true;
+    if (o1 === 0 && onSegment(p1, p2, q1)) return true;
+    if (o2 === 0 && onSegment(p1, q2, q1)) return true;
+    if (o3 === 0 && onSegment(p2, p1, q2)) return true;
+    if (o4 === 0 && onSegment(p2, q1, q2)) return true;
+    return false;
+  }
+  function onSegment(p, q, r) {
+    return q.x <= Math.max(p.x, r.x) && q.x >= Math.min(p.x, r.x) && q.y <= Math.max(p.y, r.y) && q.y >= Math.min(p.y, r.y);
+  }
+  function sign(num) {
+    return num > 0 ? 1 : num < 0 ? -1 : 0;
+  }
+  function intersectsPolygon(a, b) {
+    let p = a;
+    do {
+      if (p.i !== a.i && p.next.i !== a.i && p.i !== b.i && p.next.i !== b.i && intersects(p, p.next, a, b)) return true;
+      p = p.next;
+    } while (p !== a);
+    return false;
+  }
+  function locallyInside(a, b) {
+    return area(a.prev, a, a.next) < 0 ? area(a, b, a.next) >= 0 && area(a, a.prev, b) >= 0 : area(a, b, a.prev) < 0 || area(a, a.next, b) < 0;
+  }
+  function middleInside(a, b) {
+    let p = a, inside = false;
+    const px2 = (a.x + b.x) / 2, py2 = (a.y + b.y) / 2;
+    do {
+      if (p.y > py2 !== p.next.y > py2 && p.next.y !== p.y && px2 < (p.next.x - p.x) * (py2 - p.y) / (p.next.y - p.y) + p.x)
+        inside = !inside;
+      p = p.next;
+    } while (p !== a);
+    return inside;
+  }
+  function splitPolygon(a, b) {
+    const a2 = new Node(a.i, a.x, a.y), b2 = new Node(b.i, b.x, b.y), an = a.next, bp = b.prev;
+    a.next = b;
+    b.prev = a;
+    a2.next = an;
+    an.prev = a2;
+    b2.next = a2;
+    a2.prev = b2;
+    bp.next = b2;
+    b2.prev = bp;
+    return b2;
+  }
+  function insertNode(i, x, y, last2) {
+    const p = new Node(i, x, y);
+    if (!last2) {
+      p.prev = p;
+      p.next = p;
+    } else {
+      p.next = last2.next;
+      p.prev = last2;
+      last2.next.prev = p;
+      last2.next = p;
+    }
+    return p;
+  }
+  function removeNode(p) {
+    p.next.prev = p.prev;
+    p.prev.next = p.next;
+    if (p.prevZ) p.prevZ.nextZ = p.nextZ;
+    if (p.nextZ) p.nextZ.prevZ = p.prevZ;
+  }
+  function Node(i, x, y) {
+    this.i = i;
+    this.x = x;
+    this.y = y;
+    this.prev = null;
+    this.next = null;
+    this.z = 0;
+    this.prevZ = null;
+    this.nextZ = null;
+    this.steiner = false;
+  }
+  function signedArea(data, start, end, dim) {
+    let sum = 0;
+    for (let i = start, j = end - dim; i < end; i += dim) {
+      sum += (data[j] - data[i]) * (data[i + 1] + data[j + 1]);
+      j = i;
+    }
+    return sum;
+  }
+  var ShapeUtils = class _ShapeUtils {
+    // calculate area of the contour polygon
+    static area(contour) {
+      const n = contour.length;
+      let a = 0;
+      for (let p = n - 1, q = 0; q < n; p = q++) {
+        a += contour[p].x * contour[q].y - contour[q].x * contour[p].y;
+      }
+      return a * 0.5;
+    }
+    static isClockWise(pts) {
+      return _ShapeUtils.area(pts) < 0;
+    }
+    static triangulateShape(contour, holes) {
+      const vertices = [];
+      const holeIndices = [];
+      const faces = [];
+      removeDupEndPts(contour);
+      addContour(vertices, contour);
+      let holeIndex = contour.length;
+      holes.forEach(removeDupEndPts);
+      for (let i = 0; i < holes.length; i++) {
+        holeIndices.push(holeIndex);
+        holeIndex += holes[i].length;
+        addContour(vertices, holes[i]);
+      }
+      const triangles = Earcut.triangulate(vertices, holeIndices);
+      for (let i = 0; i < triangles.length; i += 3) {
+        faces.push(triangles.slice(i, i + 3));
+      }
+      return faces;
+    }
+  };
+  function removeDupEndPts(points) {
+    const l = points.length;
+    if (l > 2 && points[l - 1].equals(points[0])) {
+      points.pop();
+    }
+  }
+  function addContour(vertices, contour) {
+    for (let i = 0; i < contour.length; i++) {
+      vertices.push(contour[i].x);
+      vertices.push(contour[i].y);
+    }
+  }
+  var ExtrudeGeometry = class _ExtrudeGeometry extends BufferGeometry {
+    constructor(shapes = new Shape([new Vector2(0.5, 0.5), new Vector2(-0.5, 0.5), new Vector2(-0.5, -0.5), new Vector2(0.5, -0.5)]), options = {}) {
+      super();
+      this.type = "ExtrudeGeometry";
+      this.parameters = {
+        shapes,
+        options
+      };
+      shapes = Array.isArray(shapes) ? shapes : [shapes];
+      const scope = this;
+      const verticesArray = [];
+      const uvArray = [];
+      for (let i = 0, l = shapes.length; i < l; i++) {
+        const shape = shapes[i];
+        addShape(shape);
+      }
+      this.setAttribute("position", new Float32BufferAttribute(verticesArray, 3));
+      this.setAttribute("uv", new Float32BufferAttribute(uvArray, 2));
+      this.computeVertexNormals();
+      function addShape(shape) {
+        const placeholder = [];
+        const curveSegments = options.curveSegments !== void 0 ? options.curveSegments : 12;
+        const steps = options.steps !== void 0 ? options.steps : 1;
+        const depth = options.depth !== void 0 ? options.depth : 1;
+        let bevelEnabled = options.bevelEnabled !== void 0 ? options.bevelEnabled : true;
+        let bevelThickness = options.bevelThickness !== void 0 ? options.bevelThickness : 0.2;
+        let bevelSize = options.bevelSize !== void 0 ? options.bevelSize : bevelThickness - 0.1;
+        let bevelOffset = options.bevelOffset !== void 0 ? options.bevelOffset : 0;
+        let bevelSegments = options.bevelSegments !== void 0 ? options.bevelSegments : 3;
+        const extrudePath = options.extrudePath;
+        const uvgen = options.UVGenerator !== void 0 ? options.UVGenerator : WorldUVGenerator;
+        let extrudePts, extrudeByPath = false;
+        let splineTube, binormal, normal, position2;
+        if (extrudePath) {
+          extrudePts = extrudePath.getSpacedPoints(steps);
+          extrudeByPath = true;
+          bevelEnabled = false;
+          splineTube = extrudePath.computeFrenetFrames(steps, false);
+          binormal = new Vector3();
+          normal = new Vector3();
+          position2 = new Vector3();
+        }
+        if (!bevelEnabled) {
+          bevelSegments = 0;
+          bevelThickness = 0;
+          bevelSize = 0;
+          bevelOffset = 0;
+        }
+        const shapePoints = shape.extractPoints(curveSegments);
+        let vertices = shapePoints.shape;
+        const holes = shapePoints.holes;
+        const reverse = !ShapeUtils.isClockWise(vertices);
+        if (reverse) {
+          vertices = vertices.reverse();
+          for (let h = 0, hl = holes.length; h < hl; h++) {
+            const ahole = holes[h];
+            if (ShapeUtils.isClockWise(ahole)) {
+              holes[h] = ahole.reverse();
+            }
+          }
+        }
+        const faces = ShapeUtils.triangulateShape(vertices, holes);
+        const contour = vertices;
+        for (let h = 0, hl = holes.length; h < hl; h++) {
+          const ahole = holes[h];
+          vertices = vertices.concat(ahole);
+        }
+        function scalePt2(pt, vec, size) {
+          if (!vec) console.error("THREE.ExtrudeGeometry: vec does not exist");
+          return pt.clone().addScaledVector(vec, size);
+        }
+        const vlen = vertices.length, flen = faces.length;
+        function getBevelVec(inPt, inPrev, inNext) {
+          let v_trans_x, v_trans_y, shrink_by;
+          const v_prev_x = inPt.x - inPrev.x, v_prev_y = inPt.y - inPrev.y;
+          const v_next_x = inNext.x - inPt.x, v_next_y = inNext.y - inPt.y;
+          const v_prev_lensq = v_prev_x * v_prev_x + v_prev_y * v_prev_y;
+          const collinear0 = v_prev_x * v_next_y - v_prev_y * v_next_x;
+          if (Math.abs(collinear0) > Number.EPSILON) {
+            const v_prev_len = Math.sqrt(v_prev_lensq);
+            const v_next_len = Math.sqrt(v_next_x * v_next_x + v_next_y * v_next_y);
+            const ptPrevShift_x = inPrev.x - v_prev_y / v_prev_len;
+            const ptPrevShift_y = inPrev.y + v_prev_x / v_prev_len;
+            const ptNextShift_x = inNext.x - v_next_y / v_next_len;
+            const ptNextShift_y = inNext.y + v_next_x / v_next_len;
+            const sf = ((ptNextShift_x - ptPrevShift_x) * v_next_y - (ptNextShift_y - ptPrevShift_y) * v_next_x) / (v_prev_x * v_next_y - v_prev_y * v_next_x);
+            v_trans_x = ptPrevShift_x + v_prev_x * sf - inPt.x;
+            v_trans_y = ptPrevShift_y + v_prev_y * sf - inPt.y;
+            const v_trans_lensq = v_trans_x * v_trans_x + v_trans_y * v_trans_y;
+            if (v_trans_lensq <= 2) {
+              return new Vector2(v_trans_x, v_trans_y);
+            } else {
+              shrink_by = Math.sqrt(v_trans_lensq / 2);
+            }
+          } else {
+            let direction_eq = false;
+            if (v_prev_x > Number.EPSILON) {
+              if (v_next_x > Number.EPSILON) {
+                direction_eq = true;
+              }
+            } else {
+              if (v_prev_x < -Number.EPSILON) {
+                if (v_next_x < -Number.EPSILON) {
+                  direction_eq = true;
+                }
+              } else {
+                if (Math.sign(v_prev_y) === Math.sign(v_next_y)) {
+                  direction_eq = true;
+                }
+              }
+            }
+            if (direction_eq) {
+              v_trans_x = -v_prev_y;
+              v_trans_y = v_prev_x;
+              shrink_by = Math.sqrt(v_prev_lensq);
+            } else {
+              v_trans_x = v_prev_x;
+              v_trans_y = v_prev_y;
+              shrink_by = Math.sqrt(v_prev_lensq / 2);
+            }
+          }
+          return new Vector2(v_trans_x / shrink_by, v_trans_y / shrink_by);
+        }
+        const contourMovements = [];
+        for (let i = 0, il = contour.length, j = il - 1, k = i + 1; i < il; i++, j++, k++) {
+          if (j === il) j = 0;
+          if (k === il) k = 0;
+          contourMovements[i] = getBevelVec(contour[i], contour[j], contour[k]);
+        }
+        const holesMovements = [];
+        let oneHoleMovements, verticesMovements = contourMovements.concat();
+        for (let h = 0, hl = holes.length; h < hl; h++) {
+          const ahole = holes[h];
+          oneHoleMovements = [];
+          for (let i = 0, il = ahole.length, j = il - 1, k = i + 1; i < il; i++, j++, k++) {
+            if (j === il) j = 0;
+            if (k === il) k = 0;
+            oneHoleMovements[i] = getBevelVec(ahole[i], ahole[j], ahole[k]);
+          }
+          holesMovements.push(oneHoleMovements);
+          verticesMovements = verticesMovements.concat(oneHoleMovements);
+        }
+        for (let b = 0; b < bevelSegments; b++) {
+          const t = b / bevelSegments;
+          const z = bevelThickness * Math.cos(t * Math.PI / 2);
+          const bs2 = bevelSize * Math.sin(t * Math.PI / 2) + bevelOffset;
+          for (let i = 0, il = contour.length; i < il; i++) {
+            const vert = scalePt2(contour[i], contourMovements[i], bs2);
+            v(vert.x, vert.y, -z);
+          }
+          for (let h = 0, hl = holes.length; h < hl; h++) {
+            const ahole = holes[h];
+            oneHoleMovements = holesMovements[h];
+            for (let i = 0, il = ahole.length; i < il; i++) {
+              const vert = scalePt2(ahole[i], oneHoleMovements[i], bs2);
+              v(vert.x, vert.y, -z);
+            }
+          }
+        }
+        const bs = bevelSize + bevelOffset;
+        for (let i = 0; i < vlen; i++) {
+          const vert = bevelEnabled ? scalePt2(vertices[i], verticesMovements[i], bs) : vertices[i];
+          if (!extrudeByPath) {
+            v(vert.x, vert.y, 0);
+          } else {
+            normal.copy(splineTube.normals[0]).multiplyScalar(vert.x);
+            binormal.copy(splineTube.binormals[0]).multiplyScalar(vert.y);
+            position2.copy(extrudePts[0]).add(normal).add(binormal);
+            v(position2.x, position2.y, position2.z);
+          }
+        }
+        for (let s = 1; s <= steps; s++) {
+          for (let i = 0; i < vlen; i++) {
+            const vert = bevelEnabled ? scalePt2(vertices[i], verticesMovements[i], bs) : vertices[i];
+            if (!extrudeByPath) {
+              v(vert.x, vert.y, depth / steps * s);
+            } else {
+              normal.copy(splineTube.normals[s]).multiplyScalar(vert.x);
+              binormal.copy(splineTube.binormals[s]).multiplyScalar(vert.y);
+              position2.copy(extrudePts[s]).add(normal).add(binormal);
+              v(position2.x, position2.y, position2.z);
+            }
+          }
+        }
+        for (let b = bevelSegments - 1; b >= 0; b--) {
+          const t = b / bevelSegments;
+          const z = bevelThickness * Math.cos(t * Math.PI / 2);
+          const bs2 = bevelSize * Math.sin(t * Math.PI / 2) + bevelOffset;
+          for (let i = 0, il = contour.length; i < il; i++) {
+            const vert = scalePt2(contour[i], contourMovements[i], bs2);
+            v(vert.x, vert.y, depth + z);
+          }
+          for (let h = 0, hl = holes.length; h < hl; h++) {
+            const ahole = holes[h];
+            oneHoleMovements = holesMovements[h];
+            for (let i = 0, il = ahole.length; i < il; i++) {
+              const vert = scalePt2(ahole[i], oneHoleMovements[i], bs2);
+              if (!extrudeByPath) {
+                v(vert.x, vert.y, depth + z);
+              } else {
+                v(vert.x, vert.y + extrudePts[steps - 1].y, extrudePts[steps - 1].x + z);
+              }
+            }
+          }
+        }
+        buildLidFaces();
+        buildSideFaces();
+        function buildLidFaces() {
+          const start = verticesArray.length / 3;
+          if (bevelEnabled) {
+            let layer = 0;
+            let offset = vlen * layer;
+            for (let i = 0; i < flen; i++) {
+              const face = faces[i];
+              f3(face[2] + offset, face[1] + offset, face[0] + offset);
+            }
+            layer = steps + bevelSegments * 2;
+            offset = vlen * layer;
+            for (let i = 0; i < flen; i++) {
+              const face = faces[i];
+              f3(face[0] + offset, face[1] + offset, face[2] + offset);
+            }
+          } else {
+            for (let i = 0; i < flen; i++) {
+              const face = faces[i];
+              f3(face[2], face[1], face[0]);
+            }
+            for (let i = 0; i < flen; i++) {
+              const face = faces[i];
+              f3(face[0] + vlen * steps, face[1] + vlen * steps, face[2] + vlen * steps);
+            }
+          }
+          scope.addGroup(start, verticesArray.length / 3 - start, 0);
+        }
+        function buildSideFaces() {
+          const start = verticesArray.length / 3;
+          let layeroffset = 0;
+          sidewalls(contour, layeroffset);
+          layeroffset += contour.length;
+          for (let h = 0, hl = holes.length; h < hl; h++) {
+            const ahole = holes[h];
+            sidewalls(ahole, layeroffset);
+            layeroffset += ahole.length;
+          }
+          scope.addGroup(start, verticesArray.length / 3 - start, 1);
+        }
+        function sidewalls(contour2, layeroffset) {
+          let i = contour2.length;
+          while (--i >= 0) {
+            const j = i;
+            let k = i - 1;
+            if (k < 0) k = contour2.length - 1;
+            for (let s = 0, sl = steps + bevelSegments * 2; s < sl; s++) {
+              const slen1 = vlen * s;
+              const slen2 = vlen * (s + 1);
+              const a = layeroffset + j + slen1, b = layeroffset + k + slen1, c = layeroffset + k + slen2, d = layeroffset + j + slen2;
+              f4(a, b, c, d);
+            }
+          }
+        }
+        function v(x, y, z) {
+          placeholder.push(x);
+          placeholder.push(y);
+          placeholder.push(z);
+        }
+        function f3(a, b, c) {
+          addVertex(a);
+          addVertex(b);
+          addVertex(c);
+          const nextIndex = verticesArray.length / 3;
+          const uvs = uvgen.generateTopUV(scope, verticesArray, nextIndex - 3, nextIndex - 2, nextIndex - 1);
+          addUV(uvs[0]);
+          addUV(uvs[1]);
+          addUV(uvs[2]);
+        }
+        function f4(a, b, c, d) {
+          addVertex(a);
+          addVertex(b);
+          addVertex(d);
+          addVertex(b);
+          addVertex(c);
+          addVertex(d);
+          const nextIndex = verticesArray.length / 3;
+          const uvs = uvgen.generateSideWallUV(scope, verticesArray, nextIndex - 6, nextIndex - 3, nextIndex - 2, nextIndex - 1);
+          addUV(uvs[0]);
+          addUV(uvs[1]);
+          addUV(uvs[3]);
+          addUV(uvs[1]);
+          addUV(uvs[2]);
+          addUV(uvs[3]);
+        }
+        function addVertex(index) {
+          verticesArray.push(placeholder[index * 3 + 0]);
+          verticesArray.push(placeholder[index * 3 + 1]);
+          verticesArray.push(placeholder[index * 3 + 2]);
+        }
+        function addUV(vector2) {
+          uvArray.push(vector2.x);
+          uvArray.push(vector2.y);
+        }
+      }
+    }
+    copy(source) {
+      super.copy(source);
+      this.parameters = Object.assign({}, source.parameters);
+      return this;
+    }
+    toJSON() {
+      const data = super.toJSON();
+      const shapes = this.parameters.shapes;
+      const options = this.parameters.options;
+      return toJSON$1(shapes, options, data);
+    }
+    static fromJSON(data, shapes) {
+      const geometryShapes = [];
+      for (let j = 0, jl = data.shapes.length; j < jl; j++) {
+        const shape = shapes[data.shapes[j]];
+        geometryShapes.push(shape);
+      }
+      const extrudePath = data.options.extrudePath;
+      if (extrudePath !== void 0) {
+        data.options.extrudePath = new Curves[extrudePath.type]().fromJSON(extrudePath);
+      }
+      return new _ExtrudeGeometry(geometryShapes, data.options);
+    }
+  };
+  var WorldUVGenerator = {
+    generateTopUV: function(geometry, vertices, indexA, indexB, indexC) {
+      const a_x = vertices[indexA * 3];
+      const a_y = vertices[indexA * 3 + 1];
+      const b_x = vertices[indexB * 3];
+      const b_y = vertices[indexB * 3 + 1];
+      const c_x = vertices[indexC * 3];
+      const c_y = vertices[indexC * 3 + 1];
+      return [
+        new Vector2(a_x, a_y),
+        new Vector2(b_x, b_y),
+        new Vector2(c_x, c_y)
+      ];
+    },
+    generateSideWallUV: function(geometry, vertices, indexA, indexB, indexC, indexD) {
+      const a_x = vertices[indexA * 3];
+      const a_y = vertices[indexA * 3 + 1];
+      const a_z = vertices[indexA * 3 + 2];
+      const b_x = vertices[indexB * 3];
+      const b_y = vertices[indexB * 3 + 1];
+      const b_z = vertices[indexB * 3 + 2];
+      const c_x = vertices[indexC * 3];
+      const c_y = vertices[indexC * 3 + 1];
+      const c_z = vertices[indexC * 3 + 2];
+      const d_x = vertices[indexD * 3];
+      const d_y = vertices[indexD * 3 + 1];
+      const d_z = vertices[indexD * 3 + 2];
+      if (Math.abs(a_y - b_y) < Math.abs(a_x - b_x)) {
+        return [
+          new Vector2(a_x, 1 - a_z),
+          new Vector2(b_x, 1 - b_z),
+          new Vector2(c_x, 1 - c_z),
+          new Vector2(d_x, 1 - d_z)
+        ];
+      } else {
+        return [
+          new Vector2(a_y, 1 - a_z),
+          new Vector2(b_y, 1 - b_z),
+          new Vector2(c_y, 1 - c_z),
+          new Vector2(d_y, 1 - d_z)
+        ];
+      }
+    }
+  };
+  function toJSON$1(shapes, options, data) {
+    data.shapes = [];
+    if (Array.isArray(shapes)) {
+      for (let i = 0, l = shapes.length; i < l; i++) {
+        const shape = shapes[i];
+        data.shapes.push(shape.uuid);
+      }
+    } else {
+      data.shapes.push(shapes.uuid);
+    }
+    data.options = Object.assign({}, options);
+    if (options.extrudePath !== void 0) data.options.extrudePath = options.extrudePath.toJSON();
+    return data;
+  }
+  var IcosahedronGeometry = class _IcosahedronGeometry extends PolyhedronGeometry {
+    constructor(radius = 1, detail = 0) {
+      const t = (1 + Math.sqrt(5)) / 2;
+      const vertices = [
+        -1,
+        t,
+        0,
+        1,
+        t,
+        0,
+        -1,
+        -t,
+        0,
+        1,
+        -t,
+        0,
+        0,
+        -1,
+        t,
+        0,
+        1,
+        t,
+        0,
+        -1,
+        -t,
+        0,
+        1,
+        -t,
+        t,
+        0,
+        -1,
+        t,
+        0,
+        1,
+        -t,
+        0,
+        -1,
+        -t,
+        0,
+        1
+      ];
+      const indices = [
+        0,
+        11,
+        5,
+        0,
+        5,
+        1,
+        0,
+        1,
+        7,
+        0,
+        7,
+        10,
+        0,
+        10,
+        11,
+        1,
+        5,
+        9,
+        5,
+        11,
+        4,
+        11,
+        10,
+        2,
+        10,
+        7,
+        6,
+        7,
+        1,
+        8,
+        3,
+        9,
+        4,
+        3,
+        4,
+        2,
+        3,
+        2,
+        6,
+        3,
+        6,
+        8,
+        3,
+        8,
+        9,
+        4,
+        9,
+        5,
+        2,
+        4,
+        11,
+        6,
+        2,
+        10,
+        8,
+        6,
+        7,
+        9,
+        8,
+        1
+      ];
+      super(vertices, indices, radius, detail);
+      this.type = "IcosahedronGeometry";
+      this.parameters = {
+        radius,
+        detail
+      };
+    }
+    static fromJSON(data) {
+      return new _IcosahedronGeometry(data.radius, data.detail);
     }
   };
   var SphereGeometry = class _SphereGeometry extends BufferGeometry {
@@ -23305,30 +24451,30 @@
         console.error("THREE.Raycaster: Unsupported camera type: " + camera2.type);
       }
     }
-    intersectObject(object, recursive = true, intersects = []) {
-      intersectObject(object, this, intersects, recursive);
-      intersects.sort(ascSort);
-      return intersects;
+    intersectObject(object, recursive = true, intersects2 = []) {
+      intersectObject(object, this, intersects2, recursive);
+      intersects2.sort(ascSort);
+      return intersects2;
     }
-    intersectObjects(objects, recursive = true, intersects = []) {
+    intersectObjects(objects, recursive = true, intersects2 = []) {
       for (let i = 0, l = objects.length; i < l; i++) {
-        intersectObject(objects[i], this, intersects, recursive);
+        intersectObject(objects[i], this, intersects2, recursive);
       }
-      intersects.sort(ascSort);
-      return intersects;
+      intersects2.sort(ascSort);
+      return intersects2;
     }
   };
   function ascSort(a, b) {
     return a.distance - b.distance;
   }
-  function intersectObject(object, raycaster2, intersects, recursive) {
+  function intersectObject(object, raycaster2, intersects2, recursive) {
     if (object.layers.test(raycaster2.layers)) {
-      object.raycast(raycaster2, intersects);
+      object.raycast(raycaster2, intersects2);
     }
     if (recursive === true) {
       const children = object.children;
       for (let i = 0, l = children.length; i < l; i++) {
-        intersectObject(children[i], raycaster2, intersects, true);
+        intersectObject(children[i], raycaster2, intersects2, true);
       }
     }
   }
@@ -23345,7 +24491,7 @@
     }
   }
 
-  // engio/mila-quest/assets/lib/jsm/utils/BufferGeometryUtils.js
+  // ../../workspace/engio/mila-quest/assets/lib/jsm/utils/BufferGeometryUtils.js
   function toTrianglesDrawMode(geometry, drawMode) {
     if (drawMode === TrianglesDrawMode) {
       console.warn("THREE.BufferGeometryUtils.toTrianglesDrawMode(): Geometry already defined as triangles.");
@@ -23401,7 +24547,7 @@
     }
   }
 
-  // engio/mila-quest/assets/lib/jsm/loaders/GLTFLoader.js
+  // ../../workspace/engio/mila-quest/assets/lib/jsm/loaders/GLTFLoader.js
   var GLTFLoader = class extends Loader {
     constructor(manager) {
       super(manager);
@@ -25852,7 +26998,7 @@
     });
   }
 
-  // engio/mila-quest/assets/lib/jsm/utils/SkeletonUtils.js
+  // ../../workspace/engio/mila-quest/assets/lib/jsm/utils/SkeletonUtils.js
   function clone(source) {
     const sourceLookup = /* @__PURE__ */ new Map();
     const cloneLookup = /* @__PURE__ */ new Map();
@@ -25882,31 +27028,31 @@
     }
   }
 
-  // engio/mila-quest/js/data.js
+  // ../../workspace/engio/mila-quest/js/data.js
   var WORDS = [{ "en": "English", "he": "\u05D0\u05E0\u05D2\u05DC\u05D9\u05EA", "pic": "\u{1F1EC}\u{1F1E7}", "clue": "\u05D4\u05E9\u05E4\u05D4 \u05E9\u05D0\u05EA\u05DD \u05DC\u05D5\u05DE\u05D3\u05D9\u05DD \u05E2\u05DB\u05E9\u05D9\u05D5", "w": 1 }, { "en": "Brother", "he": "\u05D0\u05D7", "pic": "\u{1F466}", "clue": "\u05D1\u05DF \u05D1\u05D0\u05D5\u05EA\u05D4 \u05DE\u05E9\u05E4\u05D7\u05D4, \u05E9\u05D4\u05D5\u05D0 \u05D0\u05D7\u05D9\u05DB\u05DD", "w": 1 }, { "en": "Sister", "he": "\u05D0\u05D7\u05D5\u05EA", "pic": "\u{1F467}", "clue": "\u05D1\u05EA \u05D1\u05D0\u05D5\u05EA\u05D4 \u05DE\u05E9\u05E4\u05D7\u05D4, \u05E9\u05D4\u05D9\u05D0 \u05D0\u05D7\u05D5\u05EA\u05DB\u05DD", "w": 1 }, { "en": "Beautiful", "he": "\u05D9\u05E4\u05D4", "pic": "\u{1F33A}", "clue": "\u05DB\u05DE\u05D5 \u05E4\u05E8\u05D7 \u05D0\u05D5 \u05E9\u05E7\u05D9\u05E2\u05D4 \u05DE\u05E7\u05E1\u05D9\u05DE\u05D4", "w": 1 }, { "en": "Family", "he": "\u05DE\u05E9\u05E4\u05D7\u05D4", "pic": "\u{1F468}\u200D\u{1F469}\u200D\u{1F467}\u200D\u{1F466}", "clue": "\u05D0\u05DE\u05D0, \u05D0\u05D1\u05D0, \u05D9\u05DC\u05D3\u05D9\u05DD, \u05E1\u05D1\u05D0 \u05D5\u05E1\u05D1\u05EA\u05D0", "w": 1 }, { "en": "Read", "he": "\u05DC\u05E7\u05E8\u05D5\u05D0", "pic": "\u{1F4D6}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05E1\u05E4\u05E8?", "w": 1 }, { "en": "Eat", "he": "\u05DC\u05D0\u05DB\u05D5\u05DC", "pic": "\u{1F34E}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05EA\u05E4\u05D5\u05D7?", "w": 1 }, { "en": "Drink", "he": "\u05DC\u05E9\u05EA\u05D5\u05EA", "pic": "\u{1F964}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05DE\u05D9\u05DD \u05D0\u05D5 \u05DE\u05D9\u05E5?", "w": 1 }, { "en": "Mother", "he": "\u05D0\u05DE\u05D0", "pic": "\u{1F469}", "clue": "\u05D4\u05D4\u05D5\u05E8\u05D4 \u05E9\u05D4\u05D9\u05D0 \u05D0\u05D9\u05E9\u05D4", "w": 1 }, { "en": "Father", "he": "\u05D0\u05D1\u05D0", "pic": "\u{1F468}", "clue": "\u05D4\u05D4\u05D5\u05E8\u05D4 \u05E9\u05D4\u05D5\u05D0 \u05D2\u05D1\u05E8", "w": 1 }, { "en": "Baby", "he": "\u05EA\u05D9\u05E0\u05D5\u05E7", "pic": "\u{1F476}", "clue": "\u05D9\u05DC\u05D3 \u05D0\u05D5 \u05D9\u05DC\u05D3\u05D4 \u05E7\u05D8\u05E0\u05D9\u05DD \u05DE\u05D0\u05D5\u05D3", "w": 1 }, { "en": "Grandfather", "he": "\u05E1\u05D1\u05D0", "pic": "\u{1F474}", "clue": "\u05D0\u05D1\u05D0 \u05E9\u05DC \u05D0\u05DE\u05D0 \u05D0\u05D5 \u05E9\u05DC \u05D0\u05D1\u05D0", "w": 1 }, { "en": "Grandmother", "he": "\u05E1\u05D1\u05EA\u05D0", "pic": "\u{1F475}", "clue": "\u05D0\u05DE\u05D0 \u05E9\u05DC \u05D0\u05DE\u05D0 \u05D0\u05D5 \u05E9\u05DC \u05D0\u05D1\u05D0", "w": 1 }, { "en": "Boy", "he": "\u05D9\u05DC\u05D3", "pic": "\u{1F466}", "clue": "\u05D9\u05DC\u05D3, \u05DC\u05D0 \u05D9\u05DC\u05D3\u05D4", "w": 1 }, { "en": "Girl", "he": "\u05D9\u05DC\u05D3\u05D4", "pic": "\u{1F467}", "clue": "\u05D9\u05DC\u05D3\u05D4, \u05DC\u05D0 \u05D9\u05DC\u05D3", "w": 1 }, { "en": "Parents", "he": "\u05D4\u05D5\u05E8\u05D9\u05DD", "pic": "\u{1F46B}", "clue": "\u05D0\u05DE\u05D0 \u05D5\u05D0\u05D1\u05D0 \u05D9\u05D7\u05D3", "w": 1 }, { "en": "Lion", "he": "\u05D0\u05E8\u05D9\u05D4", "pic": "\u{1F981}", "clue": "\u05DE\u05DC\u05DA \u05D4\u05D7\u05D9\u05D5\u05EA, \u05E2\u05DD \u05E8\u05E2\u05DE\u05D4 \u05D2\u05D3\u05D5\u05DC\u05D4", "w": 1 }, { "en": "Tiger", "he": "\u05E0\u05DE\u05E8", "pic": "\u{1F42F}", "clue": "\u05D7\u05EA\u05D5\u05DC \u05D2\u05D3\u05D5\u05DC \u05E2\u05DD \u05E4\u05E1\u05D9\u05DD", "w": 1 }, { "en": "Monkey", "he": "\u05E7\u05D5\u05E3", "pic": "\u{1F435}", "clue": "\u05D0\u05D5\u05D4\u05D1 \u05DC\u05E7\u05E4\u05D5\u05E5 \u05E2\u05DC \u05E2\u05E6\u05D9\u05DD", "w": 1 }, { "en": "Elephant", "he": "\u05E4\u05D9\u05DC", "pic": "\u{1F418}", "clue": "\u05D4\u05D7\u05D9\u05D4 \u05D4\u05DB\u05D9 \u05D2\u05D3\u05D5\u05DC\u05D4 \u05D1\u05D9\u05D1\u05E9\u05D4, \u05E2\u05DD \u05D7\u05D3\u05E7", "w": 1 }, { "en": "Snake", "he": "\u05E0\u05D7\u05E9", "pic": "\u{1F40D}", "clue": "\u05D0\u05E8\u05D5\u05DA \u05D5\u05D6\u05D5\u05D7\u05DC \u05D1\u05DC\u05D9 \u05E8\u05D2\u05DC\u05D9\u05D9\u05DD", "w": 1 }, { "en": "Frog", "he": "\u05E6\u05E4\u05E8\u05D3\u05E2", "pic": "\u{1F438}", "clue": "\u05D9\u05E8\u05D5\u05E7\u05D4, \u05E7\u05D5\u05E4\u05E6\u05EA \u05D5\u05D7\u05D9\u05D4 \u05DC\u05D9\u05D3 \u05DE\u05D9\u05DD", "w": 1 }, { "en": "Butterfly", "he": "\u05E4\u05E8\u05E4\u05E8", "pic": "\u{1F98B}", "clue": "\u05D9\u05E4\u05D4 \u05D5\u05E2\u05E3 \u05DE\u05E4\u05E8\u05D7 \u05DC\u05E4\u05E8\u05D7", "w": 1 }, { "en": "Bear", "he": "\u05D3\u05D5\u05D1", "pic": "\u{1F43B}", "clue": "\u05D2\u05D3\u05D5\u05DC \u05D5\u05E4\u05E8\u05D5\u05D5\u05EA\u05D9, \u05D0\u05D5\u05D4\u05D1 \u05D3\u05D1\u05E9", "w": 1 }, { "en": "Giraffe", "he": "\u05D2'\u05D9\u05E8\u05E4\u05D4", "pic": "\u{1F992}", "clue": "\u05D4\u05D7\u05D9\u05D4 \u05D4\u05DB\u05D9 \u05D2\u05D1\u05D5\u05D4\u05D4, \u05E2\u05DD \u05E6\u05D5\u05D5\u05D0\u05E8 \u05D0\u05E8\u05D5\u05DA", "w": 1 }, { "en": "Parrot", "he": "\u05EA\u05D5\u05DB\u05D9", "pic": "\u{1F99C}", "clue": "\u05E6\u05D9\u05E4\u05D5\u05E8 \u05E6\u05D1\u05E2\u05D5\u05E0\u05D9\u05EA \u05E9\u05D9\u05D5\u05D3\u05E2\u05EA \u05DC\u05D7\u05E7\u05D5\u05EA \u05E7\u05D5\u05DC\u05D5\u05EA", "w": 1 }, { "en": "Dog", "he": "\u05DB\u05DC\u05D1", "pic": "\u{1F436}", "clue": "\u05D7\u05D9\u05D4 \u05E0\u05D0\u05DE\u05E0\u05D4 \u05E9\u05E0\u05D5\u05D1\u05D7\u05EA", "w": 1 }, { "en": "Cat", "he": "\u05D7\u05EA\u05D5\u05DC", "pic": "\u{1F431}", "clue": "\u05D7\u05D9\u05D4 \u05E9\u05D0\u05D5\u05DE\u05E8\u05EA \u05DE\u05D9\u05D0\u05D5", "w": 1 }, { "en": "Horse", "he": "\u05E1\u05D5\u05E1", "pic": "\u{1F434}", "clue": "\u05D7\u05D9\u05D4 \u05E9\u05E8\u05D5\u05DB\u05D1\u05D9\u05DD \u05E2\u05DC\u05D9\u05D4", "w": 1 }, { "en": "Rabbit", "he": "\u05D0\u05E8\u05E0\u05D1", "pic": "\u{1F430}", "clue": "\u05D7\u05D9\u05D4 \u05E7\u05D8\u05E0\u05D4 \u05E2\u05DD \u05D0\u05D5\u05D6\u05E0\u05D9\u05D9\u05DD \u05D0\u05E8\u05D5\u05DB\u05D5\u05EA", "w": 1 }, { "en": "Run", "he": "\u05DC\u05E8\u05D5\u05E5", "pic": "\u{1F3C3}", "clue": "\u05DC\u05D6\u05D5\u05D6 \u05DE\u05D4\u05E8 \u05D1\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD", "w": 1 }, { "en": "Jump", "he": "\u05DC\u05E7\u05E4\u05D5\u05E5", "pic": "\u{1F998}", "clue": "\u05DC\u05D4\u05EA\u05E8\u05D5\u05DE\u05DD \u05D1\u05D0\u05D5\u05D5\u05D9\u05E8 \u05DE\u05E2\u05DC \u05DE\u05E9\u05D4\u05D5", "w": 1 }, { "en": "Sleep", "he": "\u05DC\u05D9\u05E9\u05D5\u05DF", "pic": "\u{1F634}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05D1\u05DC\u05D9\u05DC\u05D4 \u05D1\u05DE\u05D9\u05D8\u05D4", "w": 1 }, { "en": "Play", "he": "\u05DC\u05E9\u05D7\u05E7", "pic": "\u{1F3AE}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05D1\u05E9\u05E2\u05D5\u05EA \u05D4\u05E4\u05E0\u05D0\u05D9", "w": 1 }, { "en": "Walk", "he": "\u05DC\u05DC\u05DB\u05EA", "pic": "\u{1F6B6}", "clue": "\u05DC\u05D6\u05D5\u05D6 \u05D1\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD, \u05DC\u05D0 \u05DE\u05D4\u05E8", "w": 1 }, { "en": "Big", "he": "\u05D2\u05D3\u05D5\u05DC", "pic": "\u{1F9A3}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05E7\u05D8\u05DF", "w": 1 }, { "en": "Small", "he": "\u05E7\u05D8\u05DF", "pic": "\u{1F42D}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05D2\u05D3\u05D5\u05DC", "w": 1 }, { "en": "Happy", "he": "\u05E9\u05DE\u05D7", "pic": "\u{1F604}", "clue": "\u05DB\u05E9\u05DE\u05E8\u05D2\u05D9\u05E9\u05D9\u05DD \u05D8\u05D5\u05D1 \u05D5\u05E6\u05D5\u05D7\u05E7\u05D9\u05DD", "w": 1 }, { "en": "Sad", "he": "\u05E2\u05E6\u05D5\u05D1", "pic": "\u{1F622}", "clue": "\u05DB\u05E9\u05DE\u05E8\u05D2\u05D9\u05E9\u05D9\u05DD \u05DC\u05D0 \u05D8\u05D5\u05D1 \u05D5\u05E8\u05D5\u05E6\u05D9\u05DD \u05DC\u05D1\u05DB\u05D5\u05EA", "w": 1 }, { "en": "Good", "he": "\u05D8\u05D5\u05D1", "pic": "\u{1F44D}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05E8\u05E2", "w": 1 }, { "en": "Tree", "he": "\u05E2\u05E5", "pic": "\u{1F333}", "clue": "\u05D2\u05D1\u05D5\u05D4, \u05E2\u05DD \u05D2\u05D6\u05E2 \u05D5\u05E2\u05DD \u05E2\u05DC\u05D9\u05DD", "w": 1 }, { "en": "Flower", "he": "\u05E4\u05E8\u05D7", "pic": "\u{1F338}", "clue": "\u05E6\u05D5\u05DE\u05D7 \u05D1\u05D2\u05D9\u05E0\u05D4 \u05D5\u05D4\u05D5\u05D0 \u05D9\u05E4\u05D4 \u05D5\u05E8\u05D9\u05D7\u05E0\u05D9", "w": 1 }, { "en": "Forest", "he": "\u05D9\u05E2\u05E8", "pic": "\u{1F332}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E2\u05DD \u05D4\u05E8\u05D1\u05D4 \u05E2\u05E6\u05D9\u05DD", "w": 1 }, { "en": "Leaf", "he": "\u05E2\u05DC\u05D4", "pic": "\u{1F343}", "clue": "\u05D4\u05D7\u05DC\u05E7 \u05D4\u05D9\u05E8\u05D5\u05E7 \u05E9\u05D2\u05D3\u05DC \u05E2\u05DC \u05D4\u05E2\u05E5", "w": 1 }, { "en": "Grass", "he": "\u05D3\u05E9\u05D0", "pic": "\u{1F331}", "clue": "\u05D9\u05E8\u05D5\u05E7 \u05D5\u05E6\u05D5\u05DE\u05D7 \u05E2\u05DC \u05D4\u05D0\u05D3\u05DE\u05D4 \u05D1\u05D2\u05D9\u05E0\u05D4", "w": 1 }, { "en": "Animal", "he": "\u05D7\u05D9\u05D4", "pic": "\u{1F43E}", "clue": "\u05DB\u05DC\u05D1, \u05D7\u05EA\u05D5\u05DC, \u05D0\u05E8\u05D9\u05D4 \u2014 \u05DB\u05D5\u05DC\u05DD...", "w": 1 }, { "en": "Fish", "he": "\u05D3\u05D2", "pic": "\u{1F41F}", "clue": "\u05D7\u05D9 \u05D1\u05DE\u05D9\u05DD \u05D5\u05D9\u05E9 \u05DC\u05D5 \u05E1\u05E0\u05E4\u05D9\u05E8\u05D9\u05DD", "w": 2 }, { "en": "Sea", "he": "\u05D9\u05DD", "pic": "\u{1F30A}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05D2\u05D3\u05D5\u05DC \u05D5\u05DE\u05DC\u05D5\u05D7 \u05E9\u05DE\u05E9\u05D9\u05D9\u05D8\u05D9\u05DD \u05D1\u05D5", "w": 2 }, { "en": "Ship", "he": "\u05E1\u05E4\u05D9\u05E0\u05D4", "pic": "\u{1F6A2}", "clue": "\u05DB\u05DC\u05D9 \u05E9\u05D9\u05D8 \u05D2\u05D3\u05D5\u05DC \u05E9\u05DE\u05E4\u05DC\u05D9\u05D2 \u05D1\u05D9\u05DD", "w": 2 }, { "en": "Island", "he": "\u05D0\u05D9", "pic": "\u{1F3DD}\uFE0F", "clue": "\u05D9\u05D1\u05E9\u05D4 \u05E7\u05D8\u05E0\u05D4 \u05E9\u05DE\u05D5\u05E7\u05E4\u05EA \u05DE\u05D9\u05DD \u05DE\u05DB\u05DC \u05D4\u05E6\u05D3\u05D3\u05D9\u05DD", "w": 2 }, { "en": "Bird", "he": "\u05E6\u05D9\u05E4\u05D5\u05E8", "pic": "\u{1F426}", "clue": "\u05D9\u05E9 \u05DC\u05D4 \u05DB\u05E0\u05E4\u05D9\u05D9\u05DD \u05D5\u05D4\u05D9\u05D0 \u05E2\u05E4\u05D4", "w": 2 }, { "en": "Shark", "he": "\u05DB\u05E8\u05D9\u05E9", "pic": "\u{1F988}", "clue": "\u05D3\u05D2 \u05D8\u05D5\u05E8\u05E3 \u05E2\u05DD \u05E9\u05D9\u05E0\u05D9\u05D9\u05DD \u05D7\u05D3\u05D5\u05EA", "w": 2 }, { "en": "Water", "he": "\u05DE\u05D9\u05DD", "pic": "\u{1F4A7}", "clue": "\u05DE\u05D4 \u05E9\u05D5\u05EA\u05D9\u05DD \u05DB\u05E9\u05E6\u05DE\u05D0\u05D9\u05DD", "w": 2 }, { "en": "Beach", "he": "\u05D7\u05D5\u05E3", "pic": "\u{1F3D6}\uFE0F", "clue": "\u05D7\u05D5\u05DC \u05D5\u05DE\u05D9\u05DD \u2014 \u05E9\u05DD \u05DE\u05EA\u05E8\u05D7\u05E6\u05D9\u05DD \u05D5\u05DE\u05E9\u05D7\u05E7\u05D9\u05DD", "w": 2 }, { "en": "Boat", "he": "\u05E1\u05D9\u05E8\u05D4", "pic": "\u{1F6A3}", "clue": "\u05DB\u05DC\u05D9 \u05E9\u05D9\u05D8 \u05E7\u05D8\u05DF \u05D9\u05D5\u05EA\u05E8 \u05DE\u05E1\u05E4\u05D9\u05E0\u05D4", "w": 2 }, { "en": "Pirate", "he": "\u05E4\u05D9\u05E8\u05D0\u05D8", "pic": "\u{1F3F4}\u200D\u2620\uFE0F", "clue": "\u05E9\u05D5\u05D3\u05D3 \u05D9\u05DD \u05E2\u05DD \u05DE\u05D8\u05E4\u05D7\u05EA \u05D5\u05E2\u05DD \u05DE\u05E4\u05D4", "w": 2 }, { "en": "Treasure", "he": "\u05D0\u05D5\u05E6\u05E8", "pic": "\u{1F4B0}", "clue": "\u05D6\u05D4\u05D1 \u05D5\u05DE\u05D8\u05D1\u05E2\u05D5\u05EA \u05E9\u05DE\u05D5\u05E6\u05D0\u05D9\u05DD \u05D1\u05EA\u05D9\u05D1\u05D4", "w": 2 }, { "en": "Wave", "he": "\u05D2\u05DC", "pic": "\u{1F30A}", "clue": "\u05D4\u05DE\u05D9\u05DD \u05E9\u05DE\u05EA\u05E8\u05D5\u05DE\u05DE\u05D9\u05DD \u05D5\u05E0\u05E9\u05D1\u05E8\u05D9\u05DD \u05D1\u05D9\u05DD", "w": 2 }, { "en": "Sand", "he": "\u05D7\u05D5\u05DC", "pic": "\u231B", "clue": "\u05DE\u05D4 \u05E9\u05D9\u05E9 \u05E2\u05DC \u05D4\u05D7\u05D5\u05E3, \u05E8\u05DA \u05D5\u05E6\u05D4\u05D5\u05D1", "w": 2 }, { "en": "Map", "he": "\u05DE\u05E4\u05D4", "pic": "\u{1F5FA}\uFE0F", "clue": "\u05DE\u05E8\u05D0\u05D4 \u05D0\u05D9\u05DA \u05DC\u05D4\u05D2\u05D9\u05E2 \u05DE\u05DE\u05E7\u05D5\u05DD \u05DC\u05DE\u05E7\u05D5\u05DD", "w": 2 }, { "en": "Gold", "he": "\u05D6\u05D4\u05D1", "pic": "\u{1F947}", "clue": "\u05DE\u05EA\u05DB\u05EA \u05D9\u05E7\u05E8\u05D4 \u05D5\u05D6\u05D4\u05D5\u05D1\u05D4", "w": 2 }, { "en": "Captain", "he": "\u05E7\u05E4\u05D8\u05DF", "pic": "\u{1F9D1}\u200D\u2708\uFE0F", "clue": "\u05DE\u05D9 \u05E9\u05DE\u05E0\u05D4\u05D9\u05D2 \u05D0\u05EA \u05D4\u05E1\u05E4\u05D9\u05E0\u05D4", "w": 2 }, { "en": "Flag", "he": "\u05D3\u05D2\u05DC", "pic": "\u{1F6A9}", "clue": "\u05D1\u05D3 \u05E2\u05DD \u05E6\u05D9\u05D5\u05E8, \u05EA\u05DC\u05D5\u05D9 \u05E2\u05DC \u05EA\u05E8\u05DF", "w": 2 }, { "en": "Red", "he": "\u05D0\u05D3\u05D5\u05DD", "pic": "\u{1F534}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05EA\u05D5\u05EA \u05D5\u05E9\u05DC \u05E2\u05D2\u05D1\u05E0\u05D9\u05D9\u05D4", "w": 2 }, { "en": "Blue", "he": "\u05DB\u05D7\u05D5\u05DC", "pic": "\u{1F535}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05D4\u05E9\u05DE\u05D9\u05D9\u05DD \u05D5\u05E9\u05DC \u05D4\u05D9\u05DD", "w": 2 }, { "en": "Green", "he": "\u05D9\u05E8\u05D5\u05E7", "pic": "\u{1F7E2}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05D3\u05E9\u05D0 \u05D5\u05E9\u05DC \u05E2\u05DC\u05D9\u05DD", "w": 2 }, { "en": "Yellow", "he": "\u05E6\u05D4\u05D5\u05D1", "pic": "\u{1F7E1}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05D1\u05E0\u05E0\u05D4 \u05D5\u05E9\u05DC \u05E9\u05DE\u05E9", "w": 2 }, { "en": "Orange", "he": "\u05DB\u05EA\u05D5\u05DD", "pic": "\u{1F7E0}", "clue": "\u05D6\u05D4 \u05D4\u05E6\u05D1\u05E2 \u2014 \u05DC\u05D0 \u05D4\u05E4\u05E8\u05D9 \u05EA\u05E4\u05D5\u05D6", "w": 2 }, { "en": "Purple", "he": "\u05E1\u05D2\u05D5\u05DC", "pic": "\u{1F7E3}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05E2\u05E0\u05D1\u05D9\u05DD \u05D5\u05E9\u05DC \u05D7\u05E6\u05D9\u05DC", "w": 2 }, { "en": "Pink", "he": "\u05D5\u05E8\u05D5\u05D3", "pic": "\u{1F497}", "clue": "\u05E6\u05D1\u05E2 \u05D1\u05D4\u05D9\u05E8 \u05DB\u05DE\u05D5 \u05DE\u05E1\u05D8\u05D9\u05E7 \u05D0\u05D5 \u05E4\u05E8\u05D7", "w": 2 }, { "en": "Black", "he": "\u05E9\u05D7\u05D5\u05E8", "pic": "\u26AB", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05D4\u05DC\u05D9\u05DC\u05D4, \u05D4\u05D4\u05E4\u05DA \u05DE\u05DC\u05D1\u05DF", "w": 2 }, { "en": "White", "he": "\u05DC\u05D1\u05DF", "pic": "\u26AA", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05D7\u05DC\u05D1 \u05D5\u05E9\u05DC \u05E9\u05DC\u05D2", "w": 2 }, { "en": "Brown", "he": "\u05D7\u05D5\u05DD", "pic": "\u{1F90E}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05E9\u05D5\u05E7\u05D5\u05DC\u05D3 \u05D5\u05E9\u05DC \u05D0\u05D3\u05DE\u05D4", "w": 2 }, { "en": "Color", "he": "\u05E6\u05D1\u05E2", "pic": "\u{1F3A8}", "clue": "\u05D0\u05D3\u05D5\u05DD, \u05DB\u05D7\u05D5\u05DC, \u05D9\u05E8\u05D5\u05E7 \u2014 \u05DB\u05DC \u05D0\u05D7\u05D3 \u05D4\u05D5\u05D0...", "w": 2 }, { "en": "Apple", "he": "\u05EA\u05E4\u05D5\u05D7", "pic": "\u{1F34E}", "clue": "\u05E4\u05E8\u05D9 \u05E2\u05D2\u05D5\u05DC, \u05D0\u05D3\u05D5\u05DD \u05D0\u05D5 \u05D9\u05E8\u05D5\u05E7", "w": 2 }, { "en": "Banana", "he": "\u05D1\u05E0\u05E0\u05D4", "pic": "\u{1F34C}", "clue": "\u05E4\u05E8\u05D9 \u05D0\u05E8\u05D5\u05DA \u05D5\u05E6\u05D4\u05D5\u05D1", "w": 2 }, { "en": "Bread", "he": "\u05DC\u05D7\u05DD", "pic": "\u{1F35E}", "clue": "\u05D0\u05D5\u05DB\u05DC\u05D9\u05DD \u05D0\u05D5\u05EA\u05D5 \u05D1\u05DB\u05E8\u05D9\u05DA", "w": 2 }, { "en": "Milk", "he": "\u05D7\u05DC\u05D1", "pic": "\u{1F95B}", "clue": "\u05DE\u05E9\u05E7\u05D4 \u05DC\u05D1\u05DF \u05E9\u05E9\u05D5\u05EA\u05D9\u05DD \u05D1\u05D1\u05D5\u05E7\u05E8", "w": 2 }, { "en": "Juice", "he": "\u05DE\u05D9\u05E5", "pic": "\u{1F9C3}", "clue": "\u05DE\u05E9\u05E7\u05D4 \u05E9\u05E1\u05D5\u05D7\u05D8\u05D9\u05DD \u05DE\u05E4\u05D9\u05E8\u05D5\u05EA", "w": 2 }, { "en": "Cake", "he": "\u05E2\u05D5\u05D2\u05D4", "pic": "\u{1F382}", "clue": "\u05DE\u05EA\u05D5\u05E7\u05D4, \u05D0\u05D5\u05DB\u05DC\u05D9\u05DD \u05D1\u05D9\u05D5\u05DD \u05D4\u05D5\u05DC\u05D3\u05EA", "w": 2 }, { "en": "Egg", "he": "\u05D1\u05D9\u05E6\u05D4", "pic": "\u{1F95A}", "clue": "\u05DE\u05D2\u05D9\u05E2\u05D4 \u05DE\u05EA\u05E8\u05E0\u05D2\u05D5\u05DC\u05EA, \u05E2\u05D2\u05D5\u05DC\u05D4 \u05D5\u05DC\u05D1\u05E0\u05D4", "w": 2 }, { "en": "Cheese", "he": "\u05D2\u05D1\u05D9\u05E0\u05D4", "pic": "\u{1F9C0}", "clue": "\u05E2\u05E9\u05D5\u05D9\u05D4 \u05DE\u05D7\u05DC\u05D1, \u05E9\u05DE\u05D9\u05DD \u05D1\u05DB\u05E8\u05D9\u05DA", "w": 2 }, { "en": "Pizza", "he": "\u05E4\u05D9\u05E6\u05D4", "pic": "\u{1F355}", "clue": "\u05E2\u05D2\u05D5\u05DC\u05D4, \u05E2\u05DD \u05D2\u05D1\u05D9\u05E0\u05D4 \u05D5\u05E2\u05DD \u05EA\u05D5\u05E1\u05E4\u05D5\u05EA \u05DE\u05DC\u05DE\u05E2\u05DC\u05D4", "w": 2 }, { "en": "Chocolate", "he": "\u05E9\u05D5\u05E7\u05D5\u05DC\u05D3", "pic": "\u{1F36B}", "clue": "\u05DE\u05EA\u05D5\u05E7 \u05D5\u05D7\u05D5\u05DD, \u05DE\u05DB\u05D9\u05E0\u05D9\u05DD \u05DE\u05E7\u05D9\u05E7\u05D0\u05D5", "w": 2 }, { "en": "Food", "he": "\u05D0\u05D5\u05DB\u05DC", "pic": "\u{1F37D}\uFE0F", "clue": "\u05DB\u05DC \u05DE\u05D4 \u05E9\u05D0\u05D5\u05DB\u05DC\u05D9\u05DD \u05D1\u05D0\u05E8\u05D5\u05D7\u05D4", "w": 2 }, { "en": "Ice cream", "he": "\u05D2\u05DC\u05D9\u05D3\u05D4", "pic": "\u{1F366}", "clue": "\u05E7\u05D9\u05E0\u05D5\u05D7 \u05E7\u05E8 \u05D5\u05DE\u05EA\u05D5\u05E7 \u05D1\u05E7\u05D9\u05E5", "w": 2 }, { "en": "Crab", "he": "\u05E1\u05E8\u05D8\u05DF", "pic": "\u{1F980}", "clue": "\u05D7\u05D9 \u05D1\u05D7\u05D5\u05E3 \u05D5\u05D9\u05E9 \u05DC\u05D5 \u05E6\u05D1\u05EA\u05D5\u05EA", "w": 2 }, { "en": "Turtle", "he": "\u05E6\u05D1", "pic": "\u{1F422}", "clue": "\u05D9\u05E9 \u05DC\u05D5 \u05E9\u05E8\u05D9\u05D5\u05DF \u05E2\u05DC \u05D4\u05D2\u05D1", "w": 2 }, { "en": "Dolphin", "he": "\u05D3\u05D5\u05DC\u05E4\u05D9\u05DF", "pic": "\u{1F42C}", "clue": "\u05D7\u05D9\u05D4 \u05D7\u05DB\u05DE\u05D4 \u05E9\u05E9\u05D5\u05D7\u05D4 \u05D1\u05D9\u05DD \u05D5\u05DE\u05E7\u05E4\u05E6\u05EA", "w": 2 }, { "en": "Whale", "he": "\u05DC\u05D5\u05D5\u05D9\u05D9\u05EA\u05DF", "pic": "\u{1F40B}", "clue": "\u05D4\u05D7\u05D9\u05D4 \u05D4\u05DB\u05D9 \u05D2\u05D3\u05D5\u05DC\u05D4 \u05D1\u05D9\u05DD", "w": 2 }, { "en": "Octopus", "he": "\u05EA\u05DE\u05E0\u05D5\u05DF", "pic": "\u{1F419}", "clue": "\u05D9\u05E9 \u05DC\u05D5 \u05E9\u05DE\u05D5\u05E0\u05D4 \u05D6\u05E8\u05D5\u05E2\u05D5\u05EA", "w": 2 }, { "en": "School", "he": "\u05D1\u05D9\u05EA \u05E1\u05E4\u05E8", "pic": "\u{1F3EB}", "clue": "\u05D4\u05DE\u05E7\u05D5\u05DD \u05E9\u05D1\u05D5 \u05DC\u05D5\u05DE\u05D3\u05D9\u05DD", "w": 3 }, { "en": "Book", "he": "\u05E1\u05E4\u05E8", "pic": "\u{1F4DA}", "clue": "\u05E7\u05D5\u05E8\u05D0\u05D9\u05DD \u05D1\u05D5 \u05E1\u05D9\u05E4\u05D5\u05E8\u05D9\u05DD \u05D5\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9\u05DD", "w": 3 }, { "en": "Friend", "he": "\u05D7\u05D1\u05E8", "pic": "\u{1F9D1}\u200D\u{1F91D}\u200D\u{1F9D1}", "clue": "\u05DE\u05D9 \u05E9\u05D0\u05D5\u05D4\u05D1\u05D9\u05DD \u05DC\u05E9\u05D7\u05E7 \u05D5\u05DC\u05D3\u05D1\u05E8 \u05D0\u05D9\u05EA\u05D5", "w": 3 }, { "en": "Teacher", "he": "\u05DE\u05D5\u05E8\u05D4", "pic": "\u{1F469}\u200D\u{1F3EB}", "clue": "\u05DE\u05D9 \u05E9\u05DE\u05DC\u05DE\u05D3 \u05D1\u05DB\u05D9\u05EA\u05D4", "w": 3 }, { "en": "House", "he": "\u05D1\u05D9\u05EA", "pic": "\u{1F3E0}", "clue": "\u05D4\u05DE\u05E7\u05D5\u05DD \u05E9\u05D1\u05D5 \u05D2\u05E8\u05D9\u05DD", "w": 3 }, { "en": "Car", "he": "\u05DE\u05DB\u05D5\u05E0\u05D9\u05EA", "pic": "\u{1F697}", "clue": "\u05E0\u05D5\u05E1\u05E2\u05D9\u05DD \u05D1\u05D4 \u05E2\u05DC \u05D0\u05E8\u05D1\u05E2\u05D4 \u05D2\u05DC\u05D2\u05DC\u05D9\u05DD", "w": 3 }, { "en": "Street", "he": "\u05E8\u05D7\u05D5\u05D1", "pic": "\u{1F6E3}\uFE0F", "clue": "\u05D4\u05D3\u05E8\u05DA \u05E9\u05D1\u05D9\u05DF \u05D4\u05D1\u05EA\u05D9\u05DD", "w": 3 }, { "en": "City", "he": "\u05E2\u05D9\u05E8", "pic": "\u{1F306}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05D2\u05D3\u05D5\u05DC \u05E2\u05DD \u05D4\u05E8\u05D1\u05D4 \u05D1\u05E0\u05D9\u05D9\u05E0\u05D9\u05DD", "w": 3 }, { "en": "Student", "he": "\u05EA\u05DC\u05DE\u05D9\u05D3", "pic": "\u{1F9D1}\u200D\u{1F393}", "clue": "\u05DE\u05D9 \u05E9\u05DC\u05D5\u05DE\u05D3 \u05D1\u05D1\u05D9\u05EA \u05D4\u05E1\u05E4\u05E8", "w": 3 }, { "en": "Pencil", "he": "\u05E2\u05D9\u05E4\u05E8\u05D5\u05DF", "pic": "\u270F\uFE0F", "clue": "\u05DB\u05D5\u05EA\u05D1\u05D9\u05DD \u05D5\u05DE\u05D5\u05D7\u05E7\u05D9\u05DD \u05D0\u05D9\u05EA\u05D5", "w": 3 }, { "en": "Pen", "he": "\u05E2\u05D8", "pic": "\u{1F58A}\uFE0F", "clue": "\u05DB\u05D5\u05EA\u05D1\u05D9\u05DD \u05D0\u05D9\u05EA\u05D5 \u05D1\u05D3\u05D9\u05D5", "w": 3 }, { "en": "Bag", "he": "\u05EA\u05D9\u05E7", "pic": "\u{1F392}", "clue": "\u05E9\u05DE\u05D9\u05DD \u05D1\u05D5 \u05E1\u05E4\u05E8\u05D9\u05DD \u05DC\u05D1\u05D9\u05EA \u05D4\u05E1\u05E4\u05E8", "w": 3 }, { "en": "Chair", "he": "\u05DB\u05D9\u05E1\u05D0", "pic": "\u{1FA91}", "clue": "\u05E2\u05DC\u05D9\u05D5 \u05D9\u05D5\u05E9\u05D1\u05D9\u05DD", "w": 3 }, { "en": "Classroom", "he": "\u05DB\u05D9\u05EA\u05D4", "pic": "\u{1F6AA}", "clue": "\u05D4\u05D7\u05D3\u05E8 \u05D1\u05D1\u05D9\u05EA \u05D4\u05E1\u05E4\u05E8 \u05E9\u05D1\u05D5 \u05DC\u05D5\u05DE\u05D3\u05D9\u05DD", "w": 3 }, { "en": "Homework", "he": "\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA", "pic": "\u{1F4DD}", "clue": "\u05D4\u05E2\u05D1\u05D5\u05D3\u05D4 \u05E9\u05D4\u05DE\u05D5\u05E8\u05D4 \u05E0\u05D5\u05EA\u05DF \u05DC\u05E2\u05E9\u05D5\u05EA \u05D1\u05D1\u05D9\u05EA", "w": 3 }, { "en": "Notebook", "he": "\u05DE\u05D7\u05D1\u05E8\u05EA", "pic": "\u{1F4D3}", "clue": "\u05DE\u05D7\u05D1\u05E8\u05EA \u05DC\u05DB\u05EA\u05D9\u05D1\u05D4 \u05D1\u05E9\u05D9\u05E2\u05D5\u05E8", "w": 3 }, { "en": "Computer", "he": "\u05DE\u05D7\u05E9\u05D1", "pic": "\u{1F4BB}", "clue": "\u05DE\u05DB\u05D5\u05E0\u05D4 \u05DC\u05DC\u05DE\u05D9\u05D3\u05D4, \u05DC\u05DE\u05E9\u05D7\u05E7\u05D9\u05DD \u05D5\u05DC\u05E1\u05E8\u05D8\u05D9\u05DD", "w": 3 }, { "en": "Paper", "he": "\u05E0\u05D9\u05D9\u05E8", "pic": "\u{1F4C4}", "clue": "\u05D3\u05E3 \u05DC\u05D1\u05DF \u05E9\u05DB\u05D5\u05EA\u05D1\u05D9\u05DD \u05E2\u05DC\u05D9\u05D5", "w": 3 }, { "en": "Board", "he": "\u05DC\u05D5\u05D7", "pic": "\u{1F9D1}\u200D\u{1F3EB}", "clue": "\u05D4\u05DC\u05D5\u05D7 \u05D4\u05D2\u05D3\u05D5\u05DC \u05DE\u05DC\u05E4\u05E0\u05D9\u05DD \u05D1\u05DB\u05D9\u05EA\u05D4", "w": 3 }, { "en": "Door", "he": "\u05D3\u05DC\u05EA", "pic": "\u{1F6AA}", "clue": "\u05D3\u05E8\u05DA \u05D4\u05DB\u05E0\u05D9\u05E1\u05D4 \u05DC\u05D7\u05D3\u05E8 \u05D0\u05D5 \u05DC\u05D1\u05D9\u05EA", "w": 3 }, { "en": "Window", "he": "\u05D7\u05DC\u05D5\u05DF", "pic": "\u{1FA9F}", "clue": "\u05E4\u05D5\u05EA\u05D7\u05D9\u05DD \u05D0\u05D5\u05EA\u05D5 \u05DB\u05D3\u05D9 \u05DC\u05E8\u05D0\u05D5\u05EA \u05D4\u05D7\u05D5\u05E6\u05D4", "w": 3 }, { "en": "Room", "he": "\u05D7\u05D3\u05E8", "pic": "\u{1F6CF}\uFE0F", "clue": "\u05D7\u05DC\u05E7 \u05E1\u05D2\u05D5\u05E8 \u05D1\u05EA\u05D5\u05DA \u05D4\u05D1\u05D9\u05EA", "w": 3 }, { "en": "Kitchen", "he": "\u05DE\u05D8\u05D1\u05D7", "pic": "\u{1F373}", "clue": "\u05D4\u05D7\u05D3\u05E8 \u05E9\u05D1\u05D5 \u05DE\u05D1\u05E9\u05DC\u05D9\u05DD", "w": 3 }, { "en": "Bedroom", "he": "\u05D7\u05D3\u05E8 \u05E9\u05D9\u05E0\u05D4", "pic": "\u{1F6CC}", "clue": "\u05D4\u05D7\u05D3\u05E8 \u05E9\u05D1\u05D5 \u05D9\u05E9\u05E0\u05D9\u05DD", "w": 3 }, { "en": "Table", "he": "\u05E9\u05D5\u05DC\u05D7\u05DF", "pic": "\u{1F37D}\uFE0F", "clue": "\u05E2\u05DC\u05D9\u05D5 \u05D0\u05D5\u05DB\u05DC\u05D9\u05DD, \u05DB\u05D5\u05EA\u05D1\u05D9\u05DD \u05D0\u05D5 \u05DE\u05E9\u05D7\u05E7\u05D9\u05DD", "w": 3 }, { "en": "Bed", "he": "\u05DE\u05D9\u05D8\u05D4", "pic": "\u{1F6CF}\uFE0F", "clue": "\u05E2\u05DC\u05D9\u05D4 \u05D9\u05E9\u05E0\u05D9\u05DD \u05D1\u05DC\u05D9\u05DC\u05D4", "w": 3 }, { "en": "Lamp", "he": "\u05DE\u05E0\u05D5\u05E8\u05D4", "pic": "\u{1F4A1}", "clue": "\u05DE\u05D0\u05D9\u05E8\u05D4 \u05D0\u05EA \u05D4\u05D7\u05D3\u05E8", "w": 3 }, { "en": "Phone", "he": "\u05D8\u05DC\u05E4\u05D5\u05DF", "pic": "\u{1F4F1}", "clue": "\u05DE\u05EA\u05E7\u05E9\u05E8\u05D9\u05DD \u05D5\u05E9\u05D5\u05DC\u05D7\u05D9\u05DD \u05D0\u05D9\u05EA\u05D5 \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA", "w": 3 }, { "en": "Garden", "he": "\u05D2\u05D9\u05E0\u05D4", "pic": "\u{1F3E1}", "clue": "\u05DC\u05D9\u05D3 \u05D4\u05D1\u05D9\u05EA, \u05E2\u05DD \u05E4\u05E8\u05D7\u05D9\u05DD \u05D5\u05D3\u05E9\u05D0", "w": 3 }, { "en": "Bus", "he": "\u05D0\u05D5\u05D8\u05D5\u05D1\u05D5\u05E1", "pic": "\u{1F68C}", "clue": "\u05E8\u05DB\u05D1 \u05D2\u05D3\u05D5\u05DC \u05E9\u05DE\u05E1\u05D9\u05E2 \u05D4\u05E8\u05D1\u05D4 \u05D0\u05E0\u05E9\u05D9\u05DD", "w": 3 }, { "en": "Train", "he": "\u05E8\u05DB\u05D1\u05EA", "pic": "\u{1F686}", "clue": "\u05E0\u05D5\u05E1\u05E2\u05EA \u05E2\u05DC \u05E4\u05E1\u05D9\u05DD", "w": 3 }, { "en": "Bicycle", "he": "\u05D0\u05D5\u05E4\u05E0\u05D9\u05D9\u05DD", "pic": "\u{1F6B2}", "clue": "\u05E9\u05E0\u05D9 \u05D2\u05DC\u05D2\u05DC\u05D9\u05DD, \u05E8\u05D5\u05DB\u05D1\u05D9\u05DD \u05E2\u05DD \u05E8\u05D2\u05DC\u05D9\u05D9\u05DD", "w": 3 }, { "en": "Airplane", "he": "\u05DE\u05D8\u05D5\u05E1", "pic": "\u2708\uFE0F", "clue": "\u05D8\u05E1 \u05D1\u05E9\u05DE\u05D9\u05D9\u05DD \u05DE\u05DE\u05D3\u05D9\u05E0\u05D4 \u05DC\u05DE\u05D3\u05D9\u05E0\u05D4", "w": 3 }, { "en": "Taxi", "he": "\u05DE\u05D5\u05E0\u05D9\u05EA", "pic": "\u{1F695}", "clue": "\u05DE\u05DB\u05D5\u05E0\u05D9\u05EA \u05E9\u05DE\u05E9\u05DC\u05DE\u05D9\u05DD \u05DC\u05E0\u05D4\u05D2 \u05E9\u05DC\u05D4", "w": 3 }, { "en": "Shop", "he": "\u05D7\u05E0\u05D5\u05EA", "pic": "\u{1F6CD}\uFE0F", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E9\u05E7\u05D5\u05E0\u05D9\u05DD \u05D1\u05D5 \u05D3\u05D1\u05E8\u05D9\u05DD", "w": 3 }, { "en": "Park", "he": "\u05E4\u05D0\u05E8\u05E7", "pic": "\u{1F3DE}\uFE0F", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E4\u05EA\u05D5\u05D7 \u05E2\u05DD \u05D3\u05E9\u05D0 \u05D5\u05DE\u05E9\u05D7\u05E7\u05D9\u05DD", "w": 3 }, { "en": "Library", "he": "\u05E1\u05E4\u05E8\u05D9\u05D9\u05D4", "pic": "\u{1F4D6}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E2\u05DD \u05D4\u05E8\u05D1\u05D4 \u05E1\u05E4\u05E8\u05D9\u05DD \u05DC\u05D4\u05E9\u05D0\u05DC\u05D4", "w": 3 }, { "en": "Hospital", "he": "\u05D1\u05D9\u05EA \u05D7\u05D5\u05DC\u05D9\u05DD", "pic": "\u{1F3E5}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E9\u05D4\u05D5\u05DC\u05DB\u05D9\u05DD \u05D0\u05DC\u05D9\u05D5 \u05DB\u05E9\u05D7\u05D5\u05DC\u05D9\u05DD", "w": 3 }, { "en": "Castle", "he": "\u05D8\u05D9\u05E8\u05D4", "pic": "\u{1F3F0}", "clue": "\u05D1\u05D9\u05EA \u05E2\u05E0\u05E7 \u05E9\u05DC \u05DE\u05DC\u05DA \u05D5\u05E9\u05DC \u05DE\u05DC\u05DB\u05D4", "w": 3 }, { "en": "King", "he": "\u05DE\u05DC\u05DA", "pic": "\u{1F934}", "clue": "\u05D4\u05E9\u05DC\u05D9\u05D8 \u05E9\u05DC \u05D4\u05DE\u05DE\u05DC\u05DB\u05D4", "w": 3 }, { "en": "Queen", "he": "\u05DE\u05DC\u05DB\u05D4", "pic": "\u{1F478}", "clue": "\u05D4\u05E9\u05DC\u05D9\u05D8\u05D4 \u05E9\u05DC \u05D4\u05DE\u05DE\u05DC\u05DB\u05D4", "w": 3 }, { "en": "Magic", "he": "\u05E7\u05E1\u05DD", "pic": "\u2728", "clue": "\u05D3\u05D1\u05E8\u05D9\u05DD \u05DE\u05D9\u05D5\u05D7\u05D3\u05D9\u05DD \u05E9\u05E7\u05D5\u05E8\u05D9\u05DD \u05D1\u05E1\u05D9\u05E4\u05D5\u05E8\u05D9 \u05E4\u05DC\u05D0", "w": 3 }, { "en": "Clock", "he": "\u05E9\u05E2\u05D5\u05DF", "pic": "\u23F0", "clue": "\u05DE\u05E8\u05D0\u05D4 \u05DC\u05E0\u05D5 \u05DE\u05D4 \u05D4\u05E9\u05E2\u05D4", "w": 3 }, { "en": "Key", "he": "\u05DE\u05E4\u05EA\u05D7", "pic": "\u{1F511}", "clue": "\u05E4\u05D5\u05EA\u05D7\u05D9\u05DD \u05D0\u05D9\u05EA\u05D5 \u05D3\u05DC\u05EA", "w": 3 }, { "en": "Star", "he": "\u05DB\u05D5\u05DB\u05D1", "pic": "\u2B50", "clue": "\u05E0\u05D5\u05E6\u05E5 \u05D1\u05E9\u05DE\u05D9\u05D9\u05DD \u05D1\u05DC\u05D9\u05DC\u05D4", "w": 4 }, { "en": "Moon", "he": "\u05D9\u05E8\u05D7", "pic": "\u{1F319}", "clue": "\u05DE\u05D0\u05D9\u05E8 \u05D1\u05DC\u05D9\u05DC\u05D4 \u05D5\u05DE\u05E7\u05D9\u05E3 \u05D0\u05EA \u05DB\u05D3\u05D5\u05E8 \u05D4\u05D0\u05E8\u05E5", "w": 4 }, { "en": "Planet", "he": "\u05DB\u05D5\u05DB\u05D1 \u05DC\u05DB\u05EA", "pic": "\u{1FA90}", "clue": "\u05DB\u05DE\u05D5 \u05DB\u05D3\u05D5\u05E8 \u05D4\u05D0\u05E8\u05E5 \u05D0\u05D5 \u05DE\u05D0\u05D3\u05D9\u05DD", "w": 4 }, { "en": "Rocket", "he": "\u05E8\u05E7\u05D8\u05D4", "pic": "\u{1F680}", "clue": "\u05E2\u05D5\u05DC\u05D4 \u05DC\u05E9\u05DE\u05D9\u05D9\u05DD \u05E2\u05DD \u05D0\u05E9 \u05DE\u05DC\u05DE\u05D8\u05D4", "w": 4 }, { "en": "Space", "he": "\u05D7\u05DC\u05DC", "pic": "\u{1F30C}", "clue": "\u05DB\u05DC \u05DE\u05D4 \u05E9\u05DE\u05E2\u05DC \u05D4\u05E9\u05DE\u05D9\u05D9\u05DD, \u05D1\u05D9\u05DF \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD", "w": 4 }, { "en": "Alien", "he": "\u05D7\u05D9\u05D9\u05D6\u05E8", "pic": "\u{1F47D}", "clue": "\u05D9\u05E6\u05D5\u05E8 \u05E9\u05D4\u05D2\u05D9\u05E2 \u05DE\u05DB\u05D5\u05DB\u05D1 \u05D0\u05D7\u05E8", "w": 4 }, { "en": "Sun", "he": "\u05E9\u05DE\u05E9", "pic": "\u2600\uFE0F", "clue": "\u05DE\u05D0\u05D9\u05E8\u05D4 \u05D1\u05D9\u05D5\u05DD \u05D5\u05DE\u05D7\u05DE\u05DE\u05EA \u05D0\u05D5\u05EA\u05E0\u05D5", "w": 4 }, { "en": "Robot", "he": "\u05E8\u05D5\u05D1\u05D5\u05D8", "pic": "\u{1F916}", "clue": "\u05DE\u05DB\u05D5\u05E0\u05D4 \u05E9\u05E0\u05E8\u05D0\u05D9\u05EA \u05E7\u05E6\u05EA \u05DB\u05DE\u05D5 \u05D0\u05D3\u05DD", "w": 4 }, { "en": "Earth", "he": "\u05DB\u05D3\u05D5\u05E8 \u05D4\u05D0\u05E8\u05E5", "pic": "\u{1F30D}", "clue": "\u05D4\u05DB\u05D5\u05DB\u05D1 \u05E9\u05D1\u05D5 \u05D0\u05E0\u05D7\u05E0\u05D5 \u05D2\u05E8\u05D9\u05DD", "w": 4 }, { "en": "Astronaut", "he": "\u05D0\u05E1\u05D8\u05E8\u05D5\u05E0\u05D0\u05D5\u05D8", "pic": "\u{1F468}\u200D\u{1F680}", "clue": "\u05D0\u05D3\u05DD \u05E9\u05D8\u05E1 \u05DC\u05D7\u05DC\u05DC", "w": 4 }, { "en": "Galaxy", "he": "\u05D2\u05DC\u05E7\u05E1\u05D9\u05D4", "pic": "\u{1F300}", "clue": "\u05E7\u05D1\u05D5\u05E6\u05D4 \u05E2\u05E0\u05E7\u05D9\u05EA \u05E9\u05DC \u05DE\u05D9\u05DC\u05D9\u05D5\u05E0\u05D9 \u05DB\u05D5\u05DB\u05D1\u05D9\u05DD", "w": 4 }, { "en": "Spaceship", "he": "\u05D7\u05DC\u05DC\u05D9\u05EA", "pic": "\u{1F6F8}", "clue": "\u05DB\u05DC\u05D9 \u05E8\u05DB\u05D1 \u05E9\u05D8\u05E1 \u05D1\u05D7\u05DC\u05DC", "w": 4 }, { "en": "Comet", "he": "\u05E9\u05D1\u05D9\u05D8", "pic": "\u2604\uFE0F", "clue": "\u05DB\u05D5\u05DB\u05D1 \u05E2\u05DD \u05D6\u05E0\u05D1 \u05D0\u05D5\u05E8 \u05E9\u05D8\u05E1 \u05D1\u05E9\u05DE\u05D9\u05D9\u05DD", "w": 4 }, { "en": "One", "he": "\u05D0\u05D7\u05D3", "pic": "1\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 1", "w": 4 }, { "en": "Two", "he": "\u05E9\u05EA\u05D9\u05D9\u05DD", "pic": "2\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 2", "w": 4 }, { "en": "Three", "he": "\u05E9\u05DC\u05D5\u05E9", "pic": "3\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 3", "w": 4 }, { "en": "Four", "he": "\u05D0\u05E8\u05D1\u05E2", "pic": "4\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 4", "w": 4 }, { "en": "Five", "he": "\u05D7\u05DE\u05E9", "pic": "5\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 5", "w": 4 }, { "en": "Six", "he": "\u05E9\u05E9", "pic": "6\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 6", "w": 4 }, { "en": "Seven", "he": "\u05E9\u05D1\u05E2", "pic": "7\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 7", "w": 4 }, { "en": "Eight", "he": "\u05E9\u05DE\u05D5\u05E0\u05D4", "pic": "8\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 8", "w": 4 }, { "en": "Nine", "he": "\u05EA\u05E9\u05E2", "pic": "9\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 9", "w": 4 }, { "en": "Ten", "he": "\u05E2\u05E9\u05E8", "pic": "\u{1F51F}", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 10", "w": 4 }, { "en": "Number", "he": "\u05DE\u05E1\u05E4\u05E8", "pic": "\u{1F522}", "clue": "\u05D0\u05D7\u05D3, \u05E9\u05EA\u05D9\u05D9\u05DD, \u05E9\u05DC\u05D5\u05E9 \u05D4\u05DD...", "w": 4 }, { "en": "Day", "he": "\u05D9\u05D5\u05DD", "pic": "\u{1F4C5}", "clue": "\u05D4\u05D6\u05DE\u05DF \u05E9\u05D1\u05D5 \u05D9\u05E9 \u05D0\u05D5\u05E8 \u05E9\u05DE\u05E9", "w": 4 }, { "en": "Night", "he": "\u05DC\u05D9\u05DC\u05D4", "pic": "\u{1F303}", "clue": "\u05D4\u05D6\u05DE\u05DF \u05E9\u05D1\u05D5 \u05D7\u05E9\u05D5\u05DA \u05D5\u05D4\u05D9\u05E8\u05D7 \u05D1\u05D7\u05D5\u05E5", "w": 4 }, { "en": "Morning", "he": "\u05D1\u05D5\u05E7\u05E8", "pic": "\u{1F305}", "clue": "\u05EA\u05D7\u05D9\u05DC\u05EA \u05D4\u05D9\u05D5\u05DD, \u05D0\u05D7\u05E8\u05D9 \u05E9\u05E7\u05DE\u05D9\u05DD", "w": 4 }, { "en": "Today", "he": "\u05D4\u05D9\u05D5\u05DD", "pic": "\u{1F4CC}", "clue": "\u05D4\u05D9\u05D5\u05DD \u05D4\u05D6\u05D4, \u05DC\u05D0 \u05D0\u05EA\u05DE\u05D5\u05DC \u05D5\u05DC\u05D0 \u05DE\u05D7\u05E8", "w": 4 }, { "en": "Tomorrow", "he": "\u05DE\u05D7\u05E8", "pic": "\u23ED\uFE0F", "clue": "\u05D4\u05D9\u05D5\u05DD \u05E9\u05D9\u05D1\u05D5\u05D0 \u05D0\u05D7\u05E8\u05D9 \u05D4\u05D9\u05D5\u05DD", "w": 4 }, { "en": "Week", "he": "\u05E9\u05D1\u05D5\u05E2", "pic": "\u{1F4C6}", "clue": "\u05E9\u05D1\u05E2\u05D4 \u05D9\u05DE\u05D9\u05DD \u05D9\u05D7\u05D3", "w": 4 }, { "en": "Year", "he": "\u05E9\u05E0\u05D4", "pic": "\u{1F386}", "clue": "\u05E9\u05E0\u05D9\u05D9\u05DD-\u05E2\u05E9\u05E8 \u05D7\u05D5\u05D3\u05E9\u05D9\u05DD \u05D9\u05D7\u05D3", "w": 4 }, { "en": "Time", "he": "\u05D6\u05DE\u05DF", "pic": "\u23F1\uFE0F", "clue": "\u05DE\u05D4 \u05E9\u05D4\u05E9\u05E2\u05D5\u05DF \u05DE\u05D5\u05D3\u05D3", "w": 4 }, { "en": "Write", "he": "\u05DC\u05DB\u05EA\u05D5\u05D1", "pic": "\u270D\uFE0F", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05E2\u05D9\u05E4\u05E8\u05D5\u05DF \u05E2\u05DC \u05D3\u05E3", "w": 4 }, { "en": "See", "he": "\u05DC\u05E8\u05D0\u05D5\u05EA", "pic": "\u{1F440}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05D4\u05E2\u05D9\u05E0\u05D9\u05D9\u05DD", "w": 4 }, { "en": "Hear", "he": "\u05DC\u05E9\u05DE\u05D5\u05E2", "pic": "\u{1F442}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05D4\u05D0\u05D5\u05D6\u05E0\u05D9\u05D9\u05DD", "w": 4 }, { "en": "Come", "he": "\u05DC\u05D1\u05D5\u05D0", "pic": "\u{1F44B}", "clue": "\u05DC\u05D4\u05D2\u05D9\u05E2 \u05DC\u05DB\u05D0\u05DF, \u05D0\u05DC\u05D9\u05E0\u05D5", "w": 4 }, { "en": "Look", "he": "\u05DC\u05D4\u05E1\u05EA\u05DB\u05DC", "pic": "\u{1F441}\uFE0F", "clue": "\u05DC\u05DB\u05D5\u05D5\u05DF \u05D0\u05EA \u05D4\u05E2\u05D9\u05E0\u05D9\u05D9\u05DD \u05DC\u05DE\u05E9\u05D4\u05D5", "w": 4 }, { "en": "Like", "he": "\u05D0\u05D5\u05D4\u05D1", "pic": "\u{1F497}", "clue": "\u05DB\u05E9\u05DE\u05E9\u05D4\u05D5 \u05DE\u05D5\u05E6\u05D0 \u05D7\u05DF \u05D1\u05E2\u05D9\u05E0\u05D9\u05E0\u05D5", "w": 4 }, { "en": "Want", "he": "\u05DC\u05E8\u05E6\u05D5\u05EA", "pic": "\u{1F64F}", "clue": "\u05DB\u05E9\u05DE\u05DE\u05E9 \u05DE\u05E7\u05D5\u05D5\u05D9\u05DD \u05DC\u05E7\u05D1\u05DC \u05DE\u05E9\u05D4\u05D5", "w": 4 }, { "en": "Help", "he": "\u05DC\u05E2\u05D6\u05D5\u05E8", "pic": "\u{1F198}", "clue": "\u05DC\u05EA\u05EA \u05D9\u05D3 \u05DC\u05DE\u05D9\u05E9\u05D4\u05D5 \u05E9\u05E6\u05E8\u05D9\u05DA", "w": 4 }, { "en": "Find", "he": "\u05DC\u05DE\u05E6\u05D5\u05D0", "pic": "\u{1F50D}", "clue": "\u05DC\u05D2\u05DC\u05D5\u05EA \u05DE\u05E9\u05D4\u05D5 \u05E9\u05D7\u05D9\u05E4\u05E9\u05E0\u05D5", "w": 4 }, { "en": "Fly", "he": "\u05DC\u05E2\u05D5\u05E3", "pic": "\u{1F985}", "clue": "\u05DC\u05D6\u05D5\u05D6 \u05D1\u05D0\u05D5\u05D5\u05D9\u05E8 \u05DB\u05DE\u05D5 \u05E6\u05D9\u05E4\u05D5\u05E8", "w": 4 }, { "en": "New", "he": "\u05D7\u05D3\u05E9", "pic": "\u2728", "clue": "\u05DE\u05E9\u05D4\u05D5 \u05E9\u05E8\u05E7 \u05E2\u05DB\u05E9\u05D9\u05D5 \u05E7\u05D9\u05D1\u05DC\u05E0\u05D5, \u05DC\u05D0 \u05D9\u05E9\u05DF", "w": 4 }, { "en": "Old", "he": "\u05D9\u05E9\u05DF", "pic": "\u{1F4DC}", "clue": "\u05DE\u05E9\u05D4\u05D5 \u05E9\u05D4\u05D9\u05D4 \u05D4\u05E8\u05D1\u05D4 \u05D6\u05DE\u05DF, \u05D4\u05D4\u05E4\u05DA \u05DE\u05D7\u05D3\u05E9", "w": 4 }, { "en": "Fast", "he": "\u05DE\u05D4\u05D9\u05E8", "pic": "\u26A1", "clue": "\u05D6\u05D6 \u05D1\u05DE\u05D4\u05D9\u05E8\u05D5\u05EA, \u05D4\u05D4\u05E4\u05DA \u05DE\u05D0\u05D9\u05D8\u05D9", "w": 4 }, { "en": "Slow", "he": "\u05D0\u05D9\u05D8\u05D9", "pic": "\u{1F422}", "clue": "\u05D6\u05D6 \u05DC\u05D0\u05D8, \u05DB\u05DE\u05D5 \u05E6\u05D1", "w": 4 }, { "en": "Snow", "he": "\u05E9\u05DC\u05D2", "pic": "\u2744\uFE0F", "clue": "\u05D9\u05D5\u05E8\u05D3 \u05D1\u05D7\u05D5\u05E8\u05E3, \u05DC\u05D1\u05DF \u05D5\u05E7\u05E8", "w": 5 }, { "en": "Ice", "he": "\u05E7\u05E8\u05D7", "pic": "\u{1F9CA}", "clue": "\u05DE\u05D9\u05DD \u05E9\u05D4\u05E4\u05DB\u05D5 \u05DC\u05E7\u05E9\u05D9\u05DD \u05D5\u05E7\u05E8\u05D9\u05DD", "w": 5 }, { "en": "Cold", "he": "\u05E7\u05E8", "pic": "\u{1F976}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05D7\u05DD", "w": 5 }, { "en": "Jacket", "he": "\u05DE\u05E2\u05D9\u05DC", "pic": "\u{1F9E5}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05D1\u05D7\u05D5\u05E8\u05E3 \u05E2\u05DC \u05D4\u05D2\u05D5\u05E3", "w": 5 }, { "en": "Hat", "he": "\u05DB\u05D5\u05D1\u05E2", "pic": "\u{1F9E2}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05E2\u05DC \u05D4\u05E8\u05D0\u05E9", "w": 5 }, { "en": "Gloves", "he": "\u05DB\u05E4\u05E4\u05D5\u05EA", "pic": "\u{1F9E4}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05E2\u05DC \u05D4\u05D9\u05D3\u05D9\u05D9\u05DD \u05D1\u05E7\u05D5\u05E8", "w": 5 }, { "en": "Winter", "he": "\u05D7\u05D5\u05E8\u05E3", "pic": "\u26C4", "clue": "\u05D4\u05E2\u05D5\u05E0\u05D4 \u05D4\u05E7\u05E8\u05D4 \u05D1\u05E9\u05E0\u05D4", "w": 5 }, { "en": "Boots", "he": "\u05DE\u05D2\u05E4\u05D9\u05D9\u05DD", "pic": "\u{1F97E}", "clue": "\u05E0\u05D5\u05E2\u05DC\u05D9\u05DD \u05D1\u05D7\u05D5\u05E8\u05E3 \u05E2\u05DC \u05D4\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD", "w": 5 }, { "en": "Shirt", "he": "\u05D7\u05D5\u05DC\u05E6\u05D4", "pic": "\u{1F455}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05E2\u05DC \u05E4\u05DC\u05D2 \u05D4\u05D2\u05D5\u05E3 \u05D4\u05E2\u05DC\u05D9\u05D5\u05DF", "w": 5 }, { "en": "Pants", "he": "\u05DE\u05DB\u05E0\u05E1\u05D9\u05D9\u05DD", "pic": "\u{1F456}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05E2\u05DC \u05D4\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD", "w": 5 }, { "en": "Shoes", "he": "\u05E0\u05E2\u05DC\u05D9\u05D9\u05DD", "pic": "\u{1F45F}", "clue": "\u05E0\u05D5\u05E2\u05DC\u05D9\u05DD \u05E2\u05DC \u05D4\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD \u05DB\u05DC \u05D9\u05D5\u05DD", "w": 5 }, { "en": "Dress", "he": "\u05E9\u05DE\u05DC\u05D4", "pic": "\u{1F457}", "clue": "\u05D1\u05D2\u05D3 \u05E9\u05DC\u05DD \u05E9\u05DC\u05E8\u05D5\u05D1 \u05D1\u05E0\u05D5\u05EA \u05DC\u05D5\u05D1\u05E9\u05D5\u05EA", "w": 5 }, { "en": "Socks", "he": "\u05D2\u05E8\u05D1\u05D9\u05D9\u05DD", "pic": "\u{1F9E6}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05E2\u05DC \u05D4\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD \u05D1\u05EA\u05D5\u05DA \u05D4\u05E0\u05E2\u05DC\u05D9\u05D9\u05DD", "w": 5 }, { "en": "Coat", "he": "\u05DE\u05E2\u05D9\u05DC \u05D0\u05E8\u05D5\u05DA", "pic": "\u{1F9E5}", "clue": "\u05DE\u05E2\u05D9\u05DC \u05D0\u05E8\u05D5\u05DA \u05D1\u05DE\u05D9\u05D5\u05D7\u05D3 \u05DC\u05D9\u05DE\u05D9\u05DD \u05E7\u05E8\u05D9\u05DD", "w": 5 }, { "en": "Sweater", "he": "\u05E1\u05D5\u05D5\u05D3\u05E8", "pic": "\u{1F9F6}", "clue": "\u05D1\u05D2\u05D3 \u05D7\u05DD \u05E1\u05E8\u05D5\u05D2 \u05DC\u05D7\u05D5\u05E8\u05E3", "w": 5 }, { "en": "Umbrella", "he": "\u05DE\u05D8\u05E8\u05D9\u05D9\u05D4", "pic": "\u2602\uFE0F", "clue": "\u05E9\u05D5\u05DE\u05E8\u05EA \u05E2\u05DC\u05D9\u05E0\u05D5 \u05DE\u05D4\u05D2\u05E9\u05DD", "w": 5 }, { "en": "Rain", "he": "\u05D2\u05E9\u05DD", "pic": "\u{1F327}\uFE0F", "clue": "\u05DE\u05D9\u05DD \u05E9\u05D9\u05D5\u05E8\u05D3\u05D9\u05DD \u05DE\u05D4\u05E2\u05E0\u05E0\u05D9\u05DD", "w": 5 }, { "en": "Wind", "he": "\u05E8\u05D5\u05D7", "pic": "\u{1F4A8}", "clue": "\u05D0\u05D5\u05D5\u05D9\u05E8 \u05E9\u05D6\u05D6 \u05D5\u05DE\u05E8\u05D2\u05D9\u05E9\u05D9\u05DD \u05E2\u05DC \u05D4\u05E4\u05E0\u05D9\u05DD", "w": 5 }, { "en": "Cloud", "he": "\u05E2\u05E0\u05DF", "pic": "\u2601\uFE0F", "clue": "\u05DC\u05D1\u05DF \u05D0\u05D5 \u05D0\u05E4\u05D5\u05E8 \u05D1\u05E9\u05DE\u05D9\u05D9\u05DD", "w": 5 }, { "en": "Summer", "he": "\u05E7\u05D9\u05E5", "pic": "\u2600\uFE0F", "clue": "\u05D4\u05E2\u05D5\u05E0\u05D4 \u05D4\u05D7\u05DE\u05D4 \u05D1\u05E9\u05E0\u05D4", "w": 5 }, { "en": "Spring", "he": "\u05D0\u05D1\u05D9\u05D1", "pic": "\u{1F337}", "clue": "\u05D4\u05E2\u05D5\u05E0\u05D4 \u05E9\u05D1\u05D4 \u05D4\u05E4\u05E8\u05D7\u05D9\u05DD \u05E4\u05D5\u05E8\u05D7\u05D9\u05DD", "w": 5 }, { "en": "Autumn", "he": "\u05E1\u05EA\u05D9\u05D5", "pic": "\u{1F342}", "clue": "\u05D4\u05E2\u05D5\u05E0\u05D4 \u05E9\u05D1\u05D4 \u05D4\u05E2\u05DC\u05D9\u05DD \u05E0\u05D5\u05E9\u05E8\u05D9\u05DD", "w": 5 }, { "en": "Weather", "he": "\u05DE\u05D6\u05D2 \u05D0\u05D5\u05D5\u05D9\u05E8", "pic": "\u{1F326}\uFE0F", "clue": "\u05D7\u05DD, \u05E7\u05E8, \u05D2\u05E9\u05D5\u05DD \u05D0\u05D5 \u05E9\u05DE\u05E9\u05D9", "w": 5 }, { "en": "Hot", "he": "\u05D7\u05DD", "pic": "\u{1F975}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05E7\u05E8", "w": 5 }, { "en": "Warm", "he": "\u05D7\u05DE\u05D9\u05DD", "pic": "\u{1F60A}", "clue": "\u05DC\u05D0 \u05E7\u05E8 \u05D5\u05DC\u05D0 \u05DE\u05DE\u05E9 \u05D7\u05DD \u2014 \u05E0\u05E2\u05D9\u05DD", "w": 5 }, { "en": "Head", "he": "\u05E8\u05D0\u05E9", "pic": "\u{1F5E3}\uFE0F", "clue": "\u05D4\u05D7\u05DC\u05E7 \u05D4\u05E2\u05DC\u05D9\u05D5\u05DF \u05E9\u05DC \u05D4\u05D2\u05D5\u05E3", "w": 5 }, { "en": "Eye", "he": "\u05E2\u05D9\u05DF", "pic": "\u{1F441}\uFE0F", "clue": "\u05D1\u05D4 \u05E8\u05D5\u05D0\u05D9\u05DD", "w": 5 }, { "en": "Ear", "he": "\u05D0\u05D5\u05D6\u05DF", "pic": "\u{1F442}", "clue": "\u05D1\u05D4 \u05E9\u05D5\u05DE\u05E2\u05D9\u05DD", "w": 5 }, { "en": "Nose", "he": "\u05D0\u05E3", "pic": "\u{1F443}", "clue": "\u05D1\u05D5 \u05DE\u05E8\u05D9\u05D7\u05D9\u05DD", "w": 5 }, { "en": "Mouth", "he": "\u05E4\u05D4", "pic": "\u{1F444}", "clue": "\u05D1\u05D5 \u05DE\u05D3\u05D1\u05E8\u05D9\u05DD \u05D5\u05D0\u05D5\u05DB\u05DC\u05D9\u05DD", "w": 5 }, { "en": "Hand", "he": "\u05D9\u05D3", "pic": "\u270B", "clue": "\u05D1\u05D4 \u05D0\u05D5\u05D7\u05D6\u05D9\u05DD \u05D5\u05DB\u05D5\u05EA\u05D1\u05D9\u05DD", "w": 5 }, { "en": "Foot", "he": "\u05DB\u05E3 \u05E8\u05D2\u05DC", "pic": "\u{1F9B6}", "clue": "\u05D4\u05D7\u05DC\u05E7 \u05E9\u05E0\u05D5\u05D2\u05E2 \u05D1\u05E8\u05E6\u05E4\u05D4 \u05DB\u05E9\u05D4\u05D5\u05DC\u05DB\u05D9\u05DD", "w": 5 }, { "en": "Hair", "he": "\u05E9\u05D9\u05E2\u05E8", "pic": "\u{1F487}", "clue": "\u05E6\u05D5\u05DE\u05D7 \u05E2\u05DC \u05D4\u05E8\u05D0\u05E9", "w": 5 }, { "en": "Face", "he": "\u05E4\u05E0\u05D9\u05DD", "pic": "\u{1F603}", "clue": "\u05D4\u05D7\u05DC\u05E7 \u05D4\u05E7\u05D3\u05DE\u05D9 \u05E9\u05DC \u05D4\u05E8\u05D0\u05E9", "w": 5 }, { "en": "Body", "he": "\u05D2\u05D5\u05E3", "pic": "\u{1F9CD}", "clue": "\u05DB\u05DC \u05D4\u05D7\u05DC\u05E7\u05D9\u05DD \u05E9\u05DC\u05E0\u05D5 \u05D9\u05D7\u05D3", "w": 5 }, { "en": "Leg", "he": "\u05E8\u05D2\u05DC", "pic": "\u{1F9B5}", "clue": "\u05D1\u05D4 \u05D4\u05D5\u05DC\u05DB\u05D9\u05DD, \u05DE\u05E2\u05DC \u05DB\u05E3 \u05D4\u05E8\u05D2\u05DC", "w": 5 }, { "en": "Tired", "he": "\u05E2\u05D9\u05D9\u05E3", "pic": "\u{1F971}", "clue": "\u05DB\u05E9\u05E8\u05D5\u05E6\u05D9\u05DD \u05DC\u05D9\u05E9\u05D5\u05DF", "w": 5 }, { "en": "Hungry", "he": "\u05E8\u05E2\u05D1", "pic": "\u{1F60B}", "clue": "\u05DB\u05E9\u05E8\u05D5\u05E6\u05D9\u05DD \u05DC\u05D0\u05DB\u05D5\u05DC", "w": 5 }, { "en": "Thirsty", "he": "\u05E6\u05DE\u05D0", "pic": "\u{1F964}", "clue": "\u05DB\u05E9\u05E8\u05D5\u05E6\u05D9\u05DD \u05DC\u05E9\u05EA\u05D5\u05EA", "w": 5 }, { "en": "Scared", "he": "\u05DE\u05E4\u05D7\u05D3", "pic": "\u{1F631}", "clue": "\u05DB\u05E9\u05DE\u05E9\u05D4\u05D5 \u05DE\u05E4\u05D7\u05D9\u05D3 \u05D0\u05D5\u05EA\u05E0\u05D5", "w": 5 }, { "en": "Brave", "he": "\u05D0\u05DE\u05D9\u05E5", "pic": "\u{1F9B8}", "clue": "\u05DC\u05D0 \u05DE\u05E4\u05D7\u05D3 \u05DC\u05E2\u05D6\u05D5\u05E8 \u05D5\u05DC\u05D0 \u05DE\u05D5\u05D5\u05EA\u05E8", "w": 5 }, { "en": "Funny", "he": "\u05DE\u05E6\u05D7\u05D9\u05E7", "pic": "\u{1F602}", "clue": "\u05D2\u05D5\u05E8\u05DD \u05DC\u05E0\u05D5 \u05DC\u05E6\u05D7\u05D5\u05E7", "w": 5 }, { "en": "Nice", "he": "\u05E0\u05D7\u05DE\u05D3", "pic": "\u{1F60A}", "clue": "\u05D0\u05D3\u05DD \u05D8\u05D5\u05D1 \u05D5\u05E0\u05E2\u05D9\u05DD \u05DC\u05D0\u05D7\u05E8\u05D9\u05DD", "w": 5 }, { "en": "Clean", "he": "\u05E0\u05E7\u05D9", "pic": "\u{1F9FC}", "clue": "\u05D1\u05DC\u05D9 \u05DC\u05DB\u05DC\u05D5\u05DA, \u05D4\u05D4\u05E4\u05DA \u05DE\u05DE\u05DC\u05D5\u05DB\u05DC\u05DA", "w": 5 }, { "en": "Penguin", "he": "\u05E4\u05D9\u05E0\u05D2\u05D5\u05D5\u05D9\u05DF", "pic": "\u{1F427}", "clue": "\u05E6\u05D9\u05E4\u05D5\u05E8 \u05E9\u05D7\u05D5\u05E8\u05D4-\u05DC\u05D1\u05E0\u05D4 \u05E9\u05D7\u05D9\u05D4 \u05D1\u05E7\u05D5\u05E8", "w": 5 }];
 
-  // engio/mila-quest/js/config.js
+  // ../../workspace/engio/mila-quest/js/config.js
   var KEY = "milaQuestV2";
   var NEED_CLEAN = 3;
   var PTS = [100, 80, 60, 40];
   var HEROES = [
-    { name: "\u05DE\u05D9\u05E7\u05D9", file: "mini/character-male-a.glb" },
-    { name: "\u05E0\u05D5\u05E2\u05D4", file: "mini/character-female-b.glb" },
-    { name: "\u05EA\u05DE\u05E8", file: "mini/character-female-c.glb" }
+    { name: "\u05DC\u05D9\u05D0\u05DD", file: "heroes/hero-liam.glb" },
+    { name: "\u05DE\u05D0\u05D9\u05D4", file: "heroes/hero-maya.glb" },
+    { name: "\u05E0\u05D5\u05D1\u05D4", file: "heroes/hero-nova.glb" }
   ];
   var BOSSES = [
     { name: "\u05E9\u05D5\u05DE\u05E8 \u05D4\u05D2'\u05D5\u05E0\u05D2\u05DC", file: "nature/tree_detailed.glb", height: 3.4, animated: false },
-    { name: "\u05E7\u05E4\u05D8\u05DF \u05D4\u05E4\u05D9\u05E8\u05D0\u05D8\u05D9\u05DD", file: "pirate/ship-pirate-small.glb", height: 2.6, animated: false },
-    { name: "\u05D4\u05E7\u05D5\u05E1\u05DD \u05D4\u05E9\u05D5\u05DE\u05E8", file: "mini/character-knight.glb", height: 2.5, animated: true },
-    { name: "\u05E8\u05D5\u05D1\u05D5\u05D8 \u05D4\u05D7\u05DC\u05DC", file: "mini/character-robot.glb", height: 2.5, animated: true },
+    { name: "\u05E7\u05E4\u05D8\u05DF \u05D4\u05E4\u05D9\u05E8\u05D0\u05D8\u05D9\u05DD", file: "heroes/boss-pirate.glb", height: 2.55, animated: true },
+    { name: "\u05D4\u05E7\u05D5\u05E1\u05DD \u05D4\u05E9\u05D5\u05DE\u05E8", file: "heroes/boss-wizard.glb", height: 2.55, animated: true },
+    { name: "\u05D7\u05D9\u05D9\u05DC \u05D4\u05D7\u05DC\u05DC", file: "heroes/boss-soldier.glb", height: 2.55, animated: true },
     { name: "\u05DE\u05DC\u05DB\u05EA \u05D4\u05E7\u05E8\u05D7", file: "holiday/snowman-hat.glb", height: 2.6, animated: false }
   ];
   var ST = [
-    [["\u05E8\u05D9\u05E6\u05D4 \u05D1\u05DE\u05E1\u05DC\u05D5\u05DC", "tr"], ["\u05D1\u05D7\u05D9\u05E8\u05EA \u05DE\u05D9\u05DC\u05D4", "pic"], ["\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", "build"], ["\u05D7\u05D9\u05D3\u05EA \u05DE\u05D9\u05DC\u05D9\u05DD", "match"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]],
-    [["\u05E9\u05D9\u05D8 \u05D1\u05E1\u05E4\u05D9\u05E0\u05D4", "tr"], ["\u05D6\u05D9\u05D4\u05D5\u05D9 \u05EA\u05DE\u05D5\u05E0\u05D5\u05EA", "pic"], ["\u05E6\u05DC\u05D9\u05DC\u05D4 \u05D1\u05DE\u05D9\u05DD", "let"], ["\u05D4\u05EA\u05D0\u05DE\u05EA \u05DE\u05D9\u05DC\u05D9\u05DD", "match"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]],
-    [["\u05E8\u05D9\u05E6\u05D4 \u05E2\u05DC \u05D2\u05D2\u05D5\u05EA", "tr"], ["\u05D4\u05E9\u05DC\u05DE\u05EA \u05DE\u05D9\u05DC\u05D9\u05DD", "let"], ["\u05D6\u05D9\u05DB\u05E8\u05D5\u05DF \u05DE\u05D9\u05DC\u05D9\u05DD", "memory"], ["\u05D4\u05EA\u05D0\u05DE\u05D4 \u05DC\u05D4\u05E7\u05E9\u05E8", "rev"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]],
-    [["\u05D8\u05D9\u05E1\u05D4 \u05D1\u05D7\u05DC\u05DC\u05D9\u05EA", "tr"], ["\u05D1\u05D7\u05D9\u05E8\u05D4 \u05DE\u05D4\u05D9\u05E8\u05D4", "pic"], ["\u05DE\u05D9\u05DC\u05D9\u05DD \u05D5\u05D4\u05D2\u05D9\u05D9\u05D4", "rev"], ["\u05D1\u05E0\u05D9\u05D9\u05EA \u05DE\u05D9\u05DC\u05D9\u05DD", "build"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]],
-    [["\u05D2\u05DC\u05D9\u05E9\u05D4 \u05D1\u05E9\u05DC\u05D2", "tr"], ["\u05D4\u05EA\u05D0\u05DE\u05EA \u05EA\u05DE\u05D5\u05E0\u05D5\u05EA", "pic"], ["\u05D4\u05E9\u05DC\u05DE\u05EA \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", "let"], ["\u05D7\u05D9\u05D3\u05EA \u05D0\u05D5\u05E6\u05E8", "memory"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]]
+    [["\u05EA\u05E8\u05D2\u05D5\u05DD \u05DC\u05E2\u05D1\u05E8\u05D9\u05EA", "tr"], ["\u05D4\u05D0\u05D6\u05E0\u05D4 \u05D5\u05E4\u05D9\u05E8\u05D5\u05E9", "rev"], ["\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", "build"], ["\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4", "let"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]],
+    [["\u05EA\u05E8\u05D2\u05D5\u05DD \u05E2\u05DC \u05D4\u05E1\u05D9\u05E4\u05D5\u05DF", "tr"], ["\u05D4\u05D0\u05D6\u05E0\u05D4 \u05D5\u05E4\u05D9\u05E8\u05D5\u05E9", "rev"], ["\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4", "let"], ["\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", "build"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]],
+    [["\u05EA\u05E8\u05D2\u05D5\u05DD \u05E2\u05DC \u05D4\u05D2\u05D2\u05D5\u05EA", "tr"], ["\u05D4\u05D0\u05D6\u05E0\u05D4 \u05D5\u05E4\u05D9\u05E8\u05D5\u05E9", "rev"], ["\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4", "let"], ["\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", "build"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]],
+    [["\u05EA\u05E8\u05D2\u05D5\u05DD \u05D1\u05D7\u05DC\u05DC", "tr"], ["\u05D4\u05D0\u05D6\u05E0\u05D4 \u05D5\u05E4\u05D9\u05E8\u05D5\u05E9", "rev"], ["\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", "build"], ["\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4", "let"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]],
+    [["\u05EA\u05E8\u05D2\u05D5\u05DD \u05D1\u05E9\u05DC\u05D2", "tr"], ["\u05D4\u05D0\u05D6\u05E0\u05D4 \u05D5\u05E4\u05D9\u05E8\u05D5\u05E9", "rev"], ["\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4", "let"], ["\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", "build"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]]
   ];
   var WORLDS = [
     {
@@ -26015,14 +27161,454 @@
     { id: "library", name: "\u05E1\u05E4\u05E8\u05E0\u05D9\u05DD", desc: "\u05D1\u05D9\u05E7\u05E8\u05EA\u05DD \u05D1\u05E1\u05E4\u05E8\u05D9\u05D9\u05EA \u05D4\u05DE\u05D9\u05DC\u05D9\u05DD \u05D4\u05D0\u05D1\u05D5\u05D3\u05D5\u05EA" }
   ];
   var INTRO = [
-    "\u05EA\u05E8\u05D2\u05DE\u05D5 \u05DE\u05D9\u05DC\u05D4 \u05DE\u05E2\u05D1\u05E8\u05D9\u05EA \u05DC\u05D0\u05E0\u05D2\u05DC\u05D9\u05EA \u05D5\u05E8\u05E6\u05D5 \u05D0\u05DC \u05D4\u05E9\u05E2\u05E8 \u05D4\u05E0\u05DB\u05D5\u05DF. \u05E7\u05E4\u05E6\u05D5 \u05DE\u05E2\u05DC \u05D4\u05D2\u05D6\u05E2\u05D9\u05DD!",
-    "\u05D6\u05D4\u05D5 \u05D0\u05EA \u05D4\u05EA\u05DE\u05D5\u05E0\u05D4 \u05D5\u05D1\u05D7\u05E8\u05D5 \u05D0\u05EA \u05D4\u05DE\u05D9\u05DC\u05D4. \u05D6\u05D4\u05E8\u05D5 \u05DE\u05D7\u05D1\u05D9\u05D5\u05EA \u05E2\u05DC \u05D4\u05DE\u05D6\u05D7!",
-    "\u05D4\u05E9\u05DC\u05D9\u05DE\u05D5 \u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4 \u05D0\u05D5 \u05D4\u05D0\u05D6\u05D9\u05E0\u05D5 \u05DC\u05DE\u05D9\u05DC\u05D4. \u05D4\u05E2\u05D9\u05E8 \u05D4\u05E7\u05E1\u05D5\u05DE\u05D4 \u05DE\u05D7\u05DB\u05D4!",
-    "\u05E9\u05D5\u05DE\u05E2\u05D9\u05DD \u05D0\u05EA \u05D4\u05DE\u05D9\u05DC\u05D4 \u05D1\u05D0\u05E0\u05D2\u05DC\u05D9\u05EA \u05D5\u05D1\u05D5\u05D7\u05E8\u05D9\u05DD \u05EA\u05E8\u05D2\u05D5\u05DD. \u05D4\u05EA\u05D7\u05DE\u05E7\u05D5 \u05DE\u05DE\u05D8\u05D0\u05D5\u05E8\u05D9\u05DD!",
-    "\u05DB\u05DC \u05E1\u05D5\u05D2\u05D9 \u05D4\u05E9\u05D0\u05DC\u05D5\u05EA \u05E2\u05DC \u05D3\u05E8\u05DA \u05D4\u05E7\u05E8\u05D7 \u05D4\u05D7\u05DC\u05E7\u05D4. \u05DE\u05DC\u05DB\u05EA \u05D4\u05E7\u05E8\u05D7 \u05D1\u05E1\u05D5\u05E3 \u05D4\u05D3\u05E8\u05DA!"
+    "\u05EA\u05E8\u05D2\u05DE\u05D5 \u05DE\u05D9\u05DC\u05D4 \u05DE\u05E2\u05D1\u05E8\u05D9\u05EA \u05DC\u05D0\u05E0\u05D2\u05DC\u05D9\u05EA \u05D5\u05E8\u05E6\u05D5 \u05D0\u05DC \u05D4\u05E9\u05DC\u05D8 \u05D4\u05E0\u05DB\u05D5\u05DF. \u05E7\u05E4\u05E6\u05D5 \u05DE\u05E2\u05DC \u05D1\u05D5\u05E8\u05D5\u05EA \u05D5\u05DE\u05DB\u05E9\u05D5\u05DC\u05D9\u05DD!",
+    "\u05EA\u05E8\u05D2\u05DE\u05D5 \u05E2\u05DC \u05D4\u05E1\u05D9\u05E4\u05D5\u05DF \u05D5\u05E8\u05E6\u05D5 \u05D1\u05D9\u05DF \u05D4\u05E9\u05E2\u05E8\u05D9\u05DD. \u05D6\u05D4\u05E8\u05D5 \u05DE\u05E7\u05D9\u05E8\u05D5\u05EA \u05D5\u05D7\u05D1\u05D9\u05D5\u05EA \u05DE\u05EA\u05D2\u05DC\u05D2\u05DC\u05D5\u05EA!",
+    "\u05EA\u05E8\u05D2\u05DE\u05D5 \u05E2\u05DC \u05D2\u05D2\u05D5\u05EA \u05D4\u05E2\u05D9\u05E8 \u05D4\u05E7\u05E1\u05D5\u05DE\u05D4. \u05D4\u05DE\u05E1\u05DC\u05D5\u05DC \u05DE\u05EA\u05E2\u05E7\u05DC \u05D5\u05D4\u05EA\u05D0\u05D5\u05E8\u05D4 \u05DE\u05E9\u05EA\u05E0\u05D4!",
+    "\u05EA\u05E8\u05D2\u05DE\u05D5 \u05D1\u05D9\u05DF \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD. \u05D4\u05EA\u05D7\u05DE\u05E7\u05D5 \u05DE\u05DE\u05D8\u05D0\u05D5\u05E8\u05D9\u05DD \u05D5\u05DE\u05E7\u05D9\u05E8\u05D5\u05EA \u05D1\u05D0\u05D5\u05E8 \u05D4\u05D7\u05DC\u05DC!",
+    "\u05EA\u05E8\u05D2\u05DE\u05D5 \u05E2\u05DC \u05D3\u05E8\u05DA \u05D4\u05E7\u05E8\u05D7 \u05D4\u05D7\u05DC\u05E7\u05D4. \u05DE\u05DC\u05DB\u05EA \u05D4\u05E7\u05E8\u05D7 \u05DE\u05D7\u05DB\u05D4 \u05D1\u05E1\u05D5\u05E3 \u05D4\u05D3\u05E8\u05DA!"
   ];
 
-  // engio/mila-quest/js/game.js
+  // ../../workspace/engio/mila-quest/js/worldkit.js
+  var _right = new Vector3();
+  var _fwd = new Vector3();
+  var _up = new Vector3();
+  var _pos = new Vector3();
+  function shortAngle(a) {
+    while (a > Math.PI) a -= Math.PI * 2;
+    while (a < -Math.PI) a += Math.PI * 2;
+    return a;
+  }
+  function buildCourse(opt = {}) {
+    const step = 1;
+    const samples = [];
+    const turns = [];
+    const landmarks = {};
+    let x = 0, y = 0, z = 0, heading = 0;
+    function push(kind, pitch = 0) {
+      samples.push({ x, y, z, heading, kind, pitch });
+    }
+    function stepFwd() {
+      x += Math.sin(heading) * step;
+      z += -Math.cos(heading) * step;
+    }
+    function emitStraight(len, kind = "straight") {
+      const n = Math.max(1, Math.round(len / step));
+      for (let i = 0; i < n; i++) {
+        push(kind, 0);
+        stepFwd();
+      }
+    }
+    function emitCurve(len, dHeading) {
+      if (!landmarks.curve) landmarks.curve = samples.length * step + len * 0.45;
+      const n = Math.max(1, Math.round(len / step));
+      const dh = dHeading / n;
+      for (let i = 0; i < n; i++) {
+        heading += dh;
+        push("curve", 0);
+        stepFwd();
+      }
+    }
+    function emitHill(len, amp) {
+      landmarks.hill = samples.length * step + len * 0.5;
+      const n = Math.max(2, Math.round(len / step));
+      const baseY = y;
+      for (let i = 0; i < n; i++) {
+        const t = i / n;
+        const ny = baseY + amp * Math.sin(t * Math.PI);
+        const nny = baseY + amp * Math.sin(Math.min(1, (i + 1) / n) * Math.PI);
+        const pitch = Math.atan2(nny - ny, step);
+        y = ny;
+        push("hill", pitch);
+        stepFwd();
+      }
+      y = baseY;
+    }
+    function emitTurn(dir) {
+      const sEnter = samples.length * step;
+      emitStraight(8, "straight");
+      const radius = 4.6;
+      const arcLen = radius * Math.PI * 0.5;
+      const n = Math.max(12, Math.round(arcLen / step));
+      const startH = heading;
+      const rx = Math.cos(heading), rz = Math.sin(heading);
+      const cx = x + dir * rx * radius;
+      const cz = z + dir * rz * radius;
+      landmarks.turn = samples.length * step + arcLen * 0.4;
+      for (let i = 1; i <= n; i++) {
+        const t = i / n;
+        const h = startH + dir * (Math.PI / 2) * t;
+        heading = h;
+        x = cx - dir * Math.cos(h) * radius;
+        z = cz - dir * Math.sin(h) * radius;
+        push("turn", 0);
+      }
+      const sExit = samples.length * step;
+      turns.push({
+        sEnter,
+        sApex: landmarks.turn,
+        sExit,
+        dir,
+        committed: false
+      });
+      emitStraight(8, "straight");
+    }
+    const turnDir = opt.turnDir < 0 ? -1 : 1;
+    const curveA = opt.curve != null ? opt.curve : 0.85;
+    emitStraight(20);
+    emitCurve(32, -curveA);
+    emitStraight(12);
+    emitHill(38, opt.hillAmp != null ? opt.hillAmp : 4);
+    emitStraight(10);
+    emitTurn(turnDir);
+    emitStraight(14);
+    if (opt.causeway) {
+      landmarks.causeway = samples.length * step + 14;
+      emitStraight(48, "causeway");
+    }
+    emitCurve(24, curveA * 0.9);
+    emitStraight(90);
+    while (samples.length * step < 520) emitStraight(20);
+    return {
+      samples,
+      step,
+      turns,
+      landmarks,
+      length: samples.length * step
+    };
+  }
+  function pathAt(course, s) {
+    if (!course || !course.samples.length) {
+      return { x: 0, y: 0, z: -s, heading: 0, kind: "straight", pitch: 0 };
+    }
+    const samples = course.samples;
+    const max = samples.length - 1;
+    const u = Math.max(0, Math.min(max - 1e-3, s / course.step));
+    const i = Math.floor(u);
+    const f = u - i;
+    const a = samples[i];
+    const b = samples[i + 1] || a;
+    return {
+      x: a.x + (b.x - a.x) * f,
+      y: a.y + (b.y - a.y) * f,
+      z: a.z + (b.z - a.z) * f,
+      heading: a.heading + shortAngle(b.heading - a.heading) * f,
+      kind: a.kind,
+      pitch: a.pitch + (b.pitch - a.pitch) * f
+    };
+  }
+  function pathFrame(course, s) {
+    const p = pathAt(course, s);
+    _fwd.set(Math.sin(p.heading), 0, -Math.cos(p.heading));
+    _right.set(Math.cos(p.heading), 0, Math.sin(p.heading));
+    _up.set(0, 1, 0);
+    if (p.pitch) {
+      _fwd.applyAxisAngle(_right, p.pitch);
+      _up.crossVectors(_right, _fwd).normalize();
+    }
+    _pos.set(p.x, p.y, p.z);
+    return {
+      x: p.x,
+      y: p.y,
+      z: p.z,
+      heading: p.heading,
+      pitch: p.pitch,
+      kind: p.kind,
+      pos: _pos.clone(),
+      fwd: _fwd.clone(),
+      right: _right.clone(),
+      up: _up.clone()
+    };
+  }
+  function worldOnPath(course, s, laneOff = 0, yOff = 0) {
+    const f = pathFrame(course, s);
+    return f.pos.addScaledVector(f.right, laneOff).addScaledVector(f.up, yOff);
+  }
+  function makeStoneTexture() {
+    const c = document.createElement("canvas");
+    c.width = 256;
+    c.height = 256;
+    const ctx = c.getContext("2d");
+    ctx.fillStyle = "#4e483e";
+    ctx.fillRect(0, 0, 256, 256);
+    const cols = ["#8d8676", "#7c7568", "#9a927f", "#6e685c", "#867e6f", "#a39884", "#746c60"];
+    const ts = 32;
+    for (let y = 0; y < 8; y++) {
+      const ox = y % 2 * 16;
+      for (let x = -1; x < 9; x++) {
+        const px2 = x * ts + ox, py2 = y * ts;
+        ctx.fillStyle = cols[(x + y * 3 + 13) % cols.length];
+        ctx.fillRect(px2 + 2, py2 + 2, ts - 4, ts - 4);
+        ctx.fillStyle = "rgba(255,240,210,0.16)";
+        ctx.fillRect(px2 + 3, py2 + 3, ts - 10, 5);
+        ctx.fillStyle = "rgba(20,16,10,0.22)";
+        ctx.fillRect(px2 + 4, py2 + ts - 8, ts - 8, 4);
+      }
+    }
+    ctx.strokeStyle = "#2e2820";
+    ctx.lineWidth = 3;
+    for (let y = 0; y < 8; y++) {
+      const ox = y % 2 * 16;
+      for (let x = -1; x < 9; x++) {
+        ctx.strokeRect(x * ts + ox + 1.5, y * ts + 1.5, ts - 3, ts - 3);
+      }
+    }
+    const tex = new CanvasTexture(c);
+    tex.wrapS = tex.wrapT = RepeatWrapping;
+    tex.repeat.set(1, 1);
+    tex.colorSpace = SRGBColorSpace;
+    tex.anisotropy = 8;
+    return tex;
+  }
+  function makeDirtTexture() {
+    const c = document.createElement("canvas");
+    c.width = 256;
+    c.height = 256;
+    const ctx = c.getContext("2d");
+    ctx.fillStyle = "#c4a05a";
+    ctx.fillRect(0, 0, 256, 256);
+    for (let i = 0; i < 1400; i++) {
+      const r = 150 + Math.random() * 70;
+      const g = 110 + Math.random() * 55;
+      const b = 48 + Math.random() * 40;
+      ctx.fillStyle = `rgba(${r | 0},${g | 0},${b | 0},${0.12 + Math.random() * 0.28})`;
+      ctx.beginPath();
+      ctx.ellipse(Math.random() * 256, Math.random() * 256, 1 + Math.random() * 4, 1 + Math.random() * 3, Math.random() * 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    const tex = new CanvasTexture(c);
+    tex.wrapS = tex.wrapT = RepeatWrapping;
+    tex.repeat.set(3, 8);
+    tex.colorSpace = SRGBColorSpace;
+    tex.anisotropy = 4;
+    return tex;
+  }
+  function makeSmoothTree(theme = "jungle") {
+    const g = new Group();
+    const pal = {
+      jungle: { trunk: 7028514, leaf: [3119692, 2390586, 3979370, 1993522] },
+      pirate: { trunk: 8016432, leaf: [3050327, 2062906, 12899434, 3840592] },
+      magic: { trunk: 5913192, leaf: [13134552, 9067216, 15769816, 7356608] },
+      space: { trunk: 3814520, leaf: [6979808, 10146047, 13148415, 5267656] },
+      ice: { trunk: 9086132, leaf: [15267583, 12969204, 16777215, 13691124] }
+    }[theme] || { trunk: 7028514, leaf: [3119692, 2390586, 3979370, 1993522] };
+    const h = 1.8 + Math.random() * 1.5;
+    const trunk = new Mesh(
+      new CylinderGeometry(0.08, 0.18, h, 8),
+      new MeshStandardMaterial({ color: pal.trunk, roughness: 0.86, metalness: 0.02, flatShading: false })
+    );
+    trunk.position.y = h / 2;
+    trunk.castShadow = true;
+    g.add(trunk);
+    const segs = 4 + (Math.random() * 2 | 0);
+    for (let i = 0; i < segs; i++) {
+      const r = 0.62 + Math.random() * 0.5;
+      const canopy = new Mesh(
+        new IcosahedronGeometry(r, 2),
+        new MeshStandardMaterial({
+          color: pal.leaf[i % pal.leaf.length],
+          roughness: 0.58,
+          metalness: 0.02,
+          flatShading: false
+        })
+      );
+      canopy.position.set((Math.random() - 0.5) * 0.5, h - 0.15 + i * 0.34, (Math.random() - 0.5) * 0.5);
+      canopy.scale.set(1.05, 0.78 + Math.random() * 0.22, 1.05);
+      canopy.castShadow = true;
+      g.add(canopy);
+    }
+    return g;
+  }
+  function makeMountains(color = 3832392, opt = {}) {
+    const group = new Group();
+    group.name = "mountains";
+    const base = new Color(color);
+    const n = opt.count || 12;
+    for (let i = 0; i < n; i++) {
+      const geo = new SphereGeometry(1, 28, 16, 0, Math.PI * 2, 0, Math.PI * 0.52);
+      const sx = 46 + i % 5 * 9;
+      const sy = 18 + i % 4 * 6;
+      const sz = 36 + i % 3 * 8;
+      geo.scale(sx, sy, sz);
+      const pos = geo.attributes.position;
+      const cols = new Float32Array(pos.count * 3);
+      const cTop = base.clone().lerp(new Color(16048836), 0.5);
+      const cBot = base.clone().multiplyScalar(0.38);
+      const tmp2 = new Color();
+      for (let v = 0; v < pos.count; v++) {
+        const y = pos.getY(v);
+        tmp2.copy(cBot).lerp(cTop, MathUtils.clamp((y + 10) / 28, 0, 1));
+        cols[v * 3] = tmp2.r;
+        cols[v * 3 + 1] = tmp2.g;
+        cols[v * 3 + 2] = tmp2.b;
+      }
+      geo.setAttribute("color", new BufferAttribute(cols, 3));
+      geo.computeVertexNormals();
+      const mat = new MeshStandardMaterial({
+        vertexColors: true,
+        roughness: 0.94,
+        metalness: 0,
+        flatShading: false,
+        fog: true
+      });
+      const m = new Mesh(geo, mat);
+      const ang = i / n * Math.PI * 2 + 0.18;
+      const dist = 200 + i % 5 * 26;
+      m.position.set(Math.cos(ang) * dist, -1.2, Math.sin(ang) * dist);
+      m.receiveShadow = true;
+      group.add(m);
+    }
+    return group;
+  }
+  function makeMist() {
+    const group = new Group();
+    group.name = "mist";
+    const c = document.createElement("canvas");
+    c.width = 128;
+    c.height = 128;
+    const ctx = c.getContext("2d");
+    const grd = ctx.createRadialGradient(64, 64, 8, 64, 64, 62);
+    grd.addColorStop(0, "rgba(255,232,210,0.72)");
+    grd.addColorStop(0.42, "rgba(255,220,190,0.32)");
+    grd.addColorStop(1, "rgba(255,214,170,0)");
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, 128, 128);
+    const tex = new CanvasTexture(c);
+    const mat = new MeshBasicMaterial({
+      map: tex,
+      transparent: true,
+      opacity: 0.88,
+      depthWrite: false,
+      blending: NormalBlending,
+      fog: false,
+      side: DoubleSide
+    });
+    for (let i = 0; i < 18; i++) {
+      const p = new Mesh(new PlaneGeometry(34, 12), mat);
+      if (i < 10) {
+        p.rotation.x = -Math.PI / 2;
+        p.position.set((i % 5 - 2) * 12, -4.6 - i % 4 * 0.8, -4 - i % 5 * 8);
+      } else {
+        p.rotation.y = i / 18 * Math.PI * 2;
+        p.position.set((i % 5 - 2) * 9, -3.4, -8 - i % 4 * 7);
+      }
+      group.add(p);
+    }
+    return group;
+  }
+  function sampleRuns(samples, pred) {
+    const runs = [];
+    let i = 0;
+    while (i < samples.length) {
+      if (pred && !pred(samples[i])) {
+        i++;
+        continue;
+      }
+      const from = i;
+      while (i < samples.length && (!pred || pred(samples[i]))) i++;
+      const to = Math.min(samples.length - 1, i);
+      if (to > from) runs.push([from, to]);
+    }
+    return runs;
+  }
+  function makeRibbonGeometry(course, opt = {}) {
+    const width = opt.width != null ? opt.width : 7.2;
+    const yLift = opt.yLift || 0;
+    const pred = opt.pred || null;
+    const xOffset = opt.xOffset || 0;
+    const vScale = opt.vScale != null ? opt.vScale : 0.28;
+    const uRepeat = opt.uRepeat != null ? opt.uRepeat : 1;
+    const samples = course.samples;
+    const positions = [];
+    const uvs = [];
+    const indices = [];
+    let base = 0;
+    const runs = sampleRuns(samples, pred);
+    for (const [from, to] of runs) {
+      const start = base;
+      for (let k = from; k <= to; k++) {
+        const p = samples[k];
+        const rx = Math.cos(p.heading), rz = Math.sin(p.heading);
+        const cx = p.x + rx * xOffset;
+        const cy = p.y + yLift;
+        const cz = p.z + rz * xOffset;
+        const hw = width * 0.5;
+        positions.push(cx - rx * hw, cy, cz - rz * hw);
+        positions.push(cx + rx * hw, cy, cz + rz * hw);
+        const v = (k - from) * vScale;
+        uvs.push(0, v, uRepeat, v);
+        base += 2;
+      }
+      const n = to - from + 1;
+      for (let k = 0; k < n - 1; k++) {
+        const i0 = start + k * 2;
+        indices.push(i0, i0 + 1, i0 + 2);
+        indices.push(i0 + 1, i0 + 3, i0 + 2);
+      }
+    }
+    const geo = new BufferGeometry();
+    if (!positions.length) {
+      geo.setAttribute("position", new Float32BufferAttribute([0, 0, 0, 0, 0, 0, 0, 0, 0], 3));
+      geo.setIndex([0, 1, 2]);
+      return geo;
+    }
+    geo.setAttribute("position", new Float32BufferAttribute(positions, 3));
+    geo.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+    geo.setIndex(indices);
+    geo.computeVertexNormals();
+    return geo;
+  }
+  function makeSkirtGeometry(course, opt = {}) {
+    const width = opt.width != null ? opt.width : 6.8;
+    const depth = opt.depth != null ? opt.depth : 2.6;
+    const pred = opt.pred || null;
+    const samples = course.samples;
+    const positions = [];
+    const uvs = [];
+    const indices = [];
+    let base = 0;
+    const runs = sampleRuns(samples, pred);
+    for (const [from, to] of runs) {
+      for (const side of [-1, 1]) {
+        const start = base;
+        for (let k = from; k <= to; k++) {
+          const p = samples[k];
+          const rx = Math.cos(p.heading), rz = Math.sin(p.heading);
+          const hw = width * 0.5 * side;
+          const x = p.x + rx * hw;
+          const z = p.z + rz * hw;
+          positions.push(x, p.y + 0.04, z);
+          positions.push(x, p.y - depth, z);
+          const v = (k - from) * 0.25;
+          uvs.push(0, v, 1, v);
+          base += 2;
+        }
+        const n = to - from + 1;
+        for (let k = 0; k < n - 1; k++) {
+          const i0 = start + k * 2;
+          if (side < 0) {
+            indices.push(i0, i0 + 1, i0 + 2);
+            indices.push(i0 + 1, i0 + 3, i0 + 2);
+          } else {
+            indices.push(i0, i0 + 2, i0 + 1);
+            indices.push(i0 + 1, i0 + 2, i0 + 3);
+          }
+        }
+      }
+    }
+    const geo = new BufferGeometry();
+    if (!positions.length) {
+      geo.setAttribute("position", new Float32BufferAttribute([0, 0, 0, 0, 0, 0, 0, 0, 0], 3));
+      geo.setIndex([0, 1, 2]);
+      return geo;
+    }
+    geo.setAttribute("position", new Float32BufferAttribute(positions, 3));
+    geo.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+    geo.setIndex(indices);
+    geo.computeVertexNormals();
+    return geo;
+  }
+
+  // ../../workspace/engio/mila-quest/js/game.js
   function hasWebGL() {
     try {
       const c = document.createElement("canvas");
@@ -26039,7 +27625,7 @@
   var MP = (p) => "./assets/models/" + p;
   var shuffle = (a) => a.map((x) => [Math.random(), x]).sort((p, q) => p[0] - q[0]).map((x) => x[1]);
   var esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-  var def = () => ({ prog: {}, hero: 0, coins: 0, stars: 0, notebook: {}, known: {}, best: 0, runs: 0, ach: [], free: false, muted: false });
+  var def = () => ({ prog: {}, hero: 0, coins: 0, stars: 0, notebook: {}, known: {}, best: 0, runs: 0, ach: [], free: false, muted: false, quality: "high" });
   var S;
   try {
     S = Object.assign(def(), JSON.parse(localStorage.getItem(KEY) || "{}"));
@@ -26187,16 +27773,25 @@
     };
   }
   var canvas = $("c");
-  var renderer = new WebGLRenderer({ canvas, antialias: true, powerPreference: "high-performance" });
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
-  renderer.setSize(innerWidth, innerHeight);
+  function isHigh() {
+    return S.quality !== "low";
+  }
+  var renderer = new WebGLRenderer({ canvas, antialias: isHigh(), powerPreference: "high-performance" });
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.toneMapping = ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.12;
-  renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = PCFSoftShadowMap;
+  function applyQuality() {
+    const hi = isHigh();
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, hi ? 1.5 : 1));
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.toneMappingExposure = hi ? 1.18 : 1.05;
+    renderer.shadowMap.enabled = hi;
+    const bq = $("btn-quality");
+    if (bq) bq.textContent = hi ? "\u2728 \u05D2\u05D1\u05D5\u05D4\u05D4" : "\u{1F4A1} \u05D7\u05E1\u05DB\u05D5\u05E0\u05D9\u05EA";
+  }
+  applyQuality();
   renderer.setClearColor(6473983);
-  var camera = new PerspectiveCamera(52, innerWidth / innerHeight, 0.1, 120);
+  var camera = new PerspectiveCamera(52, innerWidth / innerHeight, 0.1, 520);
   var mapScene = new Scene();
   var runScene = new Scene();
   mapScene.fog = new Fog(9357567, 22, 90);
@@ -26215,9 +27810,13 @@
     dir.shadow.camera.top = 22;
     dir.shadow.camera.bottom = -22;
     dir.name = "sun";
-    scene.add(hemi, dir);
+    const rim = new DirectionalLight(16769208, 1.08);
+    rim.position.set(-10, 9, -8);
+    rim.name = "rim";
+    scene.add(hemi, dir, rim);
     scene.add(dir.target);
-    return { hemi, dir };
+    scene.add(rim.target);
+    return { hemi, dir, rim };
   }
   function makeSky() {
     const c = document.createElement("canvas");
@@ -26228,7 +27827,7 @@
     tex.minFilter = LinearFilter;
     tex.magFilter = LinearFilter;
     const mesh = new Mesh(
-      new SphereGeometry(85, 20, 16),
+      new SphereGeometry(300, 24, 18),
       new MeshBasicMaterial({ map: tex, side: BackSide, depthWrite: false, fog: false })
     );
     mesh.name = "sky";
@@ -26251,29 +27850,22 @@
     ctx.fillRect(0, 0, c.width, c.height);
     mesh.material.map.needsUpdate = true;
   }
-  function addHills(scene, color) {
-    const group = new Group();
-    group.name = "hills";
-    for (let i = 0; i < 12; i++) {
-      const m = new Mesh(
-        new ConeGeometry(7 + i % 4 * 2.2, 5 + i % 3 * 2.4, 6),
-        new MeshStandardMaterial({ color, roughness: 1, flatShading: true })
-      );
-      const side = i < 6 ? -1 : 1;
-      m.position.set(side * (16 + i % 6 * 2.4), 1.2, -8 - i % 6 * 14);
-      m.receiveShadow = true;
-      group.add(m);
-    }
-    scene.add(group);
-    return group;
-  }
   var mapLights = addLights(mapScene);
   var runLights = addLights(runScene, WORLDS[0]);
+  var playerFill = new PointLight(16770756, 2.15, 20, 1.05);
+  playerFill.name = "playerFill";
+  runScene.add(playerFill);
+  var playerKey = new DirectionalLight(16774112, 0.98);
+  playerKey.name = "playerKey";
+  playerKey.position.set(2, 5, 6);
+  runScene.add(playerKey);
+  runScene.add(playerKey.target);
+  runLights.fill = playerFill;
+  runLights.key = playerKey;
   addEventListener("resize", () => {
     camera.aspect = innerWidth / innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
-    renderer.setSize(innerWidth, innerHeight);
+    applyQuality();
   });
   function normAsset(u) {
     try {
@@ -26342,10 +27934,47 @@
       if (o.isMesh) {
         o.castShadow = cast;
         o.receiveShadow = true;
-        if (o.material) {
-          o.material.side = FrontSide;
-        }
+        if (o.geometry && o.geometry.computeVertexNormals) o.geometry.computeVertexNormals();
+        const mats = [].concat(o.material || []);
+        mats.forEach((m) => {
+          if (!m) return;
+          m.side = FrontSide;
+          m.flatShading = false;
+          if (m.normalizeNormalScale) {
+          }
+          m.needsUpdate = true;
+        });
       }
+    });
+  }
+  function polishActorMaterials(root) {
+    root.traverse((o) => {
+      if (!o.isMesh) return;
+      const list = [].concat(o.material || []);
+      list.forEach((m) => {
+        if (!m || !m.color || m.map) return;
+        const n = (m.name || "").toLowerCase();
+        if (n.includes("skin")) {
+          m.color.setHex(15774860);
+          m.metalness = 0.06;
+          m.roughness = 0.58;
+        } else if (n === "face") {
+          m.color.setHex(16774108);
+          m.metalness = 0.04;
+          m.roughness = 0.5;
+        } else {
+          m.color.r = Math.pow(Math.max(m.color.r, 0), 0.6);
+          m.color.g = Math.pow(Math.max(m.color.g, 0), 0.6);
+          m.color.b = Math.pow(Math.max(m.color.b, 0), 0.6);
+          if (n.includes("gold")) {
+            m.metalness = 0.72;
+            m.roughness = 0.34;
+          } else {
+            m.metalness = Math.min(m.metalness ?? 0.4, 0.14);
+            m.roughness = Math.max(m.roughness ?? 0.5, 0.55);
+          }
+        }
+      });
     });
   }
   async function createActor(file, height, faceNegZ = true) {
@@ -26353,11 +27982,17 @@
       const gltf = await loadGLTF(file);
       const model = gltf.animations && gltf.animations.length ? clone(gltf.scene) : gltf.scene.clone(true);
       prepMeshes(model);
+      polishActorMaterials(model);
       normalize2(model, height);
       if (faceNegZ) model.rotation.y = Math.PI;
       const mixer = new AnimationMixer(model);
       const actions = {};
-      for (const clip of gltf.animations || []) actions[clip.name] = mixer.clipAction(clip);
+      for (const clip of gltf.animations || []) {
+        const act = mixer.clipAction(clip);
+        actions[clip.name] = act;
+        const short = clip.name.split("|").pop().toLowerCase().replace(/[^a-z0-9]/g, "");
+        if (!actions[short]) actions[short] = act;
+      }
       return { model, mixer, actions };
     } catch (e) {
       console.warn("model fail", file, e);
@@ -26383,24 +28018,41 @@
       return wrap;
     }
   }
+  function resolveClip(actor, name) {
+    if (!actor || !actor.actions) return null;
+    if (actor.actions[name]) return name;
+    const aliases = {
+      sprint: ["running_a", "running_b", "run", "running", "walk", "walkcarry"],
+      walk: ["walking_a", "walk"],
+      idle: ["idle", "unarmed_idle"],
+      jump: ["jump_full_short", "jump_start", "jump_full_long", "jump", "pickup"],
+      crouch: ["sit_floor_idle", "crouch", "slide", "sitdown", "sit"],
+      sit: ["sit_floor_idle", "sitdown", "sit"],
+      fall: ["hit_a", "hit_b", "death_a", "recievehit", "receivehit", "defeat", "hit", "fall", "death"],
+      "emote-yes": ["cheer", "victory", "emoteyes", "yes"]
+    };
+    const want = (aliases[name] || [name]).map((x) => String(x).toLowerCase().replace(/[^a-z0-9]/g, ""));
+    for (const a of want) {
+      if (actor.actions[a]) return a;
+      const k = Object.keys(actor.actions).find((x) => x.toLowerCase().replace(/[^a-z0-9]/g, "") === a);
+      if (k) return k;
+    }
+    return null;
+  }
   function playAnim(actor, name, fade = 0.16, once = false) {
     if (!actor || !actor.actions) return;
-    if (!actor.actions[name]) {
-      if (name === "sprint" && actor.actions.walk) name = "walk";
-      else if (name === "crouch" && actor.actions.sit) name = "sit";
-      else if (actor.actions.idle && name !== "idle") {
-      }
-      if (!actor.actions[name]) return;
-    }
-    if (actor.current === name) return;
-    const next = actor.actions[name];
+    const resolved = resolveClip(actor, name);
+    if (!resolved) return;
+    if (actor.current === resolved && name !== "jump") return;
+    const next = actor.actions[resolved];
     const prev = actor.current && actor.actions[actor.current];
     if (prev && prev !== next) prev.fadeOut(fade);
     next.reset().fadeIn(fade);
+    next.timeScale = name === "sprint" && /walk/i.test(resolved) ? 1.7 : 1;
     next.setLoop(once ? LoopOnce : LoopRepeat, once ? 1 : Infinity);
     next.clampWhenFinished = once;
     next.play();
-    actor.current = name;
+    actor.current = resolved;
   }
   function roundRect(ctx, x, y, w, h, r) {
     ctx.beginPath();
@@ -26412,51 +28064,77 @@
     ctx.closePath();
   }
   function makeTextTexture(text, opt = {}) {
-    const w = opt.w || 1024, h = opt.h || 448;
+    const w = opt.w || 1024, h = opt.h || 384;
     const c = document.createElement("canvas");
     c.width = w;
     c.height = h;
     const ctx = c.getContext("2d");
+    ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = opt.bg || "#ffe34a";
-    roundRect(ctx, 8, 8, w - 16, h - 16, 48);
+    roundRect(ctx, 10, 10, w - 20, h - 20, 44);
     ctx.fill();
     ctx.strokeStyle = opt.bd || "#140818";
-    ctx.lineWidth = 36;
+    ctx.lineWidth = 22;
     ctx.stroke();
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.direction = /[\u0590-\u05FF]/.test(text) ? "rtl" : "ltr";
-    let font = opt.font || 200;
+    ctx.direction = /[\u0590-\u05FF]/.test(String(text)) ? "rtl" : "ltr";
+    const raw = String(text || "");
+    const maxW = w - 80;
+    let font = opt.font || 168;
+    const min = 28;
     ctx.font = `800 ${font}px Rubik, Fredoka, Arial, sans-serif`;
-    while (ctx.measureText(String(text)).width > w - 90 && font > 52) {
-      font -= 8;
+    while (font > min && ctx.measureText(raw).width + font * 0.16 > maxW) {
+      font -= 4;
       ctx.font = `800 ${font}px Rubik, Fredoka, Arial, sans-serif`;
     }
     ctx.lineJoin = "round";
     ctx.miterLimit = 2;
-    ctx.lineWidth = Math.max(12, font * 0.1);
+    ctx.lineWidth = Math.min(14, Math.max(6, font * 0.08));
     ctx.strokeStyle = "#fff8dc";
-    ctx.strokeText(String(text), w / 2, h / 2, w - 90);
+    ctx.strokeText(raw, w / 2, h / 2);
     ctx.fillStyle = opt.fg || "#140818";
-    ctx.fillText(String(text), w / 2, h / 2, w - 90);
+    ctx.fillText(raw, w / 2, h / 2);
     const tex = new CanvasTexture(c);
     tex.colorSpace = SRGBColorSpace;
     tex.minFilter = LinearFilter;
     tex.magFilter = LinearFilter;
+    tex.userData = { font, textW: ctx.measureText(raw).width, canvasW: w, raw };
     return tex;
+  }
+  function roundedBoardGeo(w, h, d, r) {
+    const s = new Shape();
+    const x = -w / 2, y = -h / 2;
+    const rr = Math.min(r, w / 2, h / 2);
+    s.moveTo(x + rr, y);
+    s.lineTo(x + w - rr, y);
+    s.quadraticCurveTo(x + w, y, x + w, y + rr);
+    s.lineTo(x + w, y + h - rr);
+    s.quadraticCurveTo(x + w, y + h, x + w - rr, y + h);
+    s.lineTo(x + rr, y + h);
+    s.quadraticCurveTo(x, y + h, x, y + h - rr);
+    s.lineTo(x, y + rr);
+    s.quadraticCurveTo(x, y, x + rr, y);
+    return new ExtrudeGeometry(s, { depth: d, bevelEnabled: true, bevelThickness: 0.035, bevelSize: 0.035, bevelSegments: 2 });
   }
   function makeSign(text, big = true) {
     const g = new Group();
-    const tex = makeTextTexture(text, big ? {} : { w: 640, h: 320, font: 180 });
-    const W = big ? 2.24 : 1.2;
-    const H = big ? 1.74 : 0.98;
+    const tex = makeTextTexture(text, big ? { w: 1024, h: 384, font: 168 } : { w: 512, h: 280, font: 160 });
+    const W = big ? 1.52 : 0.92;
+    const H = big ? 1.18 : 0.82;
     const back = new Mesh(
-      new BoxGeometry(W + 0.14, H + 0.14, 0.14),
-      new MeshStandardMaterial({ color: 1312792, roughness: 0.4, metalness: 0.25, emissive: 2758728, emissiveIntensity: 0.22 })
+      roundedBoardGeo(W + 0.12, H + 0.12, 0.08, 0.16),
+      new MeshStandardMaterial({ color: 3810320, roughness: 0.4, metalness: 0.18, emissive: 2758728, emissiveIntensity: 0.12 })
     );
-    const face = new Mesh(new PlaneGeometry(W, H), new MeshBasicMaterial({ map: tex }));
-    face.position.z = 0.09;
+    back.position.z = -0.1;
+    const face = new Mesh(
+      new PlaneGeometry(W, H),
+      new MeshBasicMaterial({ map: tex, toneMapped: false })
+    );
+    face.position.z = 0.12;
+    face.renderOrder = 2;
     g.add(back, face);
+    g.userData.fit = tex.userData;
     return g;
   }
   function makeGoldKey() {
@@ -26521,7 +28199,7 @@
     for (let ci = 0; ci < 8; ci++) {
       const cl = new Mesh(
         new SphereGeometry(1.7 + ci % 3 * 0.4, 8, 6),
-        new MeshStandardMaterial({ color: 16777215, roughness: 1, flatShading: true })
+        new MeshStandardMaterial({ color: 16777215, roughness: 1, flatShading: false })
       );
       cl.scale.y = 0.42;
       cl.position.set((ci % 4 - 1.5) * 12, 9 + ci % 3, -6 - ci * 3.5);
@@ -26736,15 +28414,12 @@
     }
   }
   canvas.addEventListener("pointerdown", pick);
-  var LANE_X = [-2, 0, 2];
-  var SEG_LEN = 14;
-  var NSEG = 12;
   var player = null;
   var bossActor = null;
   var run = null;
   var paused = true;
+  var holdCam = false;
   var shakeT = 0;
-  var pathSegs = [];
   var decors = [];
   var coins = [];
   var obstacles = [];
@@ -26754,31 +28429,24 @@
   var pathMat = null;
   var stripeMat = null;
   var sideMat = null;
+  var stoneMat = null;
   var spaceStars = null;
   var runSky = null;
   var runHills = null;
   var runSunDisk = null;
+  var runMist = null;
+  var courseVisual = null;
+  var skirtMat = null;
+  var railMat = null;
+  var valleyMat = null;
   function buildPath() {
-    pathMat = new MeshStandardMaterial({ color: WORLDS[0].pathA, roughness: 0.78 });
+    pathMat = new MeshStandardMaterial({ map: makeDirtTexture(), color: 15255688, roughness: 0.82, flatShading: false });
+    stoneMat = new MeshStandardMaterial({ map: makeStoneTexture(), color: 16777215, roughness: 0.54, metalness: 0.08, flatShading: false });
     stripeMat = new MeshBasicMaterial({ color: WORLDS[0].pathB });
-    sideMat = new MeshStandardMaterial({ color: WORLDS[0].ground, roughness: 1 });
-    for (let i = 0; i < NSEG; i++) {
-      const g = new Group();
-      const mesh = new Mesh(new BoxGeometry(7.4, 0.4, SEG_LEN), pathMat);
-      mesh.position.y = -0.2;
-      mesh.receiveShadow = true;
-      const side = new Mesh(new BoxGeometry(22, 0.18, SEG_LEN), sideMat);
-      side.position.y = -0.38;
-      side.receiveShadow = true;
-      g.add(side, mesh);
-      [-1, 1].forEach((s) => {
-        const stripe = new Mesh(new BoxGeometry(0.07, 0.03, SEG_LEN * 0.92), stripeMat);
-        stripe.position.set(s * 1.02, 0.02, 0);
-        g.add(stripe);
-      });
-      runScene.add(g);
-      pathSegs.push(g);
-    }
+    sideMat = new MeshStandardMaterial({ color: WORLDS[0].ground, roughness: 1, flatShading: false });
+    skirtMat = new MeshStandardMaterial({ color: 5919560, roughness: 0.74, metalness: 0.06, flatShading: false, side: DoubleSide });
+    railMat = new MeshStandardMaterial({ color: 12887412, roughness: 0.45, metalness: 0.18, flatShading: false });
+    valleyMat = new MeshStandardMaterial({ color: 2761756, roughness: 1, metalness: 0, flatShading: false });
     for (let i = 0; i < 56; i++) {
       const m = new Mesh(new SphereGeometry(0.08, 6, 6), new MeshBasicMaterial({ color: 16762941 }));
       m.visible = false;
@@ -26798,8 +28466,39 @@
     runLights.dir.color.setHex(world.sun);
     if (spaceStars) spaceStars.visible = world.id === 4;
     if (runSky) paintSky(runSky, world.sky, world.fog);
-    if (runHills) runHills.children.forEach((h) => h.material.color.setHex(world.ground));
     if (runSunDisk) runSunDisk.visible = world.id !== 4;
+    if (run && run.layout) applyStageLook(world);
+  }
+  function applyStageLook(world) {
+    const L = run && run.layout;
+    if (!L) return;
+    const tod = {
+      morning: { exp: 1.22, hemi: 0.95, dir: 1.15, fogNear: 22, fogFar: 260 },
+      noon: { exp: 1.18, hemi: 0.88, dir: 1.35, fogNear: 20, fogFar: 250 },
+      sunset: { exp: 1.16, hemi: 0.86, dir: 1.25, fogNear: 18, fogFar: 290 },
+      dusk: { exp: 0.98, hemi: 0.62, dir: 0.85, fogNear: 16, fogFar: 230 },
+      storm: { exp: 0.9, hemi: 0.55, dir: 0.75, fogNear: 14, fogFar: 200 }
+    }[L.tod] || { exp: 1.15, hemi: 0.85, dir: 1.2, fogNear: 14, fogFar: 56 };
+    renderer.toneMappingExposure = isHigh() ? tod.exp : Math.min(tod.exp, 1.05);
+    runLights.hemi.intensity = tod.hemi;
+    runLights.dir.intensity = tod.dir;
+    runScene.fog.near = tod.fogNear;
+    runScene.fog.far = tod.fogFar;
+    if (L.tod === "sunset") {
+      runLights.dir.color.setHex(16751196);
+      runLights.hemi.color.setHex(16763296);
+      runLights.hemi.groundColor.setHex(6961704);
+      runScene.fog.color.setHex(15251592);
+      renderer.setClearColor(16747092);
+      if (runSky) paintSky(runSky, 16742970, 16765600);
+      if (runSunDisk) runSunDisk.material.color.setHex(16747082);
+    } else if (L.tod === "dusk" || L.tod === "storm") {
+      runLights.dir.color.setHex(10204927);
+      runLights.hemi.color.setHex(6981832);
+      runScene.fog.color.setHex(world.id === 4 ? world.fog : 3816042);
+      if (runSunDisk) runSunDisk.material.color.setHex(13162239);
+    } else if (runSunDisk) runSunDisk.material.color.setHex(16773808);
+    layoutPathFromCourse();
   }
   function makeStars() {
     const geo = new BufferGeometry();
@@ -26821,10 +28520,11 @@
       runScene.add(runSky);
       paintSky(runSky, WORLDS[0].sky, WORLDS[0].fog);
     }
-    if (!runHills) runHills = addHills(runScene, WORLDS[0].ground);
+    if (!runHills) runHills = makeMountains(WORLDS[0].ground);
+    runScene.add(runHills);
     if (!runSunDisk) {
       runSunDisk = new Mesh(
-        new SphereGeometry(2.4, 12, 12),
+        new SphereGeometry(5.2, 16, 16),
         new MeshBasicMaterial({ color: 16773808, fog: false, depthWrite: false })
       );
       runSunDisk.position.set(18, 26, -22);
@@ -26873,8 +28573,93 @@
       if (p.life <= 0) p.mesh.scale.setScalar(1);
     }
   }
-  function layoutPath() {
-    for (let i = 0; i < pathSegs.length; i++) pathSegs[i].position.z = -i * SEG_LEN;
+  function disposeCourseVisual() {
+    if (!courseVisual) return;
+    runScene.remove(courseVisual);
+    courseVisual.traverse((o) => {
+      if (o.geometry) o.geometry.dispose();
+    });
+    courseVisual = null;
+  }
+  function rebuildCourseRibbon() {
+    if (!run || !run.course) return;
+    disposeCourseVisual();
+    const course = run.course;
+    const narrow = !!(run.layout && run.layout.narrow);
+    const pathW = narrow ? 5.5 : 7.3;
+    const group = new Group();
+    group.name = "courseVisual";
+    const dirt = new Mesh(makeRibbonGeometry(course, { width: pathW, yLift: 0.03, pred: (s) => s.kind !== "causeway", vScale: 0.1 }), pathMat);
+    dirt.receiveShadow = true;
+    dirt.name = "ribbonDirt";
+    const grass = new Mesh(makeRibbonGeometry(course, { width: 14, yLift: -0.05, pred: (s) => s.kind !== "causeway" && s.kind !== "turn", vScale: 0.07 }), sideMat);
+    grass.receiveShadow = true;
+    grass.name = "ribbonGrass";
+    const turnGrass = new Mesh(makeRibbonGeometry(course, { width: 8.6, yLift: -0.05, pred: (s) => s.kind === "turn", vScale: 0.07 }), sideMat);
+    turnGrass.receiveShadow = true;
+    const stone = new Mesh(makeRibbonGeometry(course, { width: 6.8, yLift: 0.05, pred: (s) => s.kind === "causeway", vScale: 0.4, uRepeat: 3 }), stoneMat);
+    stone.receiveShadow = true;
+    stone.name = "ribbonStone";
+    const skirt = new Mesh(makeSkirtGeometry(course, { width: 6.8, depth: 2.8, pred: (s) => s.kind === "causeway" }), skirtMat);
+    skirt.name = "ribbonSkirt";
+    const valley = new Mesh(makeRibbonGeometry(course, { width: 78, yLift: -8.6, pred: (s) => s.kind === "causeway", vScale: 0.03 }), valleyMat);
+    valley.receiveShadow = true;
+    valley.name = "ribbonValley";
+    const railL = new Mesh(makeRibbonGeometry(course, { width: 0.16, yLift: 0.56, xOffset: -3.32, pred: (s) => s.kind === "causeway" }), railMat);
+    const railR = new Mesh(makeRibbonGeometry(course, { width: 0.16, yLift: 0.56, xOffset: 3.32, pred: (s) => s.kind === "causeway" }), railMat);
+    railL.castShadow = railR.castShadow = true;
+    const stripeL = new Mesh(makeRibbonGeometry(course, { width: 0.1, yLift: 0.058, xOffset: -1.05, pred: (s) => s.kind !== "causeway" }), stripeMat);
+    const stripeR = new Mesh(makeRibbonGeometry(course, { width: 0.1, yLift: 0.058, xOffset: 1.05, pred: (s) => s.kind !== "causeway" }), stripeMat);
+    const postGeo = new CylinderGeometry(0.07, 0.09, 0.95, 6);
+    for (let i = 0; i < course.samples.length; i += 2) {
+      const s = course.samples[i];
+      if (s.kind !== "causeway") continue;
+      const rx = Math.cos(s.heading), rz = Math.sin(s.heading);
+      for (const side of [-1, 1]) {
+        const post = new Mesh(postGeo, railMat);
+        post.position.set(s.x + side * rx * 3.32, s.y + 0.52, s.z + side * rz * 3.32);
+        post.castShadow = true;
+        group.add(post);
+      }
+    }
+    const follow = new Mesh(
+      new CircleGeometry(220, 64),
+      new MeshStandardMaterial({ color: sideMat.color, roughness: 1, flatShading: false })
+    );
+    follow.rotation.x = -Math.PI / 2;
+    follow.position.y = -0.32;
+    follow.name = "followGround";
+    follow.receiveShadow = true;
+    group.add(follow, grass, turnGrass, dirt, stripeL, stripeR, valley, skirt, stone, railL, railR);
+    courseVisual = group;
+    runScene.add(courseVisual);
+  }
+  function layoutPathFromCourse() {
+    if (!run || !run.course || !player) return;
+    if (!courseVisual) rebuildCourseRibbon();
+  }
+  function placeOnCourse(obj, s, lane) {
+    if (!run || !run.course) {
+      obj.position.set(typeof lane === "number" ? laneXs()[lane] : 0, 0, -s);
+      return;
+    }
+    const f = pathFrame(run.course, s);
+    const off = lane === 0 || lane === 1 || lane === 2 ? laneXs()[lane] : lane || 0;
+    obj.position.copy(f.pos).addScaledVector(f.right, off);
+    obj.rotation.order = "YXZ";
+    obj.rotation.y = f.heading;
+    obj.rotation.x = f.pitch || 0;
+    obj.userData.pathS = s;
+  }
+  function syncPlayerPose() {
+    if (!player || !run || !run.course) return;
+    const f = pathFrame(run.course, player.s);
+    const x = player.laneShift != null ? player.laneShift : laneXs()[player.lane];
+    player.group.position.copy(f.pos).addScaledVector(f.right, x).addScaledVector(f.up, player.y || 0);
+    player.group.rotation.order = "YXZ";
+    player.group.rotation.y = f.heading;
+    player.group.rotation.x = (f.pitch || 0) * 0.45;
+    player.z = -player.s;
   }
   async function ensureWorldAssets(world) {
     const files = [...world.decor, ...world.obstacle, ...world.extra, "platformer/coin-gold.glb", BOSSES[world.id - 1].file];
@@ -26889,41 +28674,52 @@
   async function spawnDecor(world) {
     decors.forEach((d) => runScene.remove(d));
     decors.length = 0;
-    for (let i = 0; i < 18; i++) {
-      const f = world.decor[i % world.decor.length];
-      const m = await createProp(MP(f), 1.9 + i % 3 * 0.35);
-      const side = i % 2 === 0 ? -1 : 1;
-      m.position.set(side * (6.8 + i % 4 * 0.4), 0, -6 - i * 7);
-      m.rotation.y = Math.random() * Math.PI;
+    const theme = ["jungle", "pirate", "magic", "space", "ice"][world.id - 1] || "jungle";
+    const n = isHigh() ? 26 : 16;
+    for (let i = 0; i < n; i++) {
+      const m = makeSmoothTree(theme);
+      m.userData.pathS = 6 + i * 10;
+      m.userData.side = i % 2 === 0 ? -1 : 1;
+      m.userData.sideOff = 5.6 + i % 5 * 0.35;
+      if (run && run.course) {
+        const f = pathFrame(run.course, m.userData.pathS);
+        m.position.copy(f.pos).addScaledVector(f.right, m.userData.side * m.userData.sideOff);
+        m.rotation.y = f.heading + i % 5 * 0.4;
+        m.visible = f.kind !== "causeway";
+      }
       runScene.add(m);
       decors.push(m);
     }
   }
   function buildGate(options) {
     const g = new Group();
-    const mat = new MeshStandardMaterial({ color: 7027220, roughness: 0.42, metalness: 0.18, emissive: 16756768, emissiveIntensity: 0.22 });
-    [-3.5, 3.5].forEach((x) => {
-      const post = new Mesh(new BoxGeometry(0.44, 4.7, 0.44), mat);
-      post.position.set(x, 2.35, 0);
+    const mat = new MeshStandardMaterial({ color: 7027220, roughness: 0.38, metalness: 0.2, emissive: 16756768, emissiveIntensity: 0.2 });
+    [-3.45, 3.45].forEach((x) => {
+      const post = new Mesh(new CylinderGeometry(0.2, 0.24, 4.4, 10), mat);
+      post.position.set(x, 2.2, 0);
       post.castShadow = true;
       g.add(post);
     });
-    const beam = new Mesh(new BoxGeometry(7.5, 0.4, 0.48), mat);
-    beam.position.set(0, 4.62, 0);
+    const beam = new Mesh(new CylinderGeometry(0.16, 0.16, 7.1, 10), mat);
+    beam.rotation.z = Math.PI / 2;
+    beam.position.set(0, 4.35, 0);
     beam.castShadow = true;
     g.add(beam);
-    const glow = new Mesh(
-      new PlaneGeometry(7.8, 5),
-      new MeshBasicMaterial({ color: 16762941, transparent: true, opacity: 0.15, blending: AdditiveBlending, depthWrite: false, side: DoubleSide, fog: false })
-    );
-    glow.position.set(0, 2.55, -0.06);
-    glow.name = "gateGlow";
-    g.add(glow);
+    if (isHigh()) {
+      const glow = new Mesh(
+        new PlaneGeometry(7.4, 4.6),
+        new MeshBasicMaterial({ color: 16762941, transparent: true, opacity: 0.13, blending: AdditiveBlending, depthWrite: false, side: DoubleSide, fog: false })
+      );
+      glow.position.set(0, 2.4, -0.06);
+      glow.name = "gateGlow";
+      g.add(glow);
+    }
+    const xs = laneXs();
     options.forEach((opt, i) => {
-      const sign = makeSign(opt, true);
-      sign.position.set(LANE_X[i], 2.58, 0.18);
-      sign.name = "laneSign";
-      g.add(sign);
+      const sign2 = makeSign(opt, true);
+      sign2.position.set(xs[i], 2.32, 0.2);
+      sign2.name = "laneSign";
+      g.add(sign2);
     });
     return g;
   }
@@ -26936,8 +28732,26 @@
   }
   function runnerModeOf(mode) {
     if (mode === "match") return "tr";
-    if (mode === "memory") return "rev";
+    if (mode === "memory" || mode === "pic") return "rev";
     return mode;
+  }
+  function laneXs() {
+    const span = run && run.layout && run.layout.narrow ? 1.7 : 2;
+    return [-span, 0, span];
+  }
+  function stageProfile(st, boss, wid) {
+    const i = boss ? 4 : st;
+    const table = [
+      { speed: 7.5, curve: 1.15, hillAmp: 5.8, turnDir: -1, bridge: 0, narrow: 0, tod: "sunset", density: 0.32, types: ["wall", "low"] },
+      { speed: 8, curve: 1.35, hillAmp: 6, turnDir: 1, bridge: 0, narrow: 0, tod: "sunset", density: 0.52, types: ["wall", "hole", "low"] },
+      { speed: 8.35, curve: 1.2, hillAmp: 5.4, turnDir: -1, bridge: 1, narrow: 0, tod: "sunset", density: 0.68, types: ["wall", "hole", "beam", "low"] },
+      { speed: 8.7, curve: 1.4, hillAmp: 6.2, turnDir: 1, bridge: 0, narrow: 1, tod: "dusk", density: 0.82, types: ["wall", "hole", "beam", "roll"] },
+      { speed: 8.15, curve: 1.05, hillAmp: 5.5, turnDir: -1, bridge: 0, narrow: 0, tod: "storm", density: 0.62, types: ["wall", "hole", "beam", "roll"] }
+    ];
+    const L = Object.assign({}, table[Math.max(0, Math.min(4, i))]);
+    L.causeway = wid === 1;
+    if (wid === 1) L.tod = "sunset";
+    return L;
   }
   function pickWords(wid, st, lost, n = 8) {
     if (lost) {
@@ -26965,6 +28779,9 @@
     void el.offsetWidth;
     el.classList.add("pop");
   }
+  function flashHearts() {
+    popEl("hud-hearts");
+  }
   function setLaneOpts(opts) {
     const row = $("lane-opts");
     if (!row) return;
@@ -26975,13 +28792,17 @@
     row.classList.remove("hidden");
     opts.forEach((o, i) => {
       const el = $("lane-opt-" + i);
-      if (el) el.textContent = o;
+      if (!el) return;
+      el.textContent = o;
+      const n = String(o).length;
+      el.style.fontSize = n >= 12 ? "18px" : n >= 10 ? "22px" : n >= 8 ? "26px" : n >= 6 ? "30px" : "";
     });
   }
   function setPrompt(sub, q, emoji) {
     $("prompt-sub").textContent = sub || "";
-    $("prompt-q").innerHTML = q || "";
-    $("prompt-emoji").textContent = emoji || "";
+    const deco = emoji ? `<span class="deco-emoji">${emoji}</span>` : "";
+    $("prompt-q").innerHTML = q ? `${deco}${q}` : "";
+    $("prompt-emoji").textContent = "";
     popEl("prompt");
   }
   function updateHud() {
@@ -27008,7 +28829,7 @@
     run.wrongHere = false;
     let mode = run.qmode;
     if (run.boss) {
-      mode = ["tr", "pic", "let", "rev"][run.i % 4];
+      mode = ["tr", "rev", "let", "build"][run.i % 4];
     }
     run.activeMode = mode;
     if (mode === "build") {
@@ -27029,16 +28850,10 @@
       sub = "\u05D0\u05D9\u05D6\u05D5 \u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4?";
       q = `<span class="en">${esc(E.slice(0, k))}_${esc(E.slice(k + 1))}</span>`;
       emoji = w.pic;
-    } else if (mode === "pic") {
-      opts = shuffle([w.en, ...distractors(w, "en", 2)]);
-      ans = opts.indexOf(w.en);
-      sub = "\u05DE\u05D4 \u05D1\u05EA\u05DE\u05D5\u05E0\u05D4? \u05E8\u05E6\u05D5 \u05D0\u05DC \u05D4\u05E9\u05E2\u05E8 \u05D4\u05E0\u05DB\u05D5\u05DF";
-      q = "";
-      emoji = w.pic;
     } else if (mode === "rev") {
       opts = shuffle([w.he, ...distractors(w, "he", 2)]);
       ans = opts.indexOf(w.he);
-      sub = "\u05DE\u05D4 \u05E4\u05D9\u05E8\u05D5\u05E9 \u05D4\u05DE\u05D9\u05DC\u05D4? \u05D4\u05D0\u05D6\u05D9\u05E0\u05D5";
+      sub = "\u05D4\u05E7\u05E9\u05D9\u05D1\u05D5 \u05DC\u05DE\u05D9\u05DC\u05D4 \u05D1\u05D0\u05E0\u05D2\u05DC\u05D9\u05EA \u2014 \u05E8\u05E6\u05D5 \u05D0\u05DC \u05D4\u05E4\u05D9\u05E8\u05D5\u05E9 \u05D1\u05E2\u05D1\u05E8\u05D9\u05EA";
       q = `<span class="en">${esc(w.en)}</span>`;
       say(w.en);
     } else {
@@ -27051,18 +28866,19 @@
     run.ans = ans;
     setLaneOpts(opts);
     setPrompt(sub, q, emoji);
-    const z = player.z - (gates.length ? 20 : 12);
+    const s = player.s + (gates.length ? 20 : 12);
     const group = buildGate(opts);
-    group.position.set(0, 0, z);
+    placeOnCourse(group, s, 0);
     runScene.add(group);
-    gates.push({ group, z, ans, word: w, resolved: false });
+    gates.push({ group, s, z: -s, ans, word: w, resolved: false });
   }
   function spawnLetterWord(w) {
     const E = w.en.toUpperCase().replace(/[^A-Z]/g, "");
     run.spell = { rest: E, idx: 0 };
-    let z = player.z - 12;
+    const s0 = player.s + 12;
     E.split("").forEach((ch, idx) => {
       const correctLane = Math.floor(Math.random() * 3);
+      const s = s0 + idx * 8;
       for (let lane = 0; lane < 3; lane++) {
         let glyph = ch;
         if (lane !== correctLane) {
@@ -27070,32 +28886,119 @@
             glyph = String.fromCharCode(65 + Math.floor(Math.random() * 26));
           } while (glyph === ch);
         }
-        const sign = makeSign(glyph, false);
-        sign.scale.setScalar(1.15);
-        sign.position.set(LANE_X[lane], 1.25 + Math.sin(idx) * 0.08, z);
-        runScene.add(sign);
-        letters.push({ mesh: sign, lane, ch: glyph, need: ch, index: idx, taken: false });
+        const sign2 = makeSign(glyph, false);
+        sign2.scale.setScalar(1.15);
+        placeOnCourse(sign2, s, lane);
+        sign2.position.y += 1.25 + Math.sin(idx) * 0.08;
+        runScene.add(sign2);
+        letters.push({ mesh: sign2, lane, ch: glyph, need: ch, index: idx, taken: false, s });
       }
-      z -= 8;
     });
   }
-  function spawnCoinRow(z) {
+  function spawnCoinRow(s) {
     const lane = Math.floor(Math.random() * 3);
     const mesh = run.coinProto ? run.coinProto.clone(true) : new Mesh(new CylinderGeometry(0.25, 0.25, 0.06, 12), new MeshStandardMaterial({ color: 16765514, metalness: 0.6, roughness: 0.3 }));
-    mesh.position.set(LANE_X[lane], 0.7, z);
+    placeOnCourse(mesh, s, lane);
+    mesh.position.y += 0.7;
     mesh.rotation.x = Math.PI / 2;
     runScene.add(mesh);
-    coins.push({ mesh, taken: false });
+    coins.push({ mesh, taken: false, s, lane });
   }
-  function spawnObstacle(z) {
-    const world = WORLDS[run.world - 1];
-    const file = world.obstacle[Math.floor(Math.random() * world.obstacle.length)];
-    const proto = run.obsProtos[file];
-    const mesh = proto ? proto.clone(true) : new Mesh(new BoxGeometry(1, 0.6, 0.6), new MeshStandardMaterial({ color: 7029795 }));
-    const lane = Math.floor(Math.random() * 3);
-    mesh.position.set(LANE_X[lane], 0, z);
-    runScene.add(mesh);
-    obstacles.push({ mesh, lane, type: "low", hit: false });
+  function cautionTex() {
+    if (cautionTex._t) return cautionTex._t;
+    const c = document.createElement("canvas");
+    c.width = 256;
+    c.height = 64;
+    const ctx = c.getContext("2d");
+    ctx.fillStyle = "#1a1208";
+    ctx.fillRect(0, 0, 256, 64);
+    for (let i = -1; i < 12; i++) {
+      ctx.fillStyle = i % 2 ? "#ffd000" : "#1a1208";
+      ctx.beginPath();
+      ctx.moveTo(i * 28, 0);
+      ctx.lineTo(i * 28 + 22, 0);
+      ctx.lineTo(i * 28 + 6, 64);
+      ctx.lineTo(i * 28 - 16, 64);
+      ctx.fill();
+    }
+    const t = new CanvasTexture(c);
+    t.colorSpace = SRGBColorSpace;
+    t.wrapS = t.wrapT = RepeatWrapping;
+    cautionTex._t = t;
+    return t;
+  }
+  function hazardMark(kind) {
+    const g = new Group();
+    if (kind === "hole") {
+      const pit = new Mesh(new BoxGeometry(1.55, 0.22, 2.3), new MeshStandardMaterial({ color: 656912, roughness: 1, emissive: 2230292, emissiveIntensity: 0.28 }));
+      pit.position.y = -0.08;
+      const rim = new Mesh(new BoxGeometry(1.72, 0.06, 2.45), new MeshBasicMaterial({ map: cautionTex() }));
+      rim.position.y = 0.04;
+      g.add(pit, rim);
+    } else if (kind === "wall") {
+      const wall = new Mesh(new BoxGeometry(1.7, 1.55, 0.38), new MeshStandardMaterial({ color: 12863530, roughness: 0.48, metalness: 0.14, emissive: 4854280, emissiveIntensity: 0.18 }));
+      wall.position.y = 0.78;
+      wall.castShadow = true;
+      const stripe = new Mesh(new PlaneGeometry(1.65, 0.28), new MeshBasicMaterial({ map: cautionTex() }));
+      stripe.position.set(0, 1.28, 0.21);
+      g.add(wall, stripe);
+    } else if (kind === "beam") {
+      const beam = new Mesh(new CylinderGeometry(0.13, 0.13, 1.72, 10), new MeshStandardMaterial({ color: 16765514, roughness: 0.32, emissive: 16755200, emissiveIntensity: 0.4 }));
+      beam.rotation.z = Math.PI / 2;
+      beam.position.y = 1.18;
+      beam.castShadow = true;
+      [-0.78, 0.78].forEach((x) => {
+        const post = new Mesh(new CylinderGeometry(0.07, 0.07, 1.22, 8), new MeshStandardMaterial({ color: 4860434, roughness: 0.6 }));
+        post.position.set(x, 0.61, 0);
+        g.add(post);
+      });
+      g.add(beam);
+    } else {
+      const log = new Mesh(new CylinderGeometry(0.42, 0.42, 1.55, 12), new MeshStandardMaterial({ color: 9128478, roughness: 0.68 }));
+      log.rotation.z = Math.PI / 2;
+      log.position.y = 0.44;
+      log.castShadow = true;
+      const stripe = new Mesh(new CylinderGeometry(0.43, 0.43, 0.18, 12), new MeshBasicMaterial({ color: 16764928 }));
+      stripe.rotation.z = Math.PI / 2;
+      stripe.position.y = 0.44;
+      g.add(log, stripe);
+    }
+    return g;
+  }
+  function hitObstacle(o) {
+    if (o.hit) return;
+    o.hit = true;
+    if (o.mesh && o.mesh.parent) runScene.remove(o.mesh);
+    if (!run || run.iFrames > 0) return;
+    run.stumbleT = 0.55;
+    run.iFrames = 1.15;
+    shakeT = 0.22;
+    sfx.bad();
+    playAnim(player, "fall", 0.08, true);
+    run.hearts--;
+    run.wrong++;
+    run.combo = 0;
+    flashHearts();
+    updateHud();
+    if (run.hearts <= 0) finishLevel(false);
+  }
+  function spawnObstacle(s) {
+    const L = run && run.layout || stageProfile(run ? run.st : 0, run && run.boss, run && run.world);
+    if (Math.random() > L.density) return;
+    const type = L.types[Math.floor(Math.random() * L.types.length)];
+    const blocked = type === "beam" ? [0, 1, 2] : shuffle([0, 1, 2]).slice(0, Math.random() < 0.28 && L.density > 0.5 ? 2 : 1);
+    blocked.forEach((lane) => {
+      let mesh;
+      if (type === "low") {
+        const world = WORLDS[run.world - 1];
+        const file = world.obstacle[Math.floor(Math.random() * world.obstacle.length)];
+        const proto = run.obsProtos && run.obsProtos[file];
+        mesh = proto ? proto.clone(true) : hazardMark("wall");
+      } else mesh = hazardMark(type);
+      placeOnCourse(mesh, s, lane);
+      runScene.add(mesh);
+      obstacles.push({ mesh, lane, type, hit: false, spin: type === "roll" ? 4 : 0, s });
+    });
   }
   function nextAfterResolve() {
     run.i++;
@@ -27232,6 +29135,7 @@
     if (!world) return false;
     if (!lost && !sOpen(wid - 1, st)) return false;
     hideModal();
+    showTurnCue(null);
     showUI("s-load");
     $("load-msg").textContent = "\u05DE\u05DB\u05D9\u05E0\u05D9\u05DD \u05D0\u05EA \u05D4\u05DE\u05E1\u05DC\u05D5\u05DC\u2026";
     await ensureWorldAssets(world);
@@ -27272,34 +29176,56 @@
       hearts: 3,
       combo: 0,
       stumbleT: 0,
+      iFrames: 0,
       bossHP: boss ? 5 : 0,
       bossMax: 5,
-      nextCoinZ: -8,
-      nextObsZ: -18
+      nextCoinS: 8,
+      nextObsS: 18,
+      glanceT: 0,
+      forceGlance: false,
+      layout: stageProfile(st, boss, wid)
     };
+    run.course = buildCourse({
+      curve: run.layout.curve,
+      hillAmp: run.layout.hillAmp,
+      turnDir: run.layout.turnDir,
+      causeway: run.layout.causeway
+    });
     S.runs++;
     save();
     grantAch("first_run");
     applyWorldTheme(world);
-    layoutPath();
+    applyStageLook(world);
+    if (runHills && runHills.parent) runScene.remove(runHills);
+    const hillCol = run.layout.tod === "sunset" ? 8018488 : run.layout.tod === "dusk" || run.layout.tod === "storm" ? 3816024 : world.ground;
+    runHills = makeMountains(hillCol, { count: isHigh() ? 12 : 8 });
+    runScene.add(runHills);
+    if (runMist && runMist.parent) runScene.remove(runMist);
+    runMist = makeMist();
+    runScene.add(runMist);
     clearDyn();
     await spawnDecor(world);
+    rebuildCourseRibbon();
+    layoutPathFromCourse();
     run.coinProto = await createProp(MP("platformer/coin-gold.glb"), 0.42);
     run.obsProtos = {};
     for (const f of world.obstacle) run.obsProtos[f] = await createProp(MP(f), 0.7);
     player.lane = 1;
+    player.s = 0;
     player.z = 0;
     player.y = 0;
     player.vy = 0;
+    player.laneShift = 0;
     player.jumping = false;
     player.sliding = false;
-    player.group.position.set(0, 0, 0);
+    syncPlayerPose();
+    syncWorldFollowers();
     playAnim(player, "sprint");
     runScene.add(player.group);
     if (boss) {
       const b = BOSSES[wid - 1];
       bossActor = await createActor(MP(b.file), b.height, true);
-      bossActor.model.position.set(0, 0, -9);
+      placeOnCourse(bossActor.model, 0, 0);
       runScene.add(bossActor.model);
       playAnim(bossActor, "sprint");
     }
@@ -27322,13 +29248,54 @@
   async function ensurePlayer() {
     if (player && player.hero === S.hero) return;
     if (player && player.group.parent) player.group.parent.remove(player.group);
-    const actor = await createActor(MP(HEROES[S.hero].file), 1.35);
+    const actor = await createActor(MP(HEROES[S.hero].file), 1.52);
     const group = new Group();
     group.add(actor.model);
-    player = { ...actor, group, hero: S.hero, lane: 1, z: 0, y: 0, vy: 0, jumping: false, sliding: false, slideT: 0, current: null };
+    player = { ...actor, group, hero: S.hero, lane: 1, s: 0, z: 0, laneShift: 0, y: 0, vy: 0, jumping: false, sliding: false, slideT: 0, current: null };
+  }
+  function currentTurn(s) {
+    if (!run || !run.course) return null;
+    return run.course.turns.find((t) => s > t.sEnter - 4 && s < t.sExit + 1) || null;
+  }
+  function showTurnCue(t) {
+    const el = $("turn-cue");
+    if (!el) return;
+    if (!t || t.committed) {
+      el.classList.add("hidden");
+      return;
+    }
+    el.classList.remove("hidden");
+    el.textContent = t.dir < 0 ? "\u2B05\uFE0F \u05E4\u05E0\u05D9\u05D9\u05D4 \u05D7\u05D3\u05D4 \u05E9\u05DE\u05D0\u05DC\u05D4!" : "\u05E4\u05E0\u05D9\u05D9\u05D4 \u05D7\u05D3\u05D4 \u05D9\u05DE\u05D9\u05E0\u05D4! \u27A1\uFE0F";
+  }
+  function missSharpTurn() {
+    showTurnCue(null);
+    if (!run || run.iFrames > 0) return;
+    run.stumbleT = 0.7;
+    run.iFrames = 1.2;
+    shakeT = 0.28;
+    sfx.bad();
+    playAnim(player, "fall", 0.08, true);
+    run.hearts--;
+    run.wrong++;
+    run.combo = 0;
+    flashHearts();
+    updateHud();
+    if (run.hearts <= 0) finishLevel(false);
   }
   function changeLane(dir) {
     if (!player || paused || appMode !== "run") return;
+    const t = currentTurn(player.s);
+    if (t && !t.committed && player.s < t.sApex + 1.4) {
+      if (dir === t.dir) {
+        t.committed = "ok";
+        showTurnCue(null);
+        sfx.coin();
+      } else {
+        t.committed = "miss";
+        missSharpTurn();
+      }
+      return;
+    }
     player.lane = Math.max(0, Math.min(2, player.lane + dir));
   }
   function jump() {
@@ -27401,29 +29368,74 @@
       if (!paused) updateRunner(dt);
       else if (player.mixer) player.mixer.update(dt);
       updateKeyFx(dt);
-      let sx = 0, sy = 0;
-      if (shakeT > 0) {
-        shakeT -= dt;
-        sx = (Math.random() - 0.5) * 0.25;
-        sy = (Math.random() - 0.5) * 0.18;
-      }
-      const ideal = new Vector3(player.group.position.x * 0.42 + sx, 3.45 + player.y * 0.25 + sy, player.z + 7.1);
-      camera.position.lerp(ideal, 1 - Math.pow(8e-4, dt));
-      camera.lookAt(player.group.position.x, 1.15 + player.y, player.z - 5);
+      if (!holdCam) updateRunCamera(dt);
+      if (runSky) runSky.position.copy(camera.position);
       renderer.render(runScene, camera);
+    }
+  }
+  function syncWorldFollowers() {
+    if (!run || !run.course || !player) return;
+    const f = pathFrame(run.course, player.s);
+    if (runLights.fill) {
+      runLights.fill.position.copy(player.group.position).addScaledVector(f.up, 2.5).addScaledVector(f.right, 1.05).addScaledVector(f.fwd, -1.2);
+    }
+    if (runLights.key) {
+      runLights.key.position.copy(player.group.position).addScaledVector(f.up, 4.4).addScaledVector(f.fwd, -5.2).addScaledVector(f.right, 1.6);
+      runLights.key.target.position.copy(player.group.position);
+      runLights.key.target.updateMatrixWorld();
+    }
+    if (runLights.rim) {
+      runLights.rim.position.copy(player.group.position).addScaledVector(f.up, 2.9).addScaledVector(f.right, -4.1).addScaledVector(f.fwd, 3.4);
+      runLights.rim.target.position.copy(player.group.position);
+      runLights.rim.target.updateMatrixWorld();
+    }
+    if (runLights.dir) {
+      runLights.dir.position.copy(player.group.position).add(new Vector3(16, 24, 10));
+      runLights.dir.target.position.copy(player.group.position);
+      runLights.dir.target.updateMatrixWorld();
+    }
+    if (runSunDisk) {
+      runSunDisk.position.copy(f.pos).addScaledVector(f.fwd, 48).addScaledVector(f.up, 16).addScaledVector(f.right, 30);
+    }
+    if (runMist) {
+      const onCauseway = f.kind === "causeway";
+      runMist.visible = onCauseway;
+      runMist.position.copy(f.pos).addScaledVector(f.up, -3.8).addScaledVector(f.fwd, 6);
+    }
+    if (runHills) runHills.position.set(f.x, 0, f.z);
+    if (courseVisual) {
+      const gnd = courseVisual.getObjectByName("followGround");
+      if (gnd) {
+        gnd.position.set(f.x, -0.32, f.z);
+        gnd.visible = f.kind !== "causeway";
+        if (sideMat) gnd.material.color.copy(sideMat.color).multiplyScalar(0.82);
+      }
+    }
+    if (runSky) runSky.position.copy(camera.position);
+    if (bossActor && run.boss) {
+      const bs = Math.max(0, player.s - 6.8);
+      const bf = pathFrame(run.course, bs);
+      const wobble = Math.sin(performance.now() * 2e-3) * 0.35;
+      bossActor.model.position.copy(worldOnPath(run.course, bs, wobble, 0));
+      bossActor.model.rotation.order = "YXZ";
+      bossActor.model.rotation.y = bf.heading;
+      bossActor.model.rotation.x = bf.pitch || 0;
     }
   }
   function updateRunner(dt) {
     const world = WORLDS[run.world - 1];
-    let speed = 8.2 * (1 + Math.min(0.42, run.combo * 0.028));
+    const base = run.layout && run.layout.speed || 8.2;
+    let speed = base * (1 + Math.min(0.42, run.combo * 0.028));
     if (run.stumbleT > 0) {
       run.stumbleT -= dt;
       speed *= 0.4;
     }
-    player.z -= speed * dt;
-    const tx2 = LANE_X[player.lane];
-    player.group.position.x += (tx2 - player.group.position.x) * Math.min(1, dt * 11);
-    player.group.position.z = player.z;
+    if (run.iFrames > 0) run.iFrames -= dt;
+    player.s = (player.s || 0) + speed * dt;
+    player.z = -player.s;
+    const want = laneXs()[player.lane];
+    player.laneShift = player.laneShift == null ? want : player.laneShift;
+    player.laneShift += (want - player.laneShift) * Math.min(1, dt * 11);
     if (player.jumping) {
       player.vy += -26 * dt;
       player.y += player.vy * dt;
@@ -27441,7 +29453,13 @@
         if (!player.jumping) playAnim(player, "sprint");
       }
     }
-    player.group.position.y = player.y;
+    syncPlayerPose();
+    const turn = currentTurn(player.s);
+    showTurnCue(turn && !turn.committed ? turn : null);
+    if (turn && !turn.committed && player.s > turn.sApex) {
+      turn.committed = "miss";
+      missSharpTurn();
+    }
     if (player.mixer) player.mixer.update(dt);
     if (player.current === "fall" && run.stumbleT <= 0 && !player.jumping) playAnim(player, "sprint");
     emitTrail(dt);
@@ -27450,52 +29468,42 @@
       const glow = gt.group.getObjectByName("gateGlow");
       if (glow) glow.material.opacity = 0.11 + Math.sin(performance.now() * 6e-3) * 0.09;
       gt.group.children.forEach((ch) => {
-        if (ch.name === "laneSign") ch.position.y = 2.58 + Math.sin(performance.now() * 5e-3) * 0.07;
+        if (ch.name === "laneSign") ch.position.y = 2.32 + Math.sin(performance.now() * 5e-3) * 0.06;
       });
     }
-    if (bossActor) {
-      bossActor.model.position.z = player.z - 8.5;
-      bossActor.model.position.x = Math.sin(performance.now() * 2e-3) * 0.6;
-      bossActor.model.position.y = Math.sin(performance.now() * 4e-3) * 0.12;
-      if (bossActor.mixer) bossActor.mixer.update(dt);
-    }
-    runLights.dir.position.set(10, 18, player.z + 8);
-    runLights.dir.target.position.set(player.group.position.x, 0, player.z - 6);
-    runLights.dir.target.updateMatrixWorld();
-    if (runHills) {
-      runHills.children.forEach((h) => {
-        if (h.position.z > player.z + 22) h.position.z -= 84;
-      });
-    }
-    if (runSunDisk) runSunDisk.position.set(18, 26, player.z - 40);
-    pathSegs.forEach((s) => {
-      if (s.position.z > player.z + SEG_LEN) s.position.z -= NSEG * SEG_LEN;
-    });
+    const now = performance.now();
+    if (bossActor && bossActor.mixer) bossActor.mixer.update(dt);
+    syncWorldFollowers();
+    layoutPathFromCourse();
     decors.forEach((d) => {
-      if (d.position.z > player.z + 10) {
-        d.position.z -= 18 * 7;
-        d.position.x = (d.position.x > 0 ? 1 : -1) * (5.6 + Math.random() * 1.3);
+      if (d.userData.pathS != null && player.s - d.userData.pathS > 16) {
+        d.userData.pathS += 220;
+      }
+      if (run.course && d.userData.pathS != null) {
+        const df = pathFrame(run.course, d.userData.pathS);
+        const side = d.userData.side || 1;
+        d.visible = df.kind !== "causeway";
+        d.position.copy(df.pos).addScaledVector(df.right, side * (d.userData.sideOff || 6));
       }
     });
-    if (player.z < run.nextCoinZ) {
-      spawnCoinRow(player.z - 16);
-      run.nextCoinZ -= 5 + Math.random() * 4;
+    if (player.s > run.nextCoinS) {
+      spawnCoinRow(player.s + 16);
+      run.nextCoinS += 5 + Math.random() * 4;
     }
-    if (player.z < run.nextObsZ) {
-      spawnObstacle(player.z - 20);
-      run.nextObsZ -= 11 + Math.random() * 6;
+    if (player.s > run.nextObsS) {
+      spawnObstacle(player.s + 20);
+      const dens = run.layout && run.layout.density || 0.5;
+      run.nextObsS += (dens > 0.7 ? 7.2 : 10.5) + Math.random() * 4;
     }
     for (const c of coins) {
       if (c.taken) continue;
       c.mesh.rotation.z += dt * 3;
-      if (c.mesh.position.z > player.z + 4) {
+      if ((c.s != null ? c.s : 0) < player.s - 4) {
         c.taken = true;
         runScene.remove(c.mesh);
         continue;
       }
-      const dx = c.mesh.position.x - player.group.position.x;
-      const dz = c.mesh.position.z - player.z;
-      if (dx * dx + dz * dz < 0.55 && player.y < 1.2) {
+      if (Math.abs((c.s || 0) - player.s) < 0.6 && c.lane === player.lane && player.y < 1.2) {
         c.taken = true;
         runScene.remove(c.mesh);
         S.coins += 1;
@@ -27507,32 +29515,27 @@
     }
     for (const o of obstacles) {
       if (o.hit) continue;
-      if (o.mesh.position.z > player.z + 4) {
+      if (o.spin) o.mesh.rotation.x += dt * o.spin;
+      if ((o.s != null ? o.s : 0) < player.s - 4) {
         o.hit = true;
         runScene.remove(o.mesh);
         continue;
       }
-      const dz = o.mesh.position.z - player.z;
-      if (Math.abs(dz) < 0.55 && o.lane === player.lane) {
-        if (o.type === "low" && player.y > 0.55) continue;
-        o.hit = true;
-        runScene.remove(o.mesh);
-        run.stumbleT = 0.55;
-        shakeT = 0.2;
-        sfx.bad();
-        playAnim(player, "fall", 0.08, true);
+      if (Math.abs((o.s || 0) - player.s) < 0.7 && o.lane === player.lane) {
+        if ((o.type === "low" || o.type === "hole") && player.y > 0.48) continue;
+        if (o.type === "beam" && player.sliding) continue;
+        hitObstacle(o);
       }
     }
     for (const g of gates) {
-      if (!g.resolved && player.z < g.group.position.z + 0.45) resolveGate(g);
-      if (g.resolved && g.group.parent && g.group.position.z > player.z + 6) runScene.remove(g.group);
+      if (!g.resolved && player.s > (g.s != null ? g.s : -g.group.position.z) - 0.45) resolveGate(g);
+      if (g.resolved && g.group.parent && (g.s != null ? g.s : 0) < player.s - 8) runScene.remove(g.group);
     }
     if (run.activeMode === "build") {
       for (const L of letters) {
         if (L.taken) continue;
-        if (L.mesh.position.z > player.z + 4) continue;
-        const dz = L.mesh.position.z - player.z;
-        if (Math.abs(dz) < 0.5 && L.lane === player.lane && player.y < 1.3) {
+        if ((L.s != null ? L.s : 0) < player.s - 4) continue;
+        if (Math.abs((L.s || 0) - player.s) < 0.5 && L.lane === player.lane && player.y < 1.3) {
           L.taken = true;
           runScene.remove(L.mesh);
           const need = run.spell.rest[run.spell.idx];
@@ -27548,6 +29551,34 @@
       }
     }
     updateParticles(dt);
+  }
+  function updateRunCamera(dt) {
+    if (!player || !run || !run.course) return;
+    const f = pathFrame(run.course, player.s);
+    let glance = 0;
+    if (run.forceGlance) glance = 1;
+    else if (run.boss) {
+      run.glanceT = (run.glanceT || 0) + dt;
+      const w = Math.sin(run.glanceT * 0.48);
+      glance = w > 0.58 ? (w - 0.58) / 0.42 : 0;
+    }
+    let sx = 0, sy = 0;
+    if (shakeT > 0) {
+      shakeT -= dt;
+      sx = (Math.random() - 0.5) * 0.25;
+      sy = (Math.random() - 0.5) * 0.18;
+    }
+    const back = f.pos.clone().addScaledVector(f.fwd, -7.7).addScaledVector(f.up, 3.85 + player.y * 0.25 + sy).addScaledVector(f.right, (player.laneShift || 0) * 0.42 + sx);
+    const side = f.pos.clone().addScaledVector(f.right, 6.2).addScaledVector(f.fwd, -1.6).addScaledVector(f.up, 2.55);
+    const ideal = back.lerp(side, glance);
+    const look = f.pos.clone().addScaledVector(f.fwd, 5.4 - glance * 8.6).addScaledVector(f.up, 1.15 + player.y).addScaledVector(f.right, glance * -0.35);
+    if (glance > 0.15 && bossActor) {
+      const bp = bossActor.model.position.clone();
+      bp.y += 1.35;
+      look.lerp(bp, glance * 0.84);
+    }
+    camera.position.lerp(ideal, 1 - Math.pow(8e-4, dt));
+    camera.lookAt(look);
   }
   function openHint() {
     if (!run || !run.cur) return;
@@ -27624,6 +29655,14 @@
     appMode = "title";
   };
   $("btn-help-back").onclick = () => goTitle();
+  if ($("btn-quality")) {
+    $("btn-quality").onclick = () => {
+      S.quality = isHigh() ? "low" : "high";
+      save();
+      applyQuality();
+    };
+    applyQuality();
+  }
   $("btn-map-back").onclick = () => goTitle();
   $("btn-hud-map").onclick = () => {
     if (confirm("\u05DC\u05D7\u05D6\u05D5\u05E8 \u05DC\u05DE\u05E4\u05D4? \u05D4\u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA \u05D1\u05E9\u05DC\u05D1 \u05D4\u05D6\u05D4 \u05DC\u05D0 \u05EA\u05D9\u05E9\u05DE\u05E8.")) goMapMode();
@@ -27751,8 +29790,9 @@
       "space/craft_speederA.glb",
       "holiday/tree-snow-a.glb",
       "holiday/snowman-hat.glb",
-      "mini/character-knight.glb",
-      "mini/character-robot.glb"
+      "heroes/boss-wizard.glb",
+      "heroes/boss-soldier.glb",
+      "heroes/boss-pirate.glb"
     ];
     loadTotal = bootFiles.length + 3;
     loadDone = 0;
@@ -27799,7 +29839,127 @@
     renderer,
     wOpen: (i) => wOpen(i),
     sOpen: (i, t) => sOpen(i, t),
-    keysOwned: () => keysOwned()
+    keysOwned: () => keysOwned(),
+    getObstacles: () => obstacles,
+    stageProfile,
+    isHigh,
+    measureSign: (text) => makeTextTexture(text).userData,
+    buildTestGate: (opts) => {
+      gates.forEach((g) => {
+        if (g.group && g.group.parent) runScene.remove(g.group);
+      });
+      gates.length = 0;
+      const s = (player.s || 0) + 11.5;
+      const group = buildGate(opts);
+      placeOnCourse(group, s, 0);
+      runScene.add(group);
+      gates.push({ group, s, z: -s, ans: 0, word: run && run.cur, resolved: false });
+      setLaneOpts(opts);
+      return gates[0];
+    },
+    spawnHazardsAt: (s) => {
+      ["hole", "wall", "beam", "roll"].forEach((type, i) => {
+        const lane = i === 2 ? 1 : i % 3;
+        const mesh = hazardMark(type);
+        const ps = (s || player.s || 0) + i * 6;
+        placeOnCourse(mesh, ps, lane);
+        runScene.add(mesh);
+        obstacles.push({ mesh, lane, type, hit: false, spin: type === "roll" ? 4 : 0, s: ps });
+      });
+    },
+    hitObstacle,
+    holdCam: (v) => {
+      holdCam = !!v;
+    },
+    getCourse: () => run && run.course,
+    teleportTo: (kind) => {
+      if (!run || !run.course || !run.course.landmarks[kind]) return null;
+      const s = run.course.landmarks[kind];
+      const pad = { turn: 7, hill: 12, curve: 8, causeway: 7 };
+      player.s = Math.max(0, s - (pad[kind] != null ? pad[kind] : 9));
+      player.z = -player.s;
+      syncPlayerPose();
+      syncWorldFollowers();
+      layoutPathFromCourse();
+      if (kind === "turn") showTurnCue(currentTurn(player.s));
+      updateRunCamera(1);
+      if (runSky) runSky.position.copy(camera.position);
+      return { kind, s, playerS: player.s };
+    },
+    teleportS: (s) => {
+      if (!player || !run) return 0;
+      player.s = Math.max(0, s);
+      player.z = -player.s;
+      syncPlayerPose();
+      syncWorldFollowers();
+      layoutPathFromCourse();
+      updateRunCamera(1);
+      if (runSky) runSky.position.copy(camera.position);
+      return player.s;
+    },
+    frameLandmark: (kind) => {
+      if (!run || !run.course || !run.course.landmarks[kind]) return null;
+      showTurnCue(null);
+      const s = run.course.landmarks[kind];
+      const pad = { turn: 7, hill: 12, curve: 7, causeway: 6 };
+      player.s = Math.max(0, s - (pad[kind] != null ? pad[kind] : 9));
+      player.z = -player.s;
+      syncPlayerPose();
+      syncWorldFollowers();
+      const f = pathFrame(run.course, player.s);
+      if (kind === "hill") {
+        const look = pathFrame(run.course, s + 8);
+        camera.position.copy(f.pos).addScaledVector(f.fwd, -11).addScaledVector(f.up, 6.4).addScaledVector(f.right, 1.5);
+        camera.lookAt(look.pos.clone().addScaledVector(look.up, 1.3));
+      } else if (kind === "turn") {
+        const apex = pathFrame(run.course, s);
+        const t = run.course.turns[0];
+        const out = t ? -t.dir : 1;
+        camera.position.copy(f.pos).addScaledVector(f.fwd, -5.2).addScaledVector(f.up, 7.1).addScaledVector(f.right, out * 7.2);
+        camera.lookAt(apex.pos.clone().addScaledVector(apex.up, 0.7));
+        showTurnCue(currentTurn(player.s));
+      } else if (kind === "causeway") {
+        const look = pathFrame(run.course, player.s + 20);
+        camera.position.copy(f.pos).addScaledVector(f.fwd, -8.4).addScaledVector(f.up, 4.8).addScaledVector(f.right, 2.1);
+        camera.lookAt(look.pos.clone().addScaledVector(look.up, 0.35));
+      } else if (kind === "curve") {
+        const look = pathFrame(run.course, player.s + 18);
+        camera.position.copy(f.pos).addScaledVector(f.fwd, -8.6).addScaledVector(f.up, 4.4).addScaledVector(f.right, 0.6);
+        camera.lookAt(look.pos.clone().addScaledVector(look.up, 1.05));
+      } else {
+        updateRunCamera(1);
+      }
+      if (runSky) runSky.position.copy(camera.position);
+      return { kind, s, playerS: player.s };
+    },
+    frameBossChase: () => {
+      if (!run || !player) return null;
+      showTurnCue(null);
+      player.s = Math.max(player.s, 48);
+      player.z = -player.s;
+      syncPlayerPose();
+      if (run) run.forceGlance = true;
+      syncWorldFollowers();
+      const f = pathFrame(run.course, player.s);
+      const look = f.pos.clone().addScaledVector(f.fwd, -4.4).addScaledVector(f.up, 1.25);
+      if (bossActor) {
+        look.lerp(bossActor.model.position.clone().setY(bossActor.model.position.y + 1.3), 0.55);
+      }
+      camera.position.copy(f.pos).addScaledVector(f.right, 5.6).addScaledVector(f.up, 2.45).addScaledVector(f.fwd, 2.2);
+      camera.lookAt(look);
+      if (runSky) runSky.position.copy(camera.position);
+      return {
+        playerS: player.s,
+        player: player.group.position.toArray(),
+        boss: bossActor ? bossActor.model.position.toArray() : null,
+        cam: camera.position.toArray()
+      };
+    },
+    forceGlance: (v) => {
+      if (run) run.forceGlance = !!v;
+    },
+    syncPlayerPose,
+    syncWorldFollowers
   };
 })();
 /**
