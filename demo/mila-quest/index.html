@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>מילה קווסט – המסע הגדול בעקבות המילים</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Rubik:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1a1433;--gold:#ffc83d;--gold-d:#c58a10;--leaf:#2fb86a;--leaf-d:#1b7a42;
+  --owl:#6a46d6;--owl-d:#3a228a;--paper:#fffdf8;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden;font-family:Rubik,"Noto Sans Hebrew",Arial,sans-serif;color:var(--ink);background:#071018}
+#c{position:fixed;inset:0;display:block;width:100%;height:100%}
+button{font:inherit;cursor:pointer}
+.en{direction:ltr;unicode-bidi:isolate;font-family:Fredoka,Rubik,sans-serif}
+.ui{position:fixed;inset:0;z-index:4;pointer-events:none}
+.ui button,.ui .pill,.ui .glass,.ui .prompt,.ui .stage-bar,.ui .box,.ui .sign,.ui .hero-btn,.ui a,.ui table{pointer-events:auto}
+.hidden{display:none !important}
+.sign{background:linear-gradient(#d49240,#8a5420);border:5px solid #4a2c0c;border-radius:24px;padding:8px 40px 12px;box-shadow:0 10px 0 #0005,0 18px 40px #0004;transform:rotate(-1deg)}
+.sign h1{margin:0;font-size:clamp(34px,7vw,64px);color:#ffd23d;font-family:Fredoka,Rubik,sans-serif;-webkit-text-stroke:2px #5b2d00;paint-order:stroke fill;text-shadow:0 4px 0 #5b2d00}
+.sub{display:inline-block;background:#5b3fb5;color:#fff;padding:7px 20px;border-radius:999px;font-weight:700;box-shadow:0 6px 0 #35227a;margin:12px 0}
+.glass{background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,253,246,.14));backdrop-filter:blur(18px) saturate(1.35);border:1px solid rgba(255,255,255,.42);border-radius:22px;box-shadow:0 16px 40px #0004,inset 0 1px 0 #fff6}
+.btn{border:0;border-radius:18px;padding:12px 28px;background:var(--gold);color:var(--ink);font-weight:800;font-size:clamp(16px,2.5vw,22px);box-shadow:0 6px 0 var(--gold-d);transition:transform .08s,box-shadow .08s,filter .12s}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--gold-d)}
+.btn.g{background:var(--leaf);color:#fff;box-shadow:0 6px 0 var(--leaf-d)}
+.btn.p{background:var(--owl);color:#fff;box-shadow:0 6px 0 var(--owl-d)}
+.btn.s{font-size:15px;padding:8px 14px;border-radius:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center}
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px;text-align:center}
+.pill{background:rgba(255,253,246,.92);border:3px solid #8a5a2b;border-radius:16px;padding:5px 14px;font-weight:800;display:inline-flex;align-items:center;gap:6px}
+#hud{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:10px 14px 16px;pointer-events:none}
+#hud .hud-top,#hud .hud-bot{pointer-events:auto;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap}
+.prompt{background:linear-gradient(180deg,#fffdf4ee,#ffe8b8ee);border:4px solid #8a5a2b;border-radius:22px;padding:8px 22px;text-align:center;box-shadow:0 10px 0 #0003,0 0 30px #ffc83d55;min-width:min(640px,80vw);margin:0 auto}
+.prompt small{display:block;font-size:16px;font-weight:700;opacity:.7}
+.prompt .q{font-size:clamp(28px,5.5vw,48px);font-weight:800;line-height:1.15}
+.prompt .emoji{font-size:52px;line-height:1}
+#modal{position:absolute;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;padding:18px}
+#modal .box{max-width:640px;width:100%;padding:20px 22px;text-align:center;background:linear-gradient(180deg,#fffdf8f2,#ffeec4f0);border:4px solid #8a5a2b;border-radius:24px;box-shadow:0 20px 50px #0006}
+#loadbar{width:min(420px,80vw);height:16px;background:#0003;border-radius:10px;overflow:hidden;border:2px solid #fff8}
+#loadbar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffc83d,#2fb86a);transition:width .25s}
+.hero-btn{background:rgba(255,253,246,.9);border:5px solid transparent;border-radius:20px;padding:8px 16px;min-width:110px;font-weight:800}
+.hero-btn.sel{border-color:var(--gold);box-shadow:0 0 0 6px #ffc83d55}
+.map-chrome{position:absolute;inset:0;padding:12px;display:flex;flex-direction:column}
+.map-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.map-side{position:absolute;top:86px;right:14px;width:min(280px,32vw);display:flex;flex-direction:column;gap:8px}
+@media (max-width:800px){.map-side{position:static;width:100%;max-height:34vh;overflow:auto;margin-top:8px}}
+.side-card{padding:10px 12px}
+.side-card h3{margin:0 0 6px;font-size:16px}
+.side-card p{margin:0 0 8px;font-size:13px;line-height:1.4}
+.stage-bar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:auto;padding-bottom:8px}
+.stage-bar .tile{background:rgba(255,253,246,.92);border:3px solid #8a5a2b;border-radius:14px;padding:8px 10px;min-width:92px;font-weight:800;text-align:center}
+.stage-bar .tile[disabled]{opacity:.45}
+.world-title{color:#fff;text-shadow:0 3px 0 #0006;font-size:clamp(22px,4vw,34px);margin:0}
+#mute{position:fixed;top:10px;left:10px;z-index:8}
+.note{color:#fff;text-shadow:0 2px 6px #0008}
+.bar{height:12px;background:#0002;border-radius:8px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#ffc83d,#2fb86a);width:0}
+table{width:100%;border-collapse:collapse;font-size:15px} th,td{padding:5px 6px;border-bottom:1px solid #0002;text-align:right}
+.shake{animation:shake .25s}
+@keyframes shake{25%{transform:translate(-4px,2px)}75%{transform:translate(4px,-2px)}}
+.pop{animation:pop .32s cubic-bezier(.2,1.4,.3,1)}
+@keyframes pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+.lane-opts{display:flex;gap:10px;justify-content:center;width:100%;margin:8px auto 0;pointer-events:none}
+.lane-opt{background:#ffe34a;color:#140818;border:5px solid #140818;border-radius:16px;padding:8px 14px;min-width:22%;text-align:center;font-weight:800;font-size:clamp(26px,3.8vw,48px);font-family:Fredoka,Rubik,Arial,sans-serif;box-shadow:0 6px 0 #140818,0 0 20px #ffc83d99;direction:ltr;unicode-bidi:isolate;line-height:1.15}
+.prompt{transition:transform .2s}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<button class="btn s" id="mute" aria-label="השתקה">🔊</button>
+<div class="ui">
+
+  <section id="s-load" class="center">
+    <div class="sign"><h1>מילה קווסט</h1></div>
+    <div class="sub">טוענים את העולם התלת-ממדי…</div>
+    <div id="loadbar"><i id="loadbar-i"></i></div>
+    <p class="note" id="load-msg">מכינים דמויות</p>
+  </section>
+
+  <section id="s-title" class="center hidden">
+    <div class="sign"><h1>מילה קווסט</h1></div>
+    <div class="sub">המסע הגדול בעקבות המילים</div>
+    <div class="glass" style="padding:14px 18px;margin-top:8px">
+      <h2 style="margin:0 0 8px">בחרו גיבור</h2>
+      <div class="row" id="hero-btns"></div>
+    </div>
+    <p class="note">משחק אוצר מילים באנגלית לכיתות ד׳–ה׳ · <span id="wordcount"></span> מילים</p>
+    <div class="row" style="margin-top:10px">
+      <button class="btn g" id="btn-start">יוצאים להרפתקה!</button>
+      <button class="btn s" id="btn-help">איך משחקים?</button>
+    </div>
+  </section>
+
+  <section id="s-help" class="center hidden">
+    <div class="glass" style="max-width:640px;padding:20px;text-align:right">
+      <h2 style="text-align:center">איך משחקים?</h2>
+      <p>רצים במסלול תלת-ממדי כמו בהרפתקה. מולכם שלושה שערים — לכל שער מילה. בחרו את הנתיב הנכון עם החצים או בהחלקה על המסך.</p>
+      <p>כל עולם נעול במנעול. כשמנצחים את הבוס מקבלים מפתח זהב שפותח את האי הבא.</p>
+      <p>⬆ / רווח — קפיצה מעל מכשולים &nbsp; ⬇ — החלקה</p>
+      <p>🦉 תקועים? לחצו ״צריכים עזרה?״ — שלושה רמזים בלי עונש.</p>
+      <p>🔊 המילה באנגלית מושמעת בקול. לבבות מתמלאים מחדש בכל שלב.</p>
+    </div>
+    <button class="btn" id="btn-help-back" style="margin-top:12px">הבנתי</button>
+  </section>
+
+  <section id="s-map" class="hidden map-chrome">
+    <div class="map-top">
+      <h2 class="world-title">מפת העולמות</h2>
+      <div class="row">
+        <span class="pill">🪙 <span id="map-coins">0</span></span>
+        <span class="pill">⭐ <span id="map-stars">0</span></span>
+        <span class="pill">🔑 <span id="map-keys">0</span></span>
+        <button class="btn s" id="btn-map-back">חזרה</button>
+      </div>
+    </div>
+    <aside class="map-side">
+      <div class="glass side-card"><h3>🦉 רמזים</h3><p>אפשר לבקש עזרה מהינשוף בלי עונש: תמונה והסבר, אחר כך אותיות, ובסוף התשובה.</p></div>
+      <div class="glass side-card"><h3>🔁 חזרה ותרגול</h3><p>מילים שטעינו בהן נשמרות וחוזרות לתרגול.</p><button class="btn s" id="btn-review">תרגול מילים שטעינו</button></div>
+      <div class="glass side-card"><h3>🧭 המסע שלי</h3>
+        <p>נלמדו: <b id="stat-learned">0</b> מתוך <span id="stat-total">0</span></p>
+        <div class="bar"><i id="stat-bar"></i></div>
+        <p>לתרגול: <b id="stat-practice">0</b> · עולמות: <b id="stat-worlds">0</b>/5</p>
+        <button class="btn s" id="btn-journey">לפתיחת המסע שלי</button>
+      </div>
+      <div class="glass side-card"><h3>📚 ספריית המילים האבודות</h3><p>תרגול נוסף למילים שברחו בדרך.</p><button class="btn s" id="btn-library">כניסה לספרייה</button></div>
+    </aside>
+    <div class="stage-bar" id="stage-bar"></div>
+  </section>
+
+  <section id="hud" class="hidden">
+    <div class="hud-top" style="flex-direction:column;align-items:stretch">
+      <div class="row" style="justify-content:space-between;width:100%">
+        <button class="btn s" id="btn-hud-map">🗺️ מפה</button>
+        <div class="prompt" id="prompt"><small id="prompt-sub"></small><div class="emoji" id="prompt-emoji"></div><div class="q" id="prompt-q"></div></div>
+        <div class="row">
+          <span class="pill" id="hud-hearts">❤️❤️❤️</span>
+          <span class="pill" id="hud-score">⭐ 0</span>
+          <span class="pill" id="hud-combo">🔥 0</span>
+        </div>
+      </div>
+      <div id="lane-opts" class="lane-opts hidden">
+        <div class="lane-opt" id="lane-opt-0"></div>
+        <div class="lane-opt" id="lane-opt-1"></div>
+        <div class="lane-opt" id="lane-opt-2"></div>
+      </div>
+    </div>
+    <div class="hud-bot">
+      <button class="btn s p" id="btn-hint">🦉 צריכים עזרה?</button>
+      <span class="pill" id="hud-prog">1/8</span>
+      <span class="pill" id="hud-coins">🪙 0</span>
+    </div>
+  </section>
+
+  <section id="modal" class="hidden"><div class="box" id="modal-box"></div></section>
+  <section id="s-nb" class="center hidden"></section>
+  <section id="s-jr" class="center hidden"></section>
+  <section id="s-end" class="center hidden"></section>
+</div>
+<script>
+(function () {
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = function () { reject(new Error(src)); };
+      document.body.appendChild(s);
+    });
+  }
+  var chain = Promise.resolve();
+  if (location.protocol === "file:") chain = chain.then(function () { return loadScript("./js/embed.js"); });
+  chain.then(function () { return loadScript("./js/game.bundle.js"); })
+    .catch(function (e) { console.error(e); });
+})();
+</script>
+</body>
+</html>

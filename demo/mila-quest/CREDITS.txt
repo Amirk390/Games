@@ -1,0 +1,43 @@
+מילה קווסט – קרדיטים
+======================
+
+מנוע תלת-ממד
+------------
+three.js r160 (MIT) — https://threejs.org
+GLTFLoader ו-SkeletonUtils מתוך דוגמאות three.js.
+
+ציורים ומודלים תלת-ממדיים
+--------------------------
+מודלים מונפשים וסביבות מתוך חבילות Kenney (kenney.nl), רישיון CC0 1.0:
+
+  • Mini Characters     https://kenney.nl/assets/mini-characters
+      גיבורים (מיקי, נועה, תמר) עם אנימציות idle/walk/sprint/jump/crouch/fall
+      הקוסם השומר (אביר) ורובוט החלל
+  • Nature Kit          https://kenney.nl/assets/nature-kit
+      עצים, פטריות, שיחים, גזעים — אי הג'ונגל ושומר הג'ונגל
+  • Pirate Kit          https://kenney.nl/assets/pirate-kit
+      דקלים, חביות, תיבות, תותחים, ספינת הפיראטים
+  • Platformer Kit      https://kenney.nl/assets/platformer-kit
+      עצים, פרחים, תיבות ומטבעות לעיר הקסומה
+  • Space Kit           https://kenney.nl/assets/space-kit
+      מטאורים, אסטרונאוט, חללית, מכתשים וגבישים
+  • Holiday Kit         https://kenney.nl/assets/holiday-kit
+      איש שלג, עצים מושלגים, מזחלת ומתנות
+  • Blocky Characters   https://kenney.nl/assets/blocky-characters
+      הורדה לשימוש אפשרי; נבחרו Mini Characters בגלל אנימציות ריצה וקפיצה מלאות.
+
+גופנים
+------
+Rubik ו-Fredoka מגוגל פונטס.
+
+סמלולי המילים
+-------------
+אימוג'י סטנדרטיים ליד כל מילה בשאלות.
+
+גרסת גיבוי
+----------
+index-v1-quiz.html — גרסת החידון השטוחה, אם המכשיר לא תומך ב-WebGL.
+
+למורה בלבד
+-----------
+כדי לפתוח את כל העולמות: במסך "המסע שלי" לחצו לחיצה ארוכה על הכותרת, והזינו את הקוד 3141.
