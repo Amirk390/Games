@@ -232,13 +232,16 @@ function normAsset(u) {
 }
 function resolveAsset(url) {
   if (!window.MQ_EMBED || !url) return url;
-  if (String(url).indexOf("data:") === 0) return url;
-  const n = normAsset(url);
-  if (window.MQ_EMBED[n]) return window.MQ_EMBED[n];
-  if ((n.includes("Textures/") || n.endsWith("colormap.png")) && loadCtx) {
-    const tex = normAsset(loadCtx.replace(/\/[^/]+$/, "/") + "Textures/colormap.png");
+  const raw = String(url);
+  const looksTex = raw.includes("Textures/") || raw.includes("colormap.png");
+  if (raw.indexOf("data:") === 0 && !looksTex) return url;
+  if (looksTex && loadCtx) {
+    const dir = loadCtx.replace(/\/[^/]+$/, "/");
+    const tex = normAsset(dir + "Textures/colormap.png");
     if (window.MQ_EMBED[tex]) return window.MQ_EMBED[tex];
   }
+  const n = normAsset(raw);
+  if (window.MQ_EMBED[n]) return window.MQ_EMBED[n];
   for (const k of Object.keys(window.MQ_EMBED)) {
     if (n.endsWith(k) || k.endsWith(n)) return window.MQ_EMBED[k];
   }
@@ -410,11 +413,16 @@ function makeGoldKey() {
 function makeLockMesh() {
   const g = new THREE.Group();
   g.name = "lock";
-  const body = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.46, 0.22), new THREE.MeshStandardMaterial({ color: 0x3a3550, metalness: 0.45, roughness: 0.45 }));
-  body.position.y = 2.15;
-  const shackle = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.055, 8, 14), new THREE.MeshStandardMaterial({ color: 0xffc83d, metalness: 0.75, roughness: 0.28, emissive: 0x886000, emissiveIntensity: 0.25 }));
-  shackle.position.y = 2.48;
-  g.add(body, shackle);
+  const iron = new THREE.MeshStandardMaterial({ color: 0x2a2438, metalness: 0.55, roughness: 0.35, emissive: 0x16101f, emissiveIntensity: 0.2 });
+  const gold = new THREE.MeshStandardMaterial({ color: 0xffc83d, metalness: 0.8, roughness: 0.25, emissive: 0xaa7700, emissiveIntensity: 0.45 });
+  const body = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.95, 0.42), iron);
+  body.position.y = 2.85;
+  const shackle = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.12, 8, 16), gold);
+  shackle.position.y = 3.55;
+  const hole = new THREE.Mesh(new THREE.CircleGeometry(0.16, 12), new THREE.MeshBasicMaterial({ color: 0x110814 }));
+  hole.position.set(0, 2.75, 0.22);
+  g.add(body, shackle, hole);
+  g.position.set(0, 0.35, 1.85);
   return g;
 }
 
