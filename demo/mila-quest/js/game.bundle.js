@@ -1,5 +1,5 @@
 (() => {
-  // ../../workspace/engio/mila-quest/assets/lib/three.module.js
+  // mila-quest/assets/lib/three.module.js
   var REVISION = "160";
   var CullFaceNone = 0;
   var CullFaceBack = 1;
@@ -23618,7 +23618,7 @@
     }
   }
 
-  // ../../workspace/engio/mila-quest/assets/lib/jsm/utils/BufferGeometryUtils.js
+  // mila-quest/assets/lib/jsm/utils/BufferGeometryUtils.js
   function toTrianglesDrawMode(geometry, drawMode) {
     if (drawMode === TrianglesDrawMode) {
       console.warn("THREE.BufferGeometryUtils.toTrianglesDrawMode(): Geometry already defined as triangles.");
@@ -23674,7 +23674,7 @@
     }
   }
 
-  // ../../workspace/engio/mila-quest/assets/lib/jsm/loaders/GLTFLoader.js
+  // mila-quest/assets/lib/jsm/loaders/GLTFLoader.js
   var GLTFLoader = class extends Loader {
     constructor(manager) {
       super(manager);
@@ -26125,7 +26125,7 @@
     });
   }
 
-  // ../../workspace/engio/mila-quest/assets/lib/jsm/utils/SkeletonUtils.js
+  // mila-quest/assets/lib/jsm/utils/SkeletonUtils.js
   function clone(source) {
     const sourceLookup = /* @__PURE__ */ new Map();
     const cloneLookup = /* @__PURE__ */ new Map();
@@ -26155,10 +26155,10 @@
     }
   }
 
-  // ../../workspace/engio/mila-quest/js/data.js
+  // mila-quest/js/data.js
   var WORDS = [{ "en": "English", "he": "\u05D0\u05E0\u05D2\u05DC\u05D9\u05EA", "pic": "\u{1F1EC}\u{1F1E7}", "clue": "\u05D4\u05E9\u05E4\u05D4 \u05E9\u05D0\u05EA\u05DD \u05DC\u05D5\u05DE\u05D3\u05D9\u05DD \u05E2\u05DB\u05E9\u05D9\u05D5", "w": 1 }, { "en": "Brother", "he": "\u05D0\u05D7", "pic": "\u{1F466}", "clue": "\u05D1\u05DF \u05D1\u05D0\u05D5\u05EA\u05D4 \u05DE\u05E9\u05E4\u05D7\u05D4, \u05E9\u05D4\u05D5\u05D0 \u05D0\u05D7\u05D9\u05DB\u05DD", "w": 1 }, { "en": "Sister", "he": "\u05D0\u05D7\u05D5\u05EA", "pic": "\u{1F467}", "clue": "\u05D1\u05EA \u05D1\u05D0\u05D5\u05EA\u05D4 \u05DE\u05E9\u05E4\u05D7\u05D4, \u05E9\u05D4\u05D9\u05D0 \u05D0\u05D7\u05D5\u05EA\u05DB\u05DD", "w": 1 }, { "en": "Beautiful", "he": "\u05D9\u05E4\u05D4", "pic": "\u{1F33A}", "clue": "\u05DB\u05DE\u05D5 \u05E4\u05E8\u05D7 \u05D0\u05D5 \u05E9\u05E7\u05D9\u05E2\u05D4 \u05DE\u05E7\u05E1\u05D9\u05DE\u05D4", "w": 1 }, { "en": "Family", "he": "\u05DE\u05E9\u05E4\u05D7\u05D4", "pic": "\u{1F468}\u200D\u{1F469}\u200D\u{1F467}\u200D\u{1F466}", "clue": "\u05D0\u05DE\u05D0, \u05D0\u05D1\u05D0, \u05D9\u05DC\u05D3\u05D9\u05DD, \u05E1\u05D1\u05D0 \u05D5\u05E1\u05D1\u05EA\u05D0", "w": 1 }, { "en": "Read", "he": "\u05DC\u05E7\u05E8\u05D5\u05D0", "pic": "\u{1F4D6}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05E1\u05E4\u05E8?", "w": 1 }, { "en": "Eat", "he": "\u05DC\u05D0\u05DB\u05D5\u05DC", "pic": "\u{1F34E}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05EA\u05E4\u05D5\u05D7?", "w": 1 }, { "en": "Drink", "he": "\u05DC\u05E9\u05EA\u05D5\u05EA", "pic": "\u{1F964}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05DE\u05D9\u05DD \u05D0\u05D5 \u05DE\u05D9\u05E5?", "w": 1 }, { "en": "Mother", "he": "\u05D0\u05DE\u05D0", "pic": "\u{1F469}", "clue": "\u05D4\u05D4\u05D5\u05E8\u05D4 \u05E9\u05D4\u05D9\u05D0 \u05D0\u05D9\u05E9\u05D4", "w": 1 }, { "en": "Father", "he": "\u05D0\u05D1\u05D0", "pic": "\u{1F468}", "clue": "\u05D4\u05D4\u05D5\u05E8\u05D4 \u05E9\u05D4\u05D5\u05D0 \u05D2\u05D1\u05E8", "w": 1 }, { "en": "Baby", "he": "\u05EA\u05D9\u05E0\u05D5\u05E7", "pic": "\u{1F476}", "clue": "\u05D9\u05DC\u05D3 \u05D0\u05D5 \u05D9\u05DC\u05D3\u05D4 \u05E7\u05D8\u05E0\u05D9\u05DD \u05DE\u05D0\u05D5\u05D3", "w": 1 }, { "en": "Grandfather", "he": "\u05E1\u05D1\u05D0", "pic": "\u{1F474}", "clue": "\u05D0\u05D1\u05D0 \u05E9\u05DC \u05D0\u05DE\u05D0 \u05D0\u05D5 \u05E9\u05DC \u05D0\u05D1\u05D0", "w": 1 }, { "en": "Grandmother", "he": "\u05E1\u05D1\u05EA\u05D0", "pic": "\u{1F475}", "clue": "\u05D0\u05DE\u05D0 \u05E9\u05DC \u05D0\u05DE\u05D0 \u05D0\u05D5 \u05E9\u05DC \u05D0\u05D1\u05D0", "w": 1 }, { "en": "Boy", "he": "\u05D9\u05DC\u05D3", "pic": "\u{1F466}", "clue": "\u05D9\u05DC\u05D3, \u05DC\u05D0 \u05D9\u05DC\u05D3\u05D4", "w": 1 }, { "en": "Girl", "he": "\u05D9\u05DC\u05D3\u05D4", "pic": "\u{1F467}", "clue": "\u05D9\u05DC\u05D3\u05D4, \u05DC\u05D0 \u05D9\u05DC\u05D3", "w": 1 }, { "en": "Parents", "he": "\u05D4\u05D5\u05E8\u05D9\u05DD", "pic": "\u{1F46B}", "clue": "\u05D0\u05DE\u05D0 \u05D5\u05D0\u05D1\u05D0 \u05D9\u05D7\u05D3", "w": 1 }, { "en": "Lion", "he": "\u05D0\u05E8\u05D9\u05D4", "pic": "\u{1F981}", "clue": "\u05DE\u05DC\u05DA \u05D4\u05D7\u05D9\u05D5\u05EA, \u05E2\u05DD \u05E8\u05E2\u05DE\u05D4 \u05D2\u05D3\u05D5\u05DC\u05D4", "w": 1 }, { "en": "Tiger", "he": "\u05E0\u05DE\u05E8", "pic": "\u{1F42F}", "clue": "\u05D7\u05EA\u05D5\u05DC \u05D2\u05D3\u05D5\u05DC \u05E2\u05DD \u05E4\u05E1\u05D9\u05DD", "w": 1 }, { "en": "Monkey", "he": "\u05E7\u05D5\u05E3", "pic": "\u{1F435}", "clue": "\u05D0\u05D5\u05D4\u05D1 \u05DC\u05E7\u05E4\u05D5\u05E5 \u05E2\u05DC \u05E2\u05E6\u05D9\u05DD", "w": 1 }, { "en": "Elephant", "he": "\u05E4\u05D9\u05DC", "pic": "\u{1F418}", "clue": "\u05D4\u05D7\u05D9\u05D4 \u05D4\u05DB\u05D9 \u05D2\u05D3\u05D5\u05DC\u05D4 \u05D1\u05D9\u05D1\u05E9\u05D4, \u05E2\u05DD \u05D7\u05D3\u05E7", "w": 1 }, { "en": "Snake", "he": "\u05E0\u05D7\u05E9", "pic": "\u{1F40D}", "clue": "\u05D0\u05E8\u05D5\u05DA \u05D5\u05D6\u05D5\u05D7\u05DC \u05D1\u05DC\u05D9 \u05E8\u05D2\u05DC\u05D9\u05D9\u05DD", "w": 1 }, { "en": "Frog", "he": "\u05E6\u05E4\u05E8\u05D3\u05E2", "pic": "\u{1F438}", "clue": "\u05D9\u05E8\u05D5\u05E7\u05D4, \u05E7\u05D5\u05E4\u05E6\u05EA \u05D5\u05D7\u05D9\u05D4 \u05DC\u05D9\u05D3 \u05DE\u05D9\u05DD", "w": 1 }, { "en": "Butterfly", "he": "\u05E4\u05E8\u05E4\u05E8", "pic": "\u{1F98B}", "clue": "\u05D9\u05E4\u05D4 \u05D5\u05E2\u05E3 \u05DE\u05E4\u05E8\u05D7 \u05DC\u05E4\u05E8\u05D7", "w": 1 }, { "en": "Bear", "he": "\u05D3\u05D5\u05D1", "pic": "\u{1F43B}", "clue": "\u05D2\u05D3\u05D5\u05DC \u05D5\u05E4\u05E8\u05D5\u05D5\u05EA\u05D9, \u05D0\u05D5\u05D4\u05D1 \u05D3\u05D1\u05E9", "w": 1 }, { "en": "Giraffe", "he": "\u05D2'\u05D9\u05E8\u05E4\u05D4", "pic": "\u{1F992}", "clue": "\u05D4\u05D7\u05D9\u05D4 \u05D4\u05DB\u05D9 \u05D2\u05D1\u05D5\u05D4\u05D4, \u05E2\u05DD \u05E6\u05D5\u05D5\u05D0\u05E8 \u05D0\u05E8\u05D5\u05DA", "w": 1 }, { "en": "Parrot", "he": "\u05EA\u05D5\u05DB\u05D9", "pic": "\u{1F99C}", "clue": "\u05E6\u05D9\u05E4\u05D5\u05E8 \u05E6\u05D1\u05E2\u05D5\u05E0\u05D9\u05EA \u05E9\u05D9\u05D5\u05D3\u05E2\u05EA \u05DC\u05D7\u05E7\u05D5\u05EA \u05E7\u05D5\u05DC\u05D5\u05EA", "w": 1 }, { "en": "Dog", "he": "\u05DB\u05DC\u05D1", "pic": "\u{1F436}", "clue": "\u05D7\u05D9\u05D4 \u05E0\u05D0\u05DE\u05E0\u05D4 \u05E9\u05E0\u05D5\u05D1\u05D7\u05EA", "w": 1 }, { "en": "Cat", "he": "\u05D7\u05EA\u05D5\u05DC", "pic": "\u{1F431}", "clue": "\u05D7\u05D9\u05D4 \u05E9\u05D0\u05D5\u05DE\u05E8\u05EA \u05DE\u05D9\u05D0\u05D5", "w": 1 }, { "en": "Horse", "he": "\u05E1\u05D5\u05E1", "pic": "\u{1F434}", "clue": "\u05D7\u05D9\u05D4 \u05E9\u05E8\u05D5\u05DB\u05D1\u05D9\u05DD \u05E2\u05DC\u05D9\u05D4", "w": 1 }, { "en": "Rabbit", "he": "\u05D0\u05E8\u05E0\u05D1", "pic": "\u{1F430}", "clue": "\u05D7\u05D9\u05D4 \u05E7\u05D8\u05E0\u05D4 \u05E2\u05DD \u05D0\u05D5\u05D6\u05E0\u05D9\u05D9\u05DD \u05D0\u05E8\u05D5\u05DB\u05D5\u05EA", "w": 1 }, { "en": "Run", "he": "\u05DC\u05E8\u05D5\u05E5", "pic": "\u{1F3C3}", "clue": "\u05DC\u05D6\u05D5\u05D6 \u05DE\u05D4\u05E8 \u05D1\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD", "w": 1 }, { "en": "Jump", "he": "\u05DC\u05E7\u05E4\u05D5\u05E5", "pic": "\u{1F998}", "clue": "\u05DC\u05D4\u05EA\u05E8\u05D5\u05DE\u05DD \u05D1\u05D0\u05D5\u05D5\u05D9\u05E8 \u05DE\u05E2\u05DC \u05DE\u05E9\u05D4\u05D5", "w": 1 }, { "en": "Sleep", "he": "\u05DC\u05D9\u05E9\u05D5\u05DF", "pic": "\u{1F634}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05D1\u05DC\u05D9\u05DC\u05D4 \u05D1\u05DE\u05D9\u05D8\u05D4", "w": 1 }, { "en": "Play", "he": "\u05DC\u05E9\u05D7\u05E7", "pic": "\u{1F3AE}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05D1\u05E9\u05E2\u05D5\u05EA \u05D4\u05E4\u05E0\u05D0\u05D9", "w": 1 }, { "en": "Walk", "he": "\u05DC\u05DC\u05DB\u05EA", "pic": "\u{1F6B6}", "clue": "\u05DC\u05D6\u05D5\u05D6 \u05D1\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD, \u05DC\u05D0 \u05DE\u05D4\u05E8", "w": 1 }, { "en": "Big", "he": "\u05D2\u05D3\u05D5\u05DC", "pic": "\u{1F9A3}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05E7\u05D8\u05DF", "w": 1 }, { "en": "Small", "he": "\u05E7\u05D8\u05DF", "pic": "\u{1F42D}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05D2\u05D3\u05D5\u05DC", "w": 1 }, { "en": "Happy", "he": "\u05E9\u05DE\u05D7", "pic": "\u{1F604}", "clue": "\u05DB\u05E9\u05DE\u05E8\u05D2\u05D9\u05E9\u05D9\u05DD \u05D8\u05D5\u05D1 \u05D5\u05E6\u05D5\u05D7\u05E7\u05D9\u05DD", "w": 1 }, { "en": "Sad", "he": "\u05E2\u05E6\u05D5\u05D1", "pic": "\u{1F622}", "clue": "\u05DB\u05E9\u05DE\u05E8\u05D2\u05D9\u05E9\u05D9\u05DD \u05DC\u05D0 \u05D8\u05D5\u05D1 \u05D5\u05E8\u05D5\u05E6\u05D9\u05DD \u05DC\u05D1\u05DB\u05D5\u05EA", "w": 1 }, { "en": "Good", "he": "\u05D8\u05D5\u05D1", "pic": "\u{1F44D}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05E8\u05E2", "w": 1 }, { "en": "Tree", "he": "\u05E2\u05E5", "pic": "\u{1F333}", "clue": "\u05D2\u05D1\u05D5\u05D4, \u05E2\u05DD \u05D2\u05D6\u05E2 \u05D5\u05E2\u05DD \u05E2\u05DC\u05D9\u05DD", "w": 1 }, { "en": "Flower", "he": "\u05E4\u05E8\u05D7", "pic": "\u{1F338}", "clue": "\u05E6\u05D5\u05DE\u05D7 \u05D1\u05D2\u05D9\u05E0\u05D4 \u05D5\u05D4\u05D5\u05D0 \u05D9\u05E4\u05D4 \u05D5\u05E8\u05D9\u05D7\u05E0\u05D9", "w": 1 }, { "en": "Forest", "he": "\u05D9\u05E2\u05E8", "pic": "\u{1F332}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E2\u05DD \u05D4\u05E8\u05D1\u05D4 \u05E2\u05E6\u05D9\u05DD", "w": 1 }, { "en": "Leaf", "he": "\u05E2\u05DC\u05D4", "pic": "\u{1F343}", "clue": "\u05D4\u05D7\u05DC\u05E7 \u05D4\u05D9\u05E8\u05D5\u05E7 \u05E9\u05D2\u05D3\u05DC \u05E2\u05DC \u05D4\u05E2\u05E5", "w": 1 }, { "en": "Grass", "he": "\u05D3\u05E9\u05D0", "pic": "\u{1F331}", "clue": "\u05D9\u05E8\u05D5\u05E7 \u05D5\u05E6\u05D5\u05DE\u05D7 \u05E2\u05DC \u05D4\u05D0\u05D3\u05DE\u05D4 \u05D1\u05D2\u05D9\u05E0\u05D4", "w": 1 }, { "en": "Animal", "he": "\u05D7\u05D9\u05D4", "pic": "\u{1F43E}", "clue": "\u05DB\u05DC\u05D1, \u05D7\u05EA\u05D5\u05DC, \u05D0\u05E8\u05D9\u05D4 \u2014 \u05DB\u05D5\u05DC\u05DD...", "w": 1 }, { "en": "Fish", "he": "\u05D3\u05D2", "pic": "\u{1F41F}", "clue": "\u05D7\u05D9 \u05D1\u05DE\u05D9\u05DD \u05D5\u05D9\u05E9 \u05DC\u05D5 \u05E1\u05E0\u05E4\u05D9\u05E8\u05D9\u05DD", "w": 2 }, { "en": "Sea", "he": "\u05D9\u05DD", "pic": "\u{1F30A}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05D2\u05D3\u05D5\u05DC \u05D5\u05DE\u05DC\u05D5\u05D7 \u05E9\u05DE\u05E9\u05D9\u05D9\u05D8\u05D9\u05DD \u05D1\u05D5", "w": 2 }, { "en": "Ship", "he": "\u05E1\u05E4\u05D9\u05E0\u05D4", "pic": "\u{1F6A2}", "clue": "\u05DB\u05DC\u05D9 \u05E9\u05D9\u05D8 \u05D2\u05D3\u05D5\u05DC \u05E9\u05DE\u05E4\u05DC\u05D9\u05D2 \u05D1\u05D9\u05DD", "w": 2 }, { "en": "Island", "he": "\u05D0\u05D9", "pic": "\u{1F3DD}\uFE0F", "clue": "\u05D9\u05D1\u05E9\u05D4 \u05E7\u05D8\u05E0\u05D4 \u05E9\u05DE\u05D5\u05E7\u05E4\u05EA \u05DE\u05D9\u05DD \u05DE\u05DB\u05DC \u05D4\u05E6\u05D3\u05D3\u05D9\u05DD", "w": 2 }, { "en": "Bird", "he": "\u05E6\u05D9\u05E4\u05D5\u05E8", "pic": "\u{1F426}", "clue": "\u05D9\u05E9 \u05DC\u05D4 \u05DB\u05E0\u05E4\u05D9\u05D9\u05DD \u05D5\u05D4\u05D9\u05D0 \u05E2\u05E4\u05D4", "w": 2 }, { "en": "Shark", "he": "\u05DB\u05E8\u05D9\u05E9", "pic": "\u{1F988}", "clue": "\u05D3\u05D2 \u05D8\u05D5\u05E8\u05E3 \u05E2\u05DD \u05E9\u05D9\u05E0\u05D9\u05D9\u05DD \u05D7\u05D3\u05D5\u05EA", "w": 2 }, { "en": "Water", "he": "\u05DE\u05D9\u05DD", "pic": "\u{1F4A7}", "clue": "\u05DE\u05D4 \u05E9\u05D5\u05EA\u05D9\u05DD \u05DB\u05E9\u05E6\u05DE\u05D0\u05D9\u05DD", "w": 2 }, { "en": "Beach", "he": "\u05D7\u05D5\u05E3", "pic": "\u{1F3D6}\uFE0F", "clue": "\u05D7\u05D5\u05DC \u05D5\u05DE\u05D9\u05DD \u2014 \u05E9\u05DD \u05DE\u05EA\u05E8\u05D7\u05E6\u05D9\u05DD \u05D5\u05DE\u05E9\u05D7\u05E7\u05D9\u05DD", "w": 2 }, { "en": "Boat", "he": "\u05E1\u05D9\u05E8\u05D4", "pic": "\u{1F6A3}", "clue": "\u05DB\u05DC\u05D9 \u05E9\u05D9\u05D8 \u05E7\u05D8\u05DF \u05D9\u05D5\u05EA\u05E8 \u05DE\u05E1\u05E4\u05D9\u05E0\u05D4", "w": 2 }, { "en": "Pirate", "he": "\u05E4\u05D9\u05E8\u05D0\u05D8", "pic": "\u{1F3F4}\u200D\u2620\uFE0F", "clue": "\u05E9\u05D5\u05D3\u05D3 \u05D9\u05DD \u05E2\u05DD \u05DE\u05D8\u05E4\u05D7\u05EA \u05D5\u05E2\u05DD \u05DE\u05E4\u05D4", "w": 2 }, { "en": "Treasure", "he": "\u05D0\u05D5\u05E6\u05E8", "pic": "\u{1F4B0}", "clue": "\u05D6\u05D4\u05D1 \u05D5\u05DE\u05D8\u05D1\u05E2\u05D5\u05EA \u05E9\u05DE\u05D5\u05E6\u05D0\u05D9\u05DD \u05D1\u05EA\u05D9\u05D1\u05D4", "w": 2 }, { "en": "Wave", "he": "\u05D2\u05DC", "pic": "\u{1F30A}", "clue": "\u05D4\u05DE\u05D9\u05DD \u05E9\u05DE\u05EA\u05E8\u05D5\u05DE\u05DE\u05D9\u05DD \u05D5\u05E0\u05E9\u05D1\u05E8\u05D9\u05DD \u05D1\u05D9\u05DD", "w": 2 }, { "en": "Sand", "he": "\u05D7\u05D5\u05DC", "pic": "\u231B", "clue": "\u05DE\u05D4 \u05E9\u05D9\u05E9 \u05E2\u05DC \u05D4\u05D7\u05D5\u05E3, \u05E8\u05DA \u05D5\u05E6\u05D4\u05D5\u05D1", "w": 2 }, { "en": "Map", "he": "\u05DE\u05E4\u05D4", "pic": "\u{1F5FA}\uFE0F", "clue": "\u05DE\u05E8\u05D0\u05D4 \u05D0\u05D9\u05DA \u05DC\u05D4\u05D2\u05D9\u05E2 \u05DE\u05DE\u05E7\u05D5\u05DD \u05DC\u05DE\u05E7\u05D5\u05DD", "w": 2 }, { "en": "Gold", "he": "\u05D6\u05D4\u05D1", "pic": "\u{1F947}", "clue": "\u05DE\u05EA\u05DB\u05EA \u05D9\u05E7\u05E8\u05D4 \u05D5\u05D6\u05D4\u05D5\u05D1\u05D4", "w": 2 }, { "en": "Captain", "he": "\u05E7\u05E4\u05D8\u05DF", "pic": "\u{1F9D1}\u200D\u2708\uFE0F", "clue": "\u05DE\u05D9 \u05E9\u05DE\u05E0\u05D4\u05D9\u05D2 \u05D0\u05EA \u05D4\u05E1\u05E4\u05D9\u05E0\u05D4", "w": 2 }, { "en": "Flag", "he": "\u05D3\u05D2\u05DC", "pic": "\u{1F6A9}", "clue": "\u05D1\u05D3 \u05E2\u05DD \u05E6\u05D9\u05D5\u05E8, \u05EA\u05DC\u05D5\u05D9 \u05E2\u05DC \u05EA\u05E8\u05DF", "w": 2 }, { "en": "Red", "he": "\u05D0\u05D3\u05D5\u05DD", "pic": "\u{1F534}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05EA\u05D5\u05EA \u05D5\u05E9\u05DC \u05E2\u05D2\u05D1\u05E0\u05D9\u05D9\u05D4", "w": 2 }, { "en": "Blue", "he": "\u05DB\u05D7\u05D5\u05DC", "pic": "\u{1F535}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05D4\u05E9\u05DE\u05D9\u05D9\u05DD \u05D5\u05E9\u05DC \u05D4\u05D9\u05DD", "w": 2 }, { "en": "Green", "he": "\u05D9\u05E8\u05D5\u05E7", "pic": "\u{1F7E2}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05D3\u05E9\u05D0 \u05D5\u05E9\u05DC \u05E2\u05DC\u05D9\u05DD", "w": 2 }, { "en": "Yellow", "he": "\u05E6\u05D4\u05D5\u05D1", "pic": "\u{1F7E1}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05D1\u05E0\u05E0\u05D4 \u05D5\u05E9\u05DC \u05E9\u05DE\u05E9", "w": 2 }, { "en": "Orange", "he": "\u05DB\u05EA\u05D5\u05DD", "pic": "\u{1F7E0}", "clue": "\u05D6\u05D4 \u05D4\u05E6\u05D1\u05E2 \u2014 \u05DC\u05D0 \u05D4\u05E4\u05E8\u05D9 \u05EA\u05E4\u05D5\u05D6", "w": 2 }, { "en": "Purple", "he": "\u05E1\u05D2\u05D5\u05DC", "pic": "\u{1F7E3}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05E2\u05E0\u05D1\u05D9\u05DD \u05D5\u05E9\u05DC \u05D7\u05E6\u05D9\u05DC", "w": 2 }, { "en": "Pink", "he": "\u05D5\u05E8\u05D5\u05D3", "pic": "\u{1F497}", "clue": "\u05E6\u05D1\u05E2 \u05D1\u05D4\u05D9\u05E8 \u05DB\u05DE\u05D5 \u05DE\u05E1\u05D8\u05D9\u05E7 \u05D0\u05D5 \u05E4\u05E8\u05D7", "w": 2 }, { "en": "Black", "he": "\u05E9\u05D7\u05D5\u05E8", "pic": "\u26AB", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05D4\u05DC\u05D9\u05DC\u05D4, \u05D4\u05D4\u05E4\u05DA \u05DE\u05DC\u05D1\u05DF", "w": 2 }, { "en": "White", "he": "\u05DC\u05D1\u05DF", "pic": "\u26AA", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05D7\u05DC\u05D1 \u05D5\u05E9\u05DC \u05E9\u05DC\u05D2", "w": 2 }, { "en": "Brown", "he": "\u05D7\u05D5\u05DD", "pic": "\u{1F90E}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05E9\u05D5\u05E7\u05D5\u05DC\u05D3 \u05D5\u05E9\u05DC \u05D0\u05D3\u05DE\u05D4", "w": 2 }, { "en": "Color", "he": "\u05E6\u05D1\u05E2", "pic": "\u{1F3A8}", "clue": "\u05D0\u05D3\u05D5\u05DD, \u05DB\u05D7\u05D5\u05DC, \u05D9\u05E8\u05D5\u05E7 \u2014 \u05DB\u05DC \u05D0\u05D7\u05D3 \u05D4\u05D5\u05D0...", "w": 2 }, { "en": "Apple", "he": "\u05EA\u05E4\u05D5\u05D7", "pic": "\u{1F34E}", "clue": "\u05E4\u05E8\u05D9 \u05E2\u05D2\u05D5\u05DC, \u05D0\u05D3\u05D5\u05DD \u05D0\u05D5 \u05D9\u05E8\u05D5\u05E7", "w": 2 }, { "en": "Banana", "he": "\u05D1\u05E0\u05E0\u05D4", "pic": "\u{1F34C}", "clue": "\u05E4\u05E8\u05D9 \u05D0\u05E8\u05D5\u05DA \u05D5\u05E6\u05D4\u05D5\u05D1", "w": 2 }, { "en": "Bread", "he": "\u05DC\u05D7\u05DD", "pic": "\u{1F35E}", "clue": "\u05D0\u05D5\u05DB\u05DC\u05D9\u05DD \u05D0\u05D5\u05EA\u05D5 \u05D1\u05DB\u05E8\u05D9\u05DA", "w": 2 }, { "en": "Milk", "he": "\u05D7\u05DC\u05D1", "pic": "\u{1F95B}", "clue": "\u05DE\u05E9\u05E7\u05D4 \u05DC\u05D1\u05DF \u05E9\u05E9\u05D5\u05EA\u05D9\u05DD \u05D1\u05D1\u05D5\u05E7\u05E8", "w": 2 }, { "en": "Juice", "he": "\u05DE\u05D9\u05E5", "pic": "\u{1F9C3}", "clue": "\u05DE\u05E9\u05E7\u05D4 \u05E9\u05E1\u05D5\u05D7\u05D8\u05D9\u05DD \u05DE\u05E4\u05D9\u05E8\u05D5\u05EA", "w": 2 }, { "en": "Cake", "he": "\u05E2\u05D5\u05D2\u05D4", "pic": "\u{1F382}", "clue": "\u05DE\u05EA\u05D5\u05E7\u05D4, \u05D0\u05D5\u05DB\u05DC\u05D9\u05DD \u05D1\u05D9\u05D5\u05DD \u05D4\u05D5\u05DC\u05D3\u05EA", "w": 2 }, { "en": "Egg", "he": "\u05D1\u05D9\u05E6\u05D4", "pic": "\u{1F95A}", "clue": "\u05DE\u05D2\u05D9\u05E2\u05D4 \u05DE\u05EA\u05E8\u05E0\u05D2\u05D5\u05DC\u05EA, \u05E2\u05D2\u05D5\u05DC\u05D4 \u05D5\u05DC\u05D1\u05E0\u05D4", "w": 2 }, { "en": "Cheese", "he": "\u05D2\u05D1\u05D9\u05E0\u05D4", "pic": "\u{1F9C0}", "clue": "\u05E2\u05E9\u05D5\u05D9\u05D4 \u05DE\u05D7\u05DC\u05D1, \u05E9\u05DE\u05D9\u05DD \u05D1\u05DB\u05E8\u05D9\u05DA", "w": 2 }, { "en": "Pizza", "he": "\u05E4\u05D9\u05E6\u05D4", "pic": "\u{1F355}", "clue": "\u05E2\u05D2\u05D5\u05DC\u05D4, \u05E2\u05DD \u05D2\u05D1\u05D9\u05E0\u05D4 \u05D5\u05E2\u05DD \u05EA\u05D5\u05E1\u05E4\u05D5\u05EA \u05DE\u05DC\u05DE\u05E2\u05DC\u05D4", "w": 2 }, { "en": "Chocolate", "he": "\u05E9\u05D5\u05E7\u05D5\u05DC\u05D3", "pic": "\u{1F36B}", "clue": "\u05DE\u05EA\u05D5\u05E7 \u05D5\u05D7\u05D5\u05DD, \u05DE\u05DB\u05D9\u05E0\u05D9\u05DD \u05DE\u05E7\u05D9\u05E7\u05D0\u05D5", "w": 2 }, { "en": "Food", "he": "\u05D0\u05D5\u05DB\u05DC", "pic": "\u{1F37D}\uFE0F", "clue": "\u05DB\u05DC \u05DE\u05D4 \u05E9\u05D0\u05D5\u05DB\u05DC\u05D9\u05DD \u05D1\u05D0\u05E8\u05D5\u05D7\u05D4", "w": 2 }, { "en": "Ice cream", "he": "\u05D2\u05DC\u05D9\u05D3\u05D4", "pic": "\u{1F366}", "clue": "\u05E7\u05D9\u05E0\u05D5\u05D7 \u05E7\u05E8 \u05D5\u05DE\u05EA\u05D5\u05E7 \u05D1\u05E7\u05D9\u05E5", "w": 2 }, { "en": "Crab", "he": "\u05E1\u05E8\u05D8\u05DF", "pic": "\u{1F980}", "clue": "\u05D7\u05D9 \u05D1\u05D7\u05D5\u05E3 \u05D5\u05D9\u05E9 \u05DC\u05D5 \u05E6\u05D1\u05EA\u05D5\u05EA", "w": 2 }, { "en": "Turtle", "he": "\u05E6\u05D1", "pic": "\u{1F422}", "clue": "\u05D9\u05E9 \u05DC\u05D5 \u05E9\u05E8\u05D9\u05D5\u05DF \u05E2\u05DC \u05D4\u05D2\u05D1", "w": 2 }, { "en": "Dolphin", "he": "\u05D3\u05D5\u05DC\u05E4\u05D9\u05DF", "pic": "\u{1F42C}", "clue": "\u05D7\u05D9\u05D4 \u05D7\u05DB\u05DE\u05D4 \u05E9\u05E9\u05D5\u05D7\u05D4 \u05D1\u05D9\u05DD \u05D5\u05DE\u05E7\u05E4\u05E6\u05EA", "w": 2 }, { "en": "Whale", "he": "\u05DC\u05D5\u05D5\u05D9\u05D9\u05EA\u05DF", "pic": "\u{1F40B}", "clue": "\u05D4\u05D7\u05D9\u05D4 \u05D4\u05DB\u05D9 \u05D2\u05D3\u05D5\u05DC\u05D4 \u05D1\u05D9\u05DD", "w": 2 }, { "en": "Octopus", "he": "\u05EA\u05DE\u05E0\u05D5\u05DF", "pic": "\u{1F419}", "clue": "\u05D9\u05E9 \u05DC\u05D5 \u05E9\u05DE\u05D5\u05E0\u05D4 \u05D6\u05E8\u05D5\u05E2\u05D5\u05EA", "w": 2 }, { "en": "School", "he": "\u05D1\u05D9\u05EA \u05E1\u05E4\u05E8", "pic": "\u{1F3EB}", "clue": "\u05D4\u05DE\u05E7\u05D5\u05DD \u05E9\u05D1\u05D5 \u05DC\u05D5\u05DE\u05D3\u05D9\u05DD", "w": 3 }, { "en": "Book", "he": "\u05E1\u05E4\u05E8", "pic": "\u{1F4DA}", "clue": "\u05E7\u05D5\u05E8\u05D0\u05D9\u05DD \u05D1\u05D5 \u05E1\u05D9\u05E4\u05D5\u05E8\u05D9\u05DD \u05D5\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9\u05DD", "w": 3 }, { "en": "Friend", "he": "\u05D7\u05D1\u05E8", "pic": "\u{1F9D1}\u200D\u{1F91D}\u200D\u{1F9D1}", "clue": "\u05DE\u05D9 \u05E9\u05D0\u05D5\u05D4\u05D1\u05D9\u05DD \u05DC\u05E9\u05D7\u05E7 \u05D5\u05DC\u05D3\u05D1\u05E8 \u05D0\u05D9\u05EA\u05D5", "w": 3 }, { "en": "Teacher", "he": "\u05DE\u05D5\u05E8\u05D4", "pic": "\u{1F469}\u200D\u{1F3EB}", "clue": "\u05DE\u05D9 \u05E9\u05DE\u05DC\u05DE\u05D3 \u05D1\u05DB\u05D9\u05EA\u05D4", "w": 3 }, { "en": "House", "he": "\u05D1\u05D9\u05EA", "pic": "\u{1F3E0}", "clue": "\u05D4\u05DE\u05E7\u05D5\u05DD \u05E9\u05D1\u05D5 \u05D2\u05E8\u05D9\u05DD", "w": 3 }, { "en": "Car", "he": "\u05DE\u05DB\u05D5\u05E0\u05D9\u05EA", "pic": "\u{1F697}", "clue": "\u05E0\u05D5\u05E1\u05E2\u05D9\u05DD \u05D1\u05D4 \u05E2\u05DC \u05D0\u05E8\u05D1\u05E2\u05D4 \u05D2\u05DC\u05D2\u05DC\u05D9\u05DD", "w": 3 }, { "en": "Street", "he": "\u05E8\u05D7\u05D5\u05D1", "pic": "\u{1F6E3}\uFE0F", "clue": "\u05D4\u05D3\u05E8\u05DA \u05E9\u05D1\u05D9\u05DF \u05D4\u05D1\u05EA\u05D9\u05DD", "w": 3 }, { "en": "City", "he": "\u05E2\u05D9\u05E8", "pic": "\u{1F306}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05D2\u05D3\u05D5\u05DC \u05E2\u05DD \u05D4\u05E8\u05D1\u05D4 \u05D1\u05E0\u05D9\u05D9\u05E0\u05D9\u05DD", "w": 3 }, { "en": "Student", "he": "\u05EA\u05DC\u05DE\u05D9\u05D3", "pic": "\u{1F9D1}\u200D\u{1F393}", "clue": "\u05DE\u05D9 \u05E9\u05DC\u05D5\u05DE\u05D3 \u05D1\u05D1\u05D9\u05EA \u05D4\u05E1\u05E4\u05E8", "w": 3 }, { "en": "Pencil", "he": "\u05E2\u05D9\u05E4\u05E8\u05D5\u05DF", "pic": "\u270F\uFE0F", "clue": "\u05DB\u05D5\u05EA\u05D1\u05D9\u05DD \u05D5\u05DE\u05D5\u05D7\u05E7\u05D9\u05DD \u05D0\u05D9\u05EA\u05D5", "w": 3 }, { "en": "Pen", "he": "\u05E2\u05D8", "pic": "\u{1F58A}\uFE0F", "clue": "\u05DB\u05D5\u05EA\u05D1\u05D9\u05DD \u05D0\u05D9\u05EA\u05D5 \u05D1\u05D3\u05D9\u05D5", "w": 3 }, { "en": "Bag", "he": "\u05EA\u05D9\u05E7", "pic": "\u{1F392}", "clue": "\u05E9\u05DE\u05D9\u05DD \u05D1\u05D5 \u05E1\u05E4\u05E8\u05D9\u05DD \u05DC\u05D1\u05D9\u05EA \u05D4\u05E1\u05E4\u05E8", "w": 3 }, { "en": "Chair", "he": "\u05DB\u05D9\u05E1\u05D0", "pic": "\u{1FA91}", "clue": "\u05E2\u05DC\u05D9\u05D5 \u05D9\u05D5\u05E9\u05D1\u05D9\u05DD", "w": 3 }, { "en": "Classroom", "he": "\u05DB\u05D9\u05EA\u05D4", "pic": "\u{1F6AA}", "clue": "\u05D4\u05D7\u05D3\u05E8 \u05D1\u05D1\u05D9\u05EA \u05D4\u05E1\u05E4\u05E8 \u05E9\u05D1\u05D5 \u05DC\u05D5\u05DE\u05D3\u05D9\u05DD", "w": 3 }, { "en": "Homework", "he": "\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA", "pic": "\u{1F4DD}", "clue": "\u05D4\u05E2\u05D1\u05D5\u05D3\u05D4 \u05E9\u05D4\u05DE\u05D5\u05E8\u05D4 \u05E0\u05D5\u05EA\u05DF \u05DC\u05E2\u05E9\u05D5\u05EA \u05D1\u05D1\u05D9\u05EA", "w": 3 }, { "en": "Notebook", "he": "\u05DE\u05D7\u05D1\u05E8\u05EA", "pic": "\u{1F4D3}", "clue": "\u05DE\u05D7\u05D1\u05E8\u05EA \u05DC\u05DB\u05EA\u05D9\u05D1\u05D4 \u05D1\u05E9\u05D9\u05E2\u05D5\u05E8", "w": 3 }, { "en": "Computer", "he": "\u05DE\u05D7\u05E9\u05D1", "pic": "\u{1F4BB}", "clue": "\u05DE\u05DB\u05D5\u05E0\u05D4 \u05DC\u05DC\u05DE\u05D9\u05D3\u05D4, \u05DC\u05DE\u05E9\u05D7\u05E7\u05D9\u05DD \u05D5\u05DC\u05E1\u05E8\u05D8\u05D9\u05DD", "w": 3 }, { "en": "Paper", "he": "\u05E0\u05D9\u05D9\u05E8", "pic": "\u{1F4C4}", "clue": "\u05D3\u05E3 \u05DC\u05D1\u05DF \u05E9\u05DB\u05D5\u05EA\u05D1\u05D9\u05DD \u05E2\u05DC\u05D9\u05D5", "w": 3 }, { "en": "Board", "he": "\u05DC\u05D5\u05D7", "pic": "\u{1F9D1}\u200D\u{1F3EB}", "clue": "\u05D4\u05DC\u05D5\u05D7 \u05D4\u05D2\u05D3\u05D5\u05DC \u05DE\u05DC\u05E4\u05E0\u05D9\u05DD \u05D1\u05DB\u05D9\u05EA\u05D4", "w": 3 }, { "en": "Door", "he": "\u05D3\u05DC\u05EA", "pic": "\u{1F6AA}", "clue": "\u05D3\u05E8\u05DA \u05D4\u05DB\u05E0\u05D9\u05E1\u05D4 \u05DC\u05D7\u05D3\u05E8 \u05D0\u05D5 \u05DC\u05D1\u05D9\u05EA", "w": 3 }, { "en": "Window", "he": "\u05D7\u05DC\u05D5\u05DF", "pic": "\u{1FA9F}", "clue": "\u05E4\u05D5\u05EA\u05D7\u05D9\u05DD \u05D0\u05D5\u05EA\u05D5 \u05DB\u05D3\u05D9 \u05DC\u05E8\u05D0\u05D5\u05EA \u05D4\u05D7\u05D5\u05E6\u05D4", "w": 3 }, { "en": "Room", "he": "\u05D7\u05D3\u05E8", "pic": "\u{1F6CF}\uFE0F", "clue": "\u05D7\u05DC\u05E7 \u05E1\u05D2\u05D5\u05E8 \u05D1\u05EA\u05D5\u05DA \u05D4\u05D1\u05D9\u05EA", "w": 3 }, { "en": "Kitchen", "he": "\u05DE\u05D8\u05D1\u05D7", "pic": "\u{1F373}", "clue": "\u05D4\u05D7\u05D3\u05E8 \u05E9\u05D1\u05D5 \u05DE\u05D1\u05E9\u05DC\u05D9\u05DD", "w": 3 }, { "en": "Bedroom", "he": "\u05D7\u05D3\u05E8 \u05E9\u05D9\u05E0\u05D4", "pic": "\u{1F6CC}", "clue": "\u05D4\u05D7\u05D3\u05E8 \u05E9\u05D1\u05D5 \u05D9\u05E9\u05E0\u05D9\u05DD", "w": 3 }, { "en": "Table", "he": "\u05E9\u05D5\u05DC\u05D7\u05DF", "pic": "\u{1F37D}\uFE0F", "clue": "\u05E2\u05DC\u05D9\u05D5 \u05D0\u05D5\u05DB\u05DC\u05D9\u05DD, \u05DB\u05D5\u05EA\u05D1\u05D9\u05DD \u05D0\u05D5 \u05DE\u05E9\u05D7\u05E7\u05D9\u05DD", "w": 3 }, { "en": "Bed", "he": "\u05DE\u05D9\u05D8\u05D4", "pic": "\u{1F6CF}\uFE0F", "clue": "\u05E2\u05DC\u05D9\u05D4 \u05D9\u05E9\u05E0\u05D9\u05DD \u05D1\u05DC\u05D9\u05DC\u05D4", "w": 3 }, { "en": "Lamp", "he": "\u05DE\u05E0\u05D5\u05E8\u05D4", "pic": "\u{1F4A1}", "clue": "\u05DE\u05D0\u05D9\u05E8\u05D4 \u05D0\u05EA \u05D4\u05D7\u05D3\u05E8", "w": 3 }, { "en": "Phone", "he": "\u05D8\u05DC\u05E4\u05D5\u05DF", "pic": "\u{1F4F1}", "clue": "\u05DE\u05EA\u05E7\u05E9\u05E8\u05D9\u05DD \u05D5\u05E9\u05D5\u05DC\u05D7\u05D9\u05DD \u05D0\u05D9\u05EA\u05D5 \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA", "w": 3 }, { "en": "Garden", "he": "\u05D2\u05D9\u05E0\u05D4", "pic": "\u{1F3E1}", "clue": "\u05DC\u05D9\u05D3 \u05D4\u05D1\u05D9\u05EA, \u05E2\u05DD \u05E4\u05E8\u05D7\u05D9\u05DD \u05D5\u05D3\u05E9\u05D0", "w": 3 }, { "en": "Bus", "he": "\u05D0\u05D5\u05D8\u05D5\u05D1\u05D5\u05E1", "pic": "\u{1F68C}", "clue": "\u05E8\u05DB\u05D1 \u05D2\u05D3\u05D5\u05DC \u05E9\u05DE\u05E1\u05D9\u05E2 \u05D4\u05E8\u05D1\u05D4 \u05D0\u05E0\u05E9\u05D9\u05DD", "w": 3 }, { "en": "Train", "he": "\u05E8\u05DB\u05D1\u05EA", "pic": "\u{1F686}", "clue": "\u05E0\u05D5\u05E1\u05E2\u05EA \u05E2\u05DC \u05E4\u05E1\u05D9\u05DD", "w": 3 }, { "en": "Bicycle", "he": "\u05D0\u05D5\u05E4\u05E0\u05D9\u05D9\u05DD", "pic": "\u{1F6B2}", "clue": "\u05E9\u05E0\u05D9 \u05D2\u05DC\u05D2\u05DC\u05D9\u05DD, \u05E8\u05D5\u05DB\u05D1\u05D9\u05DD \u05E2\u05DD \u05E8\u05D2\u05DC\u05D9\u05D9\u05DD", "w": 3 }, { "en": "Airplane", "he": "\u05DE\u05D8\u05D5\u05E1", "pic": "\u2708\uFE0F", "clue": "\u05D8\u05E1 \u05D1\u05E9\u05DE\u05D9\u05D9\u05DD \u05DE\u05DE\u05D3\u05D9\u05E0\u05D4 \u05DC\u05DE\u05D3\u05D9\u05E0\u05D4", "w": 3 }, { "en": "Taxi", "he": "\u05DE\u05D5\u05E0\u05D9\u05EA", "pic": "\u{1F695}", "clue": "\u05DE\u05DB\u05D5\u05E0\u05D9\u05EA \u05E9\u05DE\u05E9\u05DC\u05DE\u05D9\u05DD \u05DC\u05E0\u05D4\u05D2 \u05E9\u05DC\u05D4", "w": 3 }, { "en": "Shop", "he": "\u05D7\u05E0\u05D5\u05EA", "pic": "\u{1F6CD}\uFE0F", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E9\u05E7\u05D5\u05E0\u05D9\u05DD \u05D1\u05D5 \u05D3\u05D1\u05E8\u05D9\u05DD", "w": 3 }, { "en": "Park", "he": "\u05E4\u05D0\u05E8\u05E7", "pic": "\u{1F3DE}\uFE0F", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E4\u05EA\u05D5\u05D7 \u05E2\u05DD \u05D3\u05E9\u05D0 \u05D5\u05DE\u05E9\u05D7\u05E7\u05D9\u05DD", "w": 3 }, { "en": "Library", "he": "\u05E1\u05E4\u05E8\u05D9\u05D9\u05D4", "pic": "\u{1F4D6}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E2\u05DD \u05D4\u05E8\u05D1\u05D4 \u05E1\u05E4\u05E8\u05D9\u05DD \u05DC\u05D4\u05E9\u05D0\u05DC\u05D4", "w": 3 }, { "en": "Hospital", "he": "\u05D1\u05D9\u05EA \u05D7\u05D5\u05DC\u05D9\u05DD", "pic": "\u{1F3E5}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E9\u05D4\u05D5\u05DC\u05DB\u05D9\u05DD \u05D0\u05DC\u05D9\u05D5 \u05DB\u05E9\u05D7\u05D5\u05DC\u05D9\u05DD", "w": 3 }, { "en": "Castle", "he": "\u05D8\u05D9\u05E8\u05D4", "pic": "\u{1F3F0}", "clue": "\u05D1\u05D9\u05EA \u05E2\u05E0\u05E7 \u05E9\u05DC \u05DE\u05DC\u05DA \u05D5\u05E9\u05DC \u05DE\u05DC\u05DB\u05D4", "w": 3 }, { "en": "King", "he": "\u05DE\u05DC\u05DA", "pic": "\u{1F934}", "clue": "\u05D4\u05E9\u05DC\u05D9\u05D8 \u05E9\u05DC \u05D4\u05DE\u05DE\u05DC\u05DB\u05D4", "w": 3 }, { "en": "Queen", "he": "\u05DE\u05DC\u05DB\u05D4", "pic": "\u{1F478}", "clue": "\u05D4\u05E9\u05DC\u05D9\u05D8\u05D4 \u05E9\u05DC \u05D4\u05DE\u05DE\u05DC\u05DB\u05D4", "w": 3 }, { "en": "Magic", "he": "\u05E7\u05E1\u05DD", "pic": "\u2728", "clue": "\u05D3\u05D1\u05E8\u05D9\u05DD \u05DE\u05D9\u05D5\u05D7\u05D3\u05D9\u05DD \u05E9\u05E7\u05D5\u05E8\u05D9\u05DD \u05D1\u05E1\u05D9\u05E4\u05D5\u05E8\u05D9 \u05E4\u05DC\u05D0", "w": 3 }, { "en": "Clock", "he": "\u05E9\u05E2\u05D5\u05DF", "pic": "\u23F0", "clue": "\u05DE\u05E8\u05D0\u05D4 \u05DC\u05E0\u05D5 \u05DE\u05D4 \u05D4\u05E9\u05E2\u05D4", "w": 3 }, { "en": "Key", "he": "\u05DE\u05E4\u05EA\u05D7", "pic": "\u{1F511}", "clue": "\u05E4\u05D5\u05EA\u05D7\u05D9\u05DD \u05D0\u05D9\u05EA\u05D5 \u05D3\u05DC\u05EA", "w": 3 }, { "en": "Star", "he": "\u05DB\u05D5\u05DB\u05D1", "pic": "\u2B50", "clue": "\u05E0\u05D5\u05E6\u05E5 \u05D1\u05E9\u05DE\u05D9\u05D9\u05DD \u05D1\u05DC\u05D9\u05DC\u05D4", "w": 4 }, { "en": "Moon", "he": "\u05D9\u05E8\u05D7", "pic": "\u{1F319}", "clue": "\u05DE\u05D0\u05D9\u05E8 \u05D1\u05DC\u05D9\u05DC\u05D4 \u05D5\u05DE\u05E7\u05D9\u05E3 \u05D0\u05EA \u05DB\u05D3\u05D5\u05E8 \u05D4\u05D0\u05E8\u05E5", "w": 4 }, { "en": "Planet", "he": "\u05DB\u05D5\u05DB\u05D1 \u05DC\u05DB\u05EA", "pic": "\u{1FA90}", "clue": "\u05DB\u05DE\u05D5 \u05DB\u05D3\u05D5\u05E8 \u05D4\u05D0\u05E8\u05E5 \u05D0\u05D5 \u05DE\u05D0\u05D3\u05D9\u05DD", "w": 4 }, { "en": "Rocket", "he": "\u05E8\u05E7\u05D8\u05D4", "pic": "\u{1F680}", "clue": "\u05E2\u05D5\u05DC\u05D4 \u05DC\u05E9\u05DE\u05D9\u05D9\u05DD \u05E2\u05DD \u05D0\u05E9 \u05DE\u05DC\u05DE\u05D8\u05D4", "w": 4 }, { "en": "Space", "he": "\u05D7\u05DC\u05DC", "pic": "\u{1F30C}", "clue": "\u05DB\u05DC \u05DE\u05D4 \u05E9\u05DE\u05E2\u05DC \u05D4\u05E9\u05DE\u05D9\u05D9\u05DD, \u05D1\u05D9\u05DF \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD", "w": 4 }, { "en": "Alien", "he": "\u05D7\u05D9\u05D9\u05D6\u05E8", "pic": "\u{1F47D}", "clue": "\u05D9\u05E6\u05D5\u05E8 \u05E9\u05D4\u05D2\u05D9\u05E2 \u05DE\u05DB\u05D5\u05DB\u05D1 \u05D0\u05D7\u05E8", "w": 4 }, { "en": "Sun", "he": "\u05E9\u05DE\u05E9", "pic": "\u2600\uFE0F", "clue": "\u05DE\u05D0\u05D9\u05E8\u05D4 \u05D1\u05D9\u05D5\u05DD \u05D5\u05DE\u05D7\u05DE\u05DE\u05EA \u05D0\u05D5\u05EA\u05E0\u05D5", "w": 4 }, { "en": "Robot", "he": "\u05E8\u05D5\u05D1\u05D5\u05D8", "pic": "\u{1F916}", "clue": "\u05DE\u05DB\u05D5\u05E0\u05D4 \u05E9\u05E0\u05E8\u05D0\u05D9\u05EA \u05E7\u05E6\u05EA \u05DB\u05DE\u05D5 \u05D0\u05D3\u05DD", "w": 4 }, { "en": "Earth", "he": "\u05DB\u05D3\u05D5\u05E8 \u05D4\u05D0\u05E8\u05E5", "pic": "\u{1F30D}", "clue": "\u05D4\u05DB\u05D5\u05DB\u05D1 \u05E9\u05D1\u05D5 \u05D0\u05E0\u05D7\u05E0\u05D5 \u05D2\u05E8\u05D9\u05DD", "w": 4 }, { "en": "Astronaut", "he": "\u05D0\u05E1\u05D8\u05E8\u05D5\u05E0\u05D0\u05D5\u05D8", "pic": "\u{1F468}\u200D\u{1F680}", "clue": "\u05D0\u05D3\u05DD \u05E9\u05D8\u05E1 \u05DC\u05D7\u05DC\u05DC", "w": 4 }, { "en": "Galaxy", "he": "\u05D2\u05DC\u05E7\u05E1\u05D9\u05D4", "pic": "\u{1F300}", "clue": "\u05E7\u05D1\u05D5\u05E6\u05D4 \u05E2\u05E0\u05E7\u05D9\u05EA \u05E9\u05DC \u05DE\u05D9\u05DC\u05D9\u05D5\u05E0\u05D9 \u05DB\u05D5\u05DB\u05D1\u05D9\u05DD", "w": 4 }, { "en": "Spaceship", "he": "\u05D7\u05DC\u05DC\u05D9\u05EA", "pic": "\u{1F6F8}", "clue": "\u05DB\u05DC\u05D9 \u05E8\u05DB\u05D1 \u05E9\u05D8\u05E1 \u05D1\u05D7\u05DC\u05DC", "w": 4 }, { "en": "Comet", "he": "\u05E9\u05D1\u05D9\u05D8", "pic": "\u2604\uFE0F", "clue": "\u05DB\u05D5\u05DB\u05D1 \u05E2\u05DD \u05D6\u05E0\u05D1 \u05D0\u05D5\u05E8 \u05E9\u05D8\u05E1 \u05D1\u05E9\u05DE\u05D9\u05D9\u05DD", "w": 4 }, { "en": "One", "he": "\u05D0\u05D7\u05D3", "pic": "1\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 1", "w": 4 }, { "en": "Two", "he": "\u05E9\u05EA\u05D9\u05D9\u05DD", "pic": "2\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 2", "w": 4 }, { "en": "Three", "he": "\u05E9\u05DC\u05D5\u05E9", "pic": "3\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 3", "w": 4 }, { "en": "Four", "he": "\u05D0\u05E8\u05D1\u05E2", "pic": "4\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 4", "w": 4 }, { "en": "Five", "he": "\u05D7\u05DE\u05E9", "pic": "5\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 5", "w": 4 }, { "en": "Six", "he": "\u05E9\u05E9", "pic": "6\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 6", "w": 4 }, { "en": "Seven", "he": "\u05E9\u05D1\u05E2", "pic": "7\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 7", "w": 4 }, { "en": "Eight", "he": "\u05E9\u05DE\u05D5\u05E0\u05D4", "pic": "8\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 8", "w": 4 }, { "en": "Nine", "he": "\u05EA\u05E9\u05E2", "pic": "9\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 9", "w": 4 }, { "en": "Ten", "he": "\u05E2\u05E9\u05E8", "pic": "\u{1F51F}", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 10", "w": 4 }, { "en": "Number", "he": "\u05DE\u05E1\u05E4\u05E8", "pic": "\u{1F522}", "clue": "\u05D0\u05D7\u05D3, \u05E9\u05EA\u05D9\u05D9\u05DD, \u05E9\u05DC\u05D5\u05E9 \u05D4\u05DD...", "w": 4 }, { "en": "Day", "he": "\u05D9\u05D5\u05DD", "pic": "\u{1F4C5}", "clue": "\u05D4\u05D6\u05DE\u05DF \u05E9\u05D1\u05D5 \u05D9\u05E9 \u05D0\u05D5\u05E8 \u05E9\u05DE\u05E9", "w": 4 }, { "en": "Night", "he": "\u05DC\u05D9\u05DC\u05D4", "pic": "\u{1F303}", "clue": "\u05D4\u05D6\u05DE\u05DF \u05E9\u05D1\u05D5 \u05D7\u05E9\u05D5\u05DA \u05D5\u05D4\u05D9\u05E8\u05D7 \u05D1\u05D7\u05D5\u05E5", "w": 4 }, { "en": "Morning", "he": "\u05D1\u05D5\u05E7\u05E8", "pic": "\u{1F305}", "clue": "\u05EA\u05D7\u05D9\u05DC\u05EA \u05D4\u05D9\u05D5\u05DD, \u05D0\u05D7\u05E8\u05D9 \u05E9\u05E7\u05DE\u05D9\u05DD", "w": 4 }, { "en": "Today", "he": "\u05D4\u05D9\u05D5\u05DD", "pic": "\u{1F4CC}", "clue": "\u05D4\u05D9\u05D5\u05DD \u05D4\u05D6\u05D4, \u05DC\u05D0 \u05D0\u05EA\u05DE\u05D5\u05DC \u05D5\u05DC\u05D0 \u05DE\u05D7\u05E8", "w": 4 }, { "en": "Tomorrow", "he": "\u05DE\u05D7\u05E8", "pic": "\u23ED\uFE0F", "clue": "\u05D4\u05D9\u05D5\u05DD \u05E9\u05D9\u05D1\u05D5\u05D0 \u05D0\u05D7\u05E8\u05D9 \u05D4\u05D9\u05D5\u05DD", "w": 4 }, { "en": "Week", "he": "\u05E9\u05D1\u05D5\u05E2", "pic": "\u{1F4C6}", "clue": "\u05E9\u05D1\u05E2\u05D4 \u05D9\u05DE\u05D9\u05DD \u05D9\u05D7\u05D3", "w": 4 }, { "en": "Year", "he": "\u05E9\u05E0\u05D4", "pic": "\u{1F386}", "clue": "\u05E9\u05E0\u05D9\u05D9\u05DD-\u05E2\u05E9\u05E8 \u05D7\u05D5\u05D3\u05E9\u05D9\u05DD \u05D9\u05D7\u05D3", "w": 4 }, { "en": "Time", "he": "\u05D6\u05DE\u05DF", "pic": "\u23F1\uFE0F", "clue": "\u05DE\u05D4 \u05E9\u05D4\u05E9\u05E2\u05D5\u05DF \u05DE\u05D5\u05D3\u05D3", "w": 4 }, { "en": "Write", "he": "\u05DC\u05DB\u05EA\u05D5\u05D1", "pic": "\u270D\uFE0F", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05E2\u05D9\u05E4\u05E8\u05D5\u05DF \u05E2\u05DC \u05D3\u05E3", "w": 4 }, { "en": "See", "he": "\u05DC\u05E8\u05D0\u05D5\u05EA", "pic": "\u{1F440}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05D4\u05E2\u05D9\u05E0\u05D9\u05D9\u05DD", "w": 4 }, { "en": "Hear", "he": "\u05DC\u05E9\u05DE\u05D5\u05E2", "pic": "\u{1F442}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05D4\u05D0\u05D5\u05D6\u05E0\u05D9\u05D9\u05DD", "w": 4 }, { "en": "Come", "he": "\u05DC\u05D1\u05D5\u05D0", "pic": "\u{1F44B}", "clue": "\u05DC\u05D4\u05D2\u05D9\u05E2 \u05DC\u05DB\u05D0\u05DF, \u05D0\u05DC\u05D9\u05E0\u05D5", "w": 4 }, { "en": "Look", "he": "\u05DC\u05D4\u05E1\u05EA\u05DB\u05DC", "pic": "\u{1F441}\uFE0F", "clue": "\u05DC\u05DB\u05D5\u05D5\u05DF \u05D0\u05EA \u05D4\u05E2\u05D9\u05E0\u05D9\u05D9\u05DD \u05DC\u05DE\u05E9\u05D4\u05D5", "w": 4 }, { "en": "Like", "he": "\u05D0\u05D5\u05D4\u05D1", "pic": "\u{1F497}", "clue": "\u05DB\u05E9\u05DE\u05E9\u05D4\u05D5 \u05DE\u05D5\u05E6\u05D0 \u05D7\u05DF \u05D1\u05E2\u05D9\u05E0\u05D9\u05E0\u05D5", "w": 4 }, { "en": "Want", "he": "\u05DC\u05E8\u05E6\u05D5\u05EA", "pic": "\u{1F64F}", "clue": "\u05DB\u05E9\u05DE\u05DE\u05E9 \u05DE\u05E7\u05D5\u05D5\u05D9\u05DD \u05DC\u05E7\u05D1\u05DC \u05DE\u05E9\u05D4\u05D5", "w": 4 }, { "en": "Help", "he": "\u05DC\u05E2\u05D6\u05D5\u05E8", "pic": "\u{1F198}", "clue": "\u05DC\u05EA\u05EA \u05D9\u05D3 \u05DC\u05DE\u05D9\u05E9\u05D4\u05D5 \u05E9\u05E6\u05E8\u05D9\u05DA", "w": 4 }, { "en": "Find", "he": "\u05DC\u05DE\u05E6\u05D5\u05D0", "pic": "\u{1F50D}", "clue": "\u05DC\u05D2\u05DC\u05D5\u05EA \u05DE\u05E9\u05D4\u05D5 \u05E9\u05D7\u05D9\u05E4\u05E9\u05E0\u05D5", "w": 4 }, { "en": "Fly", "he": "\u05DC\u05E2\u05D5\u05E3", "pic": "\u{1F985}", "clue": "\u05DC\u05D6\u05D5\u05D6 \u05D1\u05D0\u05D5\u05D5\u05D9\u05E8 \u05DB\u05DE\u05D5 \u05E6\u05D9\u05E4\u05D5\u05E8", "w": 4 }, { "en": "New", "he": "\u05D7\u05D3\u05E9", "pic": "\u2728", "clue": "\u05DE\u05E9\u05D4\u05D5 \u05E9\u05E8\u05E7 \u05E2\u05DB\u05E9\u05D9\u05D5 \u05E7\u05D9\u05D1\u05DC\u05E0\u05D5, \u05DC\u05D0 \u05D9\u05E9\u05DF", "w": 4 }, { "en": "Old", "he": "\u05D9\u05E9\u05DF", "pic": "\u{1F4DC}", "clue": "\u05DE\u05E9\u05D4\u05D5 \u05E9\u05D4\u05D9\u05D4 \u05D4\u05E8\u05D1\u05D4 \u05D6\u05DE\u05DF, \u05D4\u05D4\u05E4\u05DA \u05DE\u05D7\u05D3\u05E9", "w": 4 }, { "en": "Fast", "he": "\u05DE\u05D4\u05D9\u05E8", "pic": "\u26A1", "clue": "\u05D6\u05D6 \u05D1\u05DE\u05D4\u05D9\u05E8\u05D5\u05EA, \u05D4\u05D4\u05E4\u05DA \u05DE\u05D0\u05D9\u05D8\u05D9", "w": 4 }, { "en": "Slow", "he": "\u05D0\u05D9\u05D8\u05D9", "pic": "\u{1F422}", "clue": "\u05D6\u05D6 \u05DC\u05D0\u05D8, \u05DB\u05DE\u05D5 \u05E6\u05D1", "w": 4 }, { "en": "Snow", "he": "\u05E9\u05DC\u05D2", "pic": "\u2744\uFE0F", "clue": "\u05D9\u05D5\u05E8\u05D3 \u05D1\u05D7\u05D5\u05E8\u05E3, \u05DC\u05D1\u05DF \u05D5\u05E7\u05E8", "w": 5 }, { "en": "Ice", "he": "\u05E7\u05E8\u05D7", "pic": "\u{1F9CA}", "clue": "\u05DE\u05D9\u05DD \u05E9\u05D4\u05E4\u05DB\u05D5 \u05DC\u05E7\u05E9\u05D9\u05DD \u05D5\u05E7\u05E8\u05D9\u05DD", "w": 5 }, { "en": "Cold", "he": "\u05E7\u05E8", "pic": "\u{1F976}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05D7\u05DD", "w": 5 }, { "en": "Jacket", "he": "\u05DE\u05E2\u05D9\u05DC", "pic": "\u{1F9E5}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05D1\u05D7\u05D5\u05E8\u05E3 \u05E2\u05DC \u05D4\u05D2\u05D5\u05E3", "w": 5 }, { "en": "Hat", "he": "\u05DB\u05D5\u05D1\u05E2", "pic": "\u{1F9E2}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05E2\u05DC \u05D4\u05E8\u05D0\u05E9", "w": 5 }, { "en": "Gloves", "he": "\u05DB\u05E4\u05E4\u05D5\u05EA", "pic": "\u{1F9E4}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05E2\u05DC \u05D4\u05D9\u05D3\u05D9\u05D9\u05DD \u05D1\u05E7\u05D5\u05E8", "w": 5 }, { "en": "Winter", "he": "\u05D7\u05D5\u05E8\u05E3", "pic": "\u26C4", "clue": "\u05D4\u05E2\u05D5\u05E0\u05D4 \u05D4\u05E7\u05E8\u05D4 \u05D1\u05E9\u05E0\u05D4", "w": 5 }, { "en": "Boots", "he": "\u05DE\u05D2\u05E4\u05D9\u05D9\u05DD", "pic": "\u{1F97E}", "clue": "\u05E0\u05D5\u05E2\u05DC\u05D9\u05DD \u05D1\u05D7\u05D5\u05E8\u05E3 \u05E2\u05DC \u05D4\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD", "w": 5 }, { "en": "Shirt", "he": "\u05D7\u05D5\u05DC\u05E6\u05D4", "pic": "\u{1F455}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05E2\u05DC \u05E4\u05DC\u05D2 \u05D4\u05D2\u05D5\u05E3 \u05D4\u05E2\u05DC\u05D9\u05D5\u05DF", "w": 5 }, { "en": "Pants", "he": "\u05DE\u05DB\u05E0\u05E1\u05D9\u05D9\u05DD", "pic": "\u{1F456}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05E2\u05DC \u05D4\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD", "w": 5 }, { "en": "Shoes", "he": "\u05E0\u05E2\u05DC\u05D9\u05D9\u05DD", "pic": "\u{1F45F}", "clue": "\u05E0\u05D5\u05E2\u05DC\u05D9\u05DD \u05E2\u05DC \u05D4\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD \u05DB\u05DC \u05D9\u05D5\u05DD", "w": 5 }, { "en": "Dress", "he": "\u05E9\u05DE\u05DC\u05D4", "pic": "\u{1F457}", "clue": "\u05D1\u05D2\u05D3 \u05E9\u05DC\u05DD \u05E9\u05DC\u05E8\u05D5\u05D1 \u05D1\u05E0\u05D5\u05EA \u05DC\u05D5\u05D1\u05E9\u05D5\u05EA", "w": 5 }, { "en": "Socks", "he": "\u05D2\u05E8\u05D1\u05D9\u05D9\u05DD", "pic": "\u{1F9E6}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05E2\u05DC \u05D4\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD \u05D1\u05EA\u05D5\u05DA \u05D4\u05E0\u05E2\u05DC\u05D9\u05D9\u05DD", "w": 5 }, { "en": "Coat", "he": "\u05DE\u05E2\u05D9\u05DC \u05D0\u05E8\u05D5\u05DA", "pic": "\u{1F9E5}", "clue": "\u05DE\u05E2\u05D9\u05DC \u05D0\u05E8\u05D5\u05DA \u05D1\u05DE\u05D9\u05D5\u05D7\u05D3 \u05DC\u05D9\u05DE\u05D9\u05DD \u05E7\u05E8\u05D9\u05DD", "w": 5 }, { "en": "Sweater", "he": "\u05E1\u05D5\u05D5\u05D3\u05E8", "pic": "\u{1F9F6}", "clue": "\u05D1\u05D2\u05D3 \u05D7\u05DD \u05E1\u05E8\u05D5\u05D2 \u05DC\u05D7\u05D5\u05E8\u05E3", "w": 5 }, { "en": "Umbrella", "he": "\u05DE\u05D8\u05E8\u05D9\u05D9\u05D4", "pic": "\u2602\uFE0F", "clue": "\u05E9\u05D5\u05DE\u05E8\u05EA \u05E2\u05DC\u05D9\u05E0\u05D5 \u05DE\u05D4\u05D2\u05E9\u05DD", "w": 5 }, { "en": "Rain", "he": "\u05D2\u05E9\u05DD", "pic": "\u{1F327}\uFE0F", "clue": "\u05DE\u05D9\u05DD \u05E9\u05D9\u05D5\u05E8\u05D3\u05D9\u05DD \u05DE\u05D4\u05E2\u05E0\u05E0\u05D9\u05DD", "w": 5 }, { "en": "Wind", "he": "\u05E8\u05D5\u05D7", "pic": "\u{1F4A8}", "clue": "\u05D0\u05D5\u05D5\u05D9\u05E8 \u05E9\u05D6\u05D6 \u05D5\u05DE\u05E8\u05D2\u05D9\u05E9\u05D9\u05DD \u05E2\u05DC \u05D4\u05E4\u05E0\u05D9\u05DD", "w": 5 }, { "en": "Cloud", "he": "\u05E2\u05E0\u05DF", "pic": "\u2601\uFE0F", "clue": "\u05DC\u05D1\u05DF \u05D0\u05D5 \u05D0\u05E4\u05D5\u05E8 \u05D1\u05E9\u05DE\u05D9\u05D9\u05DD", "w": 5 }, { "en": "Summer", "he": "\u05E7\u05D9\u05E5", "pic": "\u2600\uFE0F", "clue": "\u05D4\u05E2\u05D5\u05E0\u05D4 \u05D4\u05D7\u05DE\u05D4 \u05D1\u05E9\u05E0\u05D4", "w": 5 }, { "en": "Spring", "he": "\u05D0\u05D1\u05D9\u05D1", "pic": "\u{1F337}", "clue": "\u05D4\u05E2\u05D5\u05E0\u05D4 \u05E9\u05D1\u05D4 \u05D4\u05E4\u05E8\u05D7\u05D9\u05DD \u05E4\u05D5\u05E8\u05D7\u05D9\u05DD", "w": 5 }, { "en": "Autumn", "he": "\u05E1\u05EA\u05D9\u05D5", "pic": "\u{1F342}", "clue": "\u05D4\u05E2\u05D5\u05E0\u05D4 \u05E9\u05D1\u05D4 \u05D4\u05E2\u05DC\u05D9\u05DD \u05E0\u05D5\u05E9\u05E8\u05D9\u05DD", "w": 5 }, { "en": "Weather", "he": "\u05DE\u05D6\u05D2 \u05D0\u05D5\u05D5\u05D9\u05E8", "pic": "\u{1F326}\uFE0F", "clue": "\u05D7\u05DD, \u05E7\u05E8, \u05D2\u05E9\u05D5\u05DD \u05D0\u05D5 \u05E9\u05DE\u05E9\u05D9", "w": 5 }, { "en": "Hot", "he": "\u05D7\u05DD", "pic": "\u{1F975}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05E7\u05E8", "w": 5 }, { "en": "Warm", "he": "\u05D7\u05DE\u05D9\u05DD", "pic": "\u{1F60A}", "clue": "\u05DC\u05D0 \u05E7\u05E8 \u05D5\u05DC\u05D0 \u05DE\u05DE\u05E9 \u05D7\u05DD \u2014 \u05E0\u05E2\u05D9\u05DD", "w": 5 }, { "en": "Head", "he": "\u05E8\u05D0\u05E9", "pic": "\u{1F5E3}\uFE0F", "clue": "\u05D4\u05D7\u05DC\u05E7 \u05D4\u05E2\u05DC\u05D9\u05D5\u05DF \u05E9\u05DC \u05D4\u05D2\u05D5\u05E3", "w": 5 }, { "en": "Eye", "he": "\u05E2\u05D9\u05DF", "pic": "\u{1F441}\uFE0F", "clue": "\u05D1\u05D4 \u05E8\u05D5\u05D0\u05D9\u05DD", "w": 5 }, { "en": "Ear", "he": "\u05D0\u05D5\u05D6\u05DF", "pic": "\u{1F442}", "clue": "\u05D1\u05D4 \u05E9\u05D5\u05DE\u05E2\u05D9\u05DD", "w": 5 }, { "en": "Nose", "he": "\u05D0\u05E3", "pic": "\u{1F443}", "clue": "\u05D1\u05D5 \u05DE\u05E8\u05D9\u05D7\u05D9\u05DD", "w": 5 }, { "en": "Mouth", "he": "\u05E4\u05D4", "pic": "\u{1F444}", "clue": "\u05D1\u05D5 \u05DE\u05D3\u05D1\u05E8\u05D9\u05DD \u05D5\u05D0\u05D5\u05DB\u05DC\u05D9\u05DD", "w": 5 }, { "en": "Hand", "he": "\u05D9\u05D3", "pic": "\u270B", "clue": "\u05D1\u05D4 \u05D0\u05D5\u05D7\u05D6\u05D9\u05DD \u05D5\u05DB\u05D5\u05EA\u05D1\u05D9\u05DD", "w": 5 }, { "en": "Foot", "he": "\u05DB\u05E3 \u05E8\u05D2\u05DC", "pic": "\u{1F9B6}", "clue": "\u05D4\u05D7\u05DC\u05E7 \u05E9\u05E0\u05D5\u05D2\u05E2 \u05D1\u05E8\u05E6\u05E4\u05D4 \u05DB\u05E9\u05D4\u05D5\u05DC\u05DB\u05D9\u05DD", "w": 5 }, { "en": "Hair", "he": "\u05E9\u05D9\u05E2\u05E8", "pic": "\u{1F487}", "clue": "\u05E6\u05D5\u05DE\u05D7 \u05E2\u05DC \u05D4\u05E8\u05D0\u05E9", "w": 5 }, { "en": "Face", "he": "\u05E4\u05E0\u05D9\u05DD", "pic": "\u{1F603}", "clue": "\u05D4\u05D7\u05DC\u05E7 \u05D4\u05E7\u05D3\u05DE\u05D9 \u05E9\u05DC \u05D4\u05E8\u05D0\u05E9", "w": 5 }, { "en": "Body", "he": "\u05D2\u05D5\u05E3", "pic": "\u{1F9CD}", "clue": "\u05DB\u05DC \u05D4\u05D7\u05DC\u05E7\u05D9\u05DD \u05E9\u05DC\u05E0\u05D5 \u05D9\u05D7\u05D3", "w": 5 }, { "en": "Leg", "he": "\u05E8\u05D2\u05DC", "pic": "\u{1F9B5}", "clue": "\u05D1\u05D4 \u05D4\u05D5\u05DC\u05DB\u05D9\u05DD, \u05DE\u05E2\u05DC \u05DB\u05E3 \u05D4\u05E8\u05D2\u05DC", "w": 5 }, { "en": "Tired", "he": "\u05E2\u05D9\u05D9\u05E3", "pic": "\u{1F971}", "clue": "\u05DB\u05E9\u05E8\u05D5\u05E6\u05D9\u05DD \u05DC\u05D9\u05E9\u05D5\u05DF", "w": 5 }, { "en": "Hungry", "he": "\u05E8\u05E2\u05D1", "pic": "\u{1F60B}", "clue": "\u05DB\u05E9\u05E8\u05D5\u05E6\u05D9\u05DD \u05DC\u05D0\u05DB\u05D5\u05DC", "w": 5 }, { "en": "Thirsty", "he": "\u05E6\u05DE\u05D0", "pic": "\u{1F964}", "clue": "\u05DB\u05E9\u05E8\u05D5\u05E6\u05D9\u05DD \u05DC\u05E9\u05EA\u05D5\u05EA", "w": 5 }, { "en": "Scared", "he": "\u05DE\u05E4\u05D7\u05D3", "pic": "\u{1F631}", "clue": "\u05DB\u05E9\u05DE\u05E9\u05D4\u05D5 \u05DE\u05E4\u05D7\u05D9\u05D3 \u05D0\u05D5\u05EA\u05E0\u05D5", "w": 5 }, { "en": "Brave", "he": "\u05D0\u05DE\u05D9\u05E5", "pic": "\u{1F9B8}", "clue": "\u05DC\u05D0 \u05DE\u05E4\u05D7\u05D3 \u05DC\u05E2\u05D6\u05D5\u05E8 \u05D5\u05DC\u05D0 \u05DE\u05D5\u05D5\u05EA\u05E8", "w": 5 }, { "en": "Funny", "he": "\u05DE\u05E6\u05D7\u05D9\u05E7", "pic": "\u{1F602}", "clue": "\u05D2\u05D5\u05E8\u05DD \u05DC\u05E0\u05D5 \u05DC\u05E6\u05D7\u05D5\u05E7", "w": 5 }, { "en": "Nice", "he": "\u05E0\u05D7\u05DE\u05D3", "pic": "\u{1F60A}", "clue": "\u05D0\u05D3\u05DD \u05D8\u05D5\u05D1 \u05D5\u05E0\u05E2\u05D9\u05DD \u05DC\u05D0\u05D7\u05E8\u05D9\u05DD", "w": 5 }, { "en": "Clean", "he": "\u05E0\u05E7\u05D9", "pic": "\u{1F9FC}", "clue": "\u05D1\u05DC\u05D9 \u05DC\u05DB\u05DC\u05D5\u05DA, \u05D4\u05D4\u05E4\u05DA \u05DE\u05DE\u05DC\u05D5\u05DB\u05DC\u05DA", "w": 5 }, { "en": "Penguin", "he": "\u05E4\u05D9\u05E0\u05D2\u05D5\u05D5\u05D9\u05DF", "pic": "\u{1F427}", "clue": "\u05E6\u05D9\u05E4\u05D5\u05E8 \u05E9\u05D7\u05D5\u05E8\u05D4-\u05DC\u05D1\u05E0\u05D4 \u05E9\u05D7\u05D9\u05D4 \u05D1\u05E7\u05D5\u05E8", "w": 5 }];
 
-  // ../../workspace/engio/mila-quest/js/config.js
+  // mila-quest/js/config.js
   var KEY = "milaQuestV2";
   var NEED_CLEAN = 3;
   var PTS = [100, 80, 60, 40];
@@ -26295,7 +26295,7 @@
     "\u05EA\u05E8\u05D2\u05DE\u05D5 \u05E2\u05DC \u05D3\u05E8\u05DA \u05D4\u05E7\u05E8\u05D7 \u05D4\u05D7\u05DC\u05E7\u05D4. \u05DE\u05DC\u05DB\u05EA \u05D4\u05E7\u05E8\u05D7 \u05DE\u05D7\u05DB\u05D4 \u05D1\u05E1\u05D5\u05E3 \u05D4\u05D3\u05E8\u05DA!"
   ];
 
-  // ../../workspace/engio/mila-quest/js/worldkit.js
+  // mila-quest/js/worldkit.js
   var _right = new Vector3();
   var _fwd = new Vector3();
   var _up = new Vector3();
@@ -27041,7 +27041,7 @@
     return group;
   }
 
-  // ../../workspace/engio/mila-quest/js/game.js
+  // mila-quest/js/game.js
   function hasWebGL() {
     try {
       const c = document.createElement("canvas");
@@ -27163,11 +27163,21 @@
     save();
   }
   function hideAll() {
-    ["s-load", "s-title", "s-help", "s-map", "hud", "modal", "s-nb", "s-jr", "s-end"].forEach((id) => $(id).classList.add("hidden"));
+    ["s-load", "s-title", "s-help", "s-map", "hud", "modal", "s-nb", "s-jr", "s-end", "dev-panel"].forEach((id) => $(id) && $(id).classList.add("hidden"));
+  }
+  function isDev() {
+    return typeof window !== "undefined" && window.MQ_DEV === true;
+  }
+  function syncDevButton(id) {
+    const btn = $("btn-dev");
+    if (!btn) return;
+    const menu = isDev() && (id === "s-title" || id === "s-map" || id === "s-help" || id === "s-jr" || id === "s-nb");
+    btn.classList.toggle("hidden", !menu);
   }
   function showUI(id) {
     hideAll();
     $(id).classList.remove("hidden");
+    syncDevButton(id);
   }
   function showModal(html) {
     $("modal-box").innerHTML = html;
@@ -28080,13 +28090,39 @@
     if (!run || !run.course || !player) return;
     if (!courseVisual) rebuildCourseRibbon();
   }
+  function trackHalfWidth() {
+    const narrow = !!(run && run.layout && run.layout.narrow);
+    return (narrow ? 5.5 : 7.3) * 0.5;
+  }
+  function laneLateral(lane) {
+    if (lane === 0 || lane === 1 || lane === 2) return laneXs()[lane];
+    if (typeof lane === "number" && Number.isFinite(lane)) return lane;
+    return 0;
+  }
+  function trackFrameAt(s) {
+    return pathFrame(run.course, s);
+  }
+  function playerLaneNow() {
+    if (!player) return 1;
+    const lat = player.laneShift != null ? player.laneShift : laneLateral(player.lane);
+    const xs = laneXs();
+    let best = player.lane || 0, bestD = Infinity;
+    for (let i = 0; i < xs.length; i++) {
+      const d = Math.abs(lat - xs[i]);
+      if (d < bestD) {
+        bestD = d;
+        best = i;
+      }
+    }
+    return best;
+  }
   function placeOnCourse(obj, s, lane, upright) {
+    const off = laneLateral(lane);
     if (!run || !run.course) {
-      obj.position.set(typeof lane === "number" ? laneXs()[lane] : 0, 0, -s);
+      obj.position.set(off, 0, -s);
       return;
     }
-    const f = pathFrame(run.course, s);
-    const off = lane === 0 || lane === 1 || lane === 2 ? laneXs()[lane] : lane || 0;
+    const f = trackFrameAt(s);
     obj.position.copy(f.pos).addScaledVector(f.right, off);
     obj.rotation.order = "YXZ";
     obj.rotation.y = upright ? -f.heading : f.heading;
@@ -28136,14 +28172,17 @@
   }
   function buildGate(options) {
     const g = new Group();
+    const halfW = trackHalfWidth();
     const mat = new MeshStandardMaterial({ color: 14725466, roughness: 0.42, metalness: 0.12, emissive: 12880424, emissiveIntensity: 0.18 });
-    [-3.45, 3.45].forEach((x) => {
+    [-halfW, halfW].forEach((x) => {
       const post = new Mesh(new CylinderGeometry(0.2, 0.24, 4.4, 10), mat);
       post.position.set(x, 2.2, 0);
+      post.name = "gatePost";
+      post.userData.side = x < 0 ? -1 : 1;
       post.castShadow = true;
       g.add(post);
     });
-    const beam = new Mesh(new CylinderGeometry(0.16, 0.16, 7.1, 10), mat);
+    const beam = new Mesh(new CylinderGeometry(0.16, 0.16, halfW * 2, 10), mat);
     beam.rotation.z = Math.PI / 2;
     beam.position.set(0, 4.35, 0);
     beam.castShadow = true;
@@ -28153,13 +28192,15 @@
       const sign = makeSign(opt, true);
       sign.position.set(xs[i], 2.32, 0.2);
       sign.name = "laneSign";
+      sign.userData.lane = i;
       g.add(sign);
     });
     if (!run || run.i % 2 === 0) {
       const hi = typeof isHigh === "function" ? isHigh() : true;
       [-1, 1].forEach((side) => {
         const fl = makeIsraelFlag({ size: 0.48, poleHeight: 0.92, high: hi });
-        fl.position.set(side * 3.45, 4.42, 0);
+        fl.position.set(side * halfW, 4.42, 0);
+        fl.name = "gateFlag";
         if (side < 0) fl.scale.x = -1;
         g.add(fl);
       });
@@ -28311,7 +28352,7 @@
     setPrompt(sub, q, emoji);
     const s = player.s + (gates.length ? 20 : 12);
     const group = buildGate(opts);
-    placeOnCourse(group, s, 0, true);
+    placeOnCourse(group, s, null, true);
     runScene.add(group);
     gates.push({ group, s, z: -s, ans, word: w, resolved: false });
   }
@@ -28505,7 +28546,7 @@
   function resolveGate(g) {
     if (g.resolved) return;
     g.resolved = true;
-    if (player.lane === g.ans) onCorrect();
+    if (playerLaneNow() === g.ans) onCorrect();
     else onWrong();
   }
   function showEndScreen(ok, st, title, nx) {
@@ -28571,12 +28612,13 @@
       showEndScreen(ok, st, title, nx);
     }
   }
-  async function startLevel(wid, st, lost) {
+  async function startLevel(wid, st, lost, opt) {
     wid = wid || 1;
     st = st || 0;
     const world = WORLDS[wid - 1];
     if (!world) return false;
-    if (!lost && !sOpen(wid - 1, st)) return false;
+    const bypass = isDev() && opt && opt.bypassLock;
+    if (!lost && !bypass && !sOpen(wid - 1, st)) return false;
     hideModal();
     showTurnCue(null);
     showUI("s-load");
@@ -28947,7 +28989,7 @@
         runScene.remove(c.mesh);
         continue;
       }
-      if (Math.abs((c.s || 0) - player.s) < 0.6 && c.lane === player.lane && player.y < 1.2) {
+      if (Math.abs((c.s || 0) - player.s) < 0.6 && c.lane === playerLaneNow() && player.y < 1.2) {
         c.taken = true;
         runScene.remove(c.mesh);
         S.coins += 1;
@@ -28965,7 +29007,7 @@
         runScene.remove(o.mesh);
         continue;
       }
-      if (Math.abs((o.s || 0) - player.s) < 0.7 && o.lane === player.lane) {
+      if (Math.abs((o.s || 0) - player.s) < 0.7 && o.lane === playerLaneNow()) {
         if ((o.type === "low" || o.type === "hole") && player.y > 0.48) continue;
         if (o.type === "beam" && player.sliding) continue;
         hitObstacle(o);
@@ -28979,7 +29021,7 @@
       for (const L of letters) {
         if (L.taken) continue;
         if ((L.s != null ? L.s : 0) < player.s - 4) continue;
-        if (Math.abs((L.s || 0) - player.s) < 0.5 && L.lane === player.lane && player.y < 1.3) {
+        if (Math.abs((L.s || 0) - player.s) < 0.5 && L.lane === playerLaneNow() && player.y < 1.3) {
           L.taken = true;
           runScene.remove(L.mesh);
           const need = run.spell.rest[run.spell.idx];
@@ -29217,7 +29259,81 @@
       }
     }, 50);
   }
+  function fillDevGrid() {
+    const grid = $("dev-grid");
+    if (!grid) return;
+    grid.innerHTML = WORLDS.map((w, i) => {
+      const stages = ST[i].map((t, k) => {
+        const locked = !sOpen(i, k);
+        const label = (k === 4 ? "\u2694\uFE0F " : "") + t[0] + (k === 4 ? " (\u05D1\u05D5\u05E1)" : "");
+        const extra = locked ? " \u{1F512}" : "";
+        return `<button class="btn s${k === 4 ? " boss" : ""}" data-dev-w="${w.id}" data-dev-st="${k}">${esc(label)}${extra}</button>`;
+      }).join("");
+      return `<div class="dev-world"><h3>${w.icon} ${esc(w.name)}</h3><div class="dev-stages">${stages}</div></div>`;
+    }).join("");
+  }
+  function openDevPanel() {
+    if (!isDev()) return false;
+    fillDevGrid();
+    const box = $("dev-unlock-all");
+    if (box) box.checked = !!S.free;
+    if ($("dev-panel")) $("dev-panel").classList.remove("hidden");
+    return true;
+  }
+  function hideDevPanel() {
+    if ($("dev-panel")) $("dev-panel").classList.add("hidden");
+  }
+  function initDevTools() {
+    const btn = $("btn-dev");
+    if (!btn || !isDev()) {
+      if (btn) btn.classList.add("hidden");
+      return;
+    }
+    btn.onclick = () => openDevPanel();
+    const close = $("btn-dev-close");
+    if (close) close.onclick = hideDevPanel;
+    const grid = $("dev-grid");
+    if (grid) {
+      grid.onclick = (e) => {
+        const b = e.target.closest("[data-dev-w]");
+        if (!b) return;
+        hideDevPanel();
+        startLevel(+b.dataset.devW, +b.dataset.devSt, false, { bypassLock: true });
+      };
+    }
+    const unlock = $("dev-unlock-all");
+    if (unlock) {
+      unlock.checked = !!S.free;
+      unlock.onchange = () => {
+        S.free = !!unlock.checked;
+        save();
+        refreshLocks();
+        renderStages();
+        fillDevGrid();
+      };
+    }
+    const rst = $("btn-dev-reset");
+    if (rst) {
+      rst.onclick = () => {
+        if (!confirm("\u05DC\u05D0\u05E4\u05E1 \u05D0\u05EA \u05DB\u05DC \u05D4\u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA \u05D4\u05E9\u05DE\u05D5\u05E8\u05D4? \u05D4\u05E4\u05E2\u05D5\u05DC\u05D4 \u05D4\u05D6\u05D5 \u05E0\u05E9\u05DE\u05E8\u05EA.")) return;
+        const hero = S.hero, quality = S.quality, wasMuted = S.muted;
+        S = def();
+        S.hero = hero;
+        S.quality = quality;
+        S.muted = wasMuted;
+        save();
+        refreshLocks();
+        renderStages();
+        refreshMapStats();
+        drawHeroBtns();
+        highlightHero();
+        if (unlock) unlock.checked = false;
+        fillDevGrid();
+      };
+    }
+  }
   var ready = (async function boot() {
+    initDevTools();
     $("wordcount").textContent = WORDS.length;
     drawHeroBtns();
     buildPath();
@@ -29260,11 +29376,126 @@
     showUI("s-title");
     requestAnimationFrame(tick);
   })();
+  function checkLaneAlignment() {
+    if (!run) return { ok: false, error: "no run" };
+    const saved = { course: run.course, layout: run.layout };
+    const signErrs = [];
+    const postErrs = [];
+    const failures = [];
+    let nGates = 0, nSigns = 0, nPosts = 0;
+    const stages = [];
+    try {
+      for (let wi = 1; wi <= 5; wi++) {
+        for (let st = 0; st <= 4; st++) {
+          const layout = stageProfile(st, st === 4, wi);
+          run.layout = layout;
+          run.course = buildCourse({
+            curve: layout.curve,
+            hillAmp: layout.hillAmp,
+            turnDir: layout.turnDir,
+            causeway: layout.causeway
+          });
+          const xs = laneXs();
+          const laneW = Math.abs(xs[1] - xs[0]);
+          const signTol = 0.1 * laneW;
+          const halfW = trackHalfWidth();
+          const spots = [12, 28, 48, 90, 140];
+          const lm = run.course.landmarks || {};
+          ["curve", "hill", "turn", "causeway"].forEach((k) => {
+            if (lm[k] != null) spots.push(lm[k]);
+          });
+          const uniq = [];
+          spots.forEach((s) => {
+            const v = Math.max(2, Math.min((run.course.length || 500) - 4, s));
+            if (!uniq.some((u) => Math.abs(u - v) < 1)) uniq.push(v);
+          });
+          const stageFails = [];
+          for (const s of uniq) {
+            const group = buildGate(["L", "C", "R"]);
+            placeOnCourse(group, s, null, true);
+            group.updateMatrixWorld(true);
+            nGates++;
+            const f = trackFrameAt(s);
+            const signs = group.children.filter((c) => c.name === "laneSign");
+            signs.forEach((sign, i) => {
+              const wp = new Vector3();
+              sign.getWorldPosition(wp);
+              const lat = new Vector3().subVectors(wp, f.pos).dot(f.right);
+              const err = Math.abs(lat - xs[i]);
+              signErrs.push(err);
+              nSigns++;
+              if (err >= signTol) {
+                const rec = { world: wi, stage: st, s: +s.toFixed(2), kind: f.kind || "?", lane: i, expected: xs[i], lateral: +lat.toFixed(4), err: +err.toFixed(4) };
+                failures.push(rec);
+                stageFails.push(rec);
+              }
+            });
+            group.children.filter((c) => c.name === "gatePost").forEach((post) => {
+              const wp = new Vector3();
+              post.getWorldPosition(wp);
+              const lat = new Vector3().subVectors(wp, f.pos).dot(f.right);
+              const exp = (post.userData.side || Math.sign(lat) || 1) * halfW;
+              const err = Math.abs(lat - exp);
+              postErrs.push(err);
+              nPosts++;
+              if (err >= signTol) {
+                const rec = { world: wi, stage: st, s: +s.toFixed(2), kind: f.kind || "?", part: "post", expected: exp, lateral: +lat.toFixed(4), err: +err.toFixed(4) };
+                failures.push(rec);
+                stageFails.push(rec);
+              }
+            });
+            group.traverse((o) => {
+              if (o.geometry) o.geometry.dispose();
+            });
+          }
+          stages.push({
+            world: wi,
+            stage: st,
+            narrow: !!layout.narrow,
+            causeway: !!layout.causeway,
+            laneW: +laneW.toFixed(3),
+            halfW: +halfW.toFixed(3),
+            gates: uniq.length,
+            fail: stageFails.length
+          });
+        }
+      }
+    } finally {
+      run.course = saved.course;
+      run.layout = saved.layout;
+    }
+    const maxSign = signErrs.length ? Math.max(...signErrs) : 0;
+    const maxPost = postErrs.length ? Math.max(...postErrs) : 0;
+    const meanSign = signErrs.length ? signErrs.reduce((a, b) => a + b, 0) / signErrs.length : 0;
+    const meanPost = postErrs.length ? postErrs.reduce((a, b) => a + b, 0) / postErrs.length : 0;
+    const laneW0 = 2;
+    return {
+      ok: failures.length === 0,
+      threshold: 0.1,
+      thresholdUnitsNote: "0.1 * lane width (lane width is distance between adjacent lane centers)",
+      nWorlds: 5,
+      nStages: 25,
+      nGates,
+      nSigns,
+      nPosts,
+      maxSignError: +maxSign.toFixed(5),
+      meanSignError: +meanSign.toFixed(5),
+      maxPostError: +maxPost.toFixed(5),
+      meanPostError: +meanPost.toFixed(5),
+      nSignFails: failures.filter((f) => f.lane != null).length,
+      nPostFails: failures.filter((f) => f.part === "post").length,
+      failures: failures.slice(0, 20),
+      stages
+    };
+  }
   window.MQ = {
     ready,
     startLevel,
     goMapMode,
     goTitle,
+    isDev,
+    openDevPanel,
+    checkLaneAlignment,
     getMode: () => appMode,
     getRun: () => run,
     getPlayer: () => player,
@@ -29296,7 +29527,7 @@
       gates.length = 0;
       const s = (player.s || 0) + 11.5;
       const group = buildGate(opts);
-      placeOnCourse(group, s, 0, true);
+      placeOnCourse(group, s, null, true);
       runScene.add(group);
       gates.push({ group, s, z: -s, ans: 0, word: run && run.cur, resolved: false });
       setLaneOpts(opts);

@@ -93,9 +93,16 @@ function record(word, ok, hint, wrongHere) {
 
 /* ===== UI ===== */
 function hideAll() {
-  ["s-load", "s-title", "s-help", "s-map", "hud", "modal", "s-nb", "s-jr", "s-end"].forEach((id) => $(id).classList.add("hidden"));
+  ["s-load", "s-title", "s-help", "s-map", "hud", "modal", "s-nb", "s-jr", "s-end", "dev-panel"].forEach((id) => $(id) && $(id).classList.add("hidden"));
 }
-function showUI(id) { hideAll(); $(id).classList.remove("hidden"); }
+function isDev() { return typeof window !== "undefined" && window.MQ_DEV === true; }
+function syncDevButton(id) {
+  const btn = $("btn-dev");
+  if (!btn) return;
+  const menu = isDev() && (id === "s-title" || id === "s-map" || id === "s-help" || id === "s-jr" || id === "s-nb");
+  btn.classList.toggle("hidden", !menu);
+}
+function showUI(id) { hideAll(); $(id).classList.remove("hidden"); syncDevButton(id); }
 function showModal(html) {
   $("modal-box").innerHTML = html;
   $("modal").classList.remove("hidden");
@@ -1019,13 +1026,44 @@ function layoutPathFromCourse() {
   if (!run || !run.course || !player) return;
   if (!courseVisual) rebuildCourseRibbon();
 }
+function trackHalfWidth() {
+  const narrow = !!(run && run.layout && run.layout.narrow);
+  return (narrow ? 5.5 : 7.3) * 0.5;
+}
+function laneLateral(lane) {
+  if (lane === 0 || lane === 1 || lane === 2) return laneXs()[lane];
+  if (typeof lane === "number" && Number.isFinite(lane)) return lane;
+  return 0;
+}
+function trackFrameAt(s) {
+  return pathFrame(run.course, s);
+}
+function trackPoint(s, lateral, yOff = 0) {
+  const f = trackFrameAt(s);
+  return f.pos.clone().addScaledVector(f.right, lateral).addScaledVector(f.up, yOff);
+}
+function trackLateralOf(pos, s) {
+  const f = trackFrameAt(s);
+  return new THREE.Vector3().subVectors(pos, f.pos).dot(f.right);
+}
+function playerLaneNow() {
+  if (!player) return 1;
+  const lat = player.laneShift != null ? player.laneShift : laneLateral(player.lane);
+  const xs = laneXs();
+  let best = player.lane || 0, bestD = Infinity;
+  for (let i = 0; i < xs.length; i++) {
+    const d = Math.abs(lat - xs[i]);
+    if (d < bestD) { bestD = d; best = i; }
+  }
+  return best;
+}
 function placeOnCourse(obj, s, lane, upright) {
+  const off = laneLateral(lane);
   if (!run || !run.course) {
-    obj.position.set(typeof lane === "number" ? laneXs()[lane] : 0, 0, -s);
+    obj.position.set(off, 0, -s);
     return;
   }
-  const f = pathFrame(run.course, s);
-  const off = (lane === 0 || lane === 1 || lane === 2) ? laneXs()[lane] : (lane || 0);
+  const f = trackFrameAt(s);
   obj.position.copy(f.pos).addScaledVector(f.right, off);
   obj.rotation.order = "YXZ";
   obj.rotation.y = upright ? -f.heading : f.heading;
@@ -1074,12 +1112,17 @@ async function spawnDecor(world) {
 
 function buildGate(options) {
   const g = new THREE.Group();
+  const halfW = trackHalfWidth();
   const mat = new THREE.MeshStandardMaterial({ color: 0xe0b15a, roughness: 0.42, metalness: 0.12, emissive: 0xc48a28, emissiveIntensity: 0.18 });
-  [-3.45, 3.45].forEach((x) => {
+  [-halfW, halfW].forEach((x) => {
     const post = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.24, 4.4, 10), mat);
-    post.position.set(x, 2.2, 0); post.castShadow = true; g.add(post);
+    post.position.set(x, 2.2, 0);
+    post.name = "gatePost";
+    post.userData.side = x < 0 ? -1 : 1;
+    post.castShadow = true;
+    g.add(post);
   });
-  const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 7.1, 10), mat);
+  const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, halfW * 2, 10), mat);
   beam.rotation.z = Math.PI / 2;
   beam.position.set(0, 4.35, 0); beam.castShadow = true; g.add(beam);
   const xs = laneXs();
@@ -1087,13 +1130,15 @@ function buildGate(options) {
     const sign = makeSign(opt, true);
     sign.position.set(xs[i], 2.32, 0.2);
     sign.name = "laneSign";
+    sign.userData.lane = i;
     g.add(sign);
   });
   if (!run || run.i % 2 === 0) {
     const hi = typeof isHigh === "function" ? isHigh() : true;
     [-1, 1].forEach((side) => {
       const fl = makeIsraelFlag({ size: 0.48, poleHeight: 0.92, high: hi });
-      fl.position.set(side * 3.45, 4.42, 0);
+      fl.position.set(side * halfW, 4.42, 0);
+      fl.name = "gateFlag";
       if (side < 0) fl.scale.x = -1;
       g.add(fl);
     });
@@ -1251,7 +1296,7 @@ function setupQuestion() {
   setPrompt(sub, q, emoji);
   const s = player.s + (gates.length ? 20 : 12);
   const group = buildGate(opts);
-  placeOnCourse(group, s, 0, true);
+  placeOnCourse(group, s, null, true);
   runScene.add(group);
   gates.push({ group, s, z: -s, ans, word: w, resolved: false });
 }
@@ -1426,7 +1471,7 @@ function onWrong() {
 function resolveGate(g) {
   if (g.resolved) return;
   g.resolved = true;
-  if (player.lane === g.ans) onCorrect();
+  if (playerLaneNow() === g.ans) onCorrect();
   else onWrong();
 }
 
@@ -1494,11 +1539,12 @@ function finishLevel(ok) {
   }
 }
 
-async function startLevel(wid, st, lost) {
+async function startLevel(wid, st, lost, opt) {
   wid = wid || 1; st = st || 0;
   const world = WORLDS[wid - 1];
   if (!world) return false;
-  if (!lost && !sOpen(wid - 1, st)) return false;
+  const bypass = isDev() && opt && opt.bypassLock;
+  if (!lost && !bypass && !sOpen(wid - 1, st)) return false;
   hideModal();
   showTurnCue(null);
   showUI("s-load");
@@ -1811,7 +1857,7 @@ function updateRunner(dt) {
     if (c.taken) continue;
     c.mesh.rotation.z += dt * 3;
     if ((c.s != null ? c.s : 0) < player.s - 4) { c.taken = true; runScene.remove(c.mesh); continue; }
-    if (Math.abs((c.s || 0) - player.s) < 0.6 && c.lane === player.lane && player.y < 1.2) {
+    if (Math.abs((c.s || 0) - player.s) < 0.6 && c.lane === playerLaneNow() && player.y < 1.2) {
       c.taken = true; runScene.remove(c.mesh);
       S.coins += 1; run.coins += 1; run.score += 10; sfx.coin(); updateHud();
     }
@@ -1820,7 +1866,7 @@ function updateRunner(dt) {
     if (o.hit) continue;
     if (o.spin) o.mesh.rotation.x += dt * o.spin;
     if ((o.s != null ? o.s : 0) < player.s - 4) { o.hit = true; runScene.remove(o.mesh); continue; }
-    if (Math.abs((o.s || 0) - player.s) < 0.7 && o.lane === player.lane) {
+    if (Math.abs((o.s || 0) - player.s) < 0.7 && o.lane === playerLaneNow()) {
       if ((o.type === "low" || o.type === "hole") && player.y > 0.48) continue;
       if (o.type === "beam" && player.sliding) continue;
       hitObstacle(o);
@@ -1834,7 +1880,7 @@ function updateRunner(dt) {
     for (const L of letters) {
       if (L.taken) continue;
       if ((L.s != null ? L.s : 0) < player.s - 4) continue;
-      if (Math.abs((L.s || 0) - player.s) < 0.5 && L.lane === player.lane && player.y < 1.3) {
+      if (Math.abs((L.s || 0) - player.s) < 0.5 && L.lane === playerLaneNow() && player.y < 1.3) {
         L.taken = true; runScene.remove(L.mesh);
         const need = run.spell.rest[run.spell.idx];
         if (L.ch === need) {
@@ -2030,8 +2076,83 @@ function askTeacherPin() {
   setTimeout(() => { try { $("tpin").focus(); } catch (e) {} }, 50);
 }
 
+function fillDevGrid() {
+  const grid = $("dev-grid");
+  if (!grid) return;
+  grid.innerHTML = WORLDS.map((w, i) => {
+    const stages = ST[i].map((t, k) => {
+      const locked = !sOpen(i, k);
+      const label = (k === 4 ? "⚔️ " : "") + t[0] + (k === 4 ? " (בוס)" : "");
+      const extra = locked ? " 🔒" : "";
+      return `<button class="btn s${k === 4 ? " boss" : ""}" data-dev-w="${w.id}" data-dev-st="${k}">${esc(label)}${extra}</button>`;
+    }).join("");
+    return `<div class="dev-world"><h3>${w.icon} ${esc(w.name)}</h3><div class="dev-stages">${stages}</div></div>`;
+  }).join("");
+}
+function openDevPanel() {
+  if (!isDev()) return false;
+  fillDevGrid();
+  const box = $("dev-unlock-all");
+  if (box) box.checked = !!S.free;
+  if ($("dev-panel")) $("dev-panel").classList.remove("hidden");
+  return true;
+}
+function hideDevPanel() {
+  if ($("dev-panel")) $("dev-panel").classList.add("hidden");
+}
+function initDevTools() {
+  const btn = $("btn-dev");
+  if (!btn || !isDev()) {
+    if (btn) btn.classList.add("hidden");
+    return;
+  }
+  btn.onclick = () => openDevPanel();
+  const close = $("btn-dev-close");
+  if (close) close.onclick = hideDevPanel;
+  const grid = $("dev-grid");
+  if (grid) {
+    grid.onclick = (e) => {
+      const b = e.target.closest("[data-dev-w]");
+      if (!b) return;
+      hideDevPanel();
+      startLevel(+b.dataset.devW, +b.dataset.devSt, false, { bypassLock: true });
+    };
+  }
+  const unlock = $("dev-unlock-all");
+  if (unlock) {
+    unlock.checked = !!S.free;
+    unlock.onchange = () => {
+      S.free = !!unlock.checked;
+      save();
+      refreshLocks();
+      renderStages();
+      fillDevGrid();
+    };
+  }
+  const rst = $("btn-dev-reset");
+  if (rst) {
+    rst.onclick = () => {
+      if (!confirm("לאפס את כל ההתקדמות השמורה? הפעולה הזו נשמרת.")) return;
+      const hero = S.hero, quality = S.quality, wasMuted = S.muted;
+      S = def();
+      S.hero = hero;
+      S.quality = quality;
+      S.muted = wasMuted;
+      save();
+      refreshLocks();
+      renderStages();
+      refreshMapStats();
+      drawHeroBtns();
+      highlightHero();
+      if (unlock) unlock.checked = false;
+      fillDevGrid();
+    };
+  }
+}
+
 /* ===== BOOT ===== */
 const ready = (async function boot() {
+  initDevTools();
   $("wordcount").textContent = WORDS.length;
   drawHeroBtns();
   buildPath();
@@ -2061,11 +2182,126 @@ const ready = (async function boot() {
   requestAnimationFrame(tick);
 })();
 
+
+function checkLaneAlignment() {
+  if (!run) return { ok: false, error: "no run" };
+  const saved = { course: run.course, layout: run.layout };
+  const signErrs = [];
+  const postErrs = [];
+  const failures = [];
+  let nGates = 0, nSigns = 0, nPosts = 0;
+  const stages = [];
+  try {
+    for (let wi = 1; wi <= 5; wi++) {
+      for (let st = 0; st <= 4; st++) {
+        const layout = stageProfile(st, st === 4, wi);
+        run.layout = layout;
+        run.course = buildCourse({
+          curve: layout.curve,
+          hillAmp: layout.hillAmp,
+          turnDir: layout.turnDir,
+          causeway: layout.causeway
+        });
+        const xs = laneXs();
+        const laneW = Math.abs(xs[1] - xs[0]);
+        const signTol = 0.1 * laneW;
+        const halfW = trackHalfWidth();
+        const spots = [12, 28, 48, 90, 140];
+        const lm = run.course.landmarks || {};
+        ["curve", "hill", "turn", "causeway"].forEach((k) => {
+          if (lm[k] != null) spots.push(lm[k]);
+        });
+        const uniq = [];
+        spots.forEach((s) => {
+          const v = Math.max(2, Math.min((run.course.length || 500) - 4, s));
+          if (!uniq.some((u) => Math.abs(u - v) < 1)) uniq.push(v);
+        });
+        const stageFails = [];
+        for (const s of uniq) {
+          const group = buildGate(["L", "C", "R"]);
+          placeOnCourse(group, s, null, true);
+          group.updateMatrixWorld(true);
+          nGates++;
+          const f = trackFrameAt(s);
+          const signs = group.children.filter((c) => c.name === "laneSign");
+          signs.forEach((sign, i) => {
+            const wp = new THREE.Vector3();
+            sign.getWorldPosition(wp);
+            const lat = new THREE.Vector3().subVectors(wp, f.pos).dot(f.right);
+            const err = Math.abs(lat - xs[i]);
+            signErrs.push(err);
+            nSigns++;
+            if (err >= signTol) {
+              const rec = { world: wi, stage: st, s: +s.toFixed(2), kind: (f.kind || "?"), lane: i, expected: xs[i], lateral: +lat.toFixed(4), err: +err.toFixed(4) };
+              failures.push(rec);
+              stageFails.push(rec);
+            }
+          });
+          group.children.filter((c) => c.name === "gatePost").forEach((post) => {
+            const wp = new THREE.Vector3();
+            post.getWorldPosition(wp);
+            const lat = new THREE.Vector3().subVectors(wp, f.pos).dot(f.right);
+            const exp = (post.userData.side || Math.sign(lat) || 1) * halfW;
+            const err = Math.abs(lat - exp);
+            postErrs.push(err);
+            nPosts++;
+            if (err >= signTol) {
+              const rec = { world: wi, stage: st, s: +s.toFixed(2), kind: (f.kind || "?"), part: "post", expected: exp, lateral: +lat.toFixed(4), err: +err.toFixed(4) };
+              failures.push(rec);
+              stageFails.push(rec);
+            }
+          });
+          group.traverse((o) => { if (o.geometry) o.geometry.dispose(); });
+        }
+        stages.push({
+          world: wi,
+          stage: st,
+          narrow: !!layout.narrow,
+          causeway: !!layout.causeway,
+          laneW: +laneW.toFixed(3),
+          halfW: +halfW.toFixed(3),
+          gates: uniq.length,
+          fail: stageFails.length
+        });
+      }
+    }
+  } finally {
+    run.course = saved.course;
+    run.layout = saved.layout;
+  }
+  const maxSign = signErrs.length ? Math.max(...signErrs) : 0;
+  const maxPost = postErrs.length ? Math.max(...postErrs) : 0;
+  const meanSign = signErrs.length ? signErrs.reduce((a, b) => a + b, 0) / signErrs.length : 0;
+  const meanPost = postErrs.length ? postErrs.reduce((a, b) => a + b, 0) / postErrs.length : 0;
+  const laneW0 = 2;
+  return {
+    ok: failures.length === 0,
+    threshold: 0.1,
+    thresholdUnitsNote: "0.1 * lane width (lane width is distance between adjacent lane centers)",
+    nWorlds: 5,
+    nStages: 25,
+    nGates,
+    nSigns,
+    nPosts,
+    maxSignError: +maxSign.toFixed(5),
+    meanSignError: +meanSign.toFixed(5),
+    maxPostError: +maxPost.toFixed(5),
+    meanPostError: +meanPost.toFixed(5),
+    nSignFails: failures.filter((f) => f.lane != null).length,
+    nPostFails: failures.filter((f) => f.part === "post").length,
+    failures: failures.slice(0, 20),
+    stages
+  };
+}
+
 window.MQ = {
   ready,
   startLevel,
   goMapMode,
   goTitle,
+  isDev,
+  openDevPanel,
+  checkLaneAlignment,
   getMode: () => appMode,
   getRun: () => run,
   getPlayer: () => player,
@@ -2091,7 +2327,7 @@ window.MQ = {
     gates.length = 0;
     const s = (player.s || 0) + 11.5;
     const group = buildGate(opts);
-    placeOnCourse(group, s, 0, true);
+    placeOnCourse(group, s, null, true);
     runScene.add(group);
     gates.push({ group, s, z: -s, ans: 0, word: run && run.cur, resolved: false });
     setLaneOpts(opts);

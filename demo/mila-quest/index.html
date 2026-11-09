@@ -19,7 +19,7 @@ html,body{height:100%;margin:0;overflow:hidden;font-family:Rubik,"Noto Sans Hebr
 button{font:inherit;cursor:pointer}
 .en{direction:ltr;unicode-bidi:isolate;font-family:Fredoka,Rubik,sans-serif}
 .ui{position:fixed;inset:0;z-index:4;pointer-events:none}
-.ui button,.ui .pill,.ui .glass,.ui .prompt,.ui .stage-bar,.ui .box,.ui .sign,.ui .hero-btn,.ui a,.ui table{pointer-events:auto}
+.ui button,.ui .pill,.ui .glass,.ui .prompt,.ui .stage-bar,.ui .box,.ui .sign,.ui .hero-btn,.ui a,.ui table,#dev-panel{pointer-events:auto}
 .hidden{display:none !important}
 .sign{background:linear-gradient(#d49240,#8a5420);border:5px solid #4a2c0c;border-radius:24px;padding:8px 40px 12px;box-shadow:0 10px 0 #0005,0 18px 40px #0004;transform:rotate(-1deg)}
 .sign h1{margin:0;font-size:clamp(34px,7vw,64px);color:#ffd23d;font-family:Fredoka,Rubik,sans-serif;-webkit-text-stroke:2px #5b2d00;paint-order:stroke fill;text-shadow:0 4px 0 #5b2d00}
@@ -70,6 +70,21 @@ table{width:100%;border-collapse:collapse;font-size:15px} th,td{padding:5px 6px;
 .lane-opt{flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:#ffe34a;color:#140818;border:5px solid #140818;border-radius:22px;padding:8px 12px;text-align:center;font-weight:800;font-size:clamp(22px,3.4vw,42px);font-family:Fredoka,Rubik,Arial,sans-serif;box-shadow:0 6px 0 #140818,0 0 20px #ffc83d99;direction:ltr;unicode-bidi:isolate;line-height:1.15}
 .deco-emoji{font-size:.7em;margin-inline-end:8px;vertical-align:middle;filter:drop-shadow(0 2px 0 #0002)}
 #btn-quality{position:fixed;top:10px;left:64px;z-index:8}
+#btn-dev{position:fixed;bottom:14px;left:14px;z-index:9;font-size:13px;padding:7px 14px;background:#2a2438;color:#ffe34a;box-shadow:0 5px 0 #140818;letter-spacing:.04em;font-family:Fredoka,Rubik,sans-serif}
+#dev-panel{position:absolute;inset:0;z-index:12;background:rgba(10,8,20,.62);display:flex;align-items:center;justify-content:center;padding:14px}
+.dev-box{background:linear-gradient(180deg,#fffdf8f6,#ffe8c0f2);border:4px solid #8a5a2b;border-radius:24px;padding:12px 16px 12px;width:min(1100px,96vw);max-height:94vh;overflow:auto;text-align:right;box-shadow:0 20px 50px #0006}
+.dev-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.dev-box h2{margin:0;font-size:clamp(24px,3.4vw,34px);font-family:Fredoka,Rubik,sans-serif}
+.dev-note{font-size:clamp(15px,1.9vw,18px);font-weight:700;line-height:1.4;margin:6px 0 8px}
+.dev-actions{justify-content:flex-start;margin-bottom:4px;gap:12px}
+.dev-toggle{font-size:clamp(16px,2vw,20px);font-weight:800;display:inline-flex;align-items:center;gap:10px;background:#fff9;border:3px solid #8a5a2b;border-radius:16px;padding:6px 12px}
+.dev-toggle input{width:22px;height:22px;accent-color:#2fb86a}
+.dev-world{margin:6px 0;padding:8px 12px;background:#fff9;border-radius:16px;border:2px solid #8a5a2b55}
+.dev-world h3{margin:0 0 6px;font-size:clamp(18px,2.4vw,24px)}
+.dev-stages{display:flex;flex-wrap:wrap;gap:7px}
+.dev-stages button{font-size:clamp(15px,1.8vw,18px);font-weight:800;padding:8px 12px;border-radius:14px;min-width:136px;line-height:1.25;text-align:center}
+.dev-stages button.boss{background:#e8553d;color:#fff;box-shadow:0 5px 0 #8a2a18}
+
 .prompt{transition:transform .2s}
 .turn-cue{position:absolute;bottom:20%;left:50%;transform:translateX(-50%);background:#ffe34af5;color:#140818;border:5px solid #140818;border-radius:999px;padding:10px 24px;font-weight:800;font-size:clamp(20px,3vw,34px);box-shadow:0 8px 0 #140818,0 0 26px #ffc83dbb;z-index:6;pointer-events:none;font-family:Fredoka,Rubik,sans-serif}
 </style>
@@ -78,6 +93,7 @@ table{width:100%;border-collapse:collapse;font-size:15px} th,td{padding:5px 6px;
 <canvas id="c"></canvas>
 <button class="btn s" id="mute" aria-label="השתקה">🔊</button>
 <button class="btn s" id="btn-quality" aria-label="איכות גרפית">✨ גבוהה</button>
+<button class="btn s hidden" id="btn-dev" aria-label="Developer">DEVELOPER</button>
 <div class="ui">
 
   <section id="s-load" class="center">
@@ -165,6 +181,20 @@ table{width:100%;border-collapse:collapse;font-size:15px} th,td{padding:5px 6px;
   </section>
 
   <section id="modal" class="hidden"><div class="box" id="modal-box"></div></section>
+  <section id="dev-panel" class="hidden">
+    <div class="dev-box">
+      <div class="dev-head">
+        <h2>DEVELOPER</h2>
+        <button class="btn s" id="btn-dev-close">סגור</button>
+      </div>
+      <p class="dev-note">קפיצה לכל עולם ולכל שלב (כולל בוס) בלי לשנות את השמירה. רק «פתח את כל העולמות» או «איפוס התקדמות» משנים את הקובץ השמור.</p>
+      <div class="row dev-actions">
+        <label class="dev-toggle"><input type="checkbox" id="dev-unlock-all"> פתח את כל העולמות (נשמר)</label>
+        <button class="btn s" id="btn-dev-reset">איפוס התקדמות</button>
+      </div>
+      <div id="dev-grid"></div>
+    </div>
+  </section>
   <section id="s-nb" class="center hidden"></section>
   <section id="s-jr" class="center hidden"></section>
   <section id="s-end" class="center hidden"></section>
@@ -181,6 +211,9 @@ table{width:100%;border-collapse:collapse;font-size:15px} th,td{padding:5px 6px;
     });
   }
   var chain = Promise.resolve();
+  // DEMO ONLY: js/dev-flag.js sets window.MQ_DEV = true.
+  // Production: omit that file (this load fails silently) and the DEVELOPER button will not appear.
+  chain = chain.then(function () { return loadScript("./js/dev-flag.js").catch(function () {}); });
   if (location.protocol === "file:") chain = chain.then(function () { return loadScript("./js/embed.js"); });
   chain.then(function () { return loadScript("./js/game.bundle.js"); })
     .catch(function (e) { console.error(e); });
