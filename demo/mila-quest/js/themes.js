@@ -1,6 +1,7 @@
 /* Mila Quest v7 — per-world environments (Pirate deck, Magic rooftops, Milky-Way space, Ice kingdom).
    Jungle keeps the original look built in game.js. Everything here is procedural (no new assets). */
 import * as THREE from "../assets/lib/three.module.js";
+import { N, GFX } from "./gfx.js";
 import { pathAt } from "./worldkit.js";
 
 export const THEMES = ["jungle", "pirate", "magic", "space", "ice"];
@@ -475,7 +476,7 @@ function makeTwinklePoints(n, place, opt = {}) {
   g.setAttribute("aPhase", new THREE.BufferAttribute(phase, 1));
   g.setAttribute("aColor", new THREE.BufferAttribute(col, 3));
   const mat = new THREE.ShaderMaterial({
-    uniforms: { uTime: fxTime, uPx: { value: Math.min(window.devicePixelRatio || 1, 1.5) }, uFall: { value: opt.fall || 0 }, uBox: { value: opt.box || 1 }, uDrift: { value: opt.drift || 0 }, uPersp: { value: opt.persp ? 1 : 0 }, uTw: { value: opt.noTwinkle ? 0 : 1 } },
+    uniforms: { uTime: fxTime, uPx: GFX.px, uFall: { value: opt.fall || 0 }, uBox: { value: opt.box || 1 }, uDrift: { value: opt.drift || 0 }, uPersp: { value: opt.persp ? 1 : 0 }, uTw: { value: opt.noTwinkle ? 0 : 1 } },
     vertexShader: `
       uniform float uTime; uniform float uPx; uniform float uFall; uniform float uBox; uniform float uDrift; uniform float uPersp; uniform float uTw;
       attribute float aSize; attribute float aPhase; attribute vec3 aColor;
@@ -806,7 +807,7 @@ export function buildThemeCourse(theme, course, opt = {}) {
     updaters.push((dt, t) => { foamT.offset.y -= dt * 0.3; seaT.offset.x = Math.sin(t * 0.25) * 0.05; seaT.offset.y -= dt * 0.03; });
     // islands with palms, rocks in the water
     const sand = mat("sand", () => stdMat(0xf0d79a, { roughness: 0.95 }));
-    for (let i = 0; i < (high ? 10 : 6); i++) {
+    for (let i = 0; i < N(high, 10, 6); i++) {
       const sp = sideSpot(course, 25 + i * 48, i % 2 ? 1 : -1, R(42, 80));
       if (!clearOfCourse(course, sp.x, sp.z, 32)) continue;
       const isl = new THREE.Group();
@@ -817,7 +818,7 @@ export function buildThemeCourse(theme, course, opt = {}) {
       g.add(isl);
     }
     const rockM = mat("seaRock", () => stdMat(0x6a6e74, { roughness: 0.9, flatShading: true }));
-    for (let i = 0; i < (high ? 26 : 12); i++) {
+    for (let i = 0; i < N(high, 26, 12); i++) {
       const sp = sideSpot(course, 10 + i * 19, i % 2 ? 1 : -1, R(15, 40));
       if (!clearOfCourse(course, sp.x, sp.z, 13)) continue;
       const rk = new THREE.Mesh(new THREE.DodecahedronGeometry(R(0.8, 2.2), 0), rockM);
@@ -842,7 +843,7 @@ export function buildThemeCourse(theme, course, opt = {}) {
       });
     });
     g.userData.ships = [];
-    for (let i = 0; i < (high ? 5 : 3); i++) {
+    for (let i = 0; i < N(high, 5, 3); i++) {
       const sp = sideSpot(course, 40 + i * 95, i % 2 ? -1 : 1, R(30, 55));
       if (!clearOfCourse(course, sp.x, sp.z, 24)) continue;
       g.userData.ships.push({ x: sp.x, y: SEA, z: sp.z, heading: sp.heading + (i % 2 ? 0.3 : -0.4) });
@@ -862,13 +863,13 @@ export function buildThemeCourse(theme, course, opt = {}) {
     [-w / 2, w / 2].forEach((x) => g.add(new THREE.Mesh(ribbon(course, { width: 0.18, yLift: 0.07, offset: x }), edgeM)));
     laneLines(0x8fe8ff, { opacity: 0.65, blending: THREE.AdditiveBlending, depthWrite: false });
     const S = course.samples;
-    g.add(makeTwinklePoints(high ? 900 : 450, () => {
+    g.add(makeTwinklePoints(N(high, 900, 450), () => {
       const s = S[(Math.random() * S.length) | 0];
       const lat = (Math.random() + Math.random() - 1) * 15;
       return [s.x + Math.cos(s.heading) * lat, s.y + R(-2, 3.5), s.z + Math.sin(s.heading) * lat];
     }, { minSize: 2, maxSize: 5, persp: true, colors: [0xffffff, 0xbfa8ff, 0x9fe0ff, 0xffd8a8] }));
     const rocks = [];
-    for (let i = 0; i < (high ? 70 : 36); i++) {
+    for (let i = 0; i < N(high, 70, 36); i++) {
       const sp = sideSpot(course, (i * 7.3) % (course.length - 4), i % 2 ? 1 : -1, R(10, 46));
       if (!clearOfCourse(course, sp.x, sp.z, 8.5)) continue;
       const a = makeAsteroid(R(0.5, i % 7 === 0 ? 3.2 : 1.6));
@@ -910,7 +911,7 @@ export function buildThemeCourse(theme, course, opt = {}) {
     const street = new THREE.Mesh(new THREE.CircleGeometry(300, 40), new THREE.MeshStandardMaterial({ map: stT, color: 0x6a5a8a, roughness: 0.9 }));
     street.rotation.x = -Math.PI / 2; street.name = "followGround"; street.userData.y = GROUND;
     g.add(street);
-    const nH = high ? 130 : 65;
+    const nH = N(high, 130, 65);
     for (let i = 0; i < nH; i++) {
       const sp = sideSpot(course, (i * 4.37) % (course.length - 4), i % 2 ? 1 : -1, R(11, 36));
       const w = R(3.5, 6.5), d = R(3.5, 6.5);
@@ -934,7 +935,7 @@ export function buildThemeCourse(theme, course, opt = {}) {
       }
     });
     const S = course.samples;
-    g.add(makeTwinklePoints(high ? 520 : 260, () => {
+    g.add(makeTwinklePoints(N(high, 520, 260), () => {
       const s = S[(Math.random() * S.length) | 0];
       const lat = (Math.random() - 0.5) * 26;
       return [s.x + Math.cos(s.heading) * lat, s.y + R(0.6, 7), s.z + Math.sin(s.heading) * lat];
@@ -963,7 +964,7 @@ export function buildThemeCourse(theme, course, opt = {}) {
     field.rotation.x = -Math.PI / 2; field.name = "followGround"; field.userData.y = -0.32;
     field.receiveShadow = true; g.add(field);
     const rockM = mat("snowRock", () => stdMat(0x8a9aaa, { roughness: 0.9, flatShading: true }));
-    for (let i = 0; i < (high ? 120 : 60); i++) {
+    for (let i = 0; i < N(high, 120, 60); i++) {
       const sp = sideSpot(course, (i * 4.71) % (course.length - 4), i % 2 ? 1 : -1, R(8.5, 42));
       if (!clearOfCourse(course, sp.x, sp.z, 8)) continue;
       const pick = i % 11;
@@ -992,7 +993,7 @@ export function buildThemeAmbience(theme, high = true) {
     const sky = new THREE.Mesh(new THREE.SphereGeometry(300, 48, 24), new THREE.MeshBasicMaterial({ map: starSkyTex(), side: THREE.BackSide, depthWrite: false, fog: false, toneMapped: false }));
     sky.rotation.z = 0.35; sky.renderOrder = -2;
     g.add(sky);
-    const tw = makeTwinklePoints(high ? 1500 : 750, () => {
+    const tw = makeTwinklePoints(N(high, 1500, 750), () => {
       const v = new THREE.Vector3(R(-1, 1), R(-0.3, 1), R(-1, 1)).normalize().multiplyScalar(270);
       return [v.x, v.y, v.z];
     }, { minSize: 2.4, maxSize: 7, colors: [0xffffff, 0xd0e0ff, 0xfff0c8, 0xffd0f0, 0xffffff] });
@@ -1037,15 +1038,15 @@ export function buildThemeAmbience(theme, high = true) {
       }
     });
   } else if (theme === "pirate") {
-    for (let i = 0; i < (high ? 14 : 8); i++) {
-      const a = (i / (high ? 14 : 8)) * Math.PI * 2 + R(-0.2, 0.2);
+    for (let i = 0; i < N(high, 14, 8); i++) {
+      const a = (i / N(high, 14, 8)) * Math.PI * 2 + R(-0.2, 0.2);
       const c = makeCloud(R(1, 1.7));
       c.position.set(Math.cos(a) * R(160, 230), R(40, 80), Math.sin(a) * R(160, 230));
       c.lookAt(0, c.position.y, 0);
       g.add(c);
     }
   } else if (theme === "magic") {
-    g.add(makeTwinklePoints(high ? 600 : 300, () => {
+    g.add(makeTwinklePoints(N(high, 600, 300), () => {
       const v = new THREE.Vector3(R(-1, 1), R(0.2, 1), R(-1, 1)).normalize().multiplyScalar(260);
       return [v.x, v.y, v.z];
     }, { minSize: 1.8, maxSize: 4.5, colors: [0xffffff, 0xffe0f4, 0xfff4c8] }));
@@ -1058,7 +1059,7 @@ export function buildThemeAmbience(theme, high = true) {
     });
     const lanM = new THREE.MeshBasicMaterial({ color: 0xffb860, toneMapped: false });
     const lans = [];
-    for (let i = 0; i < (high ? 30 : 14); i++) {
+    for (let i = 0; i < N(high, 30, 14); i++) {
       const l = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.4, 0.95, 8), lanM);
       l.userData = { a: R(0, Math.PI * 2), r: R(25, 110), y0: R(0, 60), sp: R(0.6, 1.4) };
       lans.push(l); g.add(l);
@@ -1068,8 +1069,8 @@ export function buildThemeAmbience(theme, high = true) {
       l.position.set(Math.cos(u.a + t * 0.01) * u.r, ((u.y0 + t * u.sp) % 60) + 6, Math.sin(u.a + t * 0.01) * u.r);
     }));
   } else if (theme === "ice") {
-    for (let i = 0; i < (high ? 10 : 6); i++) {
-      const a = (i / (high ? 10 : 6)) * Math.PI * 2 + R(-0.2, 0.2);
+    for (let i = 0; i < N(high, 10, 6); i++) {
+      const a = (i / N(high, 10, 6)) * Math.PI * 2 + R(-0.2, 0.2);
       const c = makeCloud(R(1, 1.5));
       c.position.set(Math.cos(a) * R(160, 230), R(50, 85), Math.sin(a) * R(160, 230));
       g.add(c);
@@ -1080,7 +1081,7 @@ export function buildThemeAmbience(theme, high = true) {
       castle.position.set(v.x, -2, v.z); castle.lookAt(0, -2, 0); castle.scale.setScalar(s);
       far.add(castle);
     });
-    const snow = makeTwinklePoints(high ? 1700 : 850, () => [R(-30, 30), R(0, 26), R(-40, 12)], { minSize: 3, maxSize: 6, fall: 2.4, box: 26, colors: [0xffffff, 0xeef8ff], normalBlend: true, persp: true, noTwinkle: true });
+    const snow = makeTwinklePoints(N(high, 1700, 850), () => [R(-30, 30), R(0, 26), R(-40, 12)], { minSize: 3, maxSize: 6, fall: 2.4, box: 26, colors: [0xffffff, 0xeef8ff], normalBlend: true, persp: true, noTwinkle: true });
     snow.position.y = -9;
     g.add(snow);
   }

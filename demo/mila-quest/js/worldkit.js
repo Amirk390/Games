@@ -1,4 +1,5 @@
 import * as THREE from "../assets/lib/three.module.js";
+import { N, GFX } from "./gfx.js";
 
 const _right = new THREE.Vector3();
 const _fwd = new THREE.Vector3();
@@ -102,7 +103,8 @@ export function buildCourse(opt = {}) {
   }
   emitCurve(24, curveA * 0.9);
   emitStraight(90);
-  while (samples.length * step < 520) emitStraight(20);
+  const minLen = Math.max(520, opt.minLength || 0);
+  while (samples.length * step < minLen) emitStraight(20);
 
   return {
     samples,
@@ -528,7 +530,7 @@ export function makeGrassTuft(color = 0x2f8a3a) {
 export function populateValley(course, theme = "jungle", high = true) {
   const group = new THREE.Group();
   group.name = "valleyDecor";
-  const step = high ? 2 : 4;
+  const step = high ? 2 : (GFX.level === "low" ? 7 : 4);
   for (let i = 0; i < course.samples.length; i += step) {
     const s = course.samples[i];
     if (s.kind !== "causeway") continue;
@@ -559,7 +561,7 @@ export function populateValley(course, theme = "jungle", high = true) {
 export function scatterGroundDetails(course, theme = "jungle", high = true) {
   const group = new THREE.Group();
   group.name = "groundScatter";
-  const n = high ? 72 : 34;
+  const n = N(high, 72, 34);
   const colors = [0x2f8a3a, 0x3a9a44, 0x267833];
   const len = course.length || 240;
   for (let i = 0; i < n; i++) {
@@ -740,7 +742,7 @@ export function plantCourseFlags(course, high = true) {
   if (course.landmarks && course.landmarks.hill != null) {
     spots.push({ s: course.landmarks.hill, kind: "hill", size: 1.1 });
   }
-  const gap = high ? 108 : 140;
+  const gap = high ? 108 : (GFX.level === "low" ? 210 : 140);
   for (let s = 6 + gap; s < len - 36; s += gap) {
     spots.push({ s, kind: "road", size: 1 });
   }

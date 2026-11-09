@@ -69,7 +69,24 @@ table{width:100%;border-collapse:collapse;font-size:15px} th,td{padding:5px 6px;
 .lane-opts{display:flex;direction:ltr;gap:22px;justify-content:center;width:min(920px,94vw);margin:8px auto 0;pointer-events:none}
 .lane-opt{flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:#ffe34a;color:#140818;border:5px solid #140818;border-radius:22px;padding:8px 12px;text-align:center;font-weight:800;font-size:clamp(22px,3.4vw,42px);font-family:Fredoka,Rubik,Arial,sans-serif;box-shadow:0 6px 0 #140818,0 0 20px #ffc83d99;direction:ltr;unicode-bidi:isolate;line-height:1.15}
 .deco-emoji{font-size:.7em;margin-inline-end:8px;vertical-align:middle;filter:drop-shadow(0 2px 0 #0002)}
-#btn-quality{position:fixed;top:10px;left:64px;z-index:8}
+#btn-settings{position:fixed;top:10px;left:64px;z-index:8}
+#c.pixelated{image-rendering:pixelated;image-rendering:crisp-edges}
+#s-settings{position:absolute;inset:0;z-index:13;background:rgba(10,8,20,.62);display:flex;align-items:center;justify-content:center;padding:12px;pointer-events:auto}
+.set-box{background:linear-gradient(180deg,#fffdf8f8,#ffe8c0f4);border:4px solid #8a5a2b;border-radius:24px;padding:12px 18px 14px;width:min(900px,96vw);max-height:94vh;overflow:auto;text-align:right;box-shadow:0 20px 50px #0006}
+.set-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:-12px;background:#fffdf8f2;padding:6px 0;z-index:1}
+.set-head h2{margin:0;font-size:clamp(26px,3.6vw,36px)}
+.set-sec{margin:8px 0;padding:8px 12px;background:#fff9;border-radius:16px;border:2px solid #8a5a2b55}
+.set-sec h3{margin:0 0 8px;font-size:clamp(20px,2.6vw,26px)}
+.set-note{font-size:clamp(15px,1.8vw,18px);font-weight:600;line-height:1.4;margin:6px 0 2px;opacity:.85}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg-b{border:3px solid #8a5a2b;background:#fff;border-radius:16px;padding:9px 18px;font-size:clamp(17px,2.2vw,22px);font-weight:800;color:var(--ink);min-width:110px}
+.seg-b.on{background:var(--leaf);color:#fff;border-color:var(--leaf-d);box-shadow:0 4px 0 var(--leaf-d)}
+.set-checks{display:flex;flex-wrap:wrap;gap:8px}
+.set-check{font-size:clamp(17px,2.1vw,21px);font-weight:800;display:inline-flex;align-items:center;gap:10px;background:#fff;border:3px solid #8a5a2b;border-radius:16px;padding:7px 12px;cursor:pointer}
+.set-check input{width:24px;height:24px;accent-color:#2fb86a}
+.set-range{display:flex;align-items:center;gap:12px;font-size:clamp(17px,2.1vw,21px);font-weight:800;margin:4px 0}
+.set-range input{flex:1;max-width:360px;height:28px;accent-color:#2fb86a}
+.set-range span{min-width:56px}
 #btn-dev{position:fixed;bottom:14px;left:14px;z-index:9;font-size:13px;padding:7px 14px;background:#2a2438;color:#ffe34a;box-shadow:0 5px 0 #140818;letter-spacing:.04em;font-family:Fredoka,Rubik,sans-serif}
 #dev-panel{position:absolute;inset:0;z-index:12;background:rgba(10,8,20,.62);display:flex;align-items:center;justify-content:center;padding:14px}
 .dev-box{background:linear-gradient(180deg,#fffdf8f6,#ffe8c0f2);border:4px solid #8a5a2b;border-radius:24px;padding:12px 16px 12px;width:min(1100px,96vw);max-height:94vh;overflow:auto;text-align:right;box-shadow:0 20px 50px #0006}
@@ -86,13 +103,17 @@ table{width:100%;border-collapse:collapse;font-size:15px} th,td{padding:5px 6px;
 .dev-stages button.boss{background:#e8553d;color:#fff;box-shadow:0 5px 0 #8a2a18}
 
 .prompt{transition:transform .2s}
+.spell-line{font-size:clamp(26px,4.4vw,42px);letter-spacing:.18em;margin-top:2px;line-height:1.1}
+.spell-line .sp-ok{color:#1b7a42}
+.spell-line .sp-next{color:#140818;background:#ffe34a;border:3px solid #140818;border-radius:10px;padding:0 6px;margin:0 4px}
+.spell-line .sp-rest{color:#14081855}
 .turn-cue{position:absolute;bottom:20%;left:50%;transform:translateX(-50%);background:#ffe34af5;color:#140818;border:5px solid #140818;border-radius:999px;padding:10px 24px;font-weight:800;font-size:clamp(20px,3vw,34px);box-shadow:0 8px 0 #140818,0 0 26px #ffc83dbb;z-index:6;pointer-events:none;font-family:Fredoka,Rubik,sans-serif}
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
 <button class="btn s" id="mute" aria-label="השתקה">🔊</button>
-<button class="btn s" id="btn-quality" aria-label="איכות גרפית">✨ גבוהה</button>
+<button class="btn s" id="btn-settings" aria-label="הגדרות">⚙️ הגדרות</button>
 <button class="btn s hidden" id="btn-dev" aria-label="Developer">DEVELOPER</button>
 <div class="ui">
 
@@ -158,7 +179,7 @@ table{width:100%;border-collapse:collapse;font-size:15px} th,td{padding:5px 6px;
   <section id="hud" class="hidden">
     <div class="hud-top" style="flex-direction:column;align-items:stretch">
       <div class="row" style="justify-content:space-between;width:100%">
-        <button class="btn s" id="btn-hud-map">🗺️ מפה</button>
+        <div class="row"><button class="btn s" id="btn-pause" aria-label="הפסקה">⏸️</button><button class="btn s" id="btn-hud-map">🗺️ מפה</button></div>
         <div class="prompt" id="prompt"><small id="prompt-sub"></small><div class="emoji" id="prompt-emoji"></div><div class="q" id="prompt-q"></div></div>
         <div class="row">
           <span class="pill" id="hud-hearts">❤️❤️❤️</span>
@@ -193,6 +214,15 @@ table{width:100%;border-collapse:collapse;font-size:15px} th,td{padding:5px 6px;
         <button class="btn s" id="btn-dev-reset">איפוס התקדמות</button>
       </div>
       <div id="dev-grid"></div>
+    </div>
+  </section>
+  <section id="s-settings" class="hidden">
+    <div class="set-box" role="dialog" aria-label="הגדרות">
+      <div class="set-head">
+        <h2>⚙️ הגדרות</h2>
+        <div class="row"><button class="btn s" id="btn-set-reset">ברירת מחדל</button><button class="btn g" id="btn-set-close">סגירה ✓</button></div>
+      </div>
+      <div id="set-body"></div>
     </div>
   </section>
   <section id="s-nb" class="center hidden"></section>

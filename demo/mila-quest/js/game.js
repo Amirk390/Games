@@ -5,11 +5,23 @@ import { WORDS } from "./data.js";
 import { KEY, NEED_CLEAN, PTS, HEROES, BOSSES, ST, WORLDS, ACH, INTRO } from "./config.js";
 import { buildCourse, pathAt, pathFrame, worldOnPath, makeStoneTexture, makeDirtTexture, makeGrassTexture, makeValleyTexture, makeSmoothTree, makeMountains, makeMist, makeRibbonGeometry, makeSkirtGeometry, populateValley, scatterGroundDetails, plantCourseFlags, updateFlagWave, makeIsraelFlag } from "./worldkit.js";
 import { themeOf, THEME_LOOK, THEME_MOUNTAINS, buildThemeCourse, buildThemeAmbience, makeThemeDecor, makeThemedHazard, fxTime } from "./themes.js";
+import { GFX, setGfxLevel, N } from "./gfx.js";
+import { mergeStatic } from "./merge.js";
+import { normSettings, difficultyFor, stageModes, MODE_LABEL, QTYPES, DIFFS, SPEEDS, GFX_OPTS, DEFAULT_SETTINGS } from "./settings.js";
 
+let GPU_INFO = "";
 function hasWebGL() {
   try {
     const c = document.createElement("canvas");
-    return !!(c.getContext("webgl2") || c.getContext("webgl"));
+    const gl = c.getContext("webgl2") || c.getContext("webgl");
+    if (gl) {
+      try {
+        const ext = gl.getExtension("WEBGL_debug_renderer_info");
+        GPU_INFO = String((ext && gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) || gl.getParameter(gl.RENDERER) || "");
+      } catch (e) {}
+      try { const lose = gl.getExtension("WEBGL_lose_context"); if (lose) lose.loseContext(); } catch (e) {}
+    }
+    return !!gl;
   } catch (e) { return false; }
 }
 if (!hasWebGL()) {
@@ -23,15 +35,23 @@ const shuffle = (a) => a.map((x) => [Math.random(), x]).sort((p, q) => p[0] - q[
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 /* ===== SAVE ===== */
-const def = () => ({ prog: {}, hero: 0, coins: 0, stars: 0, notebook: {}, known: {}, best: 0, runs: 0, ach: [], free: false, muted: false, quality: "high" });
+const def = () => ({ prog: {}, hero: 0, coins: 0, stars: 0, notebook: {}, known: {}, best: 0, runs: 0, ach: [], free: false, muted: false, quality: "high", settings: DEFAULT_SETTINGS(), autoTier: null });
 let S;
-try { S = Object.assign(def(), JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) { S = def(); }
+try {
+  const raw = JSON.parse(localStorage.getItem(KEY) || "{}");
+  S = Object.assign(def(), raw);
+  // v7 -> v8 migration: the old "💡 חסכונית" toggle becomes graphics = Low
+  if (!raw.settings && raw.quality === "low") S.settings.gfx = "low";
+} catch (e) { S = def(); }
+S.settings = normSettings(S.settings);
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
 
 /* ===== AUDIO ===== */
 let muted = !!S.muted, ac = null;
 function tone(f, d = .12, t = "sine", v = .07) {
-  if (muted) return;
+  const vol = S.settings ? S.settings.sfx : 1;
+  if (muted || vol <= 0) return;
+  v *= vol;
   try {
     ac = ac || new (window.AudioContext || window.webkitAudioContext)();
     const o = ac.createOscillator(), g = ac.createGain();
@@ -48,10 +68,11 @@ const sfx = {
   jump: () => tone(620, .07, "square", .03)
 };
 function say(w) {
-  if (muted || !window.speechSynthesis) return;
+  const vol = S.settings ? S.settings.voice : 1;
+  if (muted || vol <= 0 || !window.speechSynthesis) return;
   try {
     const u = new SpeechSynthesisUtterance(w);
-    u.lang = "en-US"; u.rate = .82;
+    u.lang = "en-US"; u.rate = .82; u.volume = vol;
     speechSynthesis.cancel(); speechSynthesis.speak(u);
   } catch (e) {}
 }
@@ -124,6 +145,14 @@ function refreshMapStats() {
   if (mk) mk.textContent = keysOwned().length;
 }
 
+function stageLabel(i, k) {
+  const t = ST[i][k];
+  if (t[1] === "boss") return t[0];
+  const ms = stageModes(runnerModeOf(t[1]), k, false, S.settings);
+  if (t[1] === "tr" && ms.length === 1 && (ms[0] === "en2he" || ms[0] === "tr")) return MODE_LABEL[ms[0]];
+  if (ms.length === 1 && ms[0] !== runnerModeOf(t[1])) return MODE_LABEL[ms[0]] || t[0];
+  return t[0];
+}
 function renderStages() {
   const i = selectedWorld;
   const w = WORLDS[i];
@@ -131,7 +160,7 @@ function renderStages() {
     const op = sOpen(i, k);
     const n = S.prog[w.id + "-" + k] || 0;
     return `<button class="tile" data-st="${k}" ${op ? "" : "disabled"}>
-      <small>${k === 4 ? "בוס" : "שלב " + (k + 1)}</small><div>${t[0]}</div>
+      <small>${k === 4 ? "בוס" : "שלב " + (k + 1)}</small><div>${stageLabel(i, k)}</div>
       <div>${op ? (n ? "⭐".repeat(n) : "▶") : "🔒"}</div>
     </button>`;
   }).join("");
@@ -143,19 +172,83 @@ function renderStages() {
 
 /* ===== THREE CORE ===== */
 const canvas = $("c");
-function isHigh() { return S.quality !== "low"; }
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: isHigh(), powerPreference: "high-performance" });
+/* ===== GRAPHICS QUALITY (v8) =====
+   LOW    : renders at ~1/3 resolution, upscaled nearest-neighbour (retro pixel look), no shadows,
+            no antialias, 2 lights instead of 5, half the scenery/stars, shorter fog distance.
+   MEDIUM : 0.8x resolution (smooth), simple shadows, no antialias, 4 lights, reduced scenery.
+   HIGH   : full v7 look (pixel ratio up to 1.5, soft shadows, antialias, all scenery).
+   AUTO   : picks a tier from the GPU name / CPU cores / memory, then drops a tier if the
+            measured frame rate in the first seconds of a run is too low (remembered). */
+const TIERS = ["low", "medium", "high"];
+const LOW_PR = 0.3;
+let autoTier = null, autoReason = "";
+function detectTier() {
+  const g = GPU_INFO.toLowerCase();
+  const cores = navigator.hardwareConcurrency || 4;
+  const mem = navigator.deviceMemory || 4;
+  if (/swiftshader|llvmpipe|softpipe|software|basic render|gdi generic/.test(g)) { autoReason = "מעבד גרפי תוכנתי"; return "low"; }
+  if (/gma|g41|g45|q45|mali-[2-4]\d\d|mali-t|adreno \(tm\) [2-4]\d\d|adreno [2-4]\d\d|powervr|sgx|vivante|videocore/.test(g) ||
+      (/intel/.test(g) && /hd graphics( [2-5]\d{3})?(?!\s*\d)/.test(g))) { autoReason = "כרטיס מסך ישן"; return "low"; }
+  if (cores <= 2 || mem <= 2) { autoReason = "מחשב חלש"; return "low"; }
+  if (/intel|mali|adreno|apple gpu|radeon\(tm\) graphics|vega \d graphics/.test(g) || cores <= 4 || mem <= 4) { autoReason = "כרטיס מסך מובנה"; return "medium"; }
+  autoReason = "מחשב חזק";
+  return "high";
+}
+function computeAutoTier() {
+  const h = detectTier();
+  const saved = S.autoTier;
+  if (saved && TIERS.indexOf(saved) >= 0 && TIERS.indexOf(saved) < TIERS.indexOf(h)) { autoReason = "נמדד קצב תמונות נמוך"; return saved; }
+  return h;
+}
+function tier() {
+  const g = S.settings.gfx;
+  if (g === "low" || g === "medium" || g === "high") return g;
+  if (!autoTier) autoTier = computeAutoTier();
+  return autoTier;
+}
+function isHigh() { return tier() === "high"; }
+setGfxLevel(tier());
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: tier() === "high", powerPreference: "high-performance" });
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMappingExposure = 1.18;
+let lightsReady = false, shadowState = null, lightBoost = 1;
+function markMaterialsDirty() {
+  const touch = (o) => { const ms = [].concat(o.material || []); ms.forEach((m) => { if (m) m.needsUpdate = true; }); };
+  if (lightsReady) { mapScene.traverse(touch); runScene.traverse(touch); }
+}
 function applyQuality() {
-  const hi = isHigh();
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, hi ? 1.5 : 1));
+  const t = tier();
+  setGfxLevel(t);
+  const dpr = devicePixelRatio || 1;
+  const pr = t === "high" ? Math.min(dpr, 1.5) : t === "medium" ? Math.min(dpr, 1) * 0.8 : LOW_PR;
+  renderer.setPixelRatio(pr);
   renderer.setSize(innerWidth, innerHeight);
-  renderer.toneMappingExposure = hi ? 1.18 : 1.05;
-  renderer.shadowMap.enabled = hi;
-  const bq = $("btn-quality");
-  if (bq) bq.textContent = hi ? "✨ גבוהה" : "💡 חסכונית";
+  canvas.style.imageRendering = t === "low" ? "pixelated" : "auto";
+  canvas.classList.toggle("pixelated", t === "low");
+  GFX.px.value = t === "low" ? 0.5 : pr;
+  const sh = t !== "low";
+  const type = t === "high" ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
+  const key = sh + ":" + type;
+  if (shadowState !== null && shadowState !== key) markMaterialsDirty();
+  shadowState = key;
+  renderer.shadowMap.enabled = sh;
+  renderer.shadowMap.type = type;
+  applyLightTier();
+}
+function applyLightTier() {
+  if (!lightsReady) return;
+  const t = tier();
+  const before = [runLights.rim.visible, playerFill.visible, playerKey.visible].join();
+  runLights.rim.visible = t !== "low";
+  mapLights.rim.visible = t !== "low";
+  playerFill.visible = t === "high";
+  playerKey.visible = t !== "low";
+  lightBoost = t === "low" ? 1.32 : t === "medium" ? 1.08 : 1;
+  mapLights.hemi.intensity = 1.28 * lightBoost;
+  if (before !== [runLights.rim.visible, playerFill.visible, playerKey.visible].join()) markMaterialsDirty();
+  if (run && run.layout) applyStageLook(WORLDS[run.world - 1]);
 }
 applyQuality();
 renderer.setClearColor(0x62c8ff);
@@ -247,6 +340,8 @@ runScene.add(playerKey);
 runScene.add(playerKey.target);
 runLights.fill = playerFill;
 runLights.key = playerKey;
+lightsReady = true;
+applyLightTier();
 
 addEventListener("resize", () => {
   camera.aspect = innerWidth / innerHeight;
@@ -391,6 +486,7 @@ async function createProp(file, height) {
     if (height) normalize(model, height, 2.6);
     const wrap = new THREE.Group();
     wrap.add(model);
+    wrap.userData.gltf = true; // shares cached glTF geometry: never dispose
     return wrap;
   } catch (e) {
     const wrap = new THREE.Group();
@@ -497,7 +593,67 @@ function roundedBoardGeo(w, h, d, r) {
   s.quadraticCurveTo(x, y, x + rr, y);
   return new THREE.ExtrudeGeometry(s, { depth: d, bevelEnabled: true, bevelThickness: 0.035, bevelSize: 0.035, bevelSegments: 2 });
 }
+/* v8: small letter signs (letter-collection stage) share one texture/material per glyph and
+   shared geometries, instead of a new 768x280 canvas texture for every single letter. */
+const SMALL_SIGN = { tex: new Map(), rimGeo: null, faceGeo: null, rimMat: null };
+function smallSign(text) {
+  const key = String(text);
+  let ent = SMALL_SIGN.tex.get(key);
+  if (!ent) {
+    const tex = makeTextTexture(key, { w: 768, h: 280, font: 140 });
+    ent = { tex, mat: new THREE.MeshBasicMaterial({ map: tex, toneMapped: false, fog: false }) };
+    SMALL_SIGN.tex.set(key, ent);
+  }
+  const W = 1.05, H = W * (280 / 768);
+  if (!SMALL_SIGN.rimGeo) {
+    SMALL_SIGN.rimGeo = new THREE.BoxGeometry(W + 0.05, H + 0.05, 0.055);
+    SMALL_SIGN.faceGeo = new THREE.PlaneGeometry(W, H);
+    SMALL_SIGN.rimMat = new THREE.MeshBasicMaterial({ color: 0xffe34a, toneMapped: false });
+  }
+  const g = new THREE.Group();
+  const rim = new THREE.Mesh(SMALL_SIGN.rimGeo, SMALL_SIGN.rimMat);
+  const faceF = new THREE.Mesh(SMALL_SIGN.faceGeo, ent.mat);
+  faceF.position.z = 0.03; faceF.renderOrder = 2;
+  const faceB = new THREE.Mesh(SMALL_SIGN.faceGeo, ent.mat);
+  faceB.position.z = -0.03; faceB.rotation.y = Math.PI; faceB.renderOrder = 2;
+  g.add(rim, faceF, faceB);
+  g.userData.fit = ent.tex.userData;
+  g.userData.signSize = { W, H };
+  g.userData.shared = true;
+  return g;
+}
+/* free GPU memory of a per-question object (gate) when it leaves the scene */
+function disposeObj(root) {
+  if (!root) return;
+  if (root.parent) root.parent.remove(root);
+  if (root.userData && root.userData.shared) return;
+  root.traverse((o) => {
+    if (o.geometry && !(o.parent && o.parent.userData.shared)) o.geometry.dispose();
+    if (o.userData && o.userData.ownMat) {
+      [].concat(o.material || []).forEach((m) => { if (!m) return; if (m.map) m.map.dispose(); m.dispose(); });
+    }
+  });
+}
+/* v8: free everything a stage built (procedural geometry, materials, canvas textures) when the
+   next stage replaces it. Skips cached glTF props and shared letter signs. Three.js re-uploads
+   anything disposed that is used again, so shared caches stay correct. */
+function disposeDeep(root) {
+  if (!root) return;
+  if (root.parent) root.parent.remove(root);
+  const walk = (o) => {
+    if (o.userData && (o.userData.gltf || o.userData.shared)) return;
+    if (o.geometry) o.geometry.dispose();
+    if (o.material) [].concat(o.material).forEach((m) => {
+      if (!m) return;
+      for (const k of ["map", "emissiveMap", "alphaMap", "normalMap", "roughnessMap"]) if (m[k] && m[k].dispose) m[k].dispose();
+      m.dispose();
+    });
+    for (const c of o.children) walk(c);
+  };
+  walk(root);
+}
 function makeSign(text, big = true) {
+  if (!big) return smallSign(text);
   const g = new THREE.Group();
   const tw = big ? 1024 : 768;
   const th = big ? 360 : 280;
@@ -518,6 +674,8 @@ function makeSign(text, big = true) {
   faceB.position.z = -0.03;
   faceB.rotation.y = Math.PI;
   faceB.renderOrder = 2;
+  rim.userData.ownMat = faceF.userData.ownMat = true;
+  faceB.material = matF; matB.dispose();
   g.add(rim, faceF, faceB);
   g.userData.fit = tex.userData;
   g.userData.signSize = { W, H };
@@ -847,8 +1005,8 @@ function applyStageLook(world) {
   if (!L) return;
   const look = THEME_LOOK[themeOf(world.id)];
   if (look) {
-    renderer.toneMappingExposure = isHigh() ? look.exp : Math.min(look.exp, 1.05);
-    runLights.hemi.intensity = look.hemi;
+    renderer.toneMappingExposure = look.exp;
+    runLights.hemi.intensity = look.hemi * lightBoost;
     runLights.hemi.color.setHex(look.hemiSky);
     runLights.hemi.groundColor.setHex(look.hemiGround);
     runLights.dir.intensity = look.dir;
@@ -856,6 +1014,7 @@ function applyStageLook(world) {
     runScene.fog.color.setHex(look.fog);
     runScene.fog.near = look.fogNear;
     runScene.fog.far = look.fogFar;
+    applyDrawDistance();
     runScene.background = new THREE.Color(look.clear);
     renderer.setClearColor(look.clear);
     if (runSky) {
@@ -878,11 +1037,12 @@ function applyStageLook(world) {
     dusk: { exp: 0.98, hemi: 0.62, dir: 0.85, fogNear: 16, fogFar: 230 },
     storm: { exp: 0.9, hemi: 0.55, dir: 0.75, fogNear: 14, fogFar: 200 }
   }[L.tod] || { exp: 1.15, hemi: 0.85, dir: 1.2, fogNear: 14, fogFar: 56 };
-  renderer.toneMappingExposure = isHigh() ? tod.exp : Math.min(tod.exp, 1.05);
-  runLights.hemi.intensity = tod.hemi;
+  renderer.toneMappingExposure = tod.exp;
+  runLights.hemi.intensity = tod.hemi * lightBoost;
   runLights.dir.intensity = tod.dir;
   runScene.fog.near = tod.fogNear;
   runScene.fog.far = tod.fogFar;
+  applyDrawDistance();
   if (L.tod === "sunset") {
     runLights.dir.color.setHex(0xff9a5c);
     runLights.hemi.color.setHex(0xffc9a0);
@@ -900,6 +1060,15 @@ function applyStageLook(world) {
   layoutPathFromCourse();
 }
 
+function applyDrawDistance() {
+  const low = GFX.level === "low";
+  if (low) {
+    runScene.fog.far = Math.min(runScene.fog.far, 190);
+    runScene.fog.near = Math.min(runScene.fog.near, 34);
+  }
+  const far = low ? 320 : 520;
+  if (camera.far !== far) { camera.far = far; camera.updateProjectionMatrix(); }
+}
 function makeStars() {
   const geo = new THREE.BufferGeometry();
   const n = 400;
@@ -952,14 +1121,15 @@ function emitTrail(dt) {
   trailAcc += dt;
   if (trailAcc < 0.07) return;
   trailAcc = 0;
-  if (!player) return;
+  if (!player || GFX.level === "low") return;
   for (const p of particles) {
     if (p.life > 0) continue;
     p.life = 0.5;
     p.kind = "trail";
     p.mesh.visible = true;
     p.mesh.material.color.setHex(Math.random() > 0.5 ? 0xfff2a0 : 0xffc83d);
-    p.mesh.position.copy(player.group.position).add(new THREE.Vector3((Math.random() - 0.5) * 0.3, 0.35 + Math.random() * 0.45, 0.4));
+    p.mesh.position.copy(player.group.position);
+    p.mesh.position.x += (Math.random() - 0.5) * 0.3; p.mesh.position.y += 0.35 + Math.random() * 0.45; p.mesh.position.z += 0.4;
     p.v.set((Math.random() - 0.5) * 0.5, 0.7, 1.4);
     p.mesh.scale.setScalar(0.45);
     break;
@@ -983,10 +1153,7 @@ function recycleZ(obj, far = 16) {
 function layoutPath() { layoutPathFromCourse(); }
 function disposeCourseVisual() {
   if (!courseVisual) return;
-  runScene.remove(courseVisual);
-  courseVisual.traverse((o) => {
-    if (o.geometry) o.geometry.dispose();
-  });
+  disposeDeep(courseVisual);
   courseVisual = null;
 }
 function rebuildCourseRibbon() {
@@ -998,6 +1165,7 @@ function rebuildCourseRibbon() {
   if (th !== "jungle") {
     const tg = buildThemeCourse(th, course, { narrow, high: isHigh() });
     tg.add(plantCourseFlags(course, isHigh()));
+    tg.userData.mergeStats = mergeStatic(tg);
     courseVisual = tg;
     runScene.add(tg);
     if (tg.userData.ships && tg.userData.ships.length) spawnShips(tg);
@@ -1057,6 +1225,7 @@ function rebuildCourseRibbon() {
   const scatter = scatterGroundDetails(course, theme, isHigh());
   const flags = plantCourseFlags(course, isHigh());
   group.add(follow, scatter, grass, turnGrass, dirt, stripeL, stripeR, valley, valleyBits, haze, skirt, stone, railL, railR, flags);
+  group.userData.mergeStats = mergeStatic(group);
   courseVisual = group;
   runScene.add(courseVisual);
 }
@@ -1165,10 +1334,10 @@ function placeDecor(d) {
   }
 }
 async function spawnDecor(world) {
-  decors.forEach((d) => runScene.remove(d));
+  decors.forEach((d) => disposeDeep(d));
   decors.length = 0;
   const theme = themeOf(world.id);
-  const n = isHigh() ? 26 : 16;
+  const n = N(isHigh(), 26, 16);
   for (let i = 0; i < n; i++) {
     const spec = theme === "jungle" ? null : makeThemeDecor(theme, i, isHigh());
     let m;
@@ -1219,6 +1388,7 @@ function buildGate(options) {
     g.add(post);
   });
   const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, halfW * 2, 10), mat);
+  beam.userData.ownMat = true;
   beam.rotation.z = Math.PI / 2;
   beam.position.set(0, 4.35, 0); beam.castShadow = true; g.add(beam);
   const xs = laneXs();
@@ -1243,10 +1413,11 @@ function buildGate(options) {
 }
 
 function clearDyn() {
-  [...gates, ...coins, ...obstacles, ...letters].forEach((o) => {
+  [...gates, ...coins, ...letters].forEach((o) => {
     if (o.mesh) runScene.remove(o.mesh);
-    if (o.group) runScene.remove(o.group);
+    if (o.group) disposeObj(o.group);
   });
+  obstacles.forEach((o) => disposeDeep(o.mesh));
   gates.length = coins.length = obstacles.length = letters.length = 0;
 }
 
@@ -1278,28 +1449,87 @@ function stageProfile(st, boss, wid) {
     { speed: 8.15, curve: 1.05, hillAmp: 5.5, turnDir: -1, bridge: 0, narrow: 0, tod: "storm", density: 0.62, types: ["wall", "hole", "beam", "roll"] }
   ];
   const L = Object.assign({}, table[Math.max(0, Math.min(4, i))]);
+  // v8: speed / obstacles / time-to-answer / words / boss scale per world, stage and difficulty
+  const D = difficultyFor(wid || 1, st, boss, S.settings);
+  L.speed = D.speed; L.density = D.density; L.types = D.types; L.diff = D;
   L.causeway = wid === 1;
   if (wid === 1) L.tod = "sunset";
   else L.tod = themeOf(wid);
   return L;
 }
 
-function pickWords(wid, st, lost, n = 8) {
+function pickWords(wid, st, lost, n = 8, mix = [1, 0, 0], filter = null) {
   if (lost) {
     const hard = shuffle(nbs().filter((x) => !x.n.learned).map((x) => x.w));
     return hard.slice(0, Math.min(10, Math.max(hard.length, 0)));
   }
-  const arr = WORDS.filter((w) => w.w === wid);
-  const start = (st * 8) % arr.length;
+  let arr = WORDS.filter((w) => w.w === wid);
+  if (filter) { const f = arr.filter(filter); if (f.length >= n) arr = f; }
+  // v8: words are drawn by level (1 basic / 2 intermediate / 3 advanced) using the world's mix;
+  // not-yet-known words first inside each level.
+  const fresh = (w) => !(S.known && S.known[w.en]);
+  const buckets = [1, 2, 3].map((l) => {
+    const b = arr.filter((w) => (w.lvl || 1) === l);
+    return shuffle(b.filter(fresh)).concat(shuffle(b.filter((w) => !fresh(w))));
+  });
   const out = [];
-  for (let i = 0; i < n; i++) out.push(arr[(start + i) % arr.length]);
+  for (let i = 0; i < n; i++) {
+    let r = Math.random(), l = 0;
+    while (l < 2 && r >= (mix[l] || 0)) { r -= (mix[l] || 0); l++; }
+    const order = [l, l - 1, l + 1, l - 2, l + 2].filter((x) => x >= 0 && x <= 2);
+    const b = order.map((x) => buckets[x]).find((x) => x.length);
+    if (!b) break;
+    out.push(b.shift());
+  }
   return shuffle(out);
 }
-function distractors(word, field, k) {
-  const same = shuffle(WORDS.filter((x) => x.en !== word.en && x.w === word.w));
-  const others = shuffle(WORDS.filter((x) => x.en !== word.en && x.w !== word.w));
-  return same.concat(others).slice(0, k).map((x) => x[field]);
+function simScore(a, b, field) {
+  a = String(a).toLowerCase(); b = String(b).toLowerCase();
+  let sc = 0;
+  if (a[0] === b[0]) sc += 2;
+  if (a.slice(-1) === b.slice(-1)) sc += field === "en" ? 0.8 : 1;
+  if (field === "en" && a.slice(-2) === b.slice(-2)) sc += 0.8;
+  sc -= Math.abs(a.length - b.length) * 0.5;
+  const set = new Set(a.replace(/\s/g, ""));
+  for (const c of set) if (b.includes(c)) sc += 0.3;
+  return sc;
 }
+/* v8: distractors become more similar to the answer (same first letter, length, endings)
+   as similarity grows with world / stage / difficulty. Never repeats the answer text. */
+function distractors(word, field, k, sim = 0) {
+  const ans = word[field];
+  const used = new Set([ans]);
+  const pool = WORDS.filter((x) => x.en !== word.en && x[field] !== ans);
+  const same = pool.filter((x) => x.w === word.w);
+  const out = [];
+  for (let j = 0; j < k; j++) {
+    let cand = null;
+    const free = same.filter((x) => !used.has(x[field]));
+    if (free.length && Math.random() < sim) {
+      cand = free.map((x) => [simScore(ans, x[field], field) + Math.random() * 1.2, x]).sort((p, q) => q[0] - p[0])[0][1];
+    }
+    if (!cand) cand = shuffle(free)[0] || shuffle(pool.filter((x) => !used.has(x[field])))[0];
+    if (!cand) break;
+    used.add(cand[field]);
+    out.push(cand[field]);
+  }
+  return out;
+}
+const CONFUSE = ["AEIOU", "EIY", "BDP", "MN", "CKSQ", "GJ", "VWF", "TDF", "HN", "RP", "LI", "UVW"];
+function letterDistractors(c, k, sim = 0) {
+  const out = new Set();
+  if (Math.random() < sim) {
+    const grp = shuffle([...new Set(CONFUSE.filter((g) => g.includes(c)).join(""))].filter((x) => x !== c));
+    for (const ch of grp) { if (out.size >= k) break; out.add(ch); }
+  }
+  while (out.size < k) {
+    const ch = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+    if (ch !== c) out.add(ch);
+  }
+  return [...out];
+}
+const isSpellMode = (m) => m === "build" || m === "let";
+const spellOK = (w) => /^[A-Za-z]{3,10}$/.test(w.en);
 function spellable(list) {
   return list.filter((w) => /^[A-Za-z]+$/.test(w.en) && w.en.length >= 3 && w.en.length <= 10);
 }
@@ -1336,7 +1566,7 @@ function setPrompt(sub, q, emoji) {
 }
 function updateHud() {
   if (!run) return;
-  $("hud-hearts").textContent = "❤️".repeat(run.hearts) + "🖤".repeat(Math.max(0, 3 - run.hearts));
+  $("hud-hearts").textContent = "❤️".repeat(run.hearts) + "🖤".repeat(Math.max(0, (run.maxHearts || 3) - run.hearts));
   $("hud-score").textContent = "⭐ " + run.score;
   $("hud-combo").textContent = "🔥 " + run.combo;
   $("hud-coins").textContent = "🪙 " + S.coins;
@@ -1353,11 +1583,11 @@ function setupQuestion() {
   clearLetters();
   const w = run.queue[run.i];
   run.cur = w; run.hint = 0; run.wrongHere = false;
-  let mode = run.qmode;
-  if (run.boss) {
-    mode = ["tr", "rev", "let", "build"][run.i % 4];
-  }
+  const modes = run.modes || [run.qmode];
+  let mode = modes[run.i % modes.length];
+  if (isSpellMode(mode) && !spellOK(w)) mode = modes.find((m) => !isSpellMode(m)) || "en2he";
   run.activeMode = mode;
+  const sim = (run.layout && run.layout.diff && run.layout.diff.similarity) || 0;
   if (mode === "build") {
     setLaneOpts(null);
     setPrompt("אספו את האותיות לפי הסדר", w.he, w.pic);
@@ -1369,21 +1599,24 @@ function setupQuestion() {
     const E = w.en.toUpperCase();
     const k = E.length <= 3 ? 1 : 1 + Math.floor(Math.random() * (E.length - 2));
     const c = E[k];
-    const lettersSet = new Set([c]);
-    while (lettersSet.size < 3) lettersSet.add(String.fromCharCode(65 + Math.floor(Math.random() * 26)));
-    opts = shuffle([...lettersSet]);
+    opts = shuffle([c, ...letterDistractors(c, 2, sim)]);
     ans = opts.indexOf(c);
     sub = "איזו אות חסרה?";
     q = `<span class="en">${esc(E.slice(0, k))}_${esc(E.slice(k + 1))}</span>`;
     emoji = w.pic;
+  } else if (mode === "en2he") {
+    opts = shuffle([w.he, ...distractors(w, "he", 2, sim)]);
+    ans = opts.indexOf(w.he);
+    sub = "מה הפירוש בעברית? רצו אל השער";
+    q = `<span class="en">${esc(w.en)}</span>`;
   } else if (mode === "rev") {
-    opts = shuffle([w.he, ...distractors(w, "he", 2)]);
+    opts = shuffle([w.he, ...distractors(w, "he", 2, sim)]);
     ans = opts.indexOf(w.he);
     sub = "הקשיבו למילה באנגלית — רצו אל הפירוש בעברית";
     q = `<span class="en">${esc(w.en)}</span>`;
     say(w.en);
   } else {
-    opts = shuffle([w.en, ...distractors(w, "en", 2)]);
+    opts = shuffle([w.en, ...distractors(w, "en", 2, sim)]);
     ans = opts.indexOf(w.en);
     sub = "איך אומרים באנגלית? רצו אל השער";
     q = esc(w.he);
@@ -1391,36 +1624,83 @@ function setupQuestion() {
   run.opts = opts; run.ans = ans;
   setLaneOpts(opts);
   setPrompt(sub, q, emoji);
-  const s = player.s + (gates.length ? 20 : 12);
+  const lead = (run.layout && run.layout.diff && run.layout.diff.lead) || 20;
+  const s = player.s + (gates.length ? lead : Math.max(12, lead * 0.6));
   const group = buildGate(opts);
   placeOnCourse(group, s, null, true);
   runScene.add(group);
   gates.push({ group, s, z: -s, ans, word: w, resolved: false });
 }
 
-function spawnLetterWord(w) {
+/* v8 letter collection: rows are far apart (gap / clear zone from the difficulty table), never on a
+   sharp turn, and obstacles near the rows are removed. Missing a row re-spawns the rest of the word. */
+function nearTurn(s) {
+  if (!run || !run.course || !run.course.turns) return null;
+  return run.course.turns.find((t) => s > t.sEnter - 7 && s < t.sExit + 5) || null;
+}
+function letterRowS(s) {
+  for (let k = 0; k < 6; k++) { const t = nearTurn(s); if (!t) break; s = t.sExit + 5.5; }
+  return s;
+}
+function spawnLetterWord(w, fromIdx = 0) {
   const E = w.en.toUpperCase().replace(/[^A-Z]/g, "");
-  run.spell = { rest: E, idx: 0 };
-  const s0 = player.s + 12;
+  if (!fromIdx) run.spell = { rest: E, idx: 0, rows: [] };
+  const D = run.layout && run.layout.diff;
+  const gap = (D && D.letterGap) || 15;
+  const sim = (D && D.letterSim != null) ? D.letterSim : ((D && D.similarity) || 0);
+  let s = letterRowS(player.s + ((D && D.letterFirst) || 18));
+  const rows = run.spell.rows;
   E.split("").forEach((ch, idx) => {
+    if (idx < fromIdx) return;
+    if (idx > fromIdx) s = letterRowS(s + gap);
+    rows[idx] = s;
     const correctLane = Math.floor(Math.random() * 3);
-    const s = s0 + idx * 8;
+    const wrong = letterDistractors(ch, 2, sim);
     for (let lane = 0; lane < 3; lane++) {
       let glyph = ch;
-      if (lane !== correctLane) {
-        do { glyph = String.fromCharCode(65 + Math.floor(Math.random() * 26)); } while (glyph === ch);
-      }
+      if (lane !== correctLane) glyph = wrong[lane < correctLane ? lane : lane - 1];
       const sign = makeSign(glyph, false);
-      sign.scale.setScalar(1.15);
+      sign.scale.setScalar(1.35);
       placeOnCourse(sign, s, lane);
       sign.position.y += 1.25 + Math.sin(idx) * 0.08;
       runScene.add(sign);
       letters.push({ mesh: sign, lane, ch: glyph, need: ch, index: idx, taken: false, s });
     }
   });
+  run.spell.zone = [rows[fromIdx] - ((D && D.letterClear) || 7), s + ((D && D.letterClear) || 7)];
+  updateSpellHud();
+  // clear obstacles that were already spawned inside the letter zone
+  for (const o of obstacles) {
+    if (o.hit) continue;
+    if (o.s > run.spell.zone[0] && o.s < run.spell.zone[1] && !letterObstacleOK(o.s)) { o.hit = true; disposeDeep(o.mesh); }
+  }
+}
+/* letter stage HUD: the 3 letters of the next row in big HTML (same as gate answers) and the word
+   progress (collected letters; on EASY / world 1 the rest of the word is shown faintly as a model). */
+function updateSpellHud() {
+  if (!run || !run.spell || !run.cur) return;
+  const sp = run.spell;
+  const row = letters.filter((l) => l.index === sp.idx && !l.taken).sort((a, b) => a.lane - b.lane);
+  setLaneOpts(row.length === 3 ? row.map((l) => l.ch) : null);
+  const reveal = S.settings.difficulty === "easy" || run.world === 1;
+  const slots = sp.rest.split("").map((c, i) => i < sp.idx ? `<b class="sp-ok">${c}</b>`
+    : i === sp.idx ? `<b class="sp-next">${reveal ? c : "?"}</b>` : `<span class="sp-rest">${reveal ? c : "_"}</span>`).join("");
+  $("prompt-sub").textContent = "אספו את האותיות לפי הסדר";
+  $("prompt-q").innerHTML = `<span class="deco-emoji">${run.cur.pic || ""}</span>${esc(run.cur.he)}<div class="spell-line en">${slots}</div>`;
+}
+function letterObstacleOK(s) {
+  if (!run || run.activeMode !== "build" || !run.spell || !run.spell.zone) return true;
+  const z = run.spell.zone;
+  if (s < z[0] || s > z[1]) return true;
+  const D = run.layout && run.layout.diff;
+  const clear = (D && D.letterClear) || 7;
+  if (!D || !D.letterObs) return false;                       // early worlds / easy: no obstacles at all
+  if (run.spell.rows.some((r) => r != null && Math.abs(r - s) < clear)) return false;
+  return Math.random() < D.letterObs;                         // later worlds: a few, only between rows
 }
 
 function spawnCoinRow(s) {
+  if (run && run.activeMode === "build" && run.spell && run.spell.rows && run.spell.rows.some((r) => r != null && Math.abs(r - s) < 3)) return;
   const lane = Math.floor(Math.random() * 3);
   const mesh = run.coinProto ? run.coinProto.clone(true) : new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.06, 12), new THREE.MeshStandardMaterial({ color: 0xffd24a, metalness: 0.6, roughness: 0.3 }));
   placeOnCourse(mesh, s, lane);
@@ -1487,7 +1767,7 @@ function hazardMark(kind) {
 function hitObstacle(o) {
   if (o.hit) return;
   o.hit = true;
-  if (o.mesh && o.mesh.parent) runScene.remove(o.mesh);
+  if (o.mesh) disposeDeep(o.mesh);
   if (!run || run.iFrames > 0) return;
   run.stumbleT = 0.55;
   run.iFrames = 1.15;
@@ -1504,8 +1784,10 @@ function hitObstacle(o) {
 function spawnObstacle(s) {
   const L = (run && run.layout) || stageProfile(run ? run.st : 0, run && run.boss, run && run.world);
   if (Math.random() > L.density) return;
+  if (!letterObstacleOK(s)) return;
   const type = L.types[Math.floor(Math.random() * L.types.length)];
-  const blocked = type === "beam" ? [0, 1, 2] : shuffle([0, 1, 2]).slice(0, (Math.random() < 0.28 && L.density > 0.5) ? 2 : 1);
+  const dbl = L.diff ? L.diff.doubleBlock : 0.28;
+  const blocked = type === "beam" ? [0, 1, 2] : shuffle([0, 1, 2]).slice(0, (Math.random() < dbl && L.density > 0.35) ? 2 : 1);
   blocked.forEach((lane) => {
     let mesh;
     if (type === "low") {
@@ -1558,8 +1840,12 @@ function onWrong() {
   sfx.bad(); shakeT = 0.28;
   playAnim(player, "fall", 0.08, true);
   run.stumbleT = 0.7;
-  setPrompt("כמעט! התשובה היא", `<span class="en">${esc(w.en)}</span> — ${esc(w.he)}`, w.pic);
-  say(w.en);
+  if (S.settings.showAnswer) {
+    setPrompt("כמעט! התשובה היא", `<span class="en">${esc(w.en)}</span> — ${esc(w.he)}`, w.pic);
+    say(w.en);
+  } else {
+    setPrompt("לא הפעם", "המילה תחזור שוב בהמשך", "💪");
+  }
   updateHud();
   if (run.hearts <= 0) return finishLevel(false);
   // requeue word and continue shortly
@@ -1653,62 +1939,76 @@ async function startLevel(wid, st, lost, opt) {
   if (bossActor && bossActor.model && bossActor.model.parent) bossActor.model.parent.remove(bossActor.model);
   bossActor = null;
 
-  let mode = lost ? "tr" : ST[wid - 1][st][1];
-  const boss = mode === "boss";
-  mode = runnerModeOf(boss ? "tr" : mode);
-  let queue = pickWords(wid, st, lost, mode === "build" ? 6 : 8);
+  const stageMode = lost ? "tr" : ST[wid - 1][st][1];
+  const boss = stageMode === "boss";
+  const modes = stageModes(runnerModeOf(boss ? "tr" : stageMode), st, boss, S.settings);
+  const mode = modes[0];
+  const layout = stageProfile(st, boss, wid);
+  const D = layout.diff;
+  const allSpell = modes.every(isSpellMode);
+  let queue = pickWords(wid, st, lost, allSpell && modes.includes("build") ? 6 : 8, D.lvlMix, allSpell ? spellOK : null);
   if (lost && queue.length < 2) {
     showUI("s-map"); refreshMapStats(); renderStages();
     showModal(`<h2>📚 ספריית המילים האבודות</h2><p>עדיין אין מילים קשות — כל הכבוד!</p><button class="btn" id="mgo">חזרה</button>`);
     $("mgo").onclick = hideModal;
     return;
   }
-  if (mode === "build" || mode === "let") {
+  if (allSpell) {
     const sp = spellable(queue);
     if (sp.length >= 4) queue = sp;
   }
-  if (boss) queue = shuffle(WORDS.filter((w) => w.w === wid)).slice(0, 10);
+  if (boss) queue = pickWords(wid, 4, false, Math.max(10, D.bossHP + 2), D.lvlMix);
 
   run = {
-    world: wid, st, lost, mode, qmode: mode, boss, queue, i: 0, score: 0, coins: 0,
-    hint: 0, wrong: 0, firstTry: 0, hearts: 3, combo: 0, stumbleT: 0, iFrames: 0,
-    bossHP: boss ? 5 : 0, bossMax: 5, nextCoinS: 8, nextObsS: 18, glanceT: 0, forceGlance: false,
-    layout: stageProfile(st, boss, wid)
+    world: wid, st, lost, mode, qmode: mode, modes, boss, queue, i: 0, score: 0, coins: 0,
+    hint: 0, wrong: 0, firstTry: 0, hearts: D.hearts, maxHearts: D.hearts, combo: 0, stumbleT: 0, iFrames: 0,
+    bossHP: boss ? D.bossHP : 0, bossMax: boss ? D.bossHP : 0, nextCoinS: 8, nextObsS: 18, glanceT: 0, forceGlance: false,
+    layout
   };
+  fpsMon.runStart = performance.now();
+  // v8: course long enough for the stage (letter rows are now far apart)
+  const spellLen = queue.reduce((a, w) => a + w.en.replace(/[^A-Za-z]/g, "").length, 0);
+  const needLen = modes.includes("build")
+    ? (D.letterFirst + 10) * queue.length + spellLen * D.letterGap * 1.25 + 200
+    : queue.length * D.lead * (boss ? 3.4 : 2.2) + 260;
   run.course = buildCourse({
     curve: run.layout.curve,
     hillAmp: run.layout.hillAmp,
     turnDir: run.layout.turnDir,
-    causeway: run.layout.causeway
+    causeway: run.layout.causeway,
+    minLength: Math.min(2400, Math.round(needLen))
   });
   S.runs++; save(); grantAch("first_run");
 
   applyWorldTheme(world);
   applyStageLook(world);
   if (runHills && runHills.parent) runScene.remove(runHills);
+  if (runHills) disposeDeep(runHills);
   runHills = null;
   const theme = themeOf(wid);
   if (theme === "jungle") {
     const hillCol = run.layout.tod === "sunset" ? 0x7a5a38
       : (run.layout.tod === "dusk" || run.layout.tod === "storm") ? 0x3a3a58
       : world.ground;
-    runHills = makeMountains(hillCol, { count: isHigh() ? 12 : 8 });
+    runHills = makeMountains(hillCol, { count: N(isHigh(), 12, 8) });
   } else if (THEME_MOUNTAINS[theme]) {
-    runHills = makeMountains(THEME_MOUNTAINS[theme].color, { count: isHigh() ? 12 : 8, top: THEME_MOUNTAINS[theme].top });
+    runHills = makeMountains(THEME_MOUNTAINS[theme].color, { count: N(isHigh(), 12, 8), top: THEME_MOUNTAINS[theme].top });
   }
   if (runHills) runScene.add(runHills);
   if (themeAmb) {
     runScene.remove(themeAmb);
     if (themeAmb.userData.far) runScene.remove(themeAmb.userData.far);
-    themeAmb.traverse((o) => { if (o.geometry) o.geometry.dispose(); });
+    disposeDeep(themeAmb);
+    if (themeAmb.userData.far) disposeDeep(themeAmb.userData.far);
     themeAmb = null;
   }
   if (theme !== "jungle") {
     themeAmb = buildThemeAmbience(theme, isHigh());
+    if (themeAmb.userData.far) themeAmb.userData.far.userData.mergeStats = mergeStatic(themeAmb.userData.far);
     runScene.add(themeAmb);
     if (themeAmb.userData.far) runScene.add(themeAmb.userData.far);
   }
-  if (runMist && runMist.parent) runScene.remove(runMist);
+  if (runMist) disposeDeep(runMist);
   runMist = makeMist();
   runScene.add(runMist);
   clearDyn();
@@ -1740,8 +2040,9 @@ async function startLevel(wid, st, lost, opt) {
   appMode = "run";
   setupQuestion();
   updateHud();
-  const title = lost ? "📚 ספריית המילים האבודות" : (boss ? "⚔️ " + BOSSES[wid - 1].name : ST[wid - 1][st][0]);
+  const title = lost ? "📚 ספריית המילים האבודות" : (boss ? "⚔️ " + BOSSES[wid - 1].name : stageLabel(wid - 1, st));
   showUI("hud");
+  $("btn-hint").classList.toggle("hidden", !S.settings.hints);
   showModal(`<h2>${title}</h2><p>${boss ? "הבוס רץ מאחוריכם! ענו נכון כדי להחליש אותו!" : (st === 0 && !lost ? INTRO[wid - 1] : "קדימה, אתם יכולים!")}</p>
     <button class="btn g" id="mgo">יוצאים לדרך ▶</button>`);
   $("mgo").onclick = () => { hideModal(); paused = false; playAnim(player, "sprint"); };
@@ -1806,6 +2107,11 @@ addEventListener("keydown", (e) => {
   else if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") { e.preventDefault(); changeLane(1); }
   else if (e.key === "ArrowUp" || e.key === " " ) { e.preventDefault(); jump(); }
   else if (e.key === "ArrowDown") { e.preventDefault(); slide(); }
+  else if ((e.key === "Escape" || e.key === "p" || e.key === "P") && appMode === "run" && run && $("s-settings").classList.contains("hidden")) {
+    e.preventDefault();
+    if (!$("modal").classList.contains("hidden") && $("pause-box")) { $("p-resume").click(); }
+    else if (!paused) openPause();
+  }
   else if (e.key === "Enter" && !$("modal").classList.contains("hidden")) {
     const b = $("mgo") || $("modal-box").querySelector("button");
     if (b) b.click();
@@ -1822,15 +2128,36 @@ canvas.addEventListener("touchend", (e) => {
 
 /* ===== LOOP ===== */
 let last = performance.now();
+/* v8 AUTO quality: measure real frame rate while running; drop one tier if it is too low */
+const fpsMon = { n: 0, t: 0, fps: 0, winN: 0, winT: 0, runStart: 0, drops: 0 };
+function monitorFps(raw) {
+  if (raw <= 0 || raw > 0.5) return; // tab switch / first frame
+  fpsMon.n++; fpsMon.t += raw;
+  if (fpsMon.t >= 1) { fpsMon.fps = +(fpsMon.n / fpsMon.t).toFixed(1); fpsMon.n = 0; fpsMon.t = 0; }
+  if (S.settings.gfx !== "auto" || appMode !== "run" || paused) { fpsMon.winN = 0; fpsMon.winT = 0; return; }
+  if (performance.now() - fpsMon.runStart < 1500) return; // warm-up (shader compile, uploads)
+  fpsMon.winN++; fpsMon.winT += raw;
+  if (fpsMon.winT < 3) return;
+  const fps = fpsMon.winN / fpsMon.winT;
+  fpsMon.winN = 0; fpsMon.winT = 0;
+  const t = tier();
+  if (fps < 26 && t !== "low" && fpsMon.drops < 2) {
+    autoTier = TIERS[TIERS.indexOf(t) - 1];
+    autoReason = "נמדד קצב תמונות נמוך";
+    S.autoTier = autoTier; save();
+    fpsMon.drops++;
+    fpsMon.runStart = performance.now();
+    applyQuality();
+  }
+}
 function tick(now) {
   requestAnimationFrame(tick);
-  const dt = Math.min(0.05, (now - last) / 1000 || 0); last = now;
+  const raw = (now - last) / 1000 || 0;
+  const dt = Math.min(0.05, raw); last = now;
+  monitorFps(raw);
   if (appMode === "title" || appMode === "map" || appMode === "load") {
     camera.position.lerp(camGoal, 1 - Math.pow(0.012, dt * 60));
-    const lp = new THREE.Vector3().copy(lookGoal);
-    const cur = new THREE.Vector3();
-    camera.getWorldDirection(cur);
-    camera.lookAt(lp);
+    camera.lookAt(lookGoal);
     mapMixers.forEach((m) => m.update(dt));
     titleHeroes.forEach((h, i) => {
       if (S.hero === i) h.model.rotation.y = Math.PI + Math.sin(now * 0.001) * 0.15;
@@ -1866,6 +2193,7 @@ function updateThemeFx(dt, t) {
   }
   if (courseVisual && courseVisual.userData.update) courseVisual.userData.update(dt, t, ctx);
 }
+const _SUN_OFF = new THREE.Vector3(16, 24, 10);
 function syncWorldFollowers() {
   if (!run || !run.course || !player) return;
   const f = pathFrame(run.course, player.s);
@@ -1883,7 +2211,7 @@ function syncWorldFollowers() {
     runLights.rim.target.updateMatrixWorld();
   }
   if (runLights.dir) {
-    runLights.dir.position.copy(player.group.position).add(new THREE.Vector3(16, 24, 10));
+    runLights.dir.position.copy(player.group.position).add(_SUN_OFF);
     runLights.dir.target.position.copy(player.group.position);
     runLights.dir.target.updateMatrixWorld();
   }
@@ -1897,7 +2225,8 @@ function syncWorldFollowers() {
   }
   if (runHills) runHills.position.set(f.x, 0, f.z);
   if (courseVisual) {
-    const gnd = courseVisual.getObjectByName("followGround");
+    if (courseVisual.userData._gnd === undefined) courseVisual.userData._gnd = courseVisual.getObjectByName("followGround") || null;
+    const gnd = courseVisual.userData._gnd;
     if (gnd) {
       const gy = gnd.userData.y != null ? gnd.userData.y : -0.32;
       gnd.position.set(f.x, gy, f.z);
@@ -1922,8 +2251,9 @@ function syncWorldFollowers() {
 }
 function updateRunner(dt) {
   const world = WORLDS[run.world - 1];
-  const base = (run.layout && run.layout.speed) || 8.2;
-  let speed = base * (1 + Math.min(0.42, run.combo * 0.028));
+  let base = ((run.layout && run.layout.speed) || 8.2) * (S.settings.speed || 1);
+  if (run.activeMode === "build" && run.layout && run.layout.diff) base *= run.layout.diff.letterSpeed || 1;
+  let speed = base * (1 + Math.min(run.activeMode === "build" ? 0.15 : 0.42, run.combo * 0.028));
   if (run.stumbleT > 0) { run.stumbleT -= dt; speed *= 0.4; }
   if (run.iFrames > 0) run.iFrames -= dt;
   player.s = (player.s || 0) + speed * dt;
@@ -1944,6 +2274,9 @@ function updateRunner(dt) {
     if (player.slideT <= 0) { player.sliding = false; if (!player.jumping) playAnim(player, "sprint"); }
   }
   syncPlayerPose();
+  if (player.s > run.course.length - 30) { // safety: never run off the end of the track
+    return finishLevel(run.boss ? run.bossHP <= 0 : run.i >= Math.ceil(run.queue.length / 2));
+  }
   const turn = currentTurn(player.s);
   showTurnCue(turn && !turn.committed ? turn : null);
   if (turn && !turn.committed && player.s > turn.sApex) {
@@ -1955,11 +2288,12 @@ function updateRunner(dt) {
   emitTrail(dt);
   for (const gt of gates) {
     if (gt.resolved || !gt.group) continue;
-    const glow = gt.group.getObjectByName("gateGlow");
+    if (gt.glow === undefined) gt.glow = gt.group.getObjectByName("gateGlow") || null;
+    const glow = gt.glow;
     if (glow) glow.material.opacity = 0.11 + Math.sin(performance.now() * 0.006) * 0.09;
-    gt.group.children.forEach((ch) => {
-      if (ch.name === "laneSign") ch.position.y = 2.32 + Math.sin(performance.now() * 0.005) * 0.06;
-    });
+    const bob = 2.32 + Math.sin(performance.now() * 0.005) * 0.06;
+    const ch = gt.group.children;
+    for (let k = 0; k < ch.length; k++) if (ch[k].name === "laneSign") ch[k].position.y = bob;
   }
 
   const now = performance.now();
@@ -1980,8 +2314,7 @@ function updateRunner(dt) {
   }
   if (player.s > run.nextObsS) {
     spawnObstacle(player.s + 20);
-    const dens = (run.layout && run.layout.density) || 0.5;
-    run.nextObsS += (dens > 0.7 ? 7.2 : 10.5) + Math.random() * 4;
+    run.nextObsS += ((run.layout && run.layout.diff && run.layout.diff.spacing) || 10.5) + Math.random() * 4;
   }
 
   for (const c of coins) {
@@ -1996,7 +2329,7 @@ function updateRunner(dt) {
   for (const o of obstacles) {
     if (o.hit) continue;
     if (o.spin) o.mesh.rotation.x += dt * o.spin;
-    if ((o.s != null ? o.s : 0) < player.s - 4) { o.hit = true; runScene.remove(o.mesh); continue; }
+    if ((o.s != null ? o.s : 0) < player.s - 4) { o.hit = true; disposeDeep(o.mesh); continue; }
     if (Math.abs((o.s || 0) - player.s) < 0.7 && o.lane === playerLaneNow()) {
       if ((o.type === "low" || o.type === "hole") && player.y > 0.48) continue;
       if (o.type === "beam" && player.sliding) continue;
@@ -2005,24 +2338,59 @@ function updateRunner(dt) {
   }
   for (const g of gates) {
     if (!g.resolved && player.s > (g.s != null ? g.s : -g.group.position.z) - 0.45) resolveGate(g);
-    if (g.resolved && g.group.parent && (g.s != null ? g.s : 0) < player.s - 8) runScene.remove(g.group);
+    if (g.resolved && g.group.parent && (g.s != null ? g.s : 0) < player.s - 8) disposeObj(g.group);
   }
   if (run.activeMode === "build") {
     for (const L of letters) {
       if (L.taken) continue;
       if ((L.s != null ? L.s : 0) < player.s - 4) continue;
-      if (Math.abs((L.s || 0) - player.s) < 0.5 && L.lane === playerLaneNow() && player.y < 1.3) {
+      const pr = (run.layout && run.layout.diff && run.layout.diff.letterReach) || 1.1;
+      if (L.index === run.spell.idx && Math.abs((L.s || 0) - player.s) < pr && L.lane === playerLaneNow() && player.y < 2.4) {
         L.taken = true; runScene.remove(L.mesh);
         const need = run.spell.rest[run.spell.idx];
         if (L.ch === need) {
+          // take the whole row away so the other two letters can't be hit by accident
+          letters.forEach((o) => { if (o.index === L.index && !o.taken) { o.taken = true; runScene.remove(o.mesh); } });
           run.spell.idx++; sfx.coin(); burst(L.mesh.position, 0x4ecdc4);
           if (run.spell.idx >= run.spell.rest.length) onCorrect();
+          else updateSpellHud();
+        } else if (run.layout && run.layout.diff && run.layout.diff.letterForgive) {
+          // gentle mode (EASY / early worlds): wrong letter costs points, not a heart; the row comes again
+          run.wrongHere = true; run.combo = 0;
+          record(run.cur, false, run.hint, true);
+          sfx.bad(); shakeT = 0.2;
+          clearLetters();
+          spawnLetterWord(run.cur, run.spell.idx);
+          $("prompt-sub").textContent = "זו לא האות " + need + " — נסו שוב";
+          popEl("prompt"); updateHud();
         } else {
+          run.activeMode = "wait";
           onWrong();
         }
+        break;
+      }
+    }
+    // passed the current row without collecting its letter
+    const row = run.activeMode === "build" && run.spell.rows ? run.spell.rows[run.spell.idx] : null;
+    if (row != null && player.s > row + 1.6) {
+      const D = run.layout && run.layout.diff;
+      if (D && D.letterForgive) {
+        run.wrongHere = true;
+        const ch = run.spell.rest[run.spell.idx];
+        clearLetters();
+        sfx.bad();
+        spawnLetterWord(run.cur, run.spell.idx);
+        $("prompt-sub").textContent = "פספסתם את האות " + ch + " — היא מגיעה שוב";
+        popEl("prompt");
+      } else {
+        run.activeMode = "wait";
+        onWrong();
       }
     }
   }
+  if (coins.length > 40) { for (let k = coins.length - 1; k >= 0; k--) if (coins[k].taken) coins.splice(k, 1); }
+  if (obstacles.length > 40) { for (let k = obstacles.length - 1; k >= 0; k--) if (obstacles[k].hit) obstacles.splice(k, 1); }
+  if (gates.length > 6) { for (let k = gates.length - 1; k >= 0; k--) if (gates[k].resolved && !gates[k].group.parent) gates.splice(k, 1); }
   updateParticles(dt);
 }
 
@@ -2120,14 +2488,7 @@ $("hero-btns").onclick = (e) => {
 $("btn-start").onclick = () => goMapMode();
 $("btn-help").onclick = () => { showUI("s-help"); appMode = "title"; };
 $("btn-help-back").onclick = () => goTitle();
-if ($("btn-quality")) {
-  $("btn-quality").onclick = () => {
-    S.quality = isHigh() ? "low" : "high";
-    save();
-    applyQuality();
-  };
-  applyQuality();
-}
+initSettingsUI();
 $("btn-map-back").onclick = () => goTitle();
 $("btn-hud-map").onclick = () => { if (confirm("לחזור למפה? ההתקדמות בשלב הזה לא תישמר.")) goMapMode(); };
 $("btn-hint").onclick = openHint;
@@ -2174,7 +2535,7 @@ function openJourney() {
   $("jnb").onclick = openNotebook;
   $("jreset").onclick = () => {
     if (!confirm("למחוק את כל ההתקדמות?")) return;
-    const hero = S.hero; S = def(); S.hero = hero; save(); goTitle();
+    const hero = S.hero, settings = S.settings; S = def(); S.hero = hero; S.settings = settings; save(); goTitle();
   };
   bindTeacherUnlock($("s-jr").querySelector("h2"));
 }
@@ -2213,7 +2574,7 @@ function fillDevGrid() {
   grid.innerHTML = WORLDS.map((w, i) => {
     const stages = ST[i].map((t, k) => {
       const locked = !sOpen(i, k);
-      const label = (k === 4 ? "⚔️ " : "") + t[0] + (k === 4 ? " (בוס)" : "");
+      const label = (k === 4 ? "⚔️ " : "") + stageLabel(i, k) + (k === 4 ? " (בוס)" : "");
       const extra = locked ? " 🔒" : "";
       return `<button class="btn s${k === 4 ? " boss" : ""}" data-dev-w="${w.id}" data-dev-st="${k}">${esc(label)}${extra}</button>`;
     }).join("");
@@ -2264,11 +2625,13 @@ function initDevTools() {
   if (rst) {
     rst.onclick = () => {
       if (!confirm("לאפס את כל ההתקדמות השמורה? הפעולה הזו נשמרת.")) return;
-      const hero = S.hero, quality = S.quality, wasMuted = S.muted;
+      const hero = S.hero, quality = S.quality, wasMuted = S.muted, settings = S.settings, at = S.autoTier;
       S = def();
       S.hero = hero;
       S.quality = quality;
       S.muted = wasMuted;
+      S.settings = settings;
+      S.autoTier = at;
       save();
       refreshLocks();
       renderStages();
@@ -2279,6 +2642,121 @@ function initDevTools() {
       fillDevGrid();
     };
   }
+}
+
+/* ===== SETTINGS + PAUSE (v8) ===== */
+const TIER_HE = { low: "נמוכה (פיקסלים)", medium: "בינונית", high: "גבוהה" };
+let settingsBack = null;
+function segRow(name, opts, cur) {
+  return `<div class="seg" role="radiogroup" data-set="${name}">${opts.map((o) =>
+    `<button type="button" class="seg-b${String(o.v) === String(cur) ? " on" : ""}" data-v="${o.v}" role="radio" aria-checked="${String(o.v) === String(cur)}">${esc(o.label)}</button>`).join("")}</div>`;
+}
+function renderSettings(msg) {
+  const st = S.settings;
+  const autoNow = st.gfx === "auto" ? `כרגע נבחרה: <b>${TIER_HE[tier()]}</b>${autoReason ? " · " + esc(autoReason) : ""}` : "";
+  $("set-body").innerHTML = `
+    <div class="set-sec"><h3>🎯 רמת קושי</h3>
+      ${segRow("difficulty", Object.keys(DIFFS).map((k) => ({ v: k, label: DIFFS[k].label })), st.difficulty)}
+      <p class="set-note">קל: איטי יותר, 4 לבבות ויותר זמן לענות · קשה: מהיר יותר, מילים ותשובות מבלבלות יותר ובוס חזק יותר. בכל רמה העולמות המתקדמים קשים יותר.</p></div>
+    <div class="set-sec"><h3>❓ סוגי שאלות</h3>
+      <div class="set-checks">${QTYPES.map((q) => `<label class="set-check"><input type="checkbox" data-type="${q.key}" ${st.types[q.key] ? "checked" : ""}> ${esc(q.label)}</label>`).join("")}</div>
+      <p class="set-note" id="set-types-msg">${msg ? esc(msg) : "שלבים שהסוג שלהם כבוי יקבלו סוג שאלה אחר מהרשימה."}</p></div>
+    <div class="set-sec"><h3>🏃 מהירות המשחק</h3>${segRow("speed", SPEEDS, st.speed)}</div>
+    <div class="set-sec"><h3>🖥️ איכות גרפיקה</h3>${segRow("gfx", GFX_OPTS, st.gfx)}
+      <p class="set-note">נמוכה: תמונה מפוקסלת ברזולוציה נמוכה, הכי מהירה למחשבים ישנים. ${autoNow}</p></div>
+    <div class="set-sec"><h3>🔊 צלילים</h3>
+      <label class="set-range">אפקטים <input type="range" min="0" max="100" step="10" data-range="sfx" value="${Math.round(st.sfx * 100)}"><span>${Math.round(st.sfx * 100)}%</span></label>
+      <label class="set-range">הקראה באנגלית <input type="range" min="0" max="100" step="10" data-range="voice" value="${Math.round(st.voice * 100)}"><span>${Math.round(st.voice * 100)}%</span></label>
+      <button type="button" class="btn s" id="set-test-voice">🔊 בדיקת הקראה</button></div>
+    <div class="set-sec"><h3>🦉 עזרה</h3>
+      <div class="set-checks">
+        <label class="set-check"><input type="checkbox" data-flag="hints" ${st.hints ? "checked" : ""}> כפתור רמזים (הינשוף)</label>
+        <label class="set-check"><input type="checkbox" data-flag="showAnswer" ${st.showAnswer ? "checked" : ""}> הצגת התשובה הנכונה אחרי טעות</label>
+      </div></div>
+    <p class="set-note">${appMode === "run" ? "שינוי ברמת הקושי ובסוגי השאלות ייכנס לתוקף מהשלב הבא. מהירות, גרפיקה וצלילים משתנים מיד." : "ההגדרות נשמרות במחשב הזה."}</p>`;
+}
+function applySettingChange(kind) {
+  S.settings = normSettings(S.settings);
+  save();
+  if (kind === "gfx") { autoTier = null; if (S.settings.gfx === "auto") { S.autoTier = null; fpsMon.drops = 0; save(); } applyQuality(); if (appMode === "run" && run) applyStageLook(WORLDS[run.world - 1]); }
+  if (kind === "types" || kind === "difficulty") { if (appMode === "map") renderStages(); fillDevGrid(); }
+  if (kind === "flag" && appMode === "run") $("btn-hint").classList.toggle("hidden", !S.settings.hints);
+}
+function openSettings(back) {
+  settingsBack = back || null;
+  if (appMode === "run" && !paused) { paused = true; settingsBack = settingsBack || "resume"; }
+  renderSettings();
+  $("s-settings").classList.remove("hidden");
+}
+function closeSettings() {
+  $("s-settings").classList.add("hidden");
+  const b = settingsBack; settingsBack = null;
+  if (b === "pause") openPause();
+  else if (b === "resume" && appMode === "run" && run && $("modal").classList.contains("hidden")) paused = false;
+}
+function openPause() {
+  if (appMode !== "run" || !run) return;
+  paused = true;
+  showModal(`<div id="pause-box"><h2>⏸️ הפסקה</h2>
+    <div class="row" style="margin-top:10px">
+      <button class="btn g" id="p-resume">▶ ממשיכים</button>
+      <button class="btn" id="p-settings">⚙️ הגדרות</button>
+      <button class="btn s" id="p-map">🗺️ למפה</button>
+    </div></div>`);
+  $("p-resume").onclick = () => { hideModal(); paused = false; };
+  $("p-settings").onclick = () => { hideModal(); openSettings("pause"); };
+  $("p-map").onclick = () => { if (confirm("לחזור למפה? ההתקדמות בשלב הזה לא תישמר.")) goMapMode(); };
+}
+function initSettingsUI() {
+  const gear = $("btn-settings");
+  if (gear) gear.onclick = () => { sfx.click(); openSettings(); };
+  const pz = $("btn-pause");
+  if (pz) pz.onclick = () => openPause();
+  $("btn-set-close").onclick = () => closeSettings();
+  $("btn-set-reset").onclick = () => {
+    S.settings = normSettings(DEFAULT_SETTINGS()); save();
+    autoTier = null; applyQuality(); applySettingChange("types");
+    renderSettings("ההגדרות חזרו לברירת המחדל.");
+  };
+  const body = $("set-body");
+  body.addEventListener("click", (e) => {
+    const b = e.target.closest(".seg-b");
+    if (b) {
+      const name = b.parentElement.dataset.set;
+      const v = b.dataset.v;
+      S.settings[name] = name === "speed" ? +v : v;
+      sfx.click();
+      applySettingChange(name);
+      renderSettings();
+      return;
+    }
+    if (e.target.id === "set-test-voice") say("Hello! Welcome to Mila Quest");
+  });
+  body.addEventListener("change", (e) => {
+    const t = e.target;
+    if (t.dataset.type) {
+      const next = Object.assign({}, S.settings.types, { [t.dataset.type]: t.checked });
+      if (!QTYPES.some((q) => next[q.key])) {
+        t.checked = true;
+        renderSettings("חייב להשאיר לפחות סוג שאלה אחד.");
+        return;
+      }
+      S.settings.types = next;
+      applySettingChange("types");
+    } else if (t.dataset.flag) {
+      S.settings[t.dataset.flag] = t.checked;
+      applySettingChange("flag");
+    }
+  });
+  body.addEventListener("input", (e) => {
+    const t = e.target;
+    if (!t.dataset.range) return;
+    S.settings[t.dataset.range] = (+t.value) / 100;
+    const sp = t.parentElement.querySelector("span");
+    if (sp) sp.textContent = t.value + "%";
+    save();
+  });
+  body.addEventListener("change", (e) => { if (e.target.dataset.range === "sfx") sfx.coin(); });
 }
 
 /* ===== BOOT ===== */
@@ -2446,12 +2924,24 @@ window.MQ = {
   WORDS,
   camera,
   renderer,
+  THREE,
   wOpen: (i) => wOpen(i),
   sOpen: (i, t) => sOpen(i, t),
   keysOwned: () => keysOwned(),
   getObstacles: () => obstacles,
   stageProfile,
   isHigh,
+  tier,
+  getFps: () => fpsMon.fps,
+  getGpu: () => GPU_INFO,
+  forceAutoTier: (t) => { S.settings.gfx = "auto"; S.autoTier = null; autoTier = t; fpsMon.drops = 0; applyQuality(); return tier(); },
+  setGfx: (v) => { S.settings.gfx = v; applySettingChange("gfx"); return tier(); },
+  setSetting: (k, v) => { S.settings[k] = v; applySettingChange(k === "types" ? "types" : k); return S.settings; },
+  openSettings,
+  closeSettings,
+  openPause,
+  difficultyFor: (w, st, b) => difficultyFor(w, st, b, S.settings),
+  runScene,
   measureSign: (text) => makeTextTexture(text).userData,
   buildTestGate: (opts) => {
     gates.forEach((g) => { if (g.group && g.group.parent) runScene.remove(g.group); });
@@ -2477,6 +2967,7 @@ window.MQ = {
   hitObstacle,
   holdCam: (v) => { holdCam = !!v; },
   getCourse: () => run && run.course,
+  getMergeStats: () => ({ course: courseVisual && courseVisual.userData.mergeStats, far: themeAmb && themeAmb.userData.far && themeAmb.userData.far.userData.mergeStats }),
   teleportTo: (kind) => {
     if (!run || !run.course || !run.course.landmarks[kind]) return null;
     const s = run.course.landmarks[kind];
@@ -2561,6 +3052,18 @@ window.MQ = {
     };
   },
   forceGlance: (v) => { if (run) run.forceGlance = !!v; },
+  // test hook: advance the game logic without rendering (bot = per-step callback)
+  simulate: (sec, bot, step = 1 / 30) => {
+    let t = 0;
+    while (t < sec && appMode === "run" && run && !paused) {
+      if (bot) bot();
+      if (paused) break;
+      updateRunner(step);
+      t += step;
+    }
+    return t;
+  },
+  changeLane, jump, slide, currentTurn: () => player && currentTurn(player.s),
   syncPlayerPose,
   syncWorldFollowers
 };
