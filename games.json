@@ -12,6 +12,17 @@
       "path": "games/grammar-maze/",
       "thumbnail": "assets/thumbs/grammar-maze.png",
       "featured": true
+    },
+    {
+      "id": "mila-quest",
+      "title": "Mila Quest",
+      "subtitleHe": "מילה קווסט",
+      "description": "A 3D running game for English vocabulary: 8 worlds, 56 stages, bosses, and difficulty settings.",
+      "category": "Vocabulary",
+      "tags": ["Words", "Worlds"],
+      "level": "כיתות ד׳–ה׳",
+      "path": "games/mila-quest/",
+      "thumbnail": "assets/thumbs/mila-quest.png"
     }
   ]
 }

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>מילה קווסט – המסע הגדול בעקבות המילים</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Rubik:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1a1433;--gold:#ffc83d;--gold-d:#c58a10;--leaf:#2fb86a;--leaf-d:#1b7a42;
+  --owl:#6a46d6;--owl-d:#3a228a;--paper:#fffdf8;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden;font-family:Rubik,"Noto Sans Hebrew",Arial,sans-serif;color:var(--ink);background:#071018}
+#c{position:fixed;inset:0;display:block;width:100%;height:100%}
+button{font:inherit;cursor:pointer}
+.en{direction:ltr;unicode-bidi:isolate;font-family:Fredoka,Rubik,sans-serif}
+.ui{position:fixed;inset:0;z-index:4;pointer-events:none}
+.ui button,.ui .pill,.ui .glass,.ui .prompt,.ui .stage-bar,.ui .world-chips,.ui .box,.ui .sign,.ui .hero-btn,.ui a,.ui table,#dev-panel{pointer-events:auto}
+.hidden{display:none !important}
+.sign{background:linear-gradient(#d49240,#8a5420);border:5px solid #4a2c0c;border-radius:24px;padding:8px 40px 12px;box-shadow:0 10px 0 #0005,0 18px 40px #0004;transform:rotate(-1deg)}
+.sign h1{margin:0;font-size:clamp(34px,7vw,64px);color:#ffd23d;font-family:Fredoka,Rubik,sans-serif;-webkit-text-stroke:2px #5b2d00;paint-order:stroke fill;text-shadow:0 4px 0 #5b2d00}
+.sub{display:inline-block;background:#5b3fb5;color:#fff;padding:7px 20px;border-radius:999px;font-weight:700;box-shadow:0 6px 0 #35227a;margin:12px 0}
+.glass{background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,253,246,.16));backdrop-filter:blur(22px) saturate(1.45);border:1px solid rgba(255,255,255,.5);border-radius:28px;box-shadow:0 18px 46px #0004,inset 0 1px 0 #fff8}
+.btn{border:0;border-radius:999px;padding:12px 28px;background:var(--gold);color:var(--ink);font-weight:800;font-size:clamp(16px,2.5vw,22px);box-shadow:0 6px 0 var(--gold-d);transition:transform .16s cubic-bezier(.2,1.3,.3,1),box-shadow .16s,filter .12s}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--gold-d)}
+.btn.g{background:var(--leaf);color:#fff;box-shadow:0 6px 0 var(--leaf-d)}
+.btn.p{background:var(--owl);color:#fff;box-shadow:0 6px 0 var(--owl-d)}
+.btn.s{font-size:15px;padding:8px 14px;border-radius:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center}
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px;text-align:center}
+.pill{background:rgba(255,253,246,.92);border:3px solid #8a5a2b;border-radius:999px;padding:6px 16px;font-weight:800;display:inline-flex;align-items:center;gap:6px}
+#hud{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:10px 14px 16px;pointer-events:none}
+#hud .hud-top,#hud .hud-bot{pointer-events:auto;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap}
+.prompt{background:linear-gradient(180deg,#fffdf8f2,#ffe8c0ee);border:3px solid rgba(138,90,43,.75);border-radius:28px;padding:10px 24px;text-align:center;box-shadow:0 12px 0 #0002,0 0 34px #ffc83d66;min-width:min(640px,80vw);margin:0 auto}
+.prompt small{display:block;font-size:16px;font-weight:700;opacity:.7}
+.prompt .q{font-size:clamp(28px,5.5vw,48px);font-weight:800;line-height:1.15}
+.prompt .emoji{font-size:52px;line-height:1}
+#modal{position:absolute;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;padding:18px}
+#modal .box{max-width:640px;width:100%;padding:20px 22px;text-align:center;background:linear-gradient(180deg,#fffdf8f2,#ffeec4f0);border:4px solid #8a5a2b;border-radius:24px;box-shadow:0 20px 50px #0006}
+#loadbar{width:min(420px,80vw);height:16px;background:#0003;border-radius:10px;overflow:hidden;border:2px solid #fff8}
+#loadbar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffc83d,#2fb86a);transition:width .25s}
+.hero-btn{background:rgba(255,253,246,.9);border:5px solid transparent;border-radius:20px;padding:8px 16px;min-width:110px;font-weight:800}
+.hero-btn.sel{border-color:var(--gold);box-shadow:0 0 0 6px #ffc83d55}
+.map-chrome{position:absolute;inset:0;padding:12px;display:flex;flex-direction:column}
+.map-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.map-side{position:absolute;top:86px;right:14px;bottom:215px;overflow-y:auto;width:min(280px,32vw);display:flex;flex-direction:column;gap:8px}
+@media (max-width:800px){.map-side{position:static;width:100%;max-height:34vh;overflow:auto;margin-top:8px}}
+.side-card{padding:10px 12px}
+.side-card h3{margin:0 0 6px;font-size:16px}
+.side-card p{margin:0 0 8px;font-size:13px;line-height:1.4}
+.map-bottom{position:relative;z-index:2;margin-top:auto;display:flex;flex-direction:column;gap:6px;padding-bottom:8px;max-width:100%}
+.world-chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;padding:2px 4px 4px;pointer-events:auto}
+.world-chips .wchip{flex:0 0 auto;background:rgba(255,253,246,.88);border:3px solid #8a5a2b;border-radius:999px;padding:4px 9px;font-weight:800;font-size:14px;white-space:nowrap}
+.world-chips .wchip.sel{background:#ffc83d;border-color:#c0392b;box-shadow:0 0 0 4px #ffc83d66}
+.world-chips .wchip.lock{opacity:.6}
+.stage-bar{display:flex;gap:8px;overflow-x:auto;padding:2px 4px 6px;scrollbar-width:thin}
+.stage-bar>:first-child{margin-inline-start:auto}.stage-bar>:last-child{margin-inline-end:auto}
+.stage-bar .tile{flex:0 0 auto;background:rgba(255,253,246,.94);border:3px solid #8a5a2b;border-radius:14px;padding:7px 9px;min-width:104px;max-width:132px;font-weight:800;text-align:center;font-size:16px;line-height:1.25}
+.stage-bar .tile small{font-size:14px}
+.stage-bar .tile .t-scene{font-size:13px;font-weight:700;color:#5a3a1a;margin:2px 0}
+.stage-bar .tile.boss{border-color:#c0392b;background:rgba(255,232,220,.95)}
+.stage-bar .tile[disabled]{opacity:.45}
+.pic-big{font-size:1.6em;line-height:1}
+.riddle{font-size:clamp(16px,2.4vw,22px);font-weight:800;color:#5a3a1a;margin-top:2px}
+.scene-name{font-size:20px;font-weight:800;color:#8a5a2b;margin:2px 0 6px}
+.world-title{color:#fff;text-shadow:0 3px 0 #0006;font-size:clamp(22px,4vw,34px);margin:0}
+#mute{position:fixed;top:10px;left:10px;z-index:8}
+.note{color:#fff;text-shadow:0 2px 6px #0008}
+.bar{height:12px;background:#0002;border-radius:8px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#ffc83d,#2fb86a);width:0}
+table{width:100%;border-collapse:collapse;font-size:15px} th,td{padding:5px 6px;border-bottom:1px solid #0002;text-align:right}
+.shake{animation:shake .25s}
+@keyframes shake{25%{transform:translate(-4px,2px)}75%{transform:translate(4px,-2px)}}
+.pop{animation:pop .32s cubic-bezier(.2,1.4,.3,1)}
+@keyframes pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
+.lane-opts{display:flex;direction:ltr;gap:22px;justify-content:center;width:min(920px,94vw);margin:8px auto 0;pointer-events:none}
+.lane-opt{flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:#ffe34a;color:#140818;border:5px solid #140818;border-radius:22px;padding:8px 12px;text-align:center;font-weight:800;font-size:clamp(22px,3.4vw,42px);font-family:Fredoka,Rubik,Arial,sans-serif;box-shadow:0 6px 0 #140818,0 0 20px #ffc83d99;direction:ltr;unicode-bidi:isolate;line-height:1.15}
+.deco-emoji{font-size:.7em;margin-inline-end:8px;vertical-align:middle;filter:drop-shadow(0 2px 0 #0002)}
+#btn-settings{position:fixed;top:10px;left:64px;z-index:8}
+#c.pixelated{image-rendering:pixelated;image-rendering:crisp-edges}
+#s-settings{position:absolute;inset:0;z-index:13;background:rgba(10,8,20,.62);display:flex;align-items:center;justify-content:center;padding:12px;pointer-events:auto}
+.set-box{background:linear-gradient(180deg,#fffdf8f8,#ffe8c0f4);border:4px solid #8a5a2b;border-radius:24px;padding:12px 18px 14px;width:min(900px,96vw);max-height:94vh;overflow:auto;text-align:right;box-shadow:0 20px 50px #0006}
+.set-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:-12px;background:#fffdf8f2;padding:6px 0;z-index:1}
+.set-head h2{margin:0;font-size:clamp(26px,3.6vw,36px)}
+.set-sec{margin:8px 0;padding:8px 12px;background:#fff9;border-radius:16px;border:2px solid #8a5a2b55}
+.set-sec h3{margin:0 0 8px;font-size:clamp(20px,2.6vw,26px)}
+.set-note{font-size:clamp(15px,1.8vw,18px);font-weight:600;line-height:1.4;margin:6px 0 2px;opacity:.85}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg-b{border:3px solid #8a5a2b;background:#fff;border-radius:16px;padding:9px 18px;font-size:clamp(17px,2.2vw,22px);font-weight:800;color:var(--ink);min-width:110px}
+.seg-b.on{background:var(--leaf);color:#fff;border-color:var(--leaf-d);box-shadow:0 4px 0 var(--leaf-d)}
+.set-checks{display:flex;flex-wrap:wrap;gap:8px}
+.set-check{font-size:clamp(17px,2.1vw,21px);font-weight:800;display:inline-flex;align-items:center;gap:10px;background:#fff;border:3px solid #8a5a2b;border-radius:16px;padding:7px 12px;cursor:pointer}
+.set-check input{width:24px;height:24px;accent-color:#2fb86a}
+.set-range{display:flex;align-items:center;gap:12px;font-size:clamp(17px,2.1vw,21px);font-weight:800;margin:4px 0}
+.set-range input{flex:1;max-width:360px;height:28px;accent-color:#2fb86a}
+.set-range span{min-width:56px}
+#btn-dev{position:fixed;bottom:14px;left:14px;z-index:9;font-size:13px;padding:7px 14px;background:#2a2438;color:#ffe34a;box-shadow:0 5px 0 #140818;letter-spacing:.04em;font-family:Fredoka,Rubik,sans-serif}
+#dev-panel{position:absolute;inset:0;z-index:12;background:rgba(10,8,20,.62);display:flex;align-items:center;justify-content:center;padding:14px}
+.dev-box{background:linear-gradient(180deg,#fffdf8f6,#ffe8c0f2);border:4px solid #8a5a2b;border-radius:24px;padding:12px 16px 12px;width:min(1100px,96vw);max-height:94vh;overflow:auto;text-align:right;box-shadow:0 20px 50px #0006}
+.dev-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.dev-box h2{margin:0;font-size:clamp(24px,3.4vw,34px);font-family:Fredoka,Rubik,sans-serif}
+.dev-note{font-size:clamp(15px,1.9vw,18px);font-weight:700;line-height:1.4;margin:6px 0 8px}
+.dev-actions{justify-content:flex-start;margin-bottom:4px;gap:12px}
+.dev-toggle{font-size:clamp(16px,2vw,20px);font-weight:800;display:inline-flex;align-items:center;gap:10px;background:#fff9;border:3px solid #8a5a2b;border-radius:16px;padding:6px 12px}
+.dev-toggle input{width:22px;height:22px;accent-color:#2fb86a}
+.dev-world{margin:6px 0;padding:8px 12px;background:#fff9;border-radius:16px;border:2px solid #8a5a2b55}
+.dev-world h3{margin:0 0 6px;font-size:clamp(18px,2.4vw,24px)}
+.dev-stages{display:flex;flex-wrap:wrap;gap:7px}
+.dev-stages button{font-size:clamp(15px,1.8vw,18px);font-weight:800;padding:8px 12px;border-radius:14px;min-width:136px;line-height:1.25;text-align:center}
+.dev-stages button.boss{background:#e8553d;color:#fff;box-shadow:0 5px 0 #8a2a18}
+
+.prompt{transition:transform .2s}
+.spell-line{font-size:clamp(26px,4.4vw,42px);letter-spacing:.18em;margin-top:2px;line-height:1.1}
+.spell-line .sp-ok{color:#1b7a42}
+.spell-line .sp-next{color:#140818;background:#ffe34a;border:3px solid #140818;border-radius:10px;padding:0 6px;margin:0 4px}
+.spell-line .sp-rest{color:#14081855}
+.turn-cue{position:absolute;bottom:20%;left:50%;transform:translateX(-50%);background:#ffe34af5;color:#140818;border:5px solid #140818;border-radius:999px;padding:10px 24px;font-weight:800;font-size:clamp(20px,3vw,34px);box-shadow:0 8px 0 #140818,0 0 26px #ffc83dbb;z-index:6;pointer-events:none;font-family:Fredoka,Rubik,sans-serif}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<button class="btn s" id="mute" aria-label="השתקה">🔊</button>
+<button class="btn s" id="btn-settings" aria-label="הגדרות">⚙️ הגדרות</button>
+<button class="btn s hidden" id="btn-dev" aria-label="Developer">DEVELOPER</button>
+<div class="ui">
+
+  <section id="s-load" class="center">
+    <div class="sign"><h1>מילה קווסט</h1></div>
+    <div class="sub">טוענים את העולם התלת-ממדי…</div>
+    <div id="loadbar"><i id="loadbar-i"></i></div>
+    <p class="note" id="load-msg">מכינים דמויות</p>
+  </section>
+
+  <section id="s-title" class="center hidden">
+    <div class="sign"><h1>מילה קווסט</h1></div>
+    <div class="sub">המסע הגדול בעקבות המילים</div>
+    <div class="glass" style="padding:14px 18px;margin-top:8px">
+      <h2 style="margin:0 0 8px">בחרו גיבור</h2>
+      <div class="row" id="hero-btns"></div>
+    </div>
+    <p class="note">משחק אוצר מילים באנגלית לכיתות ד׳–ה׳ · <span id="wordcount"></span> מילים</p>
+    <div class="row" style="margin-top:10px">
+      <button class="btn g" id="btn-start">יוצאים להרפתקה!</button>
+      <button class="btn s" id="btn-help">איך משחקים?</button>
+    </div>
+  </section>
+
+  <section id="s-help" class="center hidden">
+    <div class="glass" style="max-width:640px;padding:20px;text-align:right">
+      <h2 style="text-align:center">איך משחקים?</h2>
+      <p>רצים במסלול תלת-ממדי כמו בהרפתקה. מולכם שלושה שלטים נפרדים — לכל שלט מילה. בחרו את הנתיב הנכון עם החצים או בהחלקה על המסך.</p>
+      <p>כל עולם נעול במנעול. כשמנצחים את הבוס מקבלים מפתח זהב שפותח את האי הבא.</p>
+      <p>8 עולמות, ובכל עולם 7 שלבים — 6 שלבים ובוס. כל שלב נראה אחרת: נוף, חפצים, מזג אוויר ושעה ביום. העולמות המאוחרים מהירים וקשים יותר.</p>
+      <p>שלב 5 — «תמונה וחידה»: רואים ציור וחידה בעברית ורצים אל המילה באנגלית. שלב 6 — «סיבוב מהיר»: חזרה על כל סוגי השאלות במהירות גבוהה.</p>
+      <p>⬆ / רווח — קפיצה מעל בורות ומכשולים נמוכים &nbsp; ←→ — מעבר נתיב, ובפנייה חדה של 90° חייבים להחליק לכיוון הפנייה &nbsp; ⬇ — החלקה מתחת לקורה</p>
+      <p>בשלב 2 בכל עולם מקשיבים למילה באנגלית ורצים אל הפירוש בעברית.</p>
+      <p>🦉 תקועים? לחצו ״צריכים עזרה?״ — שלושה רמזים בלי עונש.</p>
+      <p>🔊 המילה באנגלית מושמעת בקול. לבבות מתמלאים מחדש בכל שלב. איכות גרפית חסכונית זמינה למחשבים חלשים.</p>
+    </div>
+    <button class="btn" id="btn-help-back" style="margin-top:12px">הבנתי</button>
+  </section>
+
+  <section id="s-map" class="hidden map-chrome">
+    <div class="map-top">
+      <h2 class="world-title">מפת העולמות</h2>
+      <div class="row">
+        <span class="pill">🪙 <span id="map-coins">0</span></span>
+        <span class="pill">⭐ <span id="map-stars">0</span></span>
+        <span class="pill">🔑 <span id="map-keys">0</span></span>
+        <button class="btn s" id="btn-map-back">חזרה</button>
+      </div>
+    </div>
+    <aside class="map-side">
+      <div class="glass side-card"><h3>🦉 רמזים</h3><p>אפשר לבקש עזרה מהינשוף בלי עונש: תמונה והסבר, אחר כך אותיות, ובסוף התשובה.</p></div>
+      <div class="glass side-card"><h3>🔁 חזרה ותרגול</h3><p>מילים שטעינו בהן נשמרות וחוזרות לתרגול.</p><button class="btn s" id="btn-review">תרגול מילים שטעינו</button></div>
+      <div class="glass side-card"><h3>🧭 המסע שלי</h3>
+        <p>נלמדו: <b id="stat-learned">0</b> מתוך <span id="stat-total">0</span></p>
+        <div class="bar"><i id="stat-bar"></i></div>
+        <p>לתרגול: <b id="stat-practice">0</b> · עולמות: <b id="stat-worlds">0</b>/8</p>
+        <button class="btn s" id="btn-journey">לפתיחת המסע שלי</button>
+      </div>
+      <div class="glass side-card"><h3>📚 ספריית המילים האבודות</h3><p>תרגול נוסף למילים שברחו בדרך.</p><button class="btn s" id="btn-library">כניסה לספרייה</button></div>
+    </aside>
+    <div class="map-bottom">
+      <div class="world-chips" id="world-chips"></div>
+      <div class="stage-bar" id="stage-bar"></div>
+    </div>
+  </section>
+
+  <section id="hud" class="hidden">
+    <div class="hud-top" style="flex-direction:column;align-items:stretch">
+      <div class="row" style="justify-content:space-between;width:100%">
+        <div class="row"><button class="btn s" id="btn-pause" aria-label="הפסקה">⏸️</button><button class="btn s" id="btn-hud-map">🗺️ מפה</button></div>
+        <div class="prompt" id="prompt"><small id="prompt-sub"></small><div class="emoji" id="prompt-emoji"></div><div class="q" id="prompt-q"></div></div>
+        <div class="row">
+          <span class="pill" id="hud-hearts">❤️❤️❤️</span>
+          <span class="pill" id="hud-score">⭐ 0</span>
+          <span class="pill" id="hud-combo">🔥 0</span>
+        </div>
+      </div>
+      <div id="lane-opts" class="lane-opts hidden">
+        <div class="lane-opt" id="lane-opt-0"></div>
+        <div class="lane-opt" id="lane-opt-1"></div>
+        <div class="lane-opt" id="lane-opt-2"></div>
+      </div>
+    </div>
+    <div class="hud-bot">
+      <button class="btn s p" id="btn-hint">🦉 צריכים עזרה?</button>
+      <span class="pill" id="hud-prog">1/8</span>
+      <span class="pill" id="hud-coins">🪙 0</span>
+    </div>
+    <div id="turn-cue" class="turn-cue hidden"></div>
+  </section>
+
+  <section id="modal" class="hidden"><div class="box" id="modal-box"></div></section>
+  <section id="dev-panel" class="hidden">
+    <div class="dev-box">
+      <div class="dev-head">
+        <h2>DEVELOPER</h2>
+        <button class="btn s" id="btn-dev-close">סגור</button>
+      </div>
+      <p class="dev-note">קפיצה לכל עולם ולכל שלב (כולל בוס) בלי לשנות את השמירה. רק «פתח את כל העולמות» או «איפוס התקדמות» משנים את הקובץ השמור.</p>
+      <div class="row dev-actions">
+        <label class="dev-toggle"><input type="checkbox" id="dev-unlock-all"> פתח את כל העולמות (נשמר)</label>
+        <button class="btn s" id="btn-dev-reset">איפוס התקדמות</button>
+      </div>
+      <div id="dev-grid"></div>
+    </div>
+  </section>
+  <section id="s-settings" class="hidden">
+    <div class="set-box" role="dialog" aria-label="הגדרות">
+      <div class="set-head">
+        <h2>⚙️ הגדרות</h2>
+        <div class="row"><button class="btn s" id="btn-set-reset">ברירת מחדל</button><button class="btn g" id="btn-set-close">סגירה ✓</button></div>
+      </div>
+      <div id="set-body"></div>
+    </div>
+  </section>
+  <section id="s-nb" class="center hidden"></section>
+  <section id="s-jr" class="center hidden"></section>
+  <section id="s-end" class="center hidden"></section>
+</div>
+<script>
+(function () {
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = function () { reject(new Error(src)); };
+      document.body.appendChild(s);
+    });
+  }
+  var chain = Promise.resolve();
+  // DEMO ONLY: js/dev-flag.js sets window.MQ_DEV = true.
+  // Production: omit that file (this load fails silently) and the DEVELOPER button will not appear.
+  chain = chain.then(function () { return loadScript("./js/dev-flag.js").catch(function () {}); });
+  if (location.protocol === "file:") chain = chain.then(function () { return loadScript("./js/embed.js"); });
+  chain.then(function () { return loadScript("./js/game.bundle.js"); })
+    .catch(function (e) { console.error(e); });
+})();
+</script>
+</body>
+</html>

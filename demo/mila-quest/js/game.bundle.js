@@ -38529,11 +38529,20 @@
     model.position.y -= box2.min.y;
   }
   function prepMeshes(root, cast = true) {
+    const normalUsers = /* @__PURE__ */ new Map();
+    root.traverse((o) => {
+      const n = o.isMesh && o.geometry && o.geometry.attributes.normal;
+      if (n) normalUsers.set(n, (normalUsers.get(n) || 0) + 1);
+    });
     root.traverse((o) => {
       if (o.isMesh) {
         o.castShadow = cast;
         o.receiveShadow = true;
-        if (o.geometry && o.geometry.computeVertexNormals) o.geometry.computeVertexNormals();
+        if (o.geometry && o.geometry.computeVertexNormals) {
+          const n = o.geometry.attributes.normal;
+          if (n && normalUsers.get(n) > 1) o.geometry = o.geometry.clone();
+          o.geometry.computeVertexNormals();
+        }
         const mats = [].concat(o.material || []);
         mats.forEach((m) => {
           if (!m) return;
@@ -38553,6 +38562,19 @@
     root.traverse((o) => {
       if (isHeldWeapon(o.name)) o.visible = false;
     });
+  }
+  function fixGltfMetal(root) {
+    root.traverse((o) => {
+      if (!o.isMesh || !o.material) return;
+      const fix = (m) => {
+        if (!m || !m.isMeshStandardMaterial || m.metalnessMap || m.envMap || (m.metalness || 0) < 0.5) return m;
+        const n = m.clone();
+        n.metalness = 0.1;
+        return n;
+      };
+      o.material = Array.isArray(o.material) ? o.material.map(fix) : fix(o.material);
+    });
+    return root;
   }
   function polishActorMaterials(root) {
     root.traverse((o) => {
@@ -38894,7 +38916,7 @@
       isle.position.set(...positions[i]);
       isle.userData.worldIndex = i;
       let prop;
-      if (showcase[i]) prop = await createProp(MP(showcase[i]), i === 3 ? 1.6 : 2.8);
+      if (showcase[i]) prop = fixGltfMetal(await createProp(MP(showcase[i]), i === 3 ? 1.6 : 2.8));
       else {
         prop = showcase2[i]();
         prop.scale.multiplyScalar(showScale[i]);
@@ -38923,7 +38945,7 @@
       }
       const extras = world.decor.slice(1, 3);
       for (let e = 0; e < extras.length; e++) {
-        const p2 = await createProp(MP(extras[e]), 1.5 + e * 0.35);
+        const p2 = fixGltfMetal(await createProp(MP(extras[e]), 1.5 + e * 0.35));
         p2.position.set(-1.7 + e * 2.2, 0.58, -1.5 + e % 2 * 1.1);
         p2.rotation.y = e * 1.1;
         isle.add(p2);

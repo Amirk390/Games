@@ -431,11 +431,24 @@ function normalize(model, height, maxWidth) {
   model.position.y -= box2.min.y;
 }
 function prepMeshes(root, cast = true) {
+  // v8c: GLB primitives of one mesh can share a single NORMAL buffer (e.g. nature/tree_detailed.glb:
+  // 3 primitives, 1 vertex buffer). computeVertexNormals() zeroes the whole shared buffer and refills
+  // only its own triangles, so the last primitive wiped the others -> zero normals -> black model.
+  // Give such primitives their own geometry copy before recomputing.
+  const normalUsers = new Map();
+  root.traverse((o) => {
+    const n = o.isMesh && o.geometry && o.geometry.attributes.normal;
+    if (n) normalUsers.set(n, (normalUsers.get(n) || 0) + 1);
+  });
   root.traverse((o) => {
     if (o.isMesh) {
       o.castShadow = cast;
       o.receiveShadow = true;
-      if (o.geometry && o.geometry.computeVertexNormals) o.geometry.computeVertexNormals();
+      if (o.geometry && o.geometry.computeVertexNormals) {
+        const n = o.geometry.attributes.normal;
+        if (n && normalUsers.get(n) > 1) o.geometry = o.geometry.clone();
+        o.geometry.computeVertexNormals();
+      }
       const mats = [].concat(o.material || []);
       mats.forEach((m) => {
         if (!m) return;
@@ -454,6 +467,23 @@ function hideHeldWeapons(root) {
   root.traverse((o) => {
     if (isHeldWeapon(o.name)) o.visible = false;
   });
+}
+/* v8c: Kenney nature/space GLBs also export metallicFactor 1 (glTF default) with no metalness
+   texture; with no environment map in the map scene a fully metallic surface gets almost no diffuse
+   light and looks near-black. Map copies get their own non-metal material (run props and the
+   shared GLTF-cache materials stay untouched; actors already get this via polishActorMaterials). */
+function fixGltfMetal(root) {
+  root.traverse((o) => {
+    if (!o.isMesh || !o.material) return;
+    const fix = (m) => {
+      if (!m || !m.isMeshStandardMaterial || m.metalnessMap || m.envMap || (m.metalness || 0) < 0.5) return m;
+      const n = m.clone();
+      n.metalness = 0.1;
+      return n;
+    };
+    o.material = Array.isArray(o.material) ? o.material.map(fix) : fix(o.material);
+  });
+  return root;
 }
 function polishActorMaterials(root) {
   root.traverse((o) => {
@@ -803,7 +833,7 @@ async function buildMap() {
     isle.position.set(...positions[i]);
     isle.userData.worldIndex = i;
     let prop;
-    if (showcase[i]) prop = await createProp(MP(showcase[i]), i === 3 ? 1.6 : 2.8);
+    if (showcase[i]) prop = fixGltfMetal(await createProp(MP(showcase[i]), i === 3 ? 1.6 : 2.8));
     else { prop = showcase2[i](); prop.scale.multiplyScalar(showScale[i]); }
     prop.position.set(0.6, 0.58, -0.4);
     isle.add(prop);
@@ -812,7 +842,7 @@ async function buildMap() {
     if (i === 7) { const d = PROPS.dino(); d.scale.setScalar(0.45); d.position.set(-1.7, 0.58, 0.2); isle.add(d); }
     const extras = world.decor.slice(1, 3);
     for (let e = 0; e < extras.length; e++) {
-      const p2 = await createProp(MP(extras[e]), 1.5 + e * 0.35);
+      const p2 = fixGltfMetal(await createProp(MP(extras[e]), 1.5 + e * 0.35));
       p2.position.set(-1.7 + e * 2.2, 0.58, -1.5 + (e % 2) * 1.1);
       p2.rotation.y = e * 1.1;
       isle.add(p2);
