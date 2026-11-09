@@ -268,7 +268,7 @@ export function makeMountains(color = 0x3a7a48, opt = {}) {
     geo.scale(sx, sy, sz);
     const pos = geo.attributes.position;
     const cols = new Float32Array(pos.count * 3);
-    const cTop = base.clone().lerp(new THREE.Color(0xf4e2c4), 0.5);
+    const cTop = opt.top != null ? new THREE.Color(opt.top) : base.clone().lerp(new THREE.Color(0xf4e2c4), 0.5);
     const cBot = base.clone().multiplyScalar(0.38);
     const tmp = new THREE.Color();
     for (let v = 0; v < pos.count; v++) {

@@ -18117,6 +18117,145 @@
       }
     }
   };
+  var SpriteMaterial = class extends Material {
+    constructor(parameters) {
+      super();
+      this.isSpriteMaterial = true;
+      this.type = "SpriteMaterial";
+      this.color = new Color(16777215);
+      this.map = null;
+      this.alphaMap = null;
+      this.rotation = 0;
+      this.sizeAttenuation = true;
+      this.transparent = true;
+      this.fog = true;
+      this.setValues(parameters);
+    }
+    copy(source) {
+      super.copy(source);
+      this.color.copy(source.color);
+      this.map = source.map;
+      this.alphaMap = source.alphaMap;
+      this.rotation = source.rotation;
+      this.sizeAttenuation = source.sizeAttenuation;
+      this.fog = source.fog;
+      return this;
+    }
+  };
+  var _geometry;
+  var _intersectPoint = /* @__PURE__ */ new Vector3();
+  var _worldScale = /* @__PURE__ */ new Vector3();
+  var _mvPosition = /* @__PURE__ */ new Vector3();
+  var _alignedPosition = /* @__PURE__ */ new Vector2();
+  var _rotatedPosition = /* @__PURE__ */ new Vector2();
+  var _viewWorldMatrix = /* @__PURE__ */ new Matrix4();
+  var _vA = /* @__PURE__ */ new Vector3();
+  var _vB = /* @__PURE__ */ new Vector3();
+  var _vC = /* @__PURE__ */ new Vector3();
+  var _uvA = /* @__PURE__ */ new Vector2();
+  var _uvB = /* @__PURE__ */ new Vector2();
+  var _uvC = /* @__PURE__ */ new Vector2();
+  var Sprite = class extends Object3D {
+    constructor(material = new SpriteMaterial()) {
+      super();
+      this.isSprite = true;
+      this.type = "Sprite";
+      if (_geometry === void 0) {
+        _geometry = new BufferGeometry();
+        const float32Array = new Float32Array([
+          -0.5,
+          -0.5,
+          0,
+          0,
+          0,
+          0.5,
+          -0.5,
+          0,
+          1,
+          0,
+          0.5,
+          0.5,
+          0,
+          1,
+          1,
+          -0.5,
+          0.5,
+          0,
+          0,
+          1
+        ]);
+        const interleavedBuffer = new InterleavedBuffer(float32Array, 5);
+        _geometry.setIndex([0, 1, 2, 0, 2, 3]);
+        _geometry.setAttribute("position", new InterleavedBufferAttribute(interleavedBuffer, 3, 0, false));
+        _geometry.setAttribute("uv", new InterleavedBufferAttribute(interleavedBuffer, 2, 3, false));
+      }
+      this.geometry = _geometry;
+      this.material = material;
+      this.center = new Vector2(0.5, 0.5);
+    }
+    raycast(raycaster2, intersects) {
+      if (raycaster2.camera === null) {
+        console.error('THREE.Sprite: "Raycaster.camera" needs to be set in order to raycast against sprites.');
+      }
+      _worldScale.setFromMatrixScale(this.matrixWorld);
+      _viewWorldMatrix.copy(raycaster2.camera.matrixWorld);
+      this.modelViewMatrix.multiplyMatrices(raycaster2.camera.matrixWorldInverse, this.matrixWorld);
+      _mvPosition.setFromMatrixPosition(this.modelViewMatrix);
+      if (raycaster2.camera.isPerspectiveCamera && this.material.sizeAttenuation === false) {
+        _worldScale.multiplyScalar(-_mvPosition.z);
+      }
+      const rotation = this.material.rotation;
+      let sin, cos;
+      if (rotation !== 0) {
+        cos = Math.cos(rotation);
+        sin = Math.sin(rotation);
+      }
+      const center = this.center;
+      transformVertex(_vA.set(-0.5, -0.5, 0), _mvPosition, center, _worldScale, sin, cos);
+      transformVertex(_vB.set(0.5, -0.5, 0), _mvPosition, center, _worldScale, sin, cos);
+      transformVertex(_vC.set(0.5, 0.5, 0), _mvPosition, center, _worldScale, sin, cos);
+      _uvA.set(0, 0);
+      _uvB.set(1, 0);
+      _uvC.set(1, 1);
+      let intersect = raycaster2.ray.intersectTriangle(_vA, _vB, _vC, false, _intersectPoint);
+      if (intersect === null) {
+        transformVertex(_vB.set(-0.5, 0.5, 0), _mvPosition, center, _worldScale, sin, cos);
+        _uvB.set(0, 1);
+        intersect = raycaster2.ray.intersectTriangle(_vA, _vC, _vB, false, _intersectPoint);
+        if (intersect === null) {
+          return;
+        }
+      }
+      const distance = raycaster2.ray.origin.distanceTo(_intersectPoint);
+      if (distance < raycaster2.near || distance > raycaster2.far) return;
+      intersects.push({
+        distance,
+        point: _intersectPoint.clone(),
+        uv: Triangle.getInterpolation(_intersectPoint, _vA, _vB, _vC, _uvA, _uvB, _uvC, new Vector2()),
+        face: null,
+        object: this
+      });
+    }
+    copy(source, recursive) {
+      super.copy(source, recursive);
+      if (source.center !== void 0) this.center.copy(source.center);
+      this.material = source.material;
+      return this;
+    }
+  };
+  function transformVertex(vertexPosition, mvPosition, center, scale, sin, cos) {
+    _alignedPosition.subVectors(vertexPosition, center).addScalar(0.5).multiply(scale);
+    if (sin !== void 0) {
+      _rotatedPosition.x = cos * _alignedPosition.x - sin * _alignedPosition.y;
+      _rotatedPosition.y = sin * _alignedPosition.x + cos * _alignedPosition.y;
+    } else {
+      _rotatedPosition.copy(_alignedPosition);
+    }
+    vertexPosition.copy(mvPosition);
+    vertexPosition.x += _rotatedPosition.x;
+    vertexPosition.y += _rotatedPosition.y;
+    vertexPosition.applyMatrix4(_viewWorldMatrix);
+  }
   var _basePosition = /* @__PURE__ */ new Vector3();
   var _skinIndex = /* @__PURE__ */ new Vector4();
   var _skinWeight = /* @__PURE__ */ new Vector4();
@@ -18953,7 +19092,7 @@
       const normals = [];
       const binormals = [];
       const vec = new Vector3();
-      const mat = new Matrix4();
+      const mat2 = new Matrix4();
       for (let i = 0; i <= segments; i++) {
         const u = i / segments;
         tangents[i] = this.getTangentAt(u, new Vector3());
@@ -18985,7 +19124,7 @@
         if (vec.length() > Number.EPSILON) {
           vec.normalize();
           const theta = Math.acos(clamp(tangents[i - 1].dot(tangents[i]), -1, 1));
-          normals[i].applyMatrix4(mat.makeRotationAxis(vec, theta));
+          normals[i].applyMatrix4(mat2.makeRotationAxis(vec, theta));
         }
         binormals[i].crossVectors(tangents[i], normals[i]);
       }
@@ -18996,7 +19135,7 @@
           theta = -theta;
         }
         for (let i = 1; i <= segments; i++) {
-          normals[i].applyMatrix4(mat.makeRotationAxis(tangents[i], theta * i));
+          normals[i].applyMatrix4(mat2.makeRotationAxis(tangents[i], theta * i));
           binormals[i].crossVectors(tangents[i], normals[i]);
         }
       }
@@ -20316,6 +20455,197 @@
       return new _PolyhedronGeometry(data.vertices, data.indices, data.radius, data.details);
     }
   };
+  var DodecahedronGeometry = class _DodecahedronGeometry extends PolyhedronGeometry {
+    constructor(radius = 1, detail = 0) {
+      const t = (1 + Math.sqrt(5)) / 2;
+      const r = 1 / t;
+      const vertices = [
+        // (±1, ±1, ±1)
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        1,
+        -1,
+        1,
+        -1,
+        -1,
+        1,
+        1,
+        1,
+        -1,
+        -1,
+        1,
+        -1,
+        1,
+        1,
+        1,
+        -1,
+        1,
+        1,
+        1,
+        // (0, ±1/φ, ±φ)
+        0,
+        -r,
+        -t,
+        0,
+        -r,
+        t,
+        0,
+        r,
+        -t,
+        0,
+        r,
+        t,
+        // (±1/φ, ±φ, 0)
+        -r,
+        -t,
+        0,
+        -r,
+        t,
+        0,
+        r,
+        -t,
+        0,
+        r,
+        t,
+        0,
+        // (±φ, 0, ±1/φ)
+        -t,
+        0,
+        -r,
+        t,
+        0,
+        -r,
+        -t,
+        0,
+        r,
+        t,
+        0,
+        r
+      ];
+      const indices = [
+        3,
+        11,
+        7,
+        3,
+        7,
+        15,
+        3,
+        15,
+        13,
+        7,
+        19,
+        17,
+        7,
+        17,
+        6,
+        7,
+        6,
+        15,
+        17,
+        4,
+        8,
+        17,
+        8,
+        10,
+        17,
+        10,
+        6,
+        8,
+        0,
+        16,
+        8,
+        16,
+        2,
+        8,
+        2,
+        10,
+        0,
+        12,
+        1,
+        0,
+        1,
+        18,
+        0,
+        18,
+        16,
+        6,
+        10,
+        2,
+        6,
+        2,
+        13,
+        6,
+        13,
+        15,
+        2,
+        16,
+        18,
+        2,
+        18,
+        3,
+        2,
+        3,
+        13,
+        18,
+        1,
+        9,
+        18,
+        9,
+        11,
+        18,
+        11,
+        3,
+        4,
+        14,
+        12,
+        4,
+        12,
+        0,
+        4,
+        0,
+        8,
+        11,
+        9,
+        5,
+        11,
+        5,
+        19,
+        11,
+        19,
+        7,
+        19,
+        5,
+        14,
+        19,
+        14,
+        4,
+        19,
+        4,
+        17,
+        1,
+        12,
+        14,
+        1,
+        14,
+        5,
+        1,
+        5,
+        9
+      ];
+      super(vertices, indices, radius, detail);
+      this.type = "DodecahedronGeometry";
+      this.parameters = {
+        radius,
+        detail
+      };
+    }
+    static fromJSON(data) {
+      return new _DodecahedronGeometry(data.radius, data.detail);
+    }
+  };
   var IcosahedronGeometry = class _IcosahedronGeometry extends PolyhedronGeometry {
     constructor(radius = 1, detail = 0) {
       const t = (1 + Math.sqrt(5)) / 2;
@@ -20428,6 +20758,126 @@
     }
     static fromJSON(data) {
       return new _IcosahedronGeometry(data.radius, data.detail);
+    }
+  };
+  var OctahedronGeometry = class _OctahedronGeometry extends PolyhedronGeometry {
+    constructor(radius = 1, detail = 0) {
+      const vertices = [
+        1,
+        0,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        -1
+      ];
+      const indices = [
+        0,
+        2,
+        4,
+        0,
+        4,
+        3,
+        0,
+        3,
+        5,
+        0,
+        5,
+        2,
+        1,
+        2,
+        5,
+        1,
+        5,
+        3,
+        1,
+        3,
+        4,
+        1,
+        4,
+        2
+      ];
+      super(vertices, indices, radius, detail);
+      this.type = "OctahedronGeometry";
+      this.parameters = {
+        radius,
+        detail
+      };
+    }
+    static fromJSON(data) {
+      return new _OctahedronGeometry(data.radius, data.detail);
+    }
+  };
+  var RingGeometry = class _RingGeometry extends BufferGeometry {
+    constructor(innerRadius = 0.5, outerRadius = 1, thetaSegments = 32, phiSegments = 1, thetaStart = 0, thetaLength = Math.PI * 2) {
+      super();
+      this.type = "RingGeometry";
+      this.parameters = {
+        innerRadius,
+        outerRadius,
+        thetaSegments,
+        phiSegments,
+        thetaStart,
+        thetaLength
+      };
+      thetaSegments = Math.max(3, thetaSegments);
+      phiSegments = Math.max(1, phiSegments);
+      const indices = [];
+      const vertices = [];
+      const normals = [];
+      const uvs = [];
+      let radius = innerRadius;
+      const radiusStep = (outerRadius - innerRadius) / phiSegments;
+      const vertex2 = new Vector3();
+      const uv = new Vector2();
+      for (let j = 0; j <= phiSegments; j++) {
+        for (let i = 0; i <= thetaSegments; i++) {
+          const segment = thetaStart + i / thetaSegments * thetaLength;
+          vertex2.x = radius * Math.cos(segment);
+          vertex2.y = radius * Math.sin(segment);
+          vertices.push(vertex2.x, vertex2.y, vertex2.z);
+          normals.push(0, 0, 1);
+          uv.x = (vertex2.x / outerRadius + 1) / 2;
+          uv.y = (vertex2.y / outerRadius + 1) / 2;
+          uvs.push(uv.x, uv.y);
+        }
+        radius += radiusStep;
+      }
+      for (let j = 0; j < phiSegments; j++) {
+        const thetaSegmentLevel = j * (thetaSegments + 1);
+        for (let i = 0; i < thetaSegments; i++) {
+          const segment = i + thetaSegmentLevel;
+          const a = segment;
+          const b = segment + thetaSegments + 1;
+          const c = segment + thetaSegments + 2;
+          const d = segment + 1;
+          indices.push(a, b, d);
+          indices.push(b, c, d);
+        }
+      }
+      this.setIndex(indices);
+      this.setAttribute("position", new Float32BufferAttribute(vertices, 3));
+      this.setAttribute("normal", new Float32BufferAttribute(normals, 3));
+      this.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+    }
+    copy(source) {
+      super.copy(source);
+      this.parameters = Object.assign({}, source.parameters);
+      return this;
+    }
+    static fromJSON(data) {
+      return new _RingGeometry(data.innerRadius, data.outerRadius, data.thetaSegments, data.phiSegments, data.thetaStart, data.thetaLength);
     }
   };
   var SphereGeometry = class _SphereGeometry extends BufferGeometry {
@@ -25724,11 +26174,11 @@
           const jointNode = jointNodes[i];
           if (jointNode) {
             bones.push(jointNode);
-            const mat = new Matrix4();
+            const mat2 = new Matrix4();
             if (inverseBindMatrices !== null) {
-              mat.fromArray(inverseBindMatrices.array, i * 16);
+              mat2.fromArray(inverseBindMatrices.array, i * 16);
             }
-            boneInverses.push(mat);
+            boneInverses.push(mat2);
           } else {
             console.warn('THREE.GLTFLoader: Joint "%s" could not be found.', skinDef.joints[i]);
           }
@@ -26479,12 +26929,12 @@
         ctx.strokeRect(x * ts + ox + 1.5, y * ts + 1.5, ts - 3, ts - 3);
       }
     }
-    const tex = new CanvasTexture(c);
-    tex.wrapS = tex.wrapT = RepeatWrapping;
-    tex.repeat.set(1, 1);
-    tex.colorSpace = SRGBColorSpace;
-    tex.anisotropy = 8;
-    return tex;
+    const tex2 = new CanvasTexture(c);
+    tex2.wrapS = tex2.wrapT = RepeatWrapping;
+    tex2.repeat.set(1, 1);
+    tex2.colorSpace = SRGBColorSpace;
+    tex2.anisotropy = 8;
+    return tex2;
   }
   function makeDirtTexture() {
     const c = document.createElement("canvas");
@@ -26502,12 +26952,12 @@
       ctx.ellipse(Math.random() * 256, Math.random() * 256, 1 + Math.random() * 4, 1 + Math.random() * 3, Math.random() * 4, 0, Math.PI * 2);
       ctx.fill();
     }
-    const tex = new CanvasTexture(c);
-    tex.wrapS = tex.wrapT = RepeatWrapping;
-    tex.repeat.set(3, 8);
-    tex.colorSpace = SRGBColorSpace;
-    tex.anisotropy = 4;
-    return tex;
+    const tex2 = new CanvasTexture(c);
+    tex2.wrapS = tex2.wrapT = RepeatWrapping;
+    tex2.repeat.set(3, 8);
+    tex2.colorSpace = SRGBColorSpace;
+    tex2.anisotropy = 4;
+    return tex2;
   }
   function makeSmoothTree(theme = "jungle") {
     const g = new Group();
@@ -26558,7 +27008,7 @@
       geo.scale(sx, sy, sz);
       const pos = geo.attributes.position;
       const cols = new Float32Array(pos.count * 3);
-      const cTop = base.clone().lerp(new Color(16048836), 0.5);
+      const cTop = opt.top != null ? new Color(opt.top) : base.clone().lerp(new Color(16048836), 0.5);
       const cBot = base.clone().multiplyScalar(0.38);
       const tmp2 = new Color();
       for (let v = 0; v < pos.count; v++) {
@@ -26570,14 +27020,14 @@
       }
       geo.setAttribute("color", new BufferAttribute(cols, 3));
       geo.computeVertexNormals();
-      const mat = new MeshStandardMaterial({
+      const mat2 = new MeshStandardMaterial({
         vertexColors: true,
         roughness: 0.94,
         metalness: 0,
         flatShading: false,
         fog: true
       });
-      const m = new Mesh(geo, mat);
+      const m = new Mesh(geo, mat2);
       const ang = i / n * Math.PI * 2 + 0.18;
       const dist = 200 + i % 5 * 26;
       m.position.set(Math.cos(ang) * dist, -1.2, Math.sin(ang) * dist);
@@ -26599,9 +27049,9 @@
     grd.addColorStop(1, "rgba(255,220,190,0)");
     ctx.fillStyle = grd;
     ctx.fillRect(0, 0, 128, 128);
-    const tex = new CanvasTexture(c);
-    const mat = new MeshBasicMaterial({
-      map: tex,
+    const tex2 = new CanvasTexture(c);
+    const mat2 = new MeshBasicMaterial({
+      map: tex2,
       transparent: true,
       opacity: 0.9,
       depthWrite: false,
@@ -26610,7 +27060,7 @@
       side: DoubleSide
     });
     for (let i = 0; i < 22; i++) {
-      const p = new Mesh(new PlaneGeometry(38, 14), mat);
+      const p = new Mesh(new PlaneGeometry(38, 14), mat2);
       if (i < 12) {
         p.rotation.x = -Math.PI / 2;
         p.position.set((i % 6 - 2.5) * 14, -1.1 - i % 4 * 0.55, (i % 5 - 2) * 9);
@@ -26755,12 +27205,12 @@
       ctx.fillStyle = `rgba(${30 + Math.random() * 40},${g | 0},${30 + Math.random() * 35},${0.18 + Math.random() * 0.25})`;
       ctx.fillRect(Math.random() * 256, Math.random() * 256, 1 + Math.random() * 2, 1 + Math.random() * 3);
     }
-    const tex = new CanvasTexture(c);
-    tex.wrapS = tex.wrapT = RepeatWrapping;
-    tex.repeat.set(repeatX, repeatY);
-    tex.colorSpace = SRGBColorSpace;
-    tex.anisotropy = 4;
-    return tex;
+    const tex2 = new CanvasTexture(c);
+    tex2.wrapS = tex2.wrapT = RepeatWrapping;
+    tex2.repeat.set(repeatX, repeatY);
+    tex2.colorSpace = SRGBColorSpace;
+    tex2.anisotropy = 4;
+    return tex2;
   }
   function makeValleyTexture() {
     const c = document.createElement("canvas");
@@ -26778,11 +27228,11 @@
       ctx.fill();
     }
     ctx.globalAlpha = 1;
-    const tex = new CanvasTexture(c);
-    tex.wrapS = tex.wrapT = RepeatWrapping;
-    tex.repeat.set(4, 8);
-    tex.colorSpace = SRGBColorSpace;
-    return tex;
+    const tex2 = new CanvasTexture(c);
+    tex2.wrapS = tex2.wrapT = RepeatWrapping;
+    tex2.repeat.set(4, 8);
+    tex2.colorSpace = SRGBColorSpace;
+    return tex2;
   }
   function makeRock(color = 8024160) {
     const m = new Mesh(
@@ -26796,11 +27246,11 @@
   }
   function makeGrassTuft(color = 3115578) {
     const g = new Group();
-    const mat = new MeshStandardMaterial({ color, roughness: 0.72, flatShading: false });
+    const mat2 = new MeshStandardMaterial({ color, roughness: 0.72, flatShading: false });
     const n = 4 + (Math.random() * 3 | 0);
     for (let i = 0; i < n; i++) {
       const h = 0.2 + Math.random() * 0.28;
-      const blade = new Mesh(new ConeGeometry(0.065 + Math.random() * 0.05, h, 5), mat);
+      const blade = new Mesh(new ConeGeometry(0.065 + Math.random() * 0.05, h, 5), mat2);
       blade.position.set((Math.random() - 0.5) * 0.3, h * 0.5, (Math.random() - 0.5) * 0.3);
       blade.rotation.z = (Math.random() - 0.5) * 0.42;
       blade.rotation.x = (Math.random() - 0.5) * 0.22;
@@ -26919,7 +27369,7 @@
     ctx.fillRect(0, topM, W, stripeH);
     ctx.fillRect(0, H - topM - stripeH, W, stripeH);
     const cx = W / 2, cy = H / 2;
-    const R = H * 0.253;
+    const R2 = H * 0.253;
     ctx.strokeStyle = FLAG_BLUE;
     ctx.lineWidth = Math.max(10, H * 0.03);
     ctx.lineJoin = "miter";
@@ -26929,8 +27379,8 @@
       ctx.beginPath();
       for (let i = 0; i < 3; i++) {
         const a = (up ? -Math.PI / 2 : Math.PI / 2) + i * (Math.PI * 2 / 3);
-        const x = cx + Math.cos(a) * R;
-        const y = cy + Math.sin(a) * R;
+        const x = cx + Math.cos(a) * R2;
+        const y = cy + Math.sin(a) * R2;
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       }
@@ -27040,6 +27490,1622 @@
     }
     return group;
   }
+
+  // mila-quest/js/themes.js
+  var THEMES = ["jungle", "pirate", "magic", "space", "ice"];
+  var themeOf = (wid) => THEMES[(wid || 1) - 1] || "jungle";
+  var THEME_LOOK = {
+    pirate: { exp: 1.1, hemi: 1, hemiSky: 14218495, hemiGround: 2779786, dir: 1.45, sun: 16773846, fog: 12577014, fogNear: 45, fogFar: 330, skyTop: 2002656, skyBot: 13628159, clear: 9426676, sunDisk: 16774856, showSun: true },
+    magic: { exp: 1.12, hemi: 0.95, hemiSky: 16765684, hemiGround: 3811944, dir: 1.05, sun: 16767212, fog: 9069752, fogNear: 36, fogFar: 300, skyTop: 2364512, skyBot: 16752594, clear: 6961818, sunDisk: 16774364, showSun: true },
+    space: { exp: 1.16, hemi: 0.95, hemiSky: 10788095, hemiGround: 1708096, dir: 1.15, sun: 15659263, fog: 460312, fogNear: 70, fogFar: 380, skyTop: 131592, skyBot: 657442, clear: 197388, showSun: false },
+    ice: { exp: 1.1, hemi: 1.05, hemiSky: 15924223, hemiGround: 9091284, dir: 1.3, sun: 16775920, fog: 14873855, fogNear: 34, fogFar: 340, skyTop: 6271722, skyBot: 15661567, clear: 14217471, sunDisk: 16776168, showSun: true }
+  };
+  var R = (a, b) => a + Math.random() * (b - a);
+  function runsOf(samples, pred) {
+    const runs = [];
+    let i = 0;
+    while (i < samples.length) {
+      if (pred && !pred(samples[i], i)) {
+        i++;
+        continue;
+      }
+      const from = i;
+      while (i < samples.length && (!pred || pred(samples[i], i))) i++;
+      const to = Math.min(samples.length - 1, i);
+      if (to > from) runs.push([from, to]);
+    }
+    return runs;
+  }
+  function ribbon(course, opt = {}) {
+    const width = opt.width || 7;
+    const pos = [], uvs = [], idx = [];
+    let base = 0;
+    for (const [from, to] of runsOf(course.samples, opt.pred)) {
+      const start = base;
+      for (let k = from; k <= to; k++) {
+        const p = course.samples[k];
+        const rx = Math.cos(p.heading), rz = Math.sin(p.heading);
+        const off = typeof opt.offset === "function" ? opt.offset(p) : opt.offset || 0;
+        const cx = p.x + rx * off, cz = p.z + rz * off;
+        const y = opt.absY != null ? opt.absY : p.y + (opt.yLift || 0);
+        const hw = width / 2;
+        pos.push(cx - rx * hw, y, cz - rz * hw, cx + rx * hw, y, cz + rz * hw);
+        const v = (k - from) * (opt.vScale || 0.1);
+        uvs.push(0, v, opt.uRepeat || 1, v);
+        base += 2;
+      }
+      for (let k = 0; k < to - from; k++) {
+        const i0 = start + k * 2;
+        idx.push(i0, i0 + 1, i0 + 2, i0 + 1, i0 + 3, i0 + 2);
+      }
+    }
+    return finishGeo(pos, uvs, idx);
+  }
+  function wall(course, opt = {}) {
+    const pos = [], uvs = [], idx = [];
+    let base = 0;
+    for (const [from, to] of runsOf(course.samples, opt.pred)) {
+      const start = base;
+      let dist = 0;
+      for (let k = from; k <= to; k++) {
+        const p = course.samples[k];
+        const rx = Math.cos(p.heading), rz = Math.sin(p.heading);
+        const off = typeof opt.offset === "function" ? opt.offset(p) : opt.offset;
+        const x = p.x + rx * off, z = p.z + rz * off;
+        const top = p.y + (opt.top != null ? opt.top : 1);
+        const bot = opt.absBottom != null ? opt.absBottom : p.y + (opt.bottom || 0);
+        pos.push(x, top, z, x, bot, z);
+        if (k > from) {
+          const q = course.samples[k - 1];
+          const qo = typeof opt.offset === "function" ? opt.offset(q) : opt.offset;
+          dist += Math.hypot(x - (q.x + Math.cos(q.heading) * qo), z - (q.z + Math.sin(q.heading) * qo));
+        }
+        const u = dist * (opt.uScale || 0.25);
+        uvs.push(u, opt.vTop != null ? opt.vTop : 1, u, 0);
+        base += 2;
+      }
+      for (let k = 0; k < to - from; k++) {
+        const i0 = start + k * 2;
+        idx.push(i0, i0 + 1, i0 + 2, i0 + 1, i0 + 3, i0 + 2);
+      }
+    }
+    return finishGeo(pos, uvs, idx);
+  }
+  function finishGeo(pos, uvs, idx) {
+    const g = new BufferGeometry();
+    if (!pos.length) {
+      g.setAttribute("position", new Float32BufferAttribute([0, 0, 0, 0, 0, 0, 0, 0, 0], 3));
+      g.setIndex([0, 1, 2]);
+      return g;
+    }
+    g.setAttribute("position", new Float32BufferAttribute(pos, 3));
+    g.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+    g.setIndex(idx);
+    g.computeVertexNormals();
+    return g;
+  }
+  function clearOfCourse(course, x, z, minD) {
+    const S2 = course.samples;
+    for (let i = 0; i < S2.length; i += 2) {
+      const dx = S2[i].x - x, dz = S2[i].z - z;
+      if (dx * dx + dz * dz < minD * minD) return false;
+    }
+    return true;
+  }
+  function onOtherStretch(course, x, z, i, half) {
+    const S2 = course.samples;
+    const h2 = half * half;
+    for (let j = 0; j < S2.length; j++) {
+      if (Math.abs(j - i) < 5) continue;
+      const dx = S2[j].x - x, dz = S2[j].z - z;
+      if (dx * dx + dz * dz < h2) return true;
+    }
+    return false;
+  }
+  function instanced(geo, material, list) {
+    const im = new InstancedMesh(geo, material, Math.max(1, list.length));
+    const m = new Matrix4(), q = new Quaternion(), e = new Euler(), v = new Vector3(), sc = new Vector3();
+    list.forEach((it, i) => {
+      q.setFromEuler(e.set(0, it[3], 0));
+      m.compose(v.set(it[0], it[1], it[2]), q, sc.set(it[4], it[5], it[6]));
+      im.setMatrixAt(i, m);
+    });
+    im.count = list.length;
+    im.instanceMatrix.needsUpdate = true;
+    im.computeBoundingSphere();
+    return im;
+  }
+  function sideSpot(course, s, side, off) {
+    const p = pathAt(course, s);
+    const rx = Math.cos(p.heading), rz = Math.sin(p.heading);
+    return { x: p.x + rx * side * off, y: p.y, z: p.z + rz * side * off, heading: p.heading, kind: p.kind };
+  }
+  function canvasTex(w, h, draw, rep = [1, 1]) {
+    const c = document.createElement("canvas");
+    c.width = w;
+    c.height = h;
+    draw(c.getContext("2d"), w, h);
+    const t = new CanvasTexture(c);
+    t.wrapS = t.wrapT = RepeatWrapping;
+    t.repeat.set(rep[0], rep[1]);
+    t.colorSpace = SRGBColorSpace;
+    t.anisotropy = 8;
+    return t;
+  }
+  var TEX = {};
+  function tex(name, make) {
+    return TEX[name] || (TEX[name] = make());
+  }
+  function deckTex() {
+    return tex("deck", () => canvasTex(512, 512, (ctx, W, H) => {
+      const cols = ["#b98250", "#a8713f", "#c79058", "#9c6838", "#b37a46", "#c08a52"];
+      const n = 10, pw = W / n;
+      for (let i = 0; i < n; i++) {
+        const off = i * 197 % H;
+        for (let seg = -2; seg < 2; seg++) {
+          const y0 = off + seg * H * 0.5;
+          ctx.fillStyle = cols[(i * 3 + seg + 6) % cols.length];
+          ctx.fillRect(i * pw, y0, pw, H * 0.5);
+          ctx.strokeStyle = "rgba(60,30,10,0.55)";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(i * pw, y0);
+          ctx.lineTo(i * pw + pw, y0);
+          ctx.stroke();
+          ctx.fillStyle = "#3a2410";
+          ctx.fillRect(i * pw + 8, y0 + 6, 4, 4);
+          ctx.fillRect(i * pw + pw - 12, y0 + 6, 4, 4);
+        }
+        for (let g = 0; g < 7; g++) {
+          ctx.strokeStyle = `rgba(80,45,15,${0.12 + Math.random() * 0.18})`;
+          ctx.lineWidth = 1 + Math.random();
+          const x = i * pw + 4 + Math.random() * (pw - 8);
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          for (let y = 0; y <= H; y += 32) ctx.lineTo(x + Math.sin(y * 0.03 + g) * 2, y);
+          ctx.stroke();
+        }
+        ctx.fillStyle = "#2a1a0c";
+        ctx.fillRect(i * pw, 0, 3, H);
+      }
+    }));
+  }
+  function hullTex() {
+    return tex("hull", () => canvasTex(512, 256, (ctx, W, H) => {
+      for (let r = 0; r < 12; r++) {
+        ctx.fillStyle = ["#5a3418", "#4e2c14", "#63391b", "#55301a"][r % 4];
+        ctx.fillRect(0, r * (H / 12), W, H / 12);
+        ctx.fillStyle = "rgba(20,10,4,0.6)";
+        ctx.fillRect(0, r * (H / 12), W, 2);
+      }
+      ctx.fillStyle = "#e0a32a";
+      ctx.fillRect(0, H * 0.16, W, H * 0.1);
+      ctx.fillStyle = "#9a1f1f";
+      ctx.fillRect(0, H * 0.26, W, H * 0.12);
+      ctx.fillStyle = "#1a0e06";
+      for (let x = 30; x < W; x += 128) ctx.fillRect(x, H * 0.28, 34, H * 0.08);
+      ctx.fillStyle = "#3a2410";
+      ctx.fillRect(0, 0, W, H * 0.06);
+    }));
+  }
+  function seaTex() {
+    return tex("sea", () => canvasTex(512, 512, (ctx, W, H) => {
+      const g = ctx.createLinearGradient(0, 0, W, H);
+      g.addColorStop(0, "#1386c0");
+      g.addColorStop(0.5, "#1a9ad0");
+      g.addColorStop(1, "#1286bc");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 90; i++) {
+        ctx.fillStyle = `rgba(10,70,120,${0.15 + Math.random() * 0.2})`;
+        const x = Math.random() * W, y = Math.random() * H;
+        for (const dx of [-W, 0, W]) for (const dy of [-H, 0, H]) {
+          ctx.beginPath();
+          ctx.ellipse(x + dx, y + dy, 20 + Math.random() * 40, 6 + Math.random() * 10, 0, 0, 7);
+          ctx.fill();
+        }
+      }
+      for (let i = 0; i < 260; i++) {
+        const x = Math.random() * W, y = Math.random() * H, l = 10 + Math.random() * 34;
+        ctx.strokeStyle = `rgba(${200 + Math.random() * 55 | 0},245,255,${0.25 + Math.random() * 0.45})`;
+        ctx.lineWidth = 1.5 + Math.random() * 2;
+        for (const dx of [-W, 0, W]) for (const dy of [-H, 0, H]) {
+          ctx.beginPath();
+          ctx.moveTo(x + dx, y + dy);
+          ctx.quadraticCurveTo(x + dx + l / 2, y + dy - 5, x + dx + l, y + dy);
+          ctx.stroke();
+        }
+      }
+    }, [70, 70]));
+  }
+  function foamTex() {
+    return tex("foam", () => canvasTex(256, 256, (ctx, W, H) => {
+      ctx.clearRect(0, 0, W, H);
+      for (let i = 0; i < 1400; i++) {
+        const x = Math.random() * W;
+        const edge = Math.min(x, W - x) / (W / 2);
+        if (edge > 0.55 || Math.random() < edge) continue;
+        ctx.fillStyle = `rgba(255,255,255,${0.35 + Math.random() * 0.5})`;
+        const y = Math.random() * H;
+        for (const dy of [-H, 0, H]) {
+          ctx.beginPath();
+          ctx.arc(x, y + dy, 1 + Math.random() * 4, 0, 7);
+          ctx.fill();
+        }
+      }
+    }));
+  }
+  function sailTex() {
+    return tex("sail", () => canvasTex(256, 256, (ctx, W, H) => {
+      ctx.fillStyle = "#f6ecd2";
+      ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 6; i++) {
+        ctx.fillStyle = "rgba(160,130,90,0.18)";
+        ctx.fillRect(0, i * H / 6, W, 3);
+      }
+      ctx.fillStyle = "#c0392b";
+      ctx.fillRect(0, H * 0.42, W, H * 0.12);
+      ctx.strokeStyle = "rgba(120,90,60,0.5)";
+      ctx.lineWidth = 6;
+      ctx.strokeRect(3, 3, W - 6, H - 6);
+    }));
+  }
+  function jollyTex() {
+    return tex("jolly", () => canvasTex(128, 96, (ctx, W, H) => {
+      ctx.fillStyle = "#111";
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = "#fff";
+      ctx.beginPath();
+      ctx.arc(64, 40, 18, 0, 7);
+      ctx.fill();
+      ctx.fillRect(54, 52, 20, 12);
+      ctx.fillStyle = "#111";
+      ctx.beginPath();
+      ctx.arc(57, 38, 5, 0, 7);
+      ctx.arc(71, 38, 5, 0, 7);
+      ctx.fill();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 7;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(34, 62);
+      ctx.lineTo(94, 86);
+      ctx.moveTo(94, 62);
+      ctx.lineTo(34, 86);
+      ctx.stroke();
+    }));
+  }
+  function crateTex() {
+    return tex("crate", () => canvasTex(128, 128, (ctx, W, H) => {
+      ctx.fillStyle = "#b07a40";
+      ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 4; i++) {
+        ctx.fillStyle = i % 2 ? "#a06c36" : "#bb8648";
+        ctx.fillRect(0, i * 32, W, 32);
+      }
+      ctx.strokeStyle = "#5a3412";
+      ctx.lineWidth = 12;
+      ctx.strokeRect(6, 6, W - 12, H - 12);
+      ctx.beginPath();
+      ctx.moveTo(10, 10);
+      ctx.lineTo(W - 10, H - 10);
+      ctx.stroke();
+    }));
+  }
+  function blobAt(ctx, x, y, r, col) {
+    const rg = ctx.createRadialGradient(x, y, 0, x, y, r);
+    rg.addColorStop(0, col);
+    rg.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = rg;
+    ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  function galaxyTex() {
+    return tex("galaxy", () => canvasTex(512, 1024, (ctx, W, H) => {
+      const g = ctx.createLinearGradient(0, 0, W, 0);
+      g.addColorStop(0, "#160c3a");
+      g.addColorStop(0.3, "#2a1a66");
+      g.addColorStop(0.5, "#3c2a86");
+      g.addColorStop(0.7, "#2a1a66");
+      g.addColorStop(1, "#160c3a");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+      const blob = (x, y, r, col) => {
+        for (const dy of [-H, 0, H]) blobAt(ctx, x, y + dy, r, col);
+      };
+      const cols = ["rgba(140,90,255,0.35)", "rgba(80,150,255,0.32)", "rgba(255,110,200,0.28)", "rgba(255,190,120,0.30)", "rgba(90,220,255,0.25)"];
+      for (let i = 0; i < 70; i++) {
+        const x = W / 2 + (Math.random() + Math.random() - 1) * W * 0.42;
+        blob(x, Math.random() * H, 40 + Math.random() * 110, cols[i % cols.length]);
+      }
+      for (let i = 0; i < 26; i++) blob(W / 2 + (Math.random() - 0.5) * 120, Math.random() * H, 50 + Math.random() * 60, "rgba(255,230,190,0.30)");
+      for (let i = 0; i < 18; i++) blob(W / 2 + (Math.random() - 0.5) * 160, Math.random() * H, 18 + Math.random() * 30, "rgba(8,4,24,0.45)");
+      for (let i = 0; i < 4200; i++) {
+        const x = W / 2 + (Math.random() + Math.random() + Math.random() - 1.5) * W * 0.62;
+        const y = Math.random() * H;
+        const a = 0.35 + Math.random() * 0.65;
+        ctx.fillStyle = Math.random() < 0.15 ? `rgba(255,220,170,${a})` : Math.random() < 0.2 ? `rgba(170,200,255,${a})` : `rgba(255,255,255,${a})`;
+        const s = Math.random() < 0.94 ? 1.2 : 2.4;
+        ctx.fillRect(x, y, s, s);
+      }
+      for (let i = 0; i < 70; i++) {
+        const x = 30 + Math.random() * (W - 60), y = 12 + Math.random() * (H - 24);
+        blobAt(ctx, x, y, 9, "rgba(255,255,255,0.9)");
+        ctx.fillStyle = "rgba(255,255,255,0.8)";
+        ctx.fillRect(x - 9, y - 0.75, 18, 1.5);
+        ctx.fillRect(x - 0.75, y - 9, 1.5, 18);
+      }
+    }));
+  }
+  function dustTex() {
+    return tex("dust", () => canvasTex(256, 512, (ctx, W, H) => {
+      ctx.clearRect(0, 0, W, H);
+      const g = ctx.createLinearGradient(0, 0, W, 0);
+      g.addColorStop(0, "rgba(60,30,140,0)");
+      g.addColorStop(0.3, "rgba(110,70,220,0.35)");
+      g.addColorStop(0.5, "rgba(170,120,255,0.55)");
+      g.addColorStop(0.7, "rgba(110,70,220,0.35)");
+      g.addColorStop(1, "rgba(60,30,140,0)");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 1300; i++) {
+        const x = W / 2 + (Math.random() + Math.random() - 1) * W * 0.5;
+        ctx.fillStyle = `rgba(255,255,255,${0.3 + Math.random() * 0.7})`;
+        ctx.fillRect(x, Math.random() * H, 1.5, 1.5);
+      }
+    }));
+  }
+  function starSkyTex() {
+    return tex("starsky", () => canvasTex(2048, 1024, (ctx, W, H) => {
+      const g = ctx.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, "#010107");
+      g.addColorStop(0.5, "#07061a");
+      g.addColorStop(1, "#020210");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+      const blob = (x, y, r, col) => {
+        for (const dx of [-W, 0, W]) blobAt(ctx, x + dx, y, r, col);
+      };
+      const bandY = (x) => H * 0.36 + Math.sin(x / W * Math.PI * 2) * H * 0.16;
+      const bandCols = ["rgba(120,90,230,0.20)", "rgba(80,130,255,0.18)", "rgba(255,170,220,0.16)", "rgba(255,210,160,0.20)"];
+      for (let i = 0; i < 220; i++) {
+        const x = Math.random() * W;
+        blob(x, bandY(x) + (Math.random() - 0.5) * 90, 40 + Math.random() * 90, bandCols[i % 4]);
+      }
+      for (let i = 0; i < 60; i++) {
+        const x = Math.random() * W;
+        blob(x, bandY(x) + (Math.random() - 0.5) * 20, 20 + Math.random() * 30, "rgba(4,2,14,0.5)");
+      }
+      for (let i = 0; i < 16e3; i++) {
+        const x = Math.random() * W;
+        const y = bandY(x) + (Math.random() + Math.random() + Math.random() - 1.5) * 150;
+        ctx.fillStyle = `rgba(255,255,255,${0.25 + Math.random() * 0.6})`;
+        ctx.fillRect(x, y, 1, 1);
+      }
+      for (let i = 0; i < 6500; i++) {
+        ctx.fillStyle = `rgba(${200 + Math.random() * 55 | 0},${210 + Math.random() * 45 | 0},255,${0.3 + Math.random() * 0.7})`;
+        const s = Math.random() < 0.9 ? 1 : 2;
+        ctx.fillRect(Math.random() * W, Math.random() * H, s, s);
+      }
+      blob(W * 0.18, H * 0.62, 160, "rgba(255,80,170,0.22)");
+      blob(W * 0.22, H * 0.58, 100, "rgba(120,80,255,0.22)");
+      blob(W * 0.66, H * 0.2, 180, "rgba(40,200,220,0.16)");
+      blob(W * 0.7, H * 0.24, 90, "rgba(90,120,255,0.2)");
+      blob(W * 0.88, H * 0.66, 130, "rgba(255,140,90,0.15)");
+    }));
+  }
+  function bandTex(cols, n = 9) {
+    return tex("band" + cols.join(""), () => canvasTex(256, 128, (ctx, W, H) => {
+      for (let i = 0; i < n; i++) {
+        ctx.fillStyle = cols[i % cols.length];
+        ctx.fillRect(0, i * H / n, W, H / n + 1);
+      }
+      for (let i = 0; i < 40; i++) {
+        ctx.fillStyle = "rgba(255,255,255,0.08)";
+        ctx.fillRect(Math.random() * W, Math.random() * H, 30 + Math.random() * 60, 2);
+      }
+    }));
+  }
+  function earthTex() {
+    return tex("earth", () => canvasTex(256, 128, (ctx, W, H) => {
+      ctx.fillStyle = "#1f5fc8";
+      ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 26; i++) {
+        ctx.fillStyle = i % 3 ? "#3fa35a" : "#c9b07a";
+        ctx.beginPath();
+        ctx.ellipse(Math.random() * W, 20 + Math.random() * (H - 40), 8 + Math.random() * 22, 5 + Math.random() * 12, Math.random() * 3, 0, 7);
+        ctx.fill();
+      }
+      for (let i = 0; i < 30; i++) {
+        ctx.fillStyle = "rgba(255,255,255,0.55)";
+        ctx.beginPath();
+        ctx.ellipse(Math.random() * W, Math.random() * H, 10 + Math.random() * 20, 2 + Math.random() * 4, 0, 0, 7);
+        ctx.fill();
+      }
+      ctx.fillStyle = "#f4f8ff";
+      ctx.fillRect(0, 0, W, 8);
+      ctx.fillRect(0, H - 8, W, 8);
+    }));
+  }
+  function craterTex(base) {
+    return tex("crater" + base, () => canvasTex(256, 128, (ctx, W, H) => {
+      ctx.fillStyle = base;
+      ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 60; i++) {
+        const x = Math.random() * W, y = Math.random() * H, r = 2 + Math.random() * 9;
+        ctx.fillStyle = "rgba(0,0,0,0.22)";
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, 7);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255,255,255,0.12)";
+        ctx.beginPath();
+        ctx.arc(x - 1, y - 1, r * 0.7, 0, 7);
+        ctx.fill();
+      }
+    }));
+  }
+  function ringTex() {
+    return tex("ring", () => canvasTex(512, 512, (ctx, W) => {
+      const cx = W / 2;
+      for (let r = 160; r < 256; r += 2) {
+        const gap = r > 228 && r < 238 ? 0.15 : 1;
+        ctx.strokeStyle = `rgba(${220 + Math.random() * 35 | 0},${190 + Math.random() * 40 | 0},${140 + Math.random() * 40 | 0},${(0.25 + Math.random() * 0.55) * gap})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(cx, cx, r, 0, 7);
+        ctx.stroke();
+      }
+    }));
+  }
+  function glowTex(rgb, a = 1) {
+    return tex("glow" + rgb + a, () => canvasTex(128, 128, (ctx, W) => {
+      const rg = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+      rg.addColorStop(0, `rgba(${rgb},${a})`);
+      rg.addColorStop(0.35, `rgba(${rgb},${a * 0.35})`);
+      rg.addColorStop(1, `rgba(${rgb},0)`);
+      ctx.fillStyle = rg;
+      ctx.fillRect(0, 0, W, W);
+    }));
+  }
+  function cobbleTex() {
+    return tex("cobble", () => canvasTex(256, 256, (ctx, W, H) => {
+      ctx.fillStyle = "#6a5a86";
+      ctx.fillRect(0, 0, W, H);
+      const cols = ["#c9b6dc", "#d8c2e2", "#bca8d4", "#e0c8dc", "#b8c0dc", "#ccb4d8"];
+      for (let y = 0; y < 8; y++) for (let x = -1; x < 8; x++) {
+        const ox = y % 2 * 16;
+        ctx.fillStyle = cols[(x * 7 + y * 3 + 14) % cols.length];
+        ctx.beginPath();
+        ctx.ellipse(x * 32 + ox + 16, y * 32 + 16, 13.5, 12.5, 0, 0, 7);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255,255,255,0.22)";
+        ctx.beginPath();
+        ctx.ellipse(x * 32 + ox + 12, y * 32 + 11, 6, 3, -0.4, 0, 7);
+        ctx.fill();
+        if (Math.random() < 0.08) {
+          ctx.fillStyle = "#ffe68a";
+          ctx.beginPath();
+          ctx.arc(x * 32 + ox + 20, y * 32 + 20, 2, 0, 7);
+          ctx.fill();
+        }
+      }
+    }));
+  }
+  function roofTileTex() {
+    return tex("rooftile", () => canvasTex(256, 256, (ctx) => {
+      ctx.fillStyle = "#3a1840";
+      ctx.fillRect(0, 0, 256, 256);
+      for (let r = -1; r < 10; r++) for (let c = -1; c < 9; c++) {
+        const x = c * 32 + (r % 2 ? 16 : 0), y = r * 25.6;
+        ctx.fillStyle = ["#a8324e", "#b8405a", "#962a46", "#c04a62"][(r + c + 8) % 4];
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + 32, y);
+        ctx.lineTo(x + 32, y + 18);
+        ctx.arc(x + 16, y + 18, 16, 0, Math.PI);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = "rgba(255,255,255,0.15)";
+        ctx.fillRect(x + 4, y + 2, 24, 3);
+      }
+    }));
+  }
+  function facadeTex(emissive) {
+    return tex("facade" + (emissive ? "E" : ""), () => canvasTex(128, 256, (ctx, W, H) => {
+      ctx.fillStyle = emissive ? "#000" : "#ffffff";
+      ctx.fillRect(0, 0, W, H);
+      if (!emissive) for (let i = 0; i < 80; i++) {
+        ctx.fillStyle = "rgba(0,0,0,0.04)";
+        ctx.fillRect(Math.random() * W, Math.random() * H, 10, 5);
+      }
+      for (let r = 0; r < 6; r++) for (let c = 0; c < 2; c++) {
+        const x = 20 + c * 56, y = 16 + r * 40;
+        const lit = (r * 3 + c * 5) % 4 !== 0;
+        if (emissive) {
+          ctx.fillStyle = lit ? "#ffd27a" : "#000";
+          ctx.fillRect(x + 3, y + 3, 26, 22);
+          continue;
+        }
+        ctx.fillStyle = "#5a3a2a";
+        ctx.fillRect(x, y, 32, 28);
+        ctx.fillStyle = lit ? "#ffd98a" : "#2a3460";
+        ctx.fillRect(x + 3, y + 3, 26, 22);
+        ctx.fillStyle = "#5a3a2a";
+        ctx.fillRect(x + 15, y + 3, 2, 22);
+        ctx.fillRect(x + 3, y + 13, 26, 2);
+      }
+    }));
+  }
+  function brickTex() {
+    return tex("brick", () => canvasTex(128, 128, (ctx, W, H) => {
+      ctx.fillStyle = "#d8c8b8";
+      ctx.fillRect(0, 0, W, H);
+      for (let r = 0; r < 8; r++) for (let c = -1; c < 5; c++) {
+        ctx.fillStyle = ["#b84a3a", "#a8402e", "#c45a44"][(r + c + 3) % 3];
+        ctx.fillRect(c * 32 + r % 2 * 16 + 2, r * 16 + 2, 28, 12);
+      }
+    }));
+  }
+  function clockTex() {
+    return tex("clock", () => canvasTex(128, 128, (ctx) => {
+      ctx.fillStyle = "#fff8e6";
+      ctx.beginPath();
+      ctx.arc(64, 64, 60, 0, 7);
+      ctx.fill();
+      ctx.strokeStyle = "#3a2a5a";
+      ctx.lineWidth = 6;
+      ctx.stroke();
+      ctx.fillStyle = "#3a2a5a";
+      for (let i = 0; i < 12; i++) {
+        const a = i / 12 * Math.PI * 2;
+        ctx.fillRect(64 + Math.cos(a) * 48 - 3, 64 + Math.sin(a) * 48 - 3, 6, 6);
+      }
+      ctx.strokeStyle = "#3a2a5a";
+      ctx.lineWidth = 7;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(64, 64);
+      ctx.lineTo(64, 26);
+      ctx.moveTo(64, 64);
+      ctx.lineTo(90, 70);
+      ctx.stroke();
+    }));
+  }
+  function iceTex() {
+    return tex("ice", () => canvasTex(256, 256, (ctx, W, H) => {
+      const g = ctx.createLinearGradient(0, 0, W, 0);
+      g.addColorStop(0, "#9ccfe8");
+      g.addColorStop(0.5, "#cdeeff");
+      g.addColorStop(1, "#9ccfe8");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 40; i++) {
+        ctx.fillStyle = `rgba(255,255,255,${0.15 + Math.random() * 0.3})`;
+        ctx.fillRect(Math.random() * W, 0, 2 + Math.random() * 6, H);
+      }
+      ctx.strokeStyle = "rgba(255,255,255,0.9)";
+      ctx.lineWidth = 1.5;
+      for (let i = 0; i < 14; i++) {
+        let x = Math.random() * W, y = Math.random() * H;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        for (let k = 0; k < 5; k++) {
+          x += (Math.random() - 0.5) * 40;
+          y += (Math.random() - 0.5) * 40;
+          ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+      ctx.strokeStyle = "rgba(60,120,160,0.35)";
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 10; i++) {
+        ctx.beginPath();
+        ctx.moveTo(Math.random() * W, Math.random() * H);
+        ctx.lineTo(Math.random() * W, Math.random() * H);
+        ctx.stroke();
+      }
+    }));
+  }
+  function snowTex(rep) {
+    return tex("snow" + rep.join("x"), () => canvasTex(256, 256, (ctx, W, H) => {
+      ctx.fillStyle = "#f4faff";
+      ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 60; i++) {
+        ctx.fillStyle = `rgba(150,190,225,${0.08 + Math.random() * 0.14})`;
+        ctx.beginPath();
+        ctx.ellipse(Math.random() * W, Math.random() * H, 14 + Math.random() * 30, 8 + Math.random() * 16, Math.random() * 3, 0, 7);
+        ctx.fill();
+      }
+      for (let i = 0; i < 500; i++) {
+        ctx.fillStyle = Math.random() < 0.5 ? "rgba(255,255,255,0.9)" : "rgba(170,210,240,0.5)";
+        ctx.fillRect(Math.random() * W, Math.random() * H, 1.5, 1.5);
+      }
+    }, rep));
+  }
+  var fxTime = { value: 0 };
+  function makeTwinklePoints(n, place, opt = {}) {
+    const pos = new Float32Array(n * 3), size = new Float32Array(n), phase = new Float32Array(n), col = new Float32Array(n * 3);
+    const palette = (opt.colors || [16777215, 13623551, 16773320]).map((c) => new Color(c));
+    for (let i = 0; i < n; i++) {
+      const p = place(i);
+      pos[i * 3] = p[0];
+      pos[i * 3 + 1] = p[1];
+      pos[i * 3 + 2] = p[2];
+      size[i] = R(opt.minSize || 2, opt.maxSize || 5.5);
+      phase[i] = Math.random();
+      const c = palette[i % palette.length];
+      col[i * 3] = c.r;
+      col[i * 3 + 1] = c.g;
+      col[i * 3 + 2] = c.b;
+    }
+    const g = new BufferGeometry();
+    g.setAttribute("position", new BufferAttribute(pos, 3));
+    g.setAttribute("aSize", new BufferAttribute(size, 1));
+    g.setAttribute("aPhase", new BufferAttribute(phase, 1));
+    g.setAttribute("aColor", new BufferAttribute(col, 3));
+    const mat2 = new ShaderMaterial({
+      uniforms: { uTime: fxTime, uPx: { value: Math.min(window.devicePixelRatio || 1, 1.5) }, uFall: { value: opt.fall || 0 }, uBox: { value: opt.box || 1 }, uDrift: { value: opt.drift || 0 }, uPersp: { value: opt.persp ? 1 : 0 }, uTw: { value: opt.noTwinkle ? 0 : 1 } },
+      vertexShader: `
+      uniform float uTime; uniform float uPx; uniform float uFall; uniform float uBox; uniform float uDrift; uniform float uPersp; uniform float uTw;
+      attribute float aSize; attribute float aPhase; attribute vec3 aColor;
+      varying vec3 vC; varying float vA;
+      void main(){
+        vec3 p = position;
+        if (uFall > 0.0) {
+          p.y = mod(p.y - uTime * uFall * (0.7 + aPhase * 0.6), uBox);
+          p.x += sin(uTime * 0.9 + aPhase * 30.0) * 0.6;
+        }
+        if (uDrift > 0.0) {
+          p += vec3(sin(uTime * 0.7 + aPhase * 40.0), sin(uTime * 0.9 + aPhase * 23.0) * 0.7, cos(uTime * 0.6 + aPhase * 17.0)) * uDrift;
+        }
+        vec4 mv = modelViewMatrix * vec4(p, 1.0);
+        gl_Position = projectionMatrix * mv;
+        float tw = mix(1.0, 0.5 + 0.5 * sin(uTime * (1.2 + fract(aPhase * 7.13) * 3.0) + aPhase * 6.2831), uTw);
+        float s = aSize * uPx * (0.65 + 0.7 * tw);
+        if (uPersp > 0.5) s *= 18.0 / max(1.0, -mv.z);
+        gl_PointSize = s;
+        vA = 0.4 + 0.6 * tw; vC = aColor;
+      }`,
+      fragmentShader: `
+      uniform float uTw;
+      varying vec3 vC; varying float vA;
+      void main(){
+        vec2 p = gl_PointCoord - 0.5; float d = length(p);
+        float core = smoothstep(0.5, 0.0, d);
+        float cr = (max(0.0, 1.0 - abs(p.x) * 14.0) * max(0.0, 1.0 - abs(p.y) * 2.2) + max(0.0, 1.0 - abs(p.y) * 14.0) * max(0.0, 1.0 - abs(p.x) * 2.2)) * uTw;
+        float a = (core * core + cr * 0.55) * vA;
+        if (a < 0.01) discard;
+        gl_FragColor = vec4(vC * (core + cr * 0.7), a);
+      }`,
+      transparent: true,
+      depthWrite: false,
+      blending: opt.normalBlend ? NormalBlending : AdditiveBlending
+    });
+    const pts = new Points(g, mat2);
+    pts.frustumCulled = false;
+    return pts;
+  }
+  var MAT = {};
+  function mat(key, make) {
+    return MAT[key] || (MAT[key] = make());
+  }
+  var stdMat = (color, o = {}) => new MeshStandardMaterial(Object.assign({ color, roughness: 0.75, metalness: 0.05 }, o));
+  function makeMast(high) {
+    const g = new Group();
+    const wood = mat("mastWood", () => stdMat(6963232, { roughness: 0.7 }));
+    const sailM = mat("sail", () => new MeshStandardMaterial({ map: sailTex(), side: DoubleSide, roughness: 0.9, emissive: 3813408, emissiveIntensity: 0.25 }));
+    const H = 10.5;
+    const mast = new Mesh(new CylinderGeometry(0.13, 0.2, H, 10), wood);
+    mast.position.y = H / 2;
+    mast.castShadow = high;
+    g.add(mast);
+    [[2.6, 3.4, 3], [6.4, 2.8, 2.4]].forEach(([y, h, w]) => {
+      const geo = new PlaneGeometry(w, h, 10, 4);
+      geo.rotateY(Math.PI / 2);
+      const p = geo.attributes.position;
+      for (let i = 0; i < p.count; i++) {
+        const zz = p.getZ(i), yy = p.getY(i);
+        p.setX(i, Math.sin((zz / w + 0.5) * Math.PI) * 0.55 * (1 - Math.abs(yy / h)));
+      }
+      geo.computeVertexNormals();
+      const s = new Mesh(geo, sailM);
+      s.position.set(0.05, y + h / 2, w / 2 + 0.1);
+      s.castShadow = high;
+      g.add(s);
+      const boom = new Mesh(new CylinderGeometry(0.06, 0.06, w + 0.3, 6), wood);
+      boom.rotation.x = Math.PI / 2;
+      boom.position.set(0, y, w / 2 + 0.1);
+      g.add(boom);
+    });
+    const nest = new Mesh(new CylinderGeometry(0.6, 0.45, 0.55, 12, 1, true), mat("nest", () => stdMat(5911576, { side: DoubleSide })));
+    nest.position.y = H - 1.4;
+    g.add(nest);
+    const flag = new Mesh(new PlaneGeometry(1.2, 0.85), mat("jolly", () => new MeshBasicMaterial({ map: jollyTex(), side: DoubleSide })));
+    flag.position.set(0, H - 0.3, 0.62);
+    flag.rotation.y = Math.PI / 2;
+    g.add(flag);
+    const rope = mat("rope", () => new LineBasicMaterial({ color: 3811864 }));
+    const lg = new BufferGeometry().setFromPoints([
+      new Vector3(0, H - 1.2, 0),
+      new Vector3(0.7, 1, 1.6),
+      new Vector3(0, H - 1.2, 0),
+      new Vector3(0.7, 1, -1.6),
+      new Vector3(0, H - 1.2, 0),
+      new Vector3(0.7, 1, 0)
+    ]);
+    g.add(new LineSegments(lg, rope));
+    return g;
+  }
+  function makeBarrel() {
+    const g = new Group();
+    const b = new Mesh(new CylinderGeometry(0.36, 0.36, 0.95, 14), mat("barrel", () => stdMat(9065512, { roughness: 0.7 })));
+    b.position.y = 0.48;
+    b.castShadow = true;
+    g.add(b);
+    const hoop = mat("hoop", () => stdMat(2763306, { metalness: 0.6, roughness: 0.4 }));
+    [0.18, 0.78].forEach((y) => {
+      const h = new Mesh(new CylinderGeometry(0.375, 0.375, 0.07, 14), hoop);
+      h.position.y = y;
+      g.add(h);
+    });
+    return g;
+  }
+  function crateMat() {
+    return mat("crate", () => new MeshStandardMaterial({ map: crateTex(), roughness: 0.8 }));
+  }
+  function makeCrate(s = 0.8) {
+    const m = new Mesh(new BoxGeometry(s, s, s), crateMat());
+    m.position.y = s / 2;
+    m.castShadow = true;
+    return m;
+  }
+  function makeCannon() {
+    const g = new Group();
+    const iron = mat("iron", () => stdMat(2303532, { metalness: 0.7, roughness: 0.35 }));
+    const wood = mat("carriage", () => stdMat(6962204));
+    const base = new Mesh(new BoxGeometry(0.8, 0.35, 1.1), wood);
+    base.position.y = 0.3;
+    g.add(base);
+    [-0.42, 0.42].forEach((x) => [-0.35, 0.35].forEach((z) => {
+      const w = new Mesh(new CylinderGeometry(0.2, 0.2, 0.1, 10), wood);
+      w.rotation.z = Math.PI / 2;
+      w.position.set(x, 0.2, z);
+      g.add(w);
+    }));
+    const barrel = new Mesh(new CylinderGeometry(0.17, 0.24, 1.5, 12), iron);
+    barrel.rotation.x = Math.PI / 2 - 0.12;
+    barrel.position.set(0, 0.62, 0.35);
+    barrel.castShadow = true;
+    g.add(barrel);
+    return g;
+  }
+  function makePalm(h = 5) {
+    const g = new Group();
+    const trunkM = mat("palmTrunk", () => stdMat(9071168));
+    const leafM = mat("palmLeaf", () => stdMat(3054152, { side: DoubleSide }));
+    let x = 0;
+    for (let i = 0; i < 6; i++) {
+      const seg = new Mesh(new CylinderGeometry(0.16 - i * 0.012, 0.2 - i * 0.012, h / 6 + 0.05, 7), trunkM);
+      x += 0.04 * i;
+      seg.position.set(x, h / 12 + i * h / 6, 0);
+      g.add(seg);
+    }
+    for (let k = 0; k < 7; k++) {
+      const leaf = new Mesh(new ConeGeometry(0.4, 2.8, 4, 1, true), leafM);
+      leaf.scale.set(1, 1, 0.22);
+      const piv = new Group();
+      piv.position.set(x, h, 0);
+      piv.rotation.y = k / 7 * Math.PI * 2;
+      leaf.rotation.z = -Math.PI / 2 - 0.35;
+      leaf.position.x = 1.3;
+      leaf.position.y = -0.3;
+      piv.add(leaf);
+      g.add(piv);
+    }
+    return g;
+  }
+  function makeCloud(scale = 1) {
+    const g = new Group();
+    const m = mat("cloud", () => new MeshStandardMaterial({ color: 16777215, roughness: 1, emissive: 14543092, emissiveIntensity: 0.55, fog: false }));
+    for (let i = 0; i < 6; i++) {
+      const s = new Mesh(new SphereGeometry(R(3, 6) * scale, 12, 10), m);
+      s.position.set((i - 2.5) * 4 * scale, R(-1, 2) * scale, R(-2, 2) * scale);
+      s.scale.y = 0.65;
+      g.add(s);
+    }
+    return g;
+  }
+  function makeSnowPine(h = 3) {
+    const g = new Group();
+    const trunk = new Mesh(new CylinderGeometry(0.12, 0.18, h * 0.3, 7), mat("pineTrunk", () => stdMat(5913122)));
+    trunk.position.y = h * 0.15;
+    g.add(trunk);
+    const green = mat("pine", () => stdMat(2054726, { roughness: 0.8 }));
+    const snow = mat("snowCap", () => stdMat(16777215, { roughness: 0.6, emissive: 13165823, emissiveIntensity: 0.15 }));
+    for (let i = 0; i < 3; i++) {
+      const r = h * (0.36 - i * 0.08), y = h * (0.22 + i * 0.22), ch = h * 0.36;
+      const c = new Mesh(new ConeGeometry(r, ch, 9), green);
+      c.position.y = y + ch / 2;
+      c.castShadow = true;
+      g.add(c);
+      const s = new Mesh(new ConeGeometry(r * 0.7, ch * 0.5, 9), snow);
+      s.position.y = y + ch * 0.76;
+      g.add(s);
+    }
+    return g;
+  }
+  function makeIceSpire(h = 2.4) {
+    const g = new Group();
+    const m = mat("iceSpire", () => new MeshStandardMaterial({ color: 10478847, roughness: 0.12, metalness: 0.1, transparent: true, opacity: 0.85, emissive: 3844320, emissiveIntensity: 0.35 }));
+    for (let i = 0; i < 4; i++) {
+      const hh = h * R(0.45, 1);
+      const c = new Mesh(new ConeGeometry(h * 0.14, hh, 5), m);
+      c.position.set(R(-0.4, 0.4), hh / 2, R(-0.4, 0.4));
+      c.rotation.z = R(-0.25, 0.25);
+      c.rotation.x = R(-0.25, 0.25);
+      g.add(c);
+    }
+    return g;
+  }
+  function makeIgloo() {
+    const g = new Group();
+    const m = mat("igloo", () => new MeshStandardMaterial({ map: canvasTex(128, 64, (ctx, W) => {
+      ctx.fillStyle = "#f6fbff";
+      ctx.fillRect(0, 0, W, 64);
+      ctx.strokeStyle = "#a8c8e0";
+      ctx.lineWidth = 2;
+      for (let r = 0; r < 6; r++) {
+        ctx.beginPath();
+        ctx.moveTo(0, r * 11);
+        ctx.lineTo(W, r * 11);
+        ctx.stroke();
+        for (let c = 0; c < 8; c++) {
+          const x = c * 16 + r % 2 * 8;
+          ctx.beginPath();
+          ctx.moveTo(x, r * 11);
+          ctx.lineTo(x, r * 11 + 11);
+          ctx.stroke();
+        }
+      }
+    }, [3, 1]), roughness: 0.7 }));
+    const dome = new Mesh(new SphereGeometry(1.6, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), m);
+    g.add(dome);
+    const tunnel = new Mesh(new CylinderGeometry(0.62, 0.62, 1.2, 12, 1, false, -Math.PI / 2, Math.PI), m);
+    tunnel.rotation.x = Math.PI / 2;
+    tunnel.position.set(0, 0, 1.45);
+    g.add(tunnel);
+    const hole = new Mesh(new CircleGeometry(0.46, 12, 0, Math.PI), mat("dark", () => new MeshBasicMaterial({ color: 1714746 })));
+    hole.position.set(0, 0.01, 2.06);
+    g.add(hole);
+    return g;
+  }
+  function makeAsteroid(r = 1) {
+    const geo = new IcosahedronGeometry(r, 1);
+    const p = geo.attributes.position;
+    const key = (x, y, z) => `${x.toFixed(3)},${y.toFixed(3)},${z.toFixed(3)}`;
+    const jit = {};
+    for (let i = 0; i < p.count; i++) {
+      const k = key(p.getX(i), p.getY(i), p.getZ(i));
+      const f = jit[k] || (jit[k] = 0.75 + Math.random() * 0.45);
+      p.setXYZ(i, p.getX(i) * f, p.getY(i) * f, p.getZ(i) * f);
+    }
+    geo.computeVertexNormals();
+    const m = mat("asteroid", () => new MeshStandardMaterial({ color: 9075312, roughness: 0.95, flatShading: true, emissive: 2759232, emissiveIntensity: 0.5 }));
+    return new Mesh(geo, m);
+  }
+  function makeCrystalCluster(h = 1.6, color = 11563263) {
+    const g = new Group();
+    const m = mat("crys" + color, () => new MeshStandardMaterial({ color, roughness: 0.2, metalness: 0.2, emissive: color, emissiveIntensity: 0.75, transparent: true, opacity: 0.92 }));
+    for (let i = 0; i < 5; i++) {
+      const c = new Mesh(new OctahedronGeometry(h * R(0.18, 0.32), 0), m);
+      c.scale.y = R(1.8, 3);
+      c.position.set(R(-0.5, 0.5), h * 0.3, R(-0.5, 0.5));
+      c.rotation.set(R(-0.3, 0.3), R(0, 3), R(-0.3, 0.3));
+      g.add(c);
+    }
+    return g;
+  }
+  function makeLamp() {
+    const g = new Group();
+    const iron = mat("lampIron", () => stdMat(2761280, { metalness: 0.6, roughness: 0.4 }));
+    const pole = new Mesh(new CylinderGeometry(0.06, 0.09, 3.2, 8), iron);
+    pole.position.y = 1.6;
+    g.add(pole);
+    const glow = new Mesh(new SphereGeometry(0.28, 12, 10), mat("lampGlow", () => new MeshBasicMaterial({ color: 16769162, toneMapped: false })));
+    glow.position.y = 3.35;
+    g.add(glow);
+    const cap = new Mesh(new ConeGeometry(0.34, 0.3, 6), iron);
+    cap.position.y = 3.7;
+    g.add(cap);
+    const halo = new Sprite(mat("lampHalo", () => new SpriteMaterial({ map: glowTex("255,220,140", 0.9), transparent: true, depthWrite: false, blending: AdditiveBlending })));
+    halo.scale.set(1.9, 1.9, 1);
+    halo.position.y = 3.35;
+    g.add(halo);
+    return g;
+  }
+  var FACADES = [16238297, 13219570, 11067608, 16769187, 15906727, 12113151];
+  var ROOFS = [8011680, 12597594, 3825584, 3115642, 14711338];
+  function facadeMat(ci) {
+    return mat("facade" + ci % FACADES.length, () => new MeshStandardMaterial({ color: FACADES[ci % FACADES.length], map: facadeTex(false), emissiveMap: facadeTex(true), emissive: 16762992, emissiveIntensity: 0.9, roughness: 0.85 }));
+  }
+  var _box = new BoxGeometry(1, 1, 1);
+  var _pyr = new ConeGeometry(0.75, 1, 4);
+  _pyr.rotateY(Math.PI / 4);
+  function makeHouse(w, d, bodyH, roofH, ci) {
+    const g = new Group();
+    const rm = mat("roof" + ci % ROOFS.length, () => stdMat(ROOFS[ci % ROOFS.length], { roughness: 0.6, flatShading: true }));
+    const body = new Mesh(_box, facadeMat(ci));
+    body.scale.set(w, bodyH, d);
+    body.position.y = bodyH / 2;
+    g.add(body);
+    body.material.map.repeat.set(1, 1);
+    const roof = new Mesh(_pyr, rm);
+    roof.scale.set(w * 0.98, roofH, d * 0.98);
+    roof.position.y = bodyH + roofH / 2;
+    g.add(roof);
+    if (ci % 3 === 0) {
+      const ch = new Mesh(new BoxGeometry(0.5, 1.4, 0.5), mat("brickM", () => new MeshStandardMaterial({ map: brickTex(), roughness: 0.9 })));
+      ch.position.set(w * 0.22, bodyH + roofH * 0.55, d * 0.1);
+      g.add(ch);
+    }
+    return g;
+  }
+  function makeTower(r, h, ci) {
+    const g = new Group();
+    const body = new Mesh(new CylinderGeometry(r, r * 1.05, h, 14), facadeMat(ci));
+    body.position.y = h / 2;
+    g.add(body);
+    const roof = new Mesh(new ConeGeometry(r * 1.35, r * 3.2, 14), mat("troof" + ci % ROOFS.length, () => stdMat(ROOFS[ci % ROOFS.length], { roughness: 0.5 })));
+    roof.position.y = h + r * 1.6;
+    g.add(roof);
+    const flag = new Mesh(new PlaneGeometry(0.9, 0.5), mat("pennant", () => new MeshBasicMaterial({ color: 16765501, side: DoubleSide })));
+    flag.position.set(0.45, h + r * 3.2 + 0.3, 0);
+    g.add(flag);
+    return g;
+  }
+  function makeClockTower(h = 22) {
+    const g = makeTower(1.7, h, 3);
+    const faceM = mat("clockFace", () => new MeshBasicMaterial({ map: clockTex() }));
+    [0, Math.PI / 2, Math.PI, -Math.PI / 2].forEach((a) => {
+      const f = new Mesh(new CircleGeometry(1.15, 24), faceM);
+      f.position.set(Math.sin(a) * 1.73, h - 2.2, Math.cos(a) * 1.73);
+      f.rotation.y = a;
+      g.add(f);
+    });
+    return g;
+  }
+  function makeCastle(color = 15258879, roof = 8011680, opts = {}) {
+    const g = new Group();
+    const wm = new MeshStandardMaterial({ color, roughness: opts.ice ? 0.15 : 0.8, transparent: !!opts.ice, opacity: opts.ice ? 0.9 : 1, emissive: opts.ice ? 4897008 : 2759232, emissiveIntensity: opts.ice ? 0.35 : 0.25 });
+    const rm = new MeshStandardMaterial({ color: roof, roughness: 0.5, emissive: opts.ice ? 5949695 : 0, emissiveIntensity: opts.ice ? 0.3 : 0 });
+    const keep = new Mesh(new BoxGeometry(16, 18, 12), wm);
+    keep.position.y = 9;
+    g.add(keep);
+    [[-10, 26, 3.4], [10, 26, 3.4], [-4, 34, 2.8], [5, 38, 3], [0, 46, 2.2], [-15, 20, 2.6], [15, 20, 2.6]].forEach(([x, h, r]) => {
+      const z = Math.abs(x) % 3 * 1.2;
+      const t = new Mesh(new CylinderGeometry(r, r * 1.08, h, 14), wm);
+      t.position.set(x, h / 2, z);
+      g.add(t);
+      const c = new Mesh(new ConeGeometry(r * 1.4, r * 3.4, 14), rm);
+      c.position.set(x, h + r * 1.7, z);
+      g.add(c);
+    });
+    if (opts.windows) {
+      const wmat = new MeshBasicMaterial({ color: 16767370 });
+      for (let i = 0; i < 18; i++) {
+        const w = new Mesh(new PlaneGeometry(0.9, 1.4), wmat);
+        w.position.set(R(-7, 7), R(3, 16), 6.05);
+        g.add(w);
+      }
+    }
+    return g;
+  }
+  function buildThemeCourse(theme, course, opt = {}) {
+    const high = opt.high !== false;
+    const narrow = !!opt.narrow;
+    const pathW = narrow ? 5.5 : 7.3;
+    const turnDir = course.turns[0] && course.turns[0].dir || 1;
+    const g = new Group();
+    g.name = "courseVisual";
+    const updaters = [];
+    const notTurn = (s) => s.kind !== "turn";
+    const isTurn = (s) => s.kind === "turn";
+    const span = narrow ? 1.7 : 2;
+    const laneLines = (color, o = {}) => {
+      const m = new MeshBasicMaterial(Object.assign({ color, transparent: true, opacity: 0.85, toneMapped: false }, o));
+      [-span / 2, span / 2].forEach((x) => g.add(new Mesh(ribbon(course, { width: 0.1, yLift: 0.06, offset: x }), m)));
+    };
+    const edge = (side, straightHalf, turnHalf) => (p) => p.kind === "turn" ? side === -turnDir ? side * turnHalf : null : side * straightHalf;
+    if (theme === "pirate") {
+      const deckM = new MeshStandardMaterial({ map: deckTex(), roughness: 0.78 });
+      const deckW = 11.2;
+      const deck = new Mesh(ribbon(course, { width: deckW, yLift: 0.03, pred: notTurn, vScale: 0.25, uRepeat: 2.2 }), deckM);
+      const deckTurn = new Mesh(ribbon(course, { width: 8.6, yLift: 0.02, pred: isTurn, vScale: 0.25, uRepeat: 1.7 }), deckM);
+      deck.receiveShadow = deckTurn.receiveShadow = true;
+      g.add(deck, deckTurn);
+      laneLines(16179888, { opacity: 0.6 });
+      const hullM = new MeshStandardMaterial({ map: hullTex(), roughness: 0.8, side: DoubleSide });
+      const railM = mat("rail", () => stdMat(4860434, { roughness: 0.6 }));
+      const SEA = -2.4;
+      for (const side of [-1, 1]) {
+        const off = edge(side, deckW / 2, 4.3);
+        const pred = (p, i) => {
+          const o = off(p);
+          if (o == null) return false;
+          if (p.kind === "turn") return true;
+          return !onOtherStretch(course, p.x + Math.cos(p.heading) * o, p.z + Math.sin(p.heading) * o, i, deckW / 2 - 0.2);
+        };
+        const offN = (p) => off(p) || 0;
+        const hull = new Mesh(wall(course, { offset: offN, top: 1, absBottom: SEA - 0.6, pred, uScale: 0.12 }), hullM);
+        hull.receiveShadow = true;
+        g.add(hull);
+        g.add(new Mesh(ribbon(course, { width: 0.34, yLift: 1.02, offset: offN, pred }), railM));
+      }
+      const posts = [];
+      for (let i = 0; i < course.samples.length; i += 3) {
+        const s = course.samples[i];
+        if (s.kind === "turn") continue;
+        for (const side of [-1, 1]) {
+          const o = side * (deckW / 2 - 0.12);
+          if (onOtherStretch(course, s.x + Math.cos(s.heading) * o, s.z + Math.sin(s.heading) * o, i, deckW / 2 - 0.2)) continue;
+          posts.push([s.x + Math.cos(s.heading) * o, s.y + 0.5, s.z + Math.sin(s.heading) * o, -s.heading, 1, 1, 1]);
+        }
+      }
+      g.add(instanced(new BoxGeometry(0.16, 1, 0.16), railM, posts));
+      const foamT = foamTex();
+      const foam = new Mesh(ribbon(course, { width: 17, absY: SEA + 0.06, pred: notTurn, vScale: 0.06 }), new MeshBasicMaterial({ map: foamT, transparent: true, depthWrite: false, opacity: 0.9 }));
+      g.add(foam);
+      const seaT = seaTex();
+      const sea = new Mesh(new CircleGeometry(300, 48), new MeshStandardMaterial({ map: seaT, roughness: 0.3, metalness: 0.1 }));
+      sea.rotation.x = -Math.PI / 2;
+      sea.name = "followGround";
+      sea.userData.y = SEA;
+      sea.receiveShadow = true;
+      g.add(sea);
+      updaters.push((dt, t) => {
+        foamT.offset.y -= dt * 0.3;
+        seaT.offset.x = Math.sin(t * 0.25) * 0.05;
+        seaT.offset.y -= dt * 0.03;
+      });
+      const sand = mat("sand", () => stdMat(15783834, { roughness: 0.95 }));
+      for (let i = 0; i < (high ? 10 : 6); i++) {
+        const sp = sideSpot(course, 25 + i * 48, i % 2 ? 1 : -1, R(42, 80));
+        if (!clearOfCourse(course, sp.x, sp.z, 32)) continue;
+        const isl = new Group();
+        const mound = new Mesh(new SphereGeometry(1, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), sand);
+        const r = R(8, 14);
+        mound.scale.set(r, R(1.8, 3.2), r * R(0.7, 1));
+        isl.add(mound);
+        for (let k = 0; k < 2 + i % 3; k++) {
+          const pm = makePalm(R(5, 8));
+          pm.position.set(R(-r * 0.35, r * 0.35), 1.4, R(-r * 0.25, r * 0.25));
+          pm.rotation.y = R(0, 6);
+          isl.add(pm);
+        }
+        isl.position.set(sp.x, SEA + 0.1, sp.z);
+        g.add(isl);
+      }
+      const rockM = mat("seaRock", () => stdMat(6975092, { roughness: 0.9, flatShading: true }));
+      for (let i = 0; i < (high ? 26 : 12); i++) {
+        const sp = sideSpot(course, 10 + i * 19, i % 2 ? 1 : -1, R(15, 40));
+        if (!clearOfCourse(course, sp.x, sp.z, 13)) continue;
+        const rk = new Mesh(new DodecahedronGeometry(R(0.8, 2.2), 0), rockM);
+        rk.position.set(sp.x, SEA + 0.2, sp.z);
+        rk.scale.y = R(0.6, 1.2);
+        g.add(rk);
+      }
+      const gullM = mat("gull", () => new LineBasicMaterial({ color: 16777215 }));
+      const gulls = new Group();
+      for (let i = 0; i < 7; i++) {
+        const gg = new BufferGeometry().setFromPoints([new Vector3(-0.8, 0.3, 0), new Vector3(0, 0, 0), new Vector3(0, 0, 0), new Vector3(0.8, 0.3, 0)]);
+        const b = new LineSegments(gg, gullM);
+        b.userData = { ph: i * 0.9, r: R(9, 20), h: R(9, 15) };
+        gulls.add(b);
+      }
+      g.add(gulls);
+      updaters.push((dt, t, ctx) => {
+        if (!ctx || !ctx.center) return;
+        gulls.position.copy(ctx.center);
+        gulls.children.forEach((b) => {
+          const a = t * 0.35 + b.userData.ph;
+          b.position.set(Math.cos(a) * b.userData.r, b.userData.h + Math.sin(t * 2 + b.userData.ph) * 0.6, Math.sin(a) * b.userData.r);
+          b.rotation.y = -a;
+          b.scale.y = 0.4 + Math.abs(Math.sin(t * 6 + b.userData.ph)) * 1;
+        });
+      });
+      g.userData.ships = [];
+      for (let i = 0; i < (high ? 5 : 3); i++) {
+        const sp = sideSpot(course, 40 + i * 95, i % 2 ? -1 : 1, R(30, 55));
+        if (!clearOfCourse(course, sp.x, sp.z, 24)) continue;
+        g.userData.ships.push({ x: sp.x, y: SEA, z: sp.z, heading: sp.heading + (i % 2 ? 0.3 : -0.4) });
+      }
+    } else if (theme === "space") {
+      const galT = galaxyTex();
+      const galM = new MeshStandardMaterial({ map: galT, emissiveMap: galT, emissive: 16777215, emissiveIntensity: 0.9, color: 10132160, roughness: 0.55, metalness: 0.1 });
+      const w = pathW + 0.6;
+      const track = new Mesh(ribbon(course, { width: w, yLift: 0.03, pred: notTurn, vScale: 0.045 }), galM);
+      const trackTurn = new Mesh(ribbon(course, { width: w, yLift: 0.025, pred: isTurn, vScale: 0.045 }), galM);
+      track.receiveShadow = trackTurn.receiveShadow = true;
+      g.add(track, trackTurn);
+      const dustM = new MeshBasicMaterial({ map: dustTex(), transparent: true, depthWrite: false, blending: AdditiveBlending, opacity: 0.8, side: DoubleSide, toneMapped: false });
+      g.add(new Mesh(ribbon(course, { width: 30, yLift: -0.6, vScale: 0.03 }), dustM));
+      g.add(new Mesh(ribbon(course, { width: 15, yLift: -1.8, vScale: 0.05 }), dustM));
+      const edgeM = new MeshBasicMaterial({ color: 13152511, transparent: true, opacity: 0.95, toneMapped: false, blending: AdditiveBlending, depthWrite: false });
+      [-w / 2, w / 2].forEach((x) => g.add(new Mesh(ribbon(course, { width: 0.18, yLift: 0.07, offset: x }), edgeM)));
+      laneLines(9431295, { opacity: 0.65, blending: AdditiveBlending, depthWrite: false });
+      const S2 = course.samples;
+      g.add(makeTwinklePoints(high ? 900 : 450, () => {
+        const s = S2[Math.random() * S2.length | 0];
+        const lat = (Math.random() + Math.random() - 1) * 15;
+        return [s.x + Math.cos(s.heading) * lat, s.y + R(-2, 3.5), s.z + Math.sin(s.heading) * lat];
+      }, { minSize: 2, maxSize: 5, persp: true, colors: [16777215, 12560639, 10477823, 16767144] }));
+      const rocks = [];
+      for (let i = 0; i < (high ? 70 : 36); i++) {
+        const sp = sideSpot(course, i * 7.3 % (course.length - 4), i % 2 ? 1 : -1, R(10, 46));
+        if (!clearOfCourse(course, sp.x, sp.z, 8.5)) continue;
+        const a = makeAsteroid(R(0.5, i % 7 === 0 ? 3.2 : 1.6));
+        a.position.set(sp.x, sp.y + R(-5, 9), sp.z);
+        a.rotation.set(R(0, 6), R(0, 6), R(0, 6));
+        a.userData = { spin: new Vector3(R(-0.4, 0.4), R(-0.4, 0.4), 0), baseY: a.position.y, ph: R(0, 6) };
+        rocks.push(a);
+        g.add(a);
+      }
+      updaters.push((dt, t) => rocks.forEach((a) => {
+        a.rotation.x += a.userData.spin.x * dt;
+        a.rotation.y += a.userData.spin.y * dt;
+        a.position.y = a.userData.baseY + Math.sin(t * 0.6 + a.userData.ph) * 0.4;
+      }));
+    } else if (theme === "magic") {
+      const roadM = new MeshStandardMaterial({ map: cobbleTex(), roughness: 0.6 });
+      const road = new Mesh(ribbon(course, { width: pathW, yLift: 0.03, vScale: 0.26, uRepeat: 4.5 }), roadM);
+      road.receiveShadow = true;
+      g.add(road);
+      laneLines(16770698, { opacity: 0.8 });
+      const roofM = new MeshStandardMaterial({ map: roofTileTex(), roughness: 0.6 });
+      const roofW = 14, roofTW = 8.6;
+      const roofs = new Mesh(ribbon(course, { width: roofW, yLift: -0.05, pred: notTurn, vScale: 0.12, uRepeat: 4 }), roofM);
+      const roofsT = new Mesh(ribbon(course, { width: roofTW, yLift: -0.06, pred: isTurn, vScale: 0.12, uRepeat: 2.5 }), roofM);
+      roofs.receiveShadow = roofsT.receiveShadow = true;
+      g.add(roofs, roofsT);
+      const GROUND = -11;
+      const facM = new MeshStandardMaterial({ color: 15255792, map: facadeTex(false), emissiveMap: facadeTex(true), emissive: 16762992, emissiveIntensity: 0.9, roughness: 0.85, side: DoubleSide });
+      const edgeM = mat("roofEdge", () => stdMat(16765501, { roughness: 0.4, metalness: 0.3, emissive: 6965760, emissiveIntensity: 0.3 }));
+      for (const side of [-1, 1]) {
+        const off = edge(side, roofW / 2, roofTW / 2);
+        const pred = (p, i) => {
+          const o = off(p);
+          if (o == null) return false;
+          if (p.kind === "turn") return true;
+          return !onOtherStretch(course, p.x + Math.cos(p.heading) * o, p.z + Math.sin(p.heading) * o, i, roofW / 2 - 0.2);
+        };
+        const offN = (p) => off(p) || 0;
+        g.add(new Mesh(wall(course, { offset: offN, top: -0.05, absBottom: GROUND, pred, uScale: 0.16, vTop: 2 }), facM));
+        g.add(new Mesh(ribbon(course, { width: 0.3, yLift: 0.1, offset: offN, pred }), edgeM));
+      }
+      const stT = cobbleTex().clone();
+      stT.repeat.set(90, 90);
+      stT.needsUpdate = true;
+      const street = new Mesh(new CircleGeometry(300, 40), new MeshStandardMaterial({ map: stT, color: 6969994, roughness: 0.9 }));
+      street.rotation.x = -Math.PI / 2;
+      street.name = "followGround";
+      street.userData.y = GROUND;
+      g.add(street);
+      const nH = high ? 130 : 65;
+      for (let i = 0; i < nH; i++) {
+        const sp = sideSpot(course, i * 4.37 % (course.length - 4), i % 2 ? 1 : -1, R(11, 36));
+        const w = R(3.5, 6.5), d = R(3.5, 6.5);
+        if (!clearOfCourse(course, sp.x, sp.z, 7.8 + Math.max(w, d) * 0.75)) continue;
+        const top = sp.y + R(-4.5, 2.5);
+        const h = top - GROUND;
+        const obj = i % 9 === 4 ? makeTower(R(1.4, 2.2), h + R(4, 9), i) : makeHouse(w, d, h, R(2, 3.6), i);
+        obj.position.set(sp.x, GROUND, sp.z);
+        obj.rotation.y = -sp.heading + i % 4 * 0.08;
+        g.add(obj);
+      }
+      const lm = course.landmarks || {};
+      [(lm.curve || 40) + 6, (lm.turn || 120) + 34, 290].forEach((s, k) => {
+        for (const extra of [0, 8, 16, 24, 32]) {
+          const sp = sideSpot(course, s + extra, k % 2 ? 1 : -1, 12.5);
+          if (!clearOfCourse(course, sp.x, sp.z, 11)) continue;
+          const ct = makeClockTower(sp.y - GROUND + 13);
+          ct.position.set(sp.x, GROUND, sp.z);
+          ct.rotation.y = -sp.heading;
+          g.add(ct);
+          break;
+        }
+      });
+      const S2 = course.samples;
+      g.add(makeTwinklePoints(high ? 520 : 260, () => {
+        const s = S2[Math.random() * S2.length | 0];
+        const lat = (Math.random() - 0.5) * 26;
+        return [s.x + Math.cos(s.heading) * lat, s.y + R(0.6, 7), s.z + Math.sin(s.heading) * lat];
+      }, { minSize: 3, maxSize: 7, persp: true, drift: 0.6, colors: [16769162, 16751320, 12099839, 10481919] }));
+    } else if (theme === "ice") {
+      const iceM = new MeshStandardMaterial({ map: iceTex(), roughness: 0.14, metalness: 0.12, emissive: 2775674, emissiveIntensity: 0.12 });
+      const road = new Mesh(ribbon(course, { width: pathW, yLift: 0.03, vScale: 0.08 }), iceM);
+      road.receiveShadow = true;
+      g.add(road);
+      laneLines(4888776, { opacity: 0.55 });
+      const snowM = new MeshStandardMaterial({ map: snowTex([4, 1]), roughness: 0.85 });
+      const banks = new Mesh(ribbon(course, { width: 14, yLift: -0.05, pred: notTurn, vScale: 0.08, uRepeat: 4 }), snowM);
+      const banksT = new Mesh(ribbon(course, { width: 8.6, yLift: -0.06, pred: isTurn, vScale: 0.08, uRepeat: 2.4 }), snowM);
+      banks.receiveShadow = banksT.receiveShadow = true;
+      g.add(banks, banksT);
+      const ridgeM = mat("ridge", () => stdMat(16317695, { roughness: 0.8, emissive: 11061472, emissiveIntensity: 0.12 }));
+      const ridges = [];
+      for (let i = 0; i < course.samples.length; i += 2) {
+        const s = course.samples[i];
+        if (s.kind === "turn") continue;
+        for (const side of [-1, 1]) {
+          const o = side * (pathW / 2 + 0.6);
+          ridges.push([s.x + Math.cos(s.heading) * o, s.y - 0.12, s.z + Math.sin(s.heading) * o, -s.heading, 1, 0.42, 1.7]);
+        }
+      }
+      g.add(instanced(new SphereGeometry(0.55, 8, 4), ridgeM, ridges));
+      const field = new Mesh(new CircleGeometry(220, 48), new MeshStandardMaterial({ map: snowTex([40, 40]), roughness: 0.9 }));
+      field.rotation.x = -Math.PI / 2;
+      field.name = "followGround";
+      field.userData.y = -0.32;
+      field.receiveShadow = true;
+      g.add(field);
+      const rockM = mat("snowRock", () => stdMat(9083562, { roughness: 0.9, flatShading: true }));
+      for (let i = 0; i < (high ? 120 : 60); i++) {
+        const sp = sideSpot(course, i * 4.71 % (course.length - 4), i % 2 ? 1 : -1, R(8.5, 42));
+        if (!clearOfCourse(course, sp.x, sp.z, 8)) continue;
+        const pick2 = i % 11;
+        let o;
+        if (pick2 === 3) o = makeIgloo();
+        else if (pick2 === 6 || pick2 === 9) o = makeIceSpire(R(2, 4));
+        else if (pick2 === 10) {
+          o = makeAsteroid(R(0.6, 1.3));
+          o.material = rockM;
+          o.scale.y = 0.6;
+        } else o = makeSnowPine(R(2.4, 5.4));
+        o.position.set(sp.x, sp.y - 0.1, sp.z);
+        o.rotation.y = pick2 === 3 ? -sp.heading + (i % 2 ? Math.PI / 2 : -Math.PI / 2) : R(0, 6);
+        g.add(o);
+      }
+    }
+    g.userData.update = (dt, t, ctx) => updaters.forEach((u) => u(dt, t, ctx));
+    return g;
+  }
+  function buildThemeAmbience(theme, high = true) {
+    const g = new Group();
+    g.name = "themeAmbience";
+    const far = new Group();
+    far.name = "themeFar";
+    const updaters = [];
+    if (theme === "space") {
+      const sky = new Mesh(new SphereGeometry(300, 48, 24), new MeshBasicMaterial({ map: starSkyTex(), side: BackSide, depthWrite: false, fog: false, toneMapped: false }));
+      sky.rotation.z = 0.35;
+      sky.renderOrder = -2;
+      g.add(sky);
+      const tw = makeTwinklePoints(high ? 1500 : 750, () => {
+        const v = new Vector3(R(-1, 1), R(-0.3, 1), R(-1, 1)).normalize().multiplyScalar(270);
+        return [v.x, v.y, v.z];
+      }, { minSize: 2.4, maxSize: 7, colors: [16777215, 13689087, 16773320, 16765168, 16777215] });
+      g.add(tw);
+      const planet = (r, map, dir, o = {}) => {
+        const m = new Mesh(new SphereGeometry(r, 40, 24), new MeshStandardMaterial({ map, roughness: 0.9, emissive: 16777215, emissiveMap: map, emissiveIntensity: o.glow || 0.35, fog: false }));
+        m.position.copy(new Vector3(...dir).normalize().multiplyScalar(o.dist || 210));
+        m.rotation.z = o.tilt || 0.3;
+        g.add(m);
+        if (o.halo) {
+          const h = new Sprite(new SpriteMaterial({ map: glowTex(o.halo, 0.55), transparent: true, depthWrite: false, blending: AdditiveBlending, fog: false }));
+          h.scale.set(r * 3.2, r * 3.2, 1);
+          h.position.copy(m.position);
+          g.add(h);
+        }
+        return m;
+      };
+      const sat = planet(20, bandTex(["#e8c890", "#d4a868", "#f0dcae", "#c49058", "#e2bc80"]), [-0.55, 0.3, -0.78], { halo: "255,210,150" });
+      const ring = new Mesh(new RingGeometry(26, 42, 96), new MeshBasicMaterial({ map: ringTex(), transparent: true, side: DoubleSide, depthWrite: false, fog: false }));
+      ring.position.copy(sat.position);
+      ring.rotation.set(-1.15, 0.25, 0.3);
+      g.add(ring);
+      planet(11, earthTex(), [0.7, 0.24, -0.68], { halo: "120,190,255", glow: 0.45 });
+      planet(7, craterTex("#c4552e"), [0.3, 0.42, 0.85], { halo: "255,120,80" });
+      planet(6, craterTex("#b8b8c4"), [-0.88, 0.22, 0.35], { glow: 0.5 });
+      planet(4.5, bandTex(["#7ab8ff", "#5a9ae8", "#9ad0ff"]), [0.95, 0.5, 0.15], { halo: "140,200,255" });
+      const streak = new Mesh(new PlaneGeometry(30, 0.6), new MeshBasicMaterial({ map: canvasTex(256, 8, (ctx, W, H) => {
+        const gr = ctx.createLinearGradient(0, 0, W, 0);
+        gr.addColorStop(0, "rgba(255,255,255,0)");
+        gr.addColorStop(1, "rgba(255,255,255,1)");
+        ctx.fillStyle = gr;
+        ctx.fillRect(0, 0, W, H);
+      }), transparent: true, blending: AdditiveBlending, depthWrite: false, fog: false, side: DoubleSide, toneMapped: false }));
+      streak.visible = false;
+      g.add(streak);
+      let nextShoot = 1.5, shootT = -1;
+      const from = new Vector3(), vel = new Vector3();
+      updaters.push((dt, t, ctx) => {
+        if (shootT < 0 && t > nextShoot) {
+          shootT = 0;
+          const fwd = ctx && ctx.fwd ? ctx.fwd : new Vector3(0, 0, -1);
+          const right = new Vector3(-fwd.z, 0, fwd.x);
+          from.copy(fwd).multiplyScalar(160).addScaledVector(right, R(-90, 90)).setY(R(55, 100));
+          vel.copy(right).multiplyScalar(Math.random() < 0.5 ? -1 : 1).setY(-0.4).normalize();
+          streak.visible = true;
+        }
+        if (shootT >= 0) {
+          shootT += dt;
+          streak.position.copy(from).addScaledVector(vel, shootT * 150);
+          streak.quaternion.setFromUnitVectors(new Vector3(1, 0, 0), vel);
+          streak.material.opacity = Math.max(0, 1 - shootT / 0.9);
+          if (shootT > 0.9) {
+            shootT = -1;
+            streak.visible = false;
+            nextShoot = t + R(2, 5);
+          }
+        }
+      });
+    } else if (theme === "pirate") {
+      for (let i = 0; i < (high ? 14 : 8); i++) {
+        const a = i / (high ? 14 : 8) * Math.PI * 2 + R(-0.2, 0.2);
+        const c = makeCloud(R(1, 1.7));
+        c.position.set(Math.cos(a) * R(160, 230), R(40, 80), Math.sin(a) * R(160, 230));
+        c.lookAt(0, c.position.y, 0);
+        g.add(c);
+      }
+    } else if (theme === "magic") {
+      g.add(makeTwinklePoints(high ? 600 : 300, () => {
+        const v = new Vector3(R(-1, 1), R(0.2, 1), R(-1, 1)).normalize().multiplyScalar(260);
+        return [v.x, v.y, v.z];
+      }, { minSize: 1.8, maxSize: 4.5, colors: [16777215, 16769268, 16774344] }));
+      [[0.1, -1], [-0.95, -0.2], [0.95, 0.35], [-0.3, 1]].forEach(([x, z], k) => {
+        const c = makeCastle(k % 2 ? 14733560 : 16048383, k === 1 ? 12597594 : 8011680, { windows: true });
+        const v = new Vector3(x, 0, z).normalize().multiplyScalar(175);
+        c.position.set(v.x, -14, v.z);
+        c.lookAt(0, -14, 0);
+        c.scale.setScalar(k === 0 ? 1.5 : 1.1);
+        far.add(c);
+      });
+      const lanM = new MeshBasicMaterial({ color: 16758880, toneMapped: false });
+      const lans = [];
+      for (let i = 0; i < (high ? 30 : 14); i++) {
+        const l = new Mesh(new CylinderGeometry(0.55, 0.4, 0.95, 8), lanM);
+        l.userData = { a: R(0, Math.PI * 2), r: R(25, 110), y0: R(0, 60), sp: R(0.6, 1.4) };
+        lans.push(l);
+        g.add(l);
+      }
+      updaters.push((dt, t) => lans.forEach((l) => {
+        const u = l.userData;
+        l.position.set(Math.cos(u.a + t * 0.01) * u.r, (u.y0 + t * u.sp) % 60 + 6, Math.sin(u.a + t * 0.01) * u.r);
+      }));
+    } else if (theme === "ice") {
+      for (let i = 0; i < (high ? 10 : 6); i++) {
+        const a = i / (high ? 10 : 6) * Math.PI * 2 + R(-0.2, 0.2);
+        const c = makeCloud(R(1, 1.5));
+        c.position.set(Math.cos(a) * R(160, 230), R(50, 85), Math.sin(a) * R(160, 230));
+        g.add(c);
+      }
+      [[0, -1, 1.6], [0.95, 0.3, 1.1], [-0.9, 0.45, 1.2]].forEach(([x, z, s], k) => {
+        const castle = makeCastle(k ? 14218495 : 12577535, 9427199, { ice: true });
+        const v = new Vector3(x, 0, z).normalize().multiplyScalar(150);
+        castle.position.set(v.x, -2, v.z);
+        castle.lookAt(0, -2, 0);
+        castle.scale.setScalar(s);
+        far.add(castle);
+      });
+      const snow = makeTwinklePoints(high ? 1700 : 850, () => [R(-30, 30), R(0, 26), R(-40, 12)], { minSize: 3, maxSize: 6, fall: 2.4, box: 26, colors: [16777215, 15661311], normalBlend: true, persp: true, noTwinkle: true });
+      snow.position.y = -9;
+      g.add(snow);
+    }
+    g.userData.far = far;
+    g.userData.update = (dt, t, ctx) => updaters.forEach((u) => u(dt, t, ctx));
+    return g;
+  }
+  function makeThemeDecor(theme, i, high = true) {
+    if (theme === "pirate") {
+      const k = i % 6;
+      if (k === 0 || k === 3) return { obj: makeMast(high), sideOff: 4.75, align: true };
+      if (k === 1) return { obj: makeCannon(), sideOff: 4.65, align: true, outward: true };
+      if (k === 2) {
+        const gg = new Group();
+        const b1 = makeBarrel();
+        const b2 = makeBarrel();
+        b2.position.set(0.1, 0, 0.8);
+        const cr = makeCrate(0.75);
+        cr.position.set(0, 0, -0.85);
+        gg.add(b1, b2, cr);
+        return { obj: gg, sideOff: 4.85, align: true };
+      }
+      if (k === 4) {
+        const gg = new Group();
+        const c1 = makeCrate(0.9);
+        const c2 = makeCrate(0.7);
+        c2.position.set(0.05, 0.9, 0.05);
+        c2.rotation.y = 0.4;
+        gg.add(c1, c2);
+        return { obj: gg, sideOff: 4.75, align: true };
+      }
+      return { glb: "pirate/chest.glb", height: 0.7, sideOff: 4.8, align: true, outward: true };
+    }
+    if (theme === "space") {
+      const k = i % 8;
+      if (k === 2) return { glb: "space/astronautA.glb", height: 1.5, sideOff: 6.6, float: 1.6 };
+      if (k === 5) return { glb: "space/craft_speederA.glb", height: 1.2, sideOff: 7.4, float: 2.2 };
+      if (k === 7) return { glb: "space/alien.glb", height: 1.3, sideOff: 6.8, float: 1.2 };
+      if (k % 2 === 0) return { obj: makeCrystalCluster(R(1.4, 2.2), [11563263, 5953791, 16740552][i % 3]), sideOff: 6 + i % 3 * 0.5, float: 0.3 };
+      const gg = new Group();
+      gg.add(makeAsteroid(R(0.6, 1.1)));
+      return { obj: gg, sideOff: 6.4 + i % 4 * 0.6, float: 1.4, spin: true };
+    }
+    if (theme === "magic") {
+      const k = i % 4;
+      if (k === 0 || k === 2) return { obj: makeLamp(), sideOff: 4.6, align: true };
+      if (k === 1) {
+        const gg2 = new Group();
+        const ch = new Mesh(new BoxGeometry(0.8, 1.6, 0.8), mat("brickM", () => new MeshStandardMaterial({ map: brickTex(), roughness: 0.9 })));
+        ch.position.y = 0.8;
+        ch.castShadow = true;
+        gg2.add(ch);
+        const cap = new Mesh(new BoxGeometry(1, 0.2, 1), mat("chCap", () => stdMat(5917290)));
+        cap.position.y = 1.65;
+        gg2.add(cap);
+        return { obj: gg2, sideOff: 5.9 + i % 3 * 0.4, align: true };
+      }
+      const gg = new Group();
+      const pot = new Mesh(new CylinderGeometry(0.35, 0.28, 0.5, 10), mat("pot", () => stdMat(12607546)));
+      pot.position.y = 0.25;
+      gg.add(pot);
+      const fl = new Mesh(new IcosahedronGeometry(0.45, 1), mat("flowers", () => stdMat(16743112, { emissive: 9054826, emissiveIntensity: 0.3 })));
+      fl.position.y = 0.75;
+      gg.add(fl);
+      return { obj: gg, sideOff: 4.9, align: true };
+    }
+    if (theme === "ice") {
+      if (i % 5 === 2) return { obj: makeIceSpire(R(1.8, 3)), sideOff: 6.6 + i % 3 * 0.6 };
+      return { obj: makeSnowPine(R(2.6, 4.2)), sideOff: 7 + i % 5 * 0.45 };
+    }
+    return null;
+  }
+  function makeThemedHazard(theme, kind, cTex) {
+    const g = new Group();
+    const caution = () => new MeshBasicMaterial({ map: cTex });
+    if (kind === "hole") {
+      if (theme === "space") {
+        const disk = new Mesh(new CircleGeometry(1.05, 32), new MeshBasicMaterial({ color: 0 }));
+        disk.rotation.x = -Math.PI / 2;
+        disk.position.y = 0.06;
+        disk.scale.set(0.8, 1.15, 1);
+        const ring = new Mesh(new RingGeometry(0.8, 1.3, 48), new MeshBasicMaterial({ map: tex("bhole", () => canvasTex(128, 128, (ctx) => {
+          for (let a = 0; a < 360; a += 3) {
+            ctx.strokeStyle = `hsla(${290 + Math.sin(a / 20) * 40},100%,${60 + Math.random() * 25}%,0.95)`;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(64, 64, 42 + Math.random() * 20, a / 57.3, (a + 16) / 57.3);
+            ctx.stroke();
+          }
+        })), transparent: true, toneMapped: false, side: DoubleSide, blending: AdditiveBlending, depthWrite: false }));
+        ring.rotation.x = -Math.PI / 2;
+        ring.position.y = 0.08;
+        ring.scale.set(0.8, 1.15, 1);
+        g.add(disk, ring);
+        return g;
+      }
+      const pitMat = theme === "ice" ? new MeshStandardMaterial({ color: 667728, roughness: 0.1, emissive: 401454, emissiveIntensity: 0.5 }) : new MeshStandardMaterial({ color: 656912, roughness: 1, emissive: 2230292, emissiveIntensity: 0.28 });
+      const pit = new Mesh(new BoxGeometry(1.55, 0.22, 2.3), pitMat);
+      pit.position.y = -0.08;
+      const rim = new Mesh(new BoxGeometry(1.72, 0.06, 2.45), caution());
+      rim.position.y = 0.04;
+      g.add(pit, rim);
+      if (theme === "pirate") {
+        const lid = new Mesh(new BoxGeometry(1.6, 0.06, 1.1), crateMat());
+        lid.position.set(0, 0.5, 1.45);
+        lid.rotation.x = -1;
+        g.add(lid);
+      }
+      return g;
+    }
+    if (kind === "wall") {
+      let body;
+      if (theme === "pirate") body = new Mesh(new BoxGeometry(1.7, 1.55, 0.6), crateMat());
+      else if (theme === "space") body = new Mesh(new BoxGeometry(1.7, 1.55, 0.3), new MeshStandardMaterial({ color: 16726666, emissive: 16722554, emissiveIntensity: 0.9, transparent: true, opacity: 0.75, roughness: 0.2 }));
+      else if (theme === "magic") body = new Mesh(new BoxGeometry(1.7, 1.55, 0.38), mat("brickWall", () => new MeshStandardMaterial({ map: brickTex(), roughness: 0.85 })));
+      else body = new Mesh(new BoxGeometry(1.7, 1.55, 0.5), new MeshStandardMaterial({ color: 10478847, roughness: 0.08, metalness: 0.1, transparent: true, opacity: 0.88, emissive: 3844320, emissiveIntensity: 0.45 }));
+      body.position.y = 0.78;
+      body.castShadow = true;
+      const stripe2 = new Mesh(new PlaneGeometry(1.65, 0.28), caution());
+      const depth = body.geometry.parameters.depth;
+      stripe2.position.set(0, 1.28, depth / 2 + 0.02);
+      g.add(body, stripe2);
+      if (theme === "space") {
+        const frameM = new MeshBasicMaterial({ color: 16769264, toneMapped: false });
+        [-0.86, 0.86].forEach((x) => {
+          const p = new Mesh(new BoxGeometry(0.12, 1.65, 0.36), frameM);
+          p.position.set(x, 0.82, 0);
+          g.add(p);
+        });
+      }
+      return g;
+    }
+    if (kind === "beam") {
+      let beamMat, postMat;
+      if (theme === "space") {
+        beamMat = new MeshBasicMaterial({ color: 16724016, toneMapped: false });
+        postMat = stdMat(10132144, { metalness: 0.7, roughness: 0.3 });
+      } else if (theme === "pirate") {
+        beamMat = stdMat(8014370, { emissive: 3807744, emissiveIntensity: 0.3 });
+        postMat = stdMat(4860434);
+      } else if (theme === "magic") {
+        beamMat = new MeshStandardMaterial({ color: 16765176, emissive: 16736464, emissiveIntensity: 0.8 });
+        postMat = stdMat(3811930);
+      } else {
+        beamMat = new MeshStandardMaterial({ color: 12577535, emissive: 5949695, emissiveIntensity: 0.5, roughness: 0.1 });
+        postMat = stdMat(9091284);
+      }
+      const r = theme === "space" ? 0.08 : 0.13;
+      const beam = new Mesh(new CylinderGeometry(r, r, 1.72, 10), beamMat);
+      beam.rotation.z = Math.PI / 2;
+      beam.position.y = 1.18;
+      beam.castShadow = theme !== "space";
+      g.add(beam);
+      if (theme === "space") {
+        const glow = new Mesh(new CylinderGeometry(0.22, 0.22, 1.72, 10), new MeshBasicMaterial({ color: 16728128, transparent: true, opacity: 0.35, blending: AdditiveBlending, depthWrite: false, toneMapped: false }));
+        glow.rotation.z = Math.PI / 2;
+        glow.position.y = 1.18;
+        g.add(glow);
+      }
+      [-0.78, 0.78].forEach((x) => {
+        const post = new Mesh(new CylinderGeometry(0.07, 0.07, 1.22, 8), postMat);
+        post.position.set(x, 0.61, 0);
+        g.add(post);
+        if (theme === "space") {
+          const e = new Mesh(new SphereGeometry(0.14, 10, 8), new MeshBasicMaterial({ color: 16744576, toneMapped: false }));
+          e.position.set(x, 1.18, 0);
+          g.add(e);
+        }
+      });
+      if (theme === "ice") {
+        for (let k = 0; k < 6; k++) {
+          const ic = new Mesh(new ConeGeometry(0.05, 0.3, 5), beamMat);
+          ic.rotation.x = Math.PI;
+          ic.position.set(-0.6 + k * 0.24, 0.98, 0);
+          g.add(ic);
+        }
+      }
+      if (theme !== "space") {
+        const band = new Mesh(new CylinderGeometry(r + 0.02, r + 0.02, 0.22, 10), caution());
+        band.rotation.z = Math.PI / 2;
+        band.position.y = 1.18;
+        g.add(band);
+      }
+      return g;
+    }
+    if (theme === "space") {
+      const m = makeAsteroid(0.45);
+      m.material = mat("meteor", () => new MeshStandardMaterial({ color: 5917252, roughness: 0.9, flatShading: true, emissive: 16734746, emissiveIntensity: 0.55 }));
+      m.position.y = 0.46;
+      m.castShadow = true;
+      g.add(m);
+      return g;
+    }
+    if (theme === "ice") {
+      const m = new Mesh(new IcosahedronGeometry(0.45, 2), mat("snowball", () => stdMat(16777215, { roughness: 0.7, emissive: 12574975, emissiveIntensity: 0.25 })));
+      m.position.y = 0.46;
+      m.castShadow = true;
+      g.add(m);
+      return g;
+    }
+    const log = new Mesh(new CylinderGeometry(0.42, 0.42, 1.55, 14), stdMat(theme === "magic" ? 9063104 : 9065512, { roughness: 0.68 }));
+    log.rotation.z = Math.PI / 2;
+    log.position.y = 0.44;
+    log.castShadow = true;
+    g.add(log);
+    const hoopM = mat("hoop", () => stdMat(2763306, { metalness: 0.6, roughness: 0.4 }));
+    [-0.55, 0.55].forEach((x) => {
+      const h = new Mesh(new CylinderGeometry(0.435, 0.435, 0.1, 14), hoopM);
+      h.rotation.z = Math.PI / 2;
+      h.position.set(x, 0.44, 0);
+      g.add(h);
+    });
+    const stripe = new Mesh(new CylinderGeometry(0.43, 0.43, 0.18, 14), new MeshBasicMaterial({ color: 16764928 }));
+    stripe.rotation.z = Math.PI / 2;
+    stripe.position.y = 0.44;
+    g.add(stripe);
+    return g;
+  }
+  var THEME_MOUNTAINS = { magic: { color: 5913226 }, ice: { color: 11062500, top: 16777215 } };
 
   // mila-quest/js/game.js
   function hasWebGL() {
@@ -27265,13 +29331,13 @@
     const c = document.createElement("canvas");
     c.width = 4;
     c.height = 256;
-    const tex = new CanvasTexture(c);
-    tex.colorSpace = SRGBColorSpace;
-    tex.minFilter = LinearFilter;
-    tex.magFilter = LinearFilter;
+    const tex2 = new CanvasTexture(c);
+    tex2.colorSpace = SRGBColorSpace;
+    tex2.minFilter = LinearFilter;
+    tex2.magFilter = LinearFilter;
     const mesh = new Mesh(
       new SphereGeometry(300, 24, 18),
-      new MeshBasicMaterial({ map: tex, side: BackSide, depthWrite: false, fog: false })
+      new MeshBasicMaterial({ map: tex2, side: BackSide, depthWrite: false, fog: false })
     );
     mesh.name = "sky";
     return mesh;
@@ -27324,8 +29390,8 @@
     if (raw.indexOf("data:") === 0 && !looksTex) return url;
     if (looksTex && loadCtx) {
       const dir = loadCtx.replace(/\/[^/]+$/, "/");
-      const tex = normAsset(dir + "Textures/colormap.png");
-      if (window.MQ_EMBED[tex]) return window.MQ_EMBED[tex];
+      const tex2 = normAsset(dir + "Textures/colormap.png");
+      if (window.MQ_EMBED[tex2]) return window.MQ_EMBED[tex2];
     }
     const n = normAsset(raw);
     if (window.MQ_EMBED[n]) return window.MQ_EMBED[n];
@@ -27547,18 +29613,18 @@
     ctx.strokeText(raw, w / 2, h / 2);
     ctx.fillStyle = opt.fg || "#140818";
     ctx.fillText(raw, w / 2, h / 2);
-    const tex = new CanvasTexture(c);
-    tex.colorSpace = SRGBColorSpace;
-    tex.minFilter = LinearFilter;
-    tex.magFilter = LinearFilter;
-    tex.userData = { font, textW: ctx.measureText(raw).width, canvasW: w, raw };
-    return tex;
+    const tex2 = new CanvasTexture(c);
+    tex2.colorSpace = SRGBColorSpace;
+    tex2.minFilter = LinearFilter;
+    tex2.magFilter = LinearFilter;
+    tex2.userData = { font, textW: ctx.measureText(raw).width, canvasW: w, raw };
+    return tex2;
   }
   function makeSign(text, big = true) {
     const g = new Group();
     const tw = big ? 1024 : 768;
     const th = big ? 360 : 280;
-    const tex = makeTextTexture(text, { w: tw, h: th, font: big ? 176 : 140 });
+    const tex2 = makeTextTexture(text, { w: tw, h: th, font: big ? 176 : 140 });
     const span = typeof laneXs === "function" ? laneXs()[2] - laneXs()[1] : 2;
     const W = big ? Math.min(1.86, span * 0.9) : 1.05;
     const H = W * (th / tw);
@@ -27566,8 +29632,8 @@
       new BoxGeometry(W + 0.05, H + 0.05, 0.055),
       new MeshBasicMaterial({ color: 16769866, toneMapped: false })
     );
-    const matF = new MeshBasicMaterial({ map: tex, toneMapped: false, fog: false });
-    const matB = new MeshBasicMaterial({ map: tex, toneMapped: false, fog: false });
+    const matF = new MeshBasicMaterial({ map: tex2, toneMapped: false, fog: false });
+    const matB = new MeshBasicMaterial({ map: tex2, toneMapped: false, fog: false });
     const faceF = new Mesh(new PlaneGeometry(W, H), matF);
     faceF.position.z = 0.03;
     faceF.renderOrder = 2;
@@ -27576,7 +29642,7 @@
     faceB.rotation.y = Math.PI;
     faceB.renderOrder = 2;
     g.add(rim, faceF, faceB);
-    g.userData.fit = tex.userData;
+    g.userData.fit = tex2.userData;
     g.userData.signSize = { W, H };
     return g;
   }
@@ -27878,6 +29944,7 @@
   var runHills = null;
   var runSunDisk = null;
   var runMist = null;
+  var themeAmb = null;
   var courseVisual = null;
   var skirtMat = null;
   var railMat = null;
@@ -27907,14 +29974,41 @@
     runLights.hemi.color.setHex(world.hemiSky);
     runLights.hemi.groundColor.setHex(world.hemiGround);
     runLights.dir.color.setHex(world.sun);
-    if (spaceStars) spaceStars.visible = world.id === 4;
+    if (spaceStars) spaceStars.visible = false;
     if (runSky) paintSky(runSky, world.sky, world.fog);
-    if (runSunDisk) runSunDisk.visible = world.id !== 4;
+    if (runSky) runSky.visible = themeOf(world.id) !== "space";
+    if (runSunDisk) runSunDisk.visible = THEME_LOOK[themeOf(world.id)] ? !!THEME_LOOK[themeOf(world.id)].showSun : true;
     if (run && run.layout) applyStageLook(world);
   }
   function applyStageLook(world) {
     const L = run && run.layout;
     if (!L) return;
+    const look = THEME_LOOK[themeOf(world.id)];
+    if (look) {
+      renderer.toneMappingExposure = isHigh() ? look.exp : Math.min(look.exp, 1.05);
+      runLights.hemi.intensity = look.hemi;
+      runLights.hemi.color.setHex(look.hemiSky);
+      runLights.hemi.groundColor.setHex(look.hemiGround);
+      runLights.dir.intensity = look.dir;
+      runLights.dir.color.setHex(look.sun);
+      runScene.fog.color.setHex(look.fog);
+      runScene.fog.near = look.fogNear;
+      runScene.fog.far = look.fogFar;
+      runScene.background = new Color(look.clear);
+      renderer.setClearColor(look.clear);
+      if (runSky) {
+        runSky.visible = themeOf(world.id) !== "space";
+        paintSky(runSky, look.skyTop, look.skyBot);
+      }
+      if (runSunDisk) {
+        runSunDisk.visible = !!look.showSun;
+        if (look.sunDisk) runSunDisk.material.color.setHex(look.sunDisk);
+      }
+      layoutPathFromCourse();
+      return;
+    }
+    if (runSky) runSky.visible = true;
+    if (runSunDisk) runSunDisk.visible = true;
     const tod = {
       morning: { exp: 1.22, hemi: 0.95, dir: 1.15, fogNear: 22, fogFar: 260 },
       noon: { exp: 1.18, hemi: 0.88, dir: 1.35, fogNear: 20, fogFar: 250 },
@@ -28029,6 +30123,15 @@
     disposeCourseVisual();
     const course = run.course;
     const narrow = !!(run.layout && run.layout.narrow);
+    const th = themeOf(run.world);
+    if (th !== "jungle") {
+      const tg = buildThemeCourse(th, course, { narrow, high: isHigh() });
+      tg.add(plantCourseFlags(course, isHigh()));
+      courseVisual = tg;
+      runScene.add(tg);
+      if (tg.userData.ships && tg.userData.ships.length) spawnShips(tg);
+      return;
+    }
     const pathW = narrow ? 5.5 : 7.3;
     const group = new Group();
     group.name = "courseVisual";
@@ -28085,6 +30188,28 @@
     group.add(follow, scatter, grass, turnGrass, dirt, stripeL, stripeR, valley, valleyBits, haze, skirt, stone, railL, railR, flags);
     courseVisual = group;
     runScene.add(courseVisual);
+  }
+  async function spawnShips(tg) {
+    const bobbing = [];
+    for (const sp of tg.userData.ships) {
+      const ship = await createProp(MP("pirate/ship-pirate-small.glb"), 2.6);
+      if (courseVisual !== tg) return;
+      ship.scale.setScalar(4.2);
+      ship.position.set(sp.x, sp.y - 0.2, sp.z);
+      ship.rotation.y = -sp.heading + Math.PI;
+      ship.userData.baseY = ship.position.y;
+      ship.userData.ph = Math.random() * 6;
+      tg.add(ship);
+      bobbing.push(ship);
+    }
+    const prev = tg.userData.update;
+    tg.userData.update = (dt, t, ctx) => {
+      if (prev) prev(dt, t, ctx);
+      bobbing.forEach((s) => {
+        s.position.y = s.userData.baseY + Math.sin(t * 0.9 + s.userData.ph) * 0.25;
+        s.rotation.z = Math.sin(t * 0.7 + s.userData.ph) * 0.04;
+      });
+    };
   }
   function layoutPathFromCourse() {
     if (!run || !run.course || !player) return;
@@ -28150,22 +30275,63 @@
       }
     }
   }
+  function placeDecor(d) {
+    if (!run || !run.course || d.userData.pathS == null) return;
+    const df = pathFrame(run.course, d.userData.pathS);
+    const side = d.userData.side || 1;
+    const spec = d.userData.spec;
+    d.position.copy(df.pos).addScaledVector(df.right, side * (d.userData.sideOff || 6));
+    if (spec) {
+      if (spec.align) d.rotation.y = -df.heading + (spec.outward ? side * Math.PI / 2 : 0);
+      if (spec.float) d.position.y += spec.float + Math.sin(performance.now() * 12e-4 + d.userData.pathS) * 0.25;
+      if (spec.spin) {
+        d.rotation.x += 4e-3;
+        d.rotation.y += 6e-3;
+      }
+      d.visible = !(spec.align && df.kind === "turn");
+    } else {
+      d.visible = df.kind !== "causeway";
+    }
+  }
   async function spawnDecor(world) {
     decors.forEach((d) => runScene.remove(d));
     decors.length = 0;
-    const theme = ["jungle", "pirate", "magic", "space", "ice"][world.id - 1] || "jungle";
+    const theme = themeOf(world.id);
     const n = isHigh() ? 26 : 16;
     for (let i = 0; i < n; i++) {
-      const m = makeSmoothTree(theme);
+      const spec = theme === "jungle" ? null : makeThemeDecor(theme, i, isHigh());
+      let m;
+      if (spec) m = spec.obj || await createProp(MP(spec.glb), spec.height);
+      else m = makeSmoothTree(theme);
+      if (spec && spec.glb && theme === "space") {
+        m.traverse((o) => {
+          if (!o.isMesh || !o.material || !o.material.color) return;
+          const nrm = o.geometry && o.geometry.attributes.normal;
+          if (nrm) {
+            const a = nrm.array;
+            for (let k = 0; k + 2 < a.length; k += 3) {
+              const x = a[k], y = a[k + 1], z = a[k + 2];
+              if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z) || x * x + y * y + z * z < 1e-8) {
+                a[k] = 0;
+                a[k + 1] = 1;
+                a[k + 2] = 0;
+              }
+            }
+            nrm.needsUpdate = true;
+          }
+          o.material = o.material.clone();
+          o.material.metalness = Math.min(o.material.metalness || 0, 0.25);
+          o.material.roughness = Math.max(o.material.roughness || 0, 0.45);
+          o.material.emissive = o.material.color.clone().multiplyScalar(0.6);
+          o.material.emissiveIntensity = 1;
+        });
+      }
       m.userData.pathS = 6 + i * 10;
       m.userData.side = i % 2 === 0 ? -1 : 1;
-      m.userData.sideOff = 6.9 + i % 5 * 0.4;
-      if (run && run.course) {
-        const f = pathFrame(run.course, m.userData.pathS);
-        m.position.copy(f.pos).addScaledVector(f.right, m.userData.side * m.userData.sideOff);
-        m.rotation.y = f.heading + i % 5 * 0.4;
-        m.visible = f.kind !== "causeway";
-      }
+      m.userData.sideOff = spec ? spec.sideOff : 6.9 + i % 5 * 0.4;
+      m.userData.spec = spec;
+      if (!spec || !spec.align) m.rotation.y = i % 5 * 0.4 + (run && run.course ? pathFrame(run.course, m.userData.pathS).heading : 0);
+      placeDecor(m);
       runScene.add(m);
       decors.push(m);
     }
@@ -28173,16 +30339,16 @@
   function buildGate(options) {
     const g = new Group();
     const halfW = trackHalfWidth();
-    const mat = new MeshStandardMaterial({ color: 14725466, roughness: 0.42, metalness: 0.12, emissive: 12880424, emissiveIntensity: 0.18 });
+    const mat2 = new MeshStandardMaterial({ color: 14725466, roughness: 0.42, metalness: 0.12, emissive: 12880424, emissiveIntensity: 0.18 });
     [-halfW, halfW].forEach((x) => {
-      const post = new Mesh(new CylinderGeometry(0.2, 0.24, 4.4, 10), mat);
+      const post = new Mesh(new CylinderGeometry(0.2, 0.24, 4.4, 10), mat2);
       post.position.set(x, 2.2, 0);
       post.name = "gatePost";
       post.userData.side = x < 0 ? -1 : 1;
       post.castShadow = true;
       g.add(post);
     });
-    const beam = new Mesh(new CylinderGeometry(0.16, 0.16, halfW * 2, 10), mat);
+    const beam = new Mesh(new CylinderGeometry(0.16, 0.16, halfW * 2, 10), mat2);
     beam.rotation.z = Math.PI / 2;
     beam.position.set(0, 4.35, 0);
     beam.castShadow = true;
@@ -28235,6 +30401,7 @@
     const L = Object.assign({}, table[Math.max(0, Math.min(4, i))]);
     L.causeway = wid === 1;
     if (wid === 1) L.tod = "sunset";
+    else L.tod = themeOf(wid);
     return L;
   }
   function pickWords(wid, st, lost, n = 8) {
@@ -28412,6 +30579,8 @@
     return t;
   }
   function hazardMark(kind) {
+    const th = run ? themeOf(run.world) : "jungle";
+    if (th !== "jungle") return makeThemedHazard(th, kind, cautionTex());
     const g = new Group();
     if (kind === "hole") {
       const pit = new Mesh(new BoxGeometry(1.55, 0.22, 2.3), new MeshStandardMaterial({ color: 656912, roughness: 1, emissive: 2230292, emissiveIntensity: 0.28 }));
@@ -28420,12 +30589,12 @@
       rim.position.y = 0.04;
       g.add(pit, rim);
     } else if (kind === "wall") {
-      const wall = new Mesh(new BoxGeometry(1.7, 1.55, 0.38), new MeshStandardMaterial({ color: 12863530, roughness: 0.48, metalness: 0.14, emissive: 4854280, emissiveIntensity: 0.18 }));
-      wall.position.y = 0.78;
-      wall.castShadow = true;
+      const wall2 = new Mesh(new BoxGeometry(1.7, 1.55, 0.38), new MeshStandardMaterial({ color: 12863530, roughness: 0.48, metalness: 0.14, emissive: 4854280, emissiveIntensity: 0.18 }));
+      wall2.position.y = 0.78;
+      wall2.castShadow = true;
       const stripe = new Mesh(new PlaneGeometry(1.65, 0.28), new MeshBasicMaterial({ map: cautionTex() }));
       stripe.position.set(0, 1.28, 0.21);
-      g.add(wall, stripe);
+      g.add(wall2, stripe);
     } else if (kind === "beam") {
       const beam = new Mesh(new CylinderGeometry(0.13, 0.13, 1.72, 10), new MeshStandardMaterial({ color: 16765514, roughness: 0.32, emissive: 16755200, emissiveIntensity: 0.4 }));
       beam.rotation.z = Math.PI / 2;
@@ -28682,9 +30851,28 @@
     applyWorldTheme(world);
     applyStageLook(world);
     if (runHills && runHills.parent) runScene.remove(runHills);
-    const hillCol = run.layout.tod === "sunset" ? 8018488 : run.layout.tod === "dusk" || run.layout.tod === "storm" ? 3816024 : world.ground;
-    runHills = makeMountains(hillCol, { count: isHigh() ? 12 : 8 });
-    runScene.add(runHills);
+    runHills = null;
+    const theme = themeOf(wid);
+    if (theme === "jungle") {
+      const hillCol = run.layout.tod === "sunset" ? 8018488 : run.layout.tod === "dusk" || run.layout.tod === "storm" ? 3816024 : world.ground;
+      runHills = makeMountains(hillCol, { count: isHigh() ? 12 : 8 });
+    } else if (THEME_MOUNTAINS[theme]) {
+      runHills = makeMountains(THEME_MOUNTAINS[theme].color, { count: isHigh() ? 12 : 8, top: THEME_MOUNTAINS[theme].top });
+    }
+    if (runHills) runScene.add(runHills);
+    if (themeAmb) {
+      runScene.remove(themeAmb);
+      if (themeAmb.userData.far) runScene.remove(themeAmb.userData.far);
+      themeAmb.traverse((o) => {
+        if (o.geometry) o.geometry.dispose();
+      });
+      themeAmb = null;
+    }
+    if (theme !== "jungle") {
+      themeAmb = buildThemeAmbience(theme, isHigh());
+      runScene.add(themeAmb);
+      if (themeAmb.userData.far) runScene.add(themeAmb.userData.far);
+    }
     if (runMist && runMist.parent) runScene.remove(runMist);
     runMist = makeMist();
     runScene.add(runMist);
@@ -28856,8 +31044,23 @@
       updateKeyFx(dt);
       if (!holdCam) updateRunCamera(dt);
       if (runSky) runSky.position.copy(camera.position);
+      updateThemeFx(dt, now * 1e-3);
       renderer.render(runScene, camera);
     }
+  }
+  var _camDir = new Vector3();
+  function updateThemeFx(dt, t) {
+    fxTime.value = t;
+    camera.getWorldDirection(_camDir);
+    _camDir.y = 0;
+    if (_camDir.lengthSq() < 1e-6) _camDir.set(0, 0, -1);
+    _camDir.normalize();
+    const ctx = { center: player ? player.group.position : camera.position, fwd: _camDir };
+    if (themeAmb) {
+      themeAmb.position.copy(camera.position);
+      if (themeAmb.userData.update) themeAmb.userData.update(dt, t, ctx);
+    }
+    if (courseVisual && courseVisual.userData.update) courseVisual.userData.update(dt, t, ctx);
   }
   function syncWorldFollowers() {
     if (!run || !run.course || !player) return;
@@ -28892,12 +31095,17 @@
     if (courseVisual) {
       const gnd = courseVisual.getObjectByName("followGround");
       if (gnd) {
-        gnd.position.set(f.x, -0.32, f.z);
+        const gy = gnd.userData.y != null ? gnd.userData.y : -0.32;
+        gnd.position.set(f.x, gy, f.z);
         gnd.visible = f.kind !== "causeway";
-        if (sideMat) gnd.material.color.copy(sideMat.color);
+        if (sideMat && gnd.userData.y == null) gnd.material.color.copy(sideMat.color);
       }
     }
     if (runSky) runSky.position.copy(camera.position);
+    if (themeAmb) {
+      themeAmb.position.copy(camera.position);
+      if (themeAmb.userData.far) themeAmb.userData.far.position.set(f.x, 0, f.z);
+    }
     if (bossActor && run.boss) {
       const bs = Math.max(0, player.s - 3.4);
       const bf = pathFrame(run.course, bs);
@@ -28965,12 +31173,7 @@
       if (d.userData.pathS != null && player.s - d.userData.pathS > 16) {
         d.userData.pathS += 220;
       }
-      if (run.course && d.userData.pathS != null) {
-        const df = pathFrame(run.course, d.userData.pathS);
-        const side = d.userData.side || 1;
-        d.visible = df.kind !== "causeway";
-        d.position.copy(df.pos).addScaledVector(df.right, side * (d.userData.sideOff || 6));
-      }
+      placeDecor(d);
     });
     if (player.s > run.nextCoinS) {
       spawnCoinRow(player.s + 16);

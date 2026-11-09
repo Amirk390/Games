@@ -4,6 +4,7 @@ import * as SkeletonUtils from "../assets/lib/jsm/utils/SkeletonUtils.js";
 import { WORDS } from "./data.js";
 import { KEY, NEED_CLEAN, PTS, HEROES, BOSSES, ST, WORLDS, ACH, INTRO } from "./config.js";
 import { buildCourse, pathAt, pathFrame, worldOnPath, makeStoneTexture, makeDirtTexture, makeGrassTexture, makeValleyTexture, makeSmoothTree, makeMountains, makeMist, makeRibbonGeometry, makeSkirtGeometry, populateValley, scatterGroundDetails, plantCourseFlags, updateFlagWave, makeIsraelFlag } from "./worldkit.js";
+import { themeOf, THEME_LOOK, THEME_MOUNTAINS, buildThemeCourse, buildThemeAmbience, makeThemeDecor, makeThemedHazard, fxTime } from "./themes.js";
 
 function hasWebGL() {
   try {
@@ -805,6 +806,7 @@ const particles = [];
 let pathMat = null, stripeMat = null, sideMat = null, stoneMat = null;
 let spaceStars = null;
 let runSky = null, runHills = null, runSunDisk = null, runMist = null;
+let themeAmb = null;
 
 let courseVisual = null;
 let skirtMat = null, railMat = null, valleyMat = null;
@@ -834,14 +836,41 @@ function applyWorldTheme(world) {
   runLights.hemi.color.setHex(world.hemiSky);
   runLights.hemi.groundColor.setHex(world.hemiGround);
   runLights.dir.color.setHex(world.sun);
-  if (spaceStars) spaceStars.visible = world.id === 4;
+  if (spaceStars) spaceStars.visible = false; // v7: space uses the themed star sky instead
   if (runSky) paintSky(runSky, world.sky, world.fog);
-  if (runSunDisk) runSunDisk.visible = world.id !== 4;
+  if (runSky) runSky.visible = themeOf(world.id) !== "space";
+  if (runSunDisk) runSunDisk.visible = THEME_LOOK[themeOf(world.id)] ? !!THEME_LOOK[themeOf(world.id)].showSun : true;
   if (run && run.layout) applyStageLook(world);
 }
 function applyStageLook(world) {
   const L = run && run.layout;
   if (!L) return;
+  const look = THEME_LOOK[themeOf(world.id)];
+  if (look) {
+    renderer.toneMappingExposure = isHigh() ? look.exp : Math.min(look.exp, 1.05);
+    runLights.hemi.intensity = look.hemi;
+    runLights.hemi.color.setHex(look.hemiSky);
+    runLights.hemi.groundColor.setHex(look.hemiGround);
+    runLights.dir.intensity = look.dir;
+    runLights.dir.color.setHex(look.sun);
+    runScene.fog.color.setHex(look.fog);
+    runScene.fog.near = look.fogNear;
+    runScene.fog.far = look.fogFar;
+    runScene.background = new THREE.Color(look.clear);
+    renderer.setClearColor(look.clear);
+    if (runSky) {
+      runSky.visible = themeOf(world.id) !== "space";
+      paintSky(runSky, look.skyTop, look.skyBot);
+    }
+    if (runSunDisk) {
+      runSunDisk.visible = !!look.showSun;
+      if (look.sunDisk) runSunDisk.material.color.setHex(look.sunDisk);
+    }
+    layoutPathFromCourse();
+    return;
+  }
+  if (runSky) runSky.visible = true;
+  if (runSunDisk) runSunDisk.visible = true;
   const tod = {
     morning: { exp: 1.22, hemi: 0.95, dir: 1.15, fogNear: 22, fogFar: 260 },
     noon: { exp: 1.18, hemi: 0.88, dir: 1.35, fogNear: 20, fogFar: 250 },
@@ -965,6 +994,15 @@ function rebuildCourseRibbon() {
   disposeCourseVisual();
   const course = run.course;
   const narrow = !!(run.layout && run.layout.narrow);
+  const th = themeOf(run.world);
+  if (th !== "jungle") {
+    const tg = buildThemeCourse(th, course, { narrow, high: isHigh() });
+    tg.add(plantCourseFlags(course, isHigh()));
+    courseVisual = tg;
+    runScene.add(tg);
+    if (tg.userData.ships && tg.userData.ships.length) spawnShips(tg);
+    return;
+  }
   const pathW = narrow ? 5.5 : 7.3;
   const group = new THREE.Group();
   group.name = "courseVisual";
@@ -1021,6 +1059,28 @@ function rebuildCourseRibbon() {
   group.add(follow, scatter, grass, turnGrass, dirt, stripeL, stripeR, valley, valleyBits, haze, skirt, stone, railL, railR, flags);
   courseVisual = group;
   runScene.add(courseVisual);
+}
+async function spawnShips(tg) {
+  const bobbing = [];
+  for (const sp of tg.userData.ships) {
+    const ship = await createProp(MP("pirate/ship-pirate-small.glb"), 2.6);
+    if (courseVisual !== tg) return;
+    ship.scale.setScalar(4.2);
+    ship.position.set(sp.x, sp.y - 0.2, sp.z);
+    ship.rotation.y = -sp.heading + Math.PI;
+    ship.userData.baseY = ship.position.y;
+    ship.userData.ph = Math.random() * 6;
+    tg.add(ship);
+    bobbing.push(ship);
+  }
+  const prev = tg.userData.update;
+  tg.userData.update = (dt, t, ctx) => {
+    if (prev) prev(dt, t, ctx);
+    bobbing.forEach((s) => {
+      s.position.y = s.userData.baseY + Math.sin(t * 0.9 + s.userData.ph) * 0.25;
+      s.rotation.z = Math.sin(t * 0.7 + s.userData.ph) * 0.04;
+    });
+  };
 }
 function layoutPathFromCourse() {
   if (!run || !run.course || !player) return;
@@ -1089,22 +1149,58 @@ async function ensureWorldAssets(world) {
   }
 }
 
+function placeDecor(d) {
+  if (!run || !run.course || d.userData.pathS == null) return;
+  const df = pathFrame(run.course, d.userData.pathS);
+  const side = d.userData.side || 1;
+  const spec = d.userData.spec;
+  d.position.copy(df.pos).addScaledVector(df.right, side * (d.userData.sideOff || 6));
+  if (spec) {
+    if (spec.align) d.rotation.y = -df.heading + (spec.outward ? side * Math.PI / 2 : 0);
+    if (spec.float) d.position.y += spec.float + Math.sin(performance.now() * 0.0012 + d.userData.pathS) * 0.25;
+    if (spec.spin) { d.rotation.x += 0.004; d.rotation.y += 0.006; }
+    d.visible = !(spec.align && df.kind === "turn");
+  } else {
+    d.visible = df.kind !== "causeway";
+  }
+}
 async function spawnDecor(world) {
   decors.forEach((d) => runScene.remove(d));
   decors.length = 0;
-  const theme = ["jungle", "pirate", "magic", "space", "ice"][world.id - 1] || "jungle";
+  const theme = themeOf(world.id);
   const n = isHigh() ? 26 : 16;
   for (let i = 0; i < n; i++) {
-    const m = makeSmoothTree(theme);
+    const spec = theme === "jungle" ? null : makeThemeDecor(theme, i, isHigh());
+    let m;
+    if (spec) m = spec.obj || await createProp(MP(spec.glb), spec.height);
+    else m = makeSmoothTree(theme);
+    if (spec && spec.glb && theme === "space") {
+      m.traverse((o) => {
+        if (!o.isMesh || !o.material || !o.material.color) return;
+        const nrm = o.geometry && o.geometry.attributes.normal;
+        if (nrm) {
+          const a = nrm.array;
+          for (let k = 0; k + 2 < a.length; k += 3) {
+            const x = a[k], y = a[k + 1], z = a[k + 2];
+            if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z) || x * x + y * y + z * z < 1e-8) {
+              a[k] = 0; a[k + 1] = 1; a[k + 2] = 0;
+            }
+          }
+          nrm.needsUpdate = true;
+        }
+        o.material = o.material.clone();
+        o.material.metalness = Math.min(o.material.metalness || 0, 0.25);
+        o.material.roughness = Math.max(o.material.roughness || 0, 0.45);
+        o.material.emissive = o.material.color.clone().multiplyScalar(0.6);
+        o.material.emissiveIntensity = 1;
+      });
+    }
     m.userData.pathS = 6 + i * 10;
     m.userData.side = i % 2 === 0 ? -1 : 1;
-    m.userData.sideOff = 6.9 + (i % 5) * 0.4;
-    if (run && run.course) {
-      const f = pathFrame(run.course, m.userData.pathS);
-      m.position.copy(f.pos).addScaledVector(f.right, m.userData.side * m.userData.sideOff);
-      m.rotation.y = f.heading + (i % 5) * 0.4;
-      m.visible = f.kind !== "causeway";
-    }
+    m.userData.sideOff = spec ? spec.sideOff : 6.9 + (i % 5) * 0.4;
+    m.userData.spec = spec;
+    if (!spec || !spec.align) m.rotation.y = (i % 5) * 0.4 + (run && run.course ? pathFrame(run.course, m.userData.pathS).heading : 0);
+    placeDecor(m);
     runScene.add(m);
     decors.push(m);
   }
@@ -1184,6 +1280,7 @@ function stageProfile(st, boss, wid) {
   const L = Object.assign({}, table[Math.max(0, Math.min(4, i))]);
   L.causeway = wid === 1;
   if (wid === 1) L.tod = "sunset";
+  else L.tod = themeOf(wid);
   return L;
 }
 
@@ -1352,6 +1449,8 @@ function cautionTex() {
   return t;
 }
 function hazardMark(kind) {
+  const th = run ? themeOf(run.world) : "jungle";
+  if (th !== "jungle") return makeThemedHazard(th, kind, cautionTex());
   const g = new THREE.Group();
   if (kind === "hole") {
     const pit = new THREE.Mesh(new THREE.BoxGeometry(1.55, 0.22, 2.3), new THREE.MeshStandardMaterial({ color: 0x0a0610, roughness: 1, emissive: 0x220814, emissiveIntensity: 0.28 }));
@@ -1587,11 +1686,28 @@ async function startLevel(wid, st, lost, opt) {
   applyWorldTheme(world);
   applyStageLook(world);
   if (runHills && runHills.parent) runScene.remove(runHills);
-  const hillCol = run.layout.tod === "sunset" ? 0x7a5a38
-    : (run.layout.tod === "dusk" || run.layout.tod === "storm") ? 0x3a3a58
-    : world.ground;
-  runHills = makeMountains(hillCol, { count: isHigh() ? 12 : 8 });
-  runScene.add(runHills);
+  runHills = null;
+  const theme = themeOf(wid);
+  if (theme === "jungle") {
+    const hillCol = run.layout.tod === "sunset" ? 0x7a5a38
+      : (run.layout.tod === "dusk" || run.layout.tod === "storm") ? 0x3a3a58
+      : world.ground;
+    runHills = makeMountains(hillCol, { count: isHigh() ? 12 : 8 });
+  } else if (THEME_MOUNTAINS[theme]) {
+    runHills = makeMountains(THEME_MOUNTAINS[theme].color, { count: isHigh() ? 12 : 8, top: THEME_MOUNTAINS[theme].top });
+  }
+  if (runHills) runScene.add(runHills);
+  if (themeAmb) {
+    runScene.remove(themeAmb);
+    if (themeAmb.userData.far) runScene.remove(themeAmb.userData.far);
+    themeAmb.traverse((o) => { if (o.geometry) o.geometry.dispose(); });
+    themeAmb = null;
+  }
+  if (theme !== "jungle") {
+    themeAmb = buildThemeAmbience(theme, isHigh());
+    runScene.add(themeAmb);
+    if (themeAmb.userData.far) runScene.add(themeAmb.userData.far);
+  }
   if (runMist && runMist.parent) runScene.remove(runMist);
   runMist = makeMist();
   runScene.add(runMist);
@@ -1731,10 +1847,25 @@ function tick(now) {
     updateKeyFx(dt);
     if (!holdCam) updateRunCamera(dt);
     if (runSky) runSky.position.copy(camera.position);
+    updateThemeFx(dt, now * 0.001);
     renderer.render(runScene, camera);
   }
 }
 
+const _camDir = new THREE.Vector3();
+function updateThemeFx(dt, t) {
+  fxTime.value = t;
+  camera.getWorldDirection(_camDir);
+  _camDir.y = 0;
+  if (_camDir.lengthSq() < 1e-6) _camDir.set(0, 0, -1);
+  _camDir.normalize();
+  const ctx = { center: player ? player.group.position : camera.position, fwd: _camDir };
+  if (themeAmb) {
+    themeAmb.position.copy(camera.position);
+    if (themeAmb.userData.update) themeAmb.userData.update(dt, t, ctx);
+  }
+  if (courseVisual && courseVisual.userData.update) courseVisual.userData.update(dt, t, ctx);
+}
 function syncWorldFollowers() {
   if (!run || !run.course || !player) return;
   const f = pathFrame(run.course, player.s);
@@ -1768,12 +1899,17 @@ function syncWorldFollowers() {
   if (courseVisual) {
     const gnd = courseVisual.getObjectByName("followGround");
     if (gnd) {
-      gnd.position.set(f.x, -0.32, f.z);
+      const gy = gnd.userData.y != null ? gnd.userData.y : -0.32;
+      gnd.position.set(f.x, gy, f.z);
       gnd.visible = f.kind !== "causeway";
-      if (sideMat) gnd.material.color.copy(sideMat.color);
+      if (sideMat && gnd.userData.y == null) gnd.material.color.copy(sideMat.color);
     }
   }
   if (runSky) runSky.position.copy(camera.position);
+  if (themeAmb) {
+    themeAmb.position.copy(camera.position);
+    if (themeAmb.userData.far) themeAmb.userData.far.position.set(f.x, 0, f.z);
+  }
   if (bossActor && run.boss) {
     const bs = Math.max(0, player.s - 3.4);
     const bf = pathFrame(run.course, bs);
@@ -1835,12 +1971,7 @@ function updateRunner(dt) {
     if (d.userData.pathS != null && player.s - d.userData.pathS > 16) {
       d.userData.pathS += 220;
     }
-    if (run.course && d.userData.pathS != null) {
-      const df = pathFrame(run.course, d.userData.pathS);
-      const side = d.userData.side || 1;
-      d.visible = df.kind !== "causeway";
-      d.position.copy(df.pos).addScaledVector(df.right, side * (d.userData.sideOff || 6));
-    }
+    placeDecor(d);
   });
 
   if (player.s > run.nextCoinS) {
