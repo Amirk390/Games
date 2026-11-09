@@ -4,7 +4,7 @@
 import * as THREE from "../assets/lib/three.module.js";
 import { mergeGeometries } from "../assets/lib/jsm/utils/BufferGeometryUtils.js";
 
-const CHUNK = 120;
+const CHUNK = 160;
 const SKIP_NAMES = /followGround|israelFlags|gateFlag|sky/;
 
 /* materials that look identical can share one draw call even if they are different objects */
@@ -13,9 +13,11 @@ function matSig(m) {
   const bake = bakeable(m);
   const c = (x) => (x && x.isColor ? x.getHexString() : "");
   const t = (x) => (x ? x.uuid : "");
-  return [m.type, bake ? "bake" : c(m.color), c(m.emissive), m.emissiveIntensity, m.roughness, m.metalness, t(m.map), t(m.emissiveMap), t(m.alphaMap),
+  // v8b: bakeable materials that only differ a little in roughness / metalness share one draw call
+  const q = (v) => (bake && v != null ? Math.round(v * 4) / 4 : v);
+  return [m.type, bake ? "bake" : c(m.color), c(m.emissive), m.emissiveIntensity, q(m.roughness), q(m.metalness), t(m.map), t(m.emissiveMap), t(m.alphaMap),
     m.transparent, m.opacity, m.side, m.flatShading, m.vertexColors, m.fog, m.toneMapped, m.depthWrite, m.blending, m.wireframe,
-    m.isShaderMaterial ? m.uuid : "", m.onBeforeCompile && m.onBeforeCompile.toString().length > 20 ? m.uuid : ""].join("/");
+    m.isShaderMaterial ? m.uuid : "", m.onBeforeCompile && m.onBeforeCompile !== THREE.Material.prototype.onBeforeCompile ? m.uuid : ""].join("/");
 }
 function snapshot(root) {
   const m = new Map();
@@ -90,7 +92,7 @@ export function mergeStatic(root, opt = {}) {
     let merged = null;
     try { merged = mergeGeometries(geos, false); } catch (e) { merged = null; }
     geos.forEach((g) => g.dispose());
-    if (!merged) continue;
+    if (!merged) { rs.mergeFail = (rs.mergeFail || 0) + list.length; continue; }
     merged.computeBoundingSphere();
     let mat = list[0].material;
     if (bakeable(mat)) { mat = mat.clone(); mat.color.setRGB(1, 1, 1); mat.vertexColors = true; mat.userData.mergedOwn = true; }

@@ -2,11 +2,13 @@ import * as THREE from "../assets/lib/three.module.js";
 import { GLTFLoader } from "../assets/lib/jsm/loaders/GLTFLoader.js";
 import * as SkeletonUtils from "../assets/lib/jsm/utils/SkeletonUtils.js";
 import { WORDS } from "./data.js";
-import { KEY, NEED_CLEAN, PTS, HEROES, BOSSES, ST, WORLDS, ACH, INTRO } from "./config.js";
+import { KEY, NEED_CLEAN, PTS, HEROES, BOSSES, ST, WORLDS, ACH, INTRO, NSTAGES, BOSS_ST } from "./config.js";
 import { buildCourse, pathAt, pathFrame, worldOnPath, makeStoneTexture, makeDirtTexture, makeGrassTexture, makeValleyTexture, makeSmoothTree, makeMountains, makeMist, makeRibbonGeometry, makeSkirtGeometry, populateValley, scatterGroundDetails, plantCourseFlags, updateFlagWave, makeIsraelFlag } from "./worldkit.js";
 import { themeOf, THEME_LOOK, THEME_MOUNTAINS, buildThemeCourse, buildThemeAmbience, makeThemeDecor, makeThemedHazard, fxTime } from "./themes.js";
 import { GFX, setGfxLevel, N } from "./gfx.js";
 import { mergeStatic } from "./merge.js";
+import { NEW_THEMES, buildWorld2Course, buildWorld2Ambience, world2Decor, world2Hazard } from "./worlds2.js";
+import { PROPS, stagePlan, stageSceneName, stageLook, stageDecorSpec, buildStageScatter, buildStageAtmos } from "./stages.js";
 import { normSettings, difficultyFor, stageModes, MODE_LABEL, QTYPES, DIFFS, SPEEDS, GFX_OPTS, DEFAULT_SETTINGS } from "./settings.js";
 
 let GPU_INFO = "";
@@ -35,14 +37,21 @@ const shuffle = (a) => a.map((x) => [Math.random(), x]).sort((p, q) => p[0] - q[
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 /* ===== SAVE ===== */
-const def = () => ({ prog: {}, hero: 0, coins: 0, stars: 0, notebook: {}, known: {}, best: 0, runs: 0, ach: [], free: false, muted: false, quality: "high", settings: DEFAULT_SETTINGS(), autoTier: null });
+const def = () => ({ stagesV: 2, prog: {}, hero: 0, coins: 0, stars: 0, notebook: {}, known: {}, best: 0, runs: 0, ach: [], free: false, muted: false, quality: "high", settings: DEFAULT_SETTINGS(), autoTier: null });
 let S;
 try {
   const raw = JSON.parse(localStorage.getItem(KEY) || "{}");
   S = Object.assign(def(), raw);
   // v7 -> v8 migration: the old "💡 חסכונית" toggle becomes graphics = Low
   if (!raw.settings && raw.quality === "low") S.settings.gfx = "low";
+  // v8a -> v8b: worlds had 5 stages (boss = index 4); now 7 (boss = index 6)
+  if (!raw.stagesV && raw.prog) {
+    const np = {};
+    for (const [k, v] of Object.entries(raw.prog)) { const [w, t] = k.split("-"); np[w + "-" + (t === "4" ? 6 : +t)] = v; }
+    S.prog = np;
+  }
 } catch (e) { S = def(); }
+S.stagesV = 2;
 S.settings = normSettings(S.settings);
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
 
@@ -82,13 +91,13 @@ $("mute").onclick = () => { muted = !muted; S.muted = muted; save(); $("mute").t
 /* ===== PROGRESS HELPERS ===== */
 const starSum = () => Object.values(S.prog).reduce((a, b) => a + b, 0);
 const stDone = (w, t) => !!S.prog[w + "-" + t];
-const bossDone = (wid) => !!S.prog[wid + "-4"];
+const bossDone = (wid) => !!S.prog[wid + "-" + BOSS_ST];
 const keysOwned = () => WORLDS.filter((w) => bossDone(w.id)).map((w) => w.id);
 const wOpen = (i) => S.free || i === 0 || bossDone(WORLDS[i - 1].id);
-const sOpen = (i, t) => wOpen(i) && (S.free || t === 0 || stDone(WORLDS[i].id, t - 1));
+const sOpen = (i, t) => wOpen(i) && (S.free || t === 0 || stDone(WORLDS[i].id, t - 1) || stDone(WORLDS[i].id, t));
 const nbs = () => WORDS.map((w) => ({ w, n: S.notebook[w.en] })).filter((x) => x.n);
 const learnedCount = () => WORDS.filter((w) => (S.notebook[w.en] && S.notebook[w.en].learned) || S.known[w.en]).length;
-const worldsDone = () => WORLDS.filter((w) => [0, 1, 2, 3, 4].every((t) => stDone(w.id, t))).length;
+const worldsDone = () => WORLDS.filter((w) => ST[w.id - 1].every((_, t) => stDone(w.id, t))).length;
 function grantAch(id) { if (!S.ach.includes(id)) { S.ach.push(id); save(); } }
 
 function record(word, ok, hint, wrongHere) {
@@ -153,17 +162,35 @@ function stageLabel(i, k) {
   if (ms.length === 1 && ms[0] !== runnerModeOf(t[1])) return MODE_LABEL[ms[0]] || t[0];
   return t[0];
 }
+function renderWorldChips() {
+  const box = $("world-chips");
+  if (!box) return;
+  box.innerHTML = WORLDS.map((w, i) => {
+    const done = ST[i].filter((_, k) => stDone(w.id, k)).length;
+    return `<button class="wchip${i === selectedWorld ? " sel" : ""}${wOpen(i) ? "" : " lock"}" data-w="${i}">${w.icon} ${esc(w.name)} ${wOpen(i) ? done + "/" + NSTAGES : "🔒"}</button>`;
+  }).join("");
+  box.onclick = (e) => {
+    const b = e.target.closest("[data-w]");
+    if (!b) return;
+    selectedWorld = +b.dataset.w;
+    highlightIsland(); renderStages(); focusIslandCam(selectedWorld); sfx.click();
+  };
+  const sel = box.querySelector(".sel");
+  if (sel && sel.scrollIntoView) try { sel.scrollIntoView({ block: "nearest", inline: "center" }); } catch (e) {}
+}
 function renderStages() {
   const i = selectedWorld;
   const w = WORLDS[i];
   $("stage-bar").innerHTML = ST[i].map((t, k) => {
     const op = sOpen(i, k);
     const n = S.prog[w.id + "-" + k] || 0;
-    return `<button class="tile" data-st="${k}" ${op ? "" : "disabled"}>
-      <small>${k === 4 ? "בוס" : "שלב " + (k + 1)}</small><div>${stageLabel(i, k)}</div>
+    return `<button class="tile${k === BOSS_ST ? " boss" : ""}" data-st="${k}" ${op ? "" : "disabled"}>
+      <small>${k === BOSS_ST ? "⚔️ בוס" : "שלב " + (k + 1)}</small><div class="t-mode">${stageLabel(i, k)}</div>
+      <div class="t-scene">${esc(stageSceneName(w.id, k))}</div>
       <div>${op ? (n ? "⭐".repeat(n) : "▶") : "🔒"}</div>
     </button>`;
   }).join("");
+  renderWorldChips();
   $("stage-bar").onclick = (e) => {
     const b = e.target.closest("[data-st]");
     if (b && !b.disabled) startLevel(WORLDS[selectedWorld].id, +b.dataset.st);
@@ -256,7 +283,7 @@ renderer.setClearColor(0x62c8ff);
 const camera = new THREE.PerspectiveCamera(52, innerWidth / innerHeight, 0.1, 520);
 const mapScene = new THREE.Scene();
 const runScene = new THREE.Scene();
-mapScene.fog = new THREE.Fog(0x8ec8ff, 22, 90);
+mapScene.fog = new THREE.Fog(0x8ec8ff, 30, 125);
 runScene.fog = new THREE.Fog(0x8fd4a2, 16, 68);
 
 function addLights(scene, world) {
@@ -755,7 +782,10 @@ async function buildMap() {
     [-12, 0.4, -10],
     [12, 0.3, -10],
     [-8, 0.6, -22],
-    [8, 0.5, -22]
+    [8, 0.5, -22],
+    [-15, 0.5, -34],
+    [15, 0.4, -34],
+    [0, 0.7, -45]
   ];
   const showcase = [
     "nature/tree_detailed.glb",
@@ -764,14 +794,22 @@ async function buildMap() {
     "space/craft_speederA.glb",
     "holiday/tree-snow-a.glb"
   ];
-  for (let i = 0; i < 5; i++) {
+  // v8b: procedural showcase pieces for the new worlds
+  const showcase2 = { 5: () => PROPS.pyramidSmall(), 6: () => PROPS.coral(), 7: () => PROPS.volcanoSmall() };
+  const showScale = { 5: 0.22, 6: 1.4, 7: 0.22 };
+  for (let i = 0; i < WORLDS.length; i++) {
     const world = WORLDS[i];
     const isle = makeIslandMesh(world);
     isle.position.set(...positions[i]);
     isle.userData.worldIndex = i;
-    const prop = await createProp(MP(showcase[i]), i === 3 ? 1.6 : 2.8);
+    let prop;
+    if (showcase[i]) prop = await createProp(MP(showcase[i]), i === 3 ? 1.6 : 2.8);
+    else { prop = showcase2[i](); prop.scale.multiplyScalar(showScale[i]); }
     prop.position.set(0.6, 0.58, -0.4);
     isle.add(prop);
+    if (i === 5) { const c = PROPS.cactus(); c.scale.setScalar(0.7); c.position.set(-1.6, 0.58, 0.2); isle.add(c); }
+    if (i === 6) { const c = PROPS.brainCoral(); c.position.set(-1.5, 0.58, 0.3); isle.add(c); const k = PROPS.seaweed(); k.position.set(1.8, 0.58, 0.6); isle.add(k); }
+    if (i === 7) { const d = PROPS.dino(); d.scale.setScalar(0.45); d.position.set(-1.7, 0.58, 0.2); isle.add(d); }
     const extras = world.decor.slice(1, 3);
     for (let e = 0; e < extras.length; e++) {
       const p2 = await createProp(MP(extras[e]), 1.5 + e * 0.35);
@@ -780,9 +818,9 @@ async function buildMap() {
       isle.add(p2);
     }
     // stage pins
-    for (let k = 0; k < 5; k++) {
-      const pin = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.5, 6), new THREE.MeshStandardMaterial({ color: k === 4 ? 0xe8553d : 0xffc83d }));
-      pin.position.set(-1.6 + k * 0.8, 1.05, 1.5);
+    for (let k = 0; k < NSTAGES; k++) {
+      const pin = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.5, 6), new THREE.MeshStandardMaterial({ color: k === BOSS_ST ? 0xe8553d : 0xffc83d }));
+      pin.position.set(-1.86 + k * 0.62, 1.05, 1.5);
       pin.userData.pin = { world: i, stage: k };
       isle.add(pin);
     }
@@ -896,8 +934,8 @@ function focusTitleCam() {
   lookGoal.set(0, 1.2, 2.6);
 }
 function focusMapCam() {
-  camGoal.set(0, 16, 18);
-  lookGoal.set(0, 0, -12);
+  camGoal.set(0, 44, 24);
+  lookGoal.set(0, 0, -8);
 }
 function focusIslandCam(i) {
   const p = islands[i].position;
@@ -1003,7 +1041,7 @@ function applyWorldTheme(world) {
 function applyStageLook(world) {
   const L = run && run.layout;
   if (!L) return;
-  const look = THEME_LOOK[themeOf(world.id)];
+  const look = stageLook(THEME_LOOK[themeOf(world.id)], world.id, run.st);
   if (look) {
     renderer.toneMappingExposure = look.exp;
     runLights.hemi.intensity = look.hemi * lightBoost;
@@ -1043,7 +1081,23 @@ function applyStageLook(world) {
   runScene.fog.near = tod.fogNear;
   runScene.fog.far = tod.fogFar;
   applyDrawDistance();
-  if (L.tod === "sunset") {
+  const JT = {
+    morning: { dir: 0xfff0d0, hemi: 0xd8ecff, gnd: 0x4a6a3a, fog: 0xc8e4f0, clear: 0x9ad0ff, top: 0x5ab0ff, bot: 0xe0f4ff, sun: 0xfff2b0 },
+    noon: { dir: 0xffffff, hemi: 0xe0f0ff, gnd: 0x5a7a3a, fog: 0xd0ecff, clear: 0x8ac8ff, top: 0x3a98f0, bot: 0xd0ecff, sun: 0xfffbe0 },
+    dusk: { dir: 0x9bb6ff, hemi: 0x7a88c8, gnd: 0x2a2a3a, fog: 0x4a3a6a, clear: 0x3a2a5a, top: 0x1a1a4a, bot: 0x8a5a8a, sun: 0xc8d6ff },
+    storm: { dir: 0x9bb0c8, hemi: 0x6a7a8a, gnd: 0x2a3028, fog: 0x4a5058, clear: 0x3a4048, top: 0x2a3038, bot: 0x6a7078, sun: 0xc8d6ff }
+  }[L.tod];
+  if (JT) {
+    runLights.dir.color.setHex(JT.dir);
+    runLights.hemi.color.setHex(JT.hemi);
+    runLights.hemi.groundColor.setHex(JT.gnd);
+    runScene.fog.color.setHex(JT.fog);
+    runScene.background = new THREE.Color(JT.clear);
+    renderer.setClearColor(JT.clear);
+    if (runSky) paintSky(runSky, JT.top, JT.bot);
+    if (runSunDisk) { runSunDisk.material.color.setHex(JT.sun); runSunDisk.visible = L.tod !== "storm"; }
+  } else if (L.tod === "sunset") {
+    runScene.background = new THREE.Color(0xff8a54);
     runLights.dir.color.setHex(0xff9a5c);
     runLights.hemi.color.setHex(0xffc9a0);
     runLights.hemi.groundColor.setHex(0x6a3a28);
@@ -1162,8 +1216,16 @@ function rebuildCourseRibbon() {
   const course = run.course;
   const narrow = !!(run.layout && run.layout.narrow);
   const th = themeOf(run.world);
+  const plan = stagePlan(run.world, run.st) || {};
+  const base = plan.base != null ? plan.base : 1;
   if (th !== "jungle") {
-    const tg = buildThemeCourse(th, course, { narrow, high: isHigh() });
+    const tg = NEW_THEMES.includes(th)
+      ? buildWorld2Course(th, course, { narrow, high: isHigh(), baseScale: base })
+      : buildThemeCourse(th, course, { narrow, high: isHigh(), baseScale: base });
+    const ss = buildStageScatter(run.world, run.st, course, isHigh());
+    tg.add(ss);
+    const prevU = tg.userData.update;
+    tg.userData.update = (dt, t, ctx) => { if (prevU) prevU(dt, t, ctx); ss.userData.update(dt, t, ctx); };
     tg.add(plantCourseFlags(course, isHigh()));
     tg.userData.mergeStats = mergeStatic(tg);
     courseVisual = tg;
@@ -1220,10 +1282,13 @@ function rebuildCourseRibbon() {
     new THREE.MeshBasicMaterial({ color: 0xffe6c2, transparent: true, opacity: 0.32, depthWrite: false, fog: true, side: THREE.DoubleSide })
   );
   haze.name = "valleyHaze";
-  const theme = ["jungle", "pirate", "magic", "space", "ice"][(run.world || 1) - 1] || "jungle";
+  const theme = "jungle";
   const valleyBits = populateValley(course, theme, isHigh());
-  const scatter = scatterGroundDetails(course, theme, isHigh());
+  const scatter = scatterGroundDetails(course, theme, isHigh(), Math.max(0.3, base));
   const flags = plantCourseFlags(course, isHigh());
+  const ss = buildStageScatter(run.world, run.st, course, isHigh());
+  group.add(ss);
+  group.userData.update = (dt, t, ctx) => ss.userData.update(dt, t, ctx);
   group.add(follow, scatter, grass, turnGrass, dirt, stripeL, stripeR, valley, valleyBits, haze, skirt, stone, railL, railR, flags);
   group.userData.mergeStats = mergeStatic(group);
   courseVisual = group;
@@ -1339,10 +1404,12 @@ async function spawnDecor(world) {
   const theme = themeOf(world.id);
   const n = N(isHigh(), 26, 16);
   for (let i = 0; i < n; i++) {
-    const spec = theme === "jungle" ? null : makeThemeDecor(theme, i, isHigh());
+    const spec = stageDecorSpec(world.id, run ? run.st : 0, i)
+      || (theme === "jungle" ? null : NEW_THEMES.includes(theme) ? world2Decor(theme, i) : makeThemeDecor(theme, i, isHigh()));
     let m;
     if (spec) m = spec.obj || await createProp(MP(spec.glb), spec.height);
     else m = makeSmoothTree(theme);
+    if (spec && spec.obj && !spec.spin) mergeStatic(m); // v8b: one draw call per material per side prop
     if (spec && spec.glb && theme === "space") {
       m.traverse((o) => {
         if (!o.isMesh || !o.material || !o.material.color) return;
@@ -1440,20 +1507,22 @@ function laneWorldX(lane, z) {
   return laneXs()[lane] + pathBend(z);
 }
 function stageProfile(st, boss, wid) {
-  const i = boss ? 4 : st;
+  const i = boss ? BOSS_ST : st;
   const table = [
     { speed: 7.5, curve: 1.15, hillAmp: 5.8, turnDir: -1, bridge: 0, narrow: 0, tod: "sunset", density: 0.32, types: ["wall", "low"] },
     { speed: 8.0, curve: 1.35, hillAmp: 6.0, turnDir: 1, bridge: 0, narrow: 0, tod: "sunset", density: 0.52, types: ["wall", "hole", "low"] },
     { speed: 8.35, curve: 1.2, hillAmp: 5.4, turnDir: -1, bridge: 1, narrow: 0, tod: "sunset", density: 0.68, types: ["wall", "hole", "beam", "low"] },
     { speed: 8.7, curve: 1.4, hillAmp: 6.2, turnDir: 1, bridge: 0, narrow: 1, tod: "dusk", density: 0.82, types: ["wall", "hole", "beam", "roll"] },
+    { speed: 8.5, curve: 1.3, hillAmp: 5.9, turnDir: -1, bridge: 0, narrow: 0, tod: "sunset", density: 0.75, types: ["wall", "hole", "beam", "low"] },
+    { speed: 9.0, curve: 1.45, hillAmp: 6.3, turnDir: 1, bridge: 0, narrow: 1, tod: "dusk", density: 0.85, types: ["wall", "hole", "beam", "roll"] },
     { speed: 8.15, curve: 1.05, hillAmp: 5.5, turnDir: -1, bridge: 0, narrow: 0, tod: "storm", density: 0.62, types: ["wall", "hole", "beam", "roll"] }
   ];
-  const L = Object.assign({}, table[Math.max(0, Math.min(4, i))]);
+  const L = Object.assign({}, table[Math.max(0, Math.min(BOSS_ST, i))]);
   // v8: speed / obstacles / time-to-answer / words / boss scale per world, stage and difficulty
   const D = difficultyFor(wid || 1, st, boss, S.settings);
   L.speed = D.speed; L.density = D.density; L.types = D.types; L.diff = D;
   L.causeway = wid === 1;
-  if (wid === 1) L.tod = "sunset";
+  if (wid === 1) { const pl = stagePlan(1, boss ? BOSS_ST : st); L.tod = (pl && pl.tod) || "sunset"; }
   else L.tod = themeOf(wid);
   return L;
 }
@@ -1578,6 +1647,8 @@ function clearLetters() {
   letters.forEach((L) => { if (L.mesh && L.mesh.parent) runScene.remove(L.mesh); });
   letters.length = 0;
 }
+const PIC_COUNT = (() => { const c = {}; WORDS.forEach((w) => { if (w.pic) c[w.pic] = (c[w.pic] || 0) + 1; }); return c; })();
+const picOK = (w) => !!(w && w.pic && PIC_COUNT[w.pic] === 1);
 function setupQuestion() {
   if (!run || run.i >= run.queue.length) return;
   clearLetters();
@@ -1586,6 +1657,7 @@ function setupQuestion() {
   const modes = run.modes || [run.qmode];
   let mode = modes[run.i % modes.length];
   if (isSpellMode(mode) && !spellOK(w)) mode = modes.find((m) => !isSpellMode(m)) || "en2he";
+  if (mode === "picw" && !picOK(w)) mode = modes.find((m) => m !== "picw" && !isSpellMode(m)) || "tr";
   run.activeMode = mode;
   const sim = (run.layout && run.layout.diff && run.layout.diff.similarity) || 0;
   if (mode === "build") {
@@ -1609,6 +1681,14 @@ function setupQuestion() {
     ans = opts.indexOf(w.he);
     sub = "מה הפירוש בעברית? רצו אל השער";
     q = `<span class="en">${esc(w.en)}</span>`;
+  } else if (mode === "picw") {
+    // v8b picture riddle: emoji + Hebrew riddle -> pick the English word (distractors never share the picture)
+    const ds = distractors(w, "en", 5, sim).filter((d) => { const x = WORDS.find((y) => y.en === d); return !x || x.pic !== w.pic; }).slice(0, 2);
+    while (ds.length < 2) { const x = WORDS[Math.floor(Math.random() * WORDS.length)]; if (x.pic !== w.pic && x.en !== w.en && !ds.includes(x.en)) ds.push(x.en); }
+    opts = shuffle([w.en, ...ds]);
+    ans = opts.indexOf(w.en);
+    sub = "תמונה וחידה — רצו אל המילה באנגלית";
+    q = `<span class="pic-big">${w.pic}</span><div class="riddle">${esc(w.clue || "מה רואים בתמונה?")}</div>`;
   } else if (mode === "rev") {
     opts = shuffle([w.he, ...distractors(w, "he", 2, sim)]);
     ans = opts.indexOf(w.he);
@@ -1730,6 +1810,7 @@ function cautionTex() {
 }
 function hazardMark(kind) {
   const th = run ? themeOf(run.world) : "jungle";
+  if (NEW_THEMES.includes(th)) return world2Hazard(th, kind, cautionTex());
   if (th !== "jungle") return makeThemedHazard(th, kind, cautionTex());
   const g = new THREE.Group();
   if (kind === "hole") {
@@ -1866,7 +1947,7 @@ function showEndScreen(ok, st, title, nx) {
     <h2>${title}</h2>
     <div style="font-size:48px">${"⭐".repeat(st)}${"☆".repeat(3 - st)}</div>
     <p>ניקוד: <b>${run.score}</b> · 🪙 +${run.coins} · נכון בניסיון ראשון: ${run.firstTry}/${run.queue.length}</p>
-    ${ok && run.boss && run.bossHP <= 0 && run.world < 5 ? "<p>🔑 קיבלתם מפתח זהב! העולם הבא נפתח.</p>" : ""}
+    ${ok && run.boss && run.bossHP <= 0 && run.world < WORLDS.length ? "<p>🔑 קיבלתם מפתח זהב! העולם הבא נפתח.</p>" : ""}
   </div>
   <div class="row" style="margin-top:12px">${nx}
     <button class="btn" id="again">שוב</button>
@@ -1876,7 +1957,7 @@ function showEndScreen(ok, st, title, nx) {
   $("again").onclick = () => startLevel(run.world, run.st, run.lost);
   const nxb = $("nx");
   if (nxb) nxb.onclick = () => {
-    if (run.st < 4) startLevel(run.world, run.st + 1);
+    if (run.st < BOSS_ST) startLevel(run.world, run.st + 1);
     else startLevel(run.world + 1, 0);
   };
 }
@@ -1895,14 +1976,14 @@ function finishLevel(ok) {
   const bossWin = !!(ok && run.boss && run.bossHP <= 0);
   if (bossWin) {
     grantAch("boss1");
-    if (run.world < 5) pendingUnlock = run.world;
+    if (run.world < WORLDS.length) pendingUnlock = run.world;
     startKeyReward();
     appMode = "run";
   } else {
     appMode = "map";
   }
-  if (stDone(1, 4)) grantAch("world1");
-  if (worldsDone() >= 5) grantAch("worlds5");
+  if (stDone(1, BOSS_ST)) grantAch("world1");
+  if (worldsDone() >= WORLDS.length) grantAch("worlds5");
   const ln = learnedCount();
   if (ln >= 10) grantAch("learn10");
   if (ln >= 50) grantAch("learn50");
@@ -1914,7 +1995,7 @@ function finishLevel(ok) {
     (bossWin ? "🏆 ניצחתם את " + BOSSES[run.world - 1].name + "!" : "🏁 השלב הושלם!");
   let nx = "";
   if (ok && !run.lost) {
-    if (run.st < 4) nx = `<button class="btn g" id="nx">לשלב הבא ▶</button>`;
+    if (run.st < BOSS_ST) nx = `<button class="btn g" id="nx">לשלב הבא ▶</button>`;
     else if (WORLDS[run.world]) nx = `<button class="btn g" id="nx">לעולם הבא ▶</button>`;
   }
   if (bossWin) {
@@ -1924,6 +2005,32 @@ function finishLevel(ok) {
   }
 }
 
+/* some GLBs ship zero-length normals -> NaN lighting -> pure black silhouettes; recompute those */
+function fixZeroNormals(root) {
+  root.traverse((o) => {
+    if (!o.isMesh || !o.geometry || !o.geometry.attributes.normal) return;
+    const a = o.geometry.attributes.normal.array;
+    let bad = false;
+    for (let k = 0; k + 2 < a.length; k += 3) {
+      const x = a[k], y = a[k + 1], z = a[k + 2];
+      if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z) || x * x + y * y + z * z < 1e-8) { bad = true; break; }
+    }
+    if (bad) { o.geometry = o.geometry.clone(); o.geometry.computeVertexNormals(); }
+  });
+}
+function tintActor(root, hex) {
+  const c = new THREE.Color(hex);
+  root.traverse((o) => {
+    if (!o.isMesh || !o.material) return;
+    // fresh standard material (cloning some GLB materials rendered pure black in the storm stage)
+    const tint = (m) => {
+      const n = new THREE.MeshStandardMaterial({ map: m.map || null, color: (m.color ? m.color.clone() : new THREE.Color(0xffffff)).lerp(c, m.map ? 0.35 : 0.55),
+        roughness: m.roughness != null ? m.roughness : 0.7, metalness: Math.min(m.metalness || 0, 0.3), emissive: c, emissiveIntensity: 0.12, transparent: !!m.transparent, opacity: m.opacity != null ? m.opacity : 1, side: m.side });
+      return n;
+    };
+    o.material = Array.isArray(o.material) ? o.material.map(tint) : tint(o.material);
+  });
+}
 async function startLevel(wid, st, lost, opt) {
   wid = wid || 1; st = st || 0;
   const world = WORLDS[wid - 1];
@@ -1957,7 +2064,9 @@ async function startLevel(wid, st, lost, opt) {
     const sp = spellable(queue);
     if (sp.length >= 4) queue = sp;
   }
-  if (boss) queue = pickWords(wid, 4, false, Math.max(10, D.bossHP + 2), D.lvlMix);
+  if (boss) queue = pickWords(wid, BOSS_ST, false, Math.max(10, D.bossHP + 2), D.lvlMix);
+  else if (!lost && modes.length === 1 && modes[0] === "picw") queue = pickWords(wid, st, false, 8, D.lvlMix, picOK);
+  else if (!lost && stageMode === "mix") queue = pickWords(wid, st, false, 10, D.lvlMix);
 
   run = {
     world: wid, st, lost, mode, qmode: mode, modes, boss, queue, i: 0, score: 0, coins: 0,
@@ -1981,6 +2090,11 @@ async function startLevel(wid, st, lost, opt) {
   S.runs++; save(); grantAch("first_run");
 
   applyWorldTheme(world);
+  {
+    const pl = lost ? null : stagePlan(wid, st);
+    if (pl && pl.grass) sideMat.color.setHex(pl.grass);
+    if (pl && pl.path) pathMat.color.setHex(pl.path);
+  }
   applyStageLook(world);
   if (runHills && runHills.parent) runScene.remove(runHills);
   if (runHills) disposeDeep(runHills);
@@ -2003,10 +2117,23 @@ async function startLevel(wid, st, lost, opt) {
     themeAmb = null;
   }
   if (theme !== "jungle") {
-    themeAmb = buildThemeAmbience(theme, isHigh());
+    themeAmb = NEW_THEMES.includes(theme) ? buildWorld2Ambience(theme, isHigh()) : buildThemeAmbience(theme, isHigh());
     if (themeAmb.userData.far) themeAmb.userData.far.userData.mergeStats = mergeStatic(themeAmb.userData.far);
     runScene.add(themeAmb);
     if (themeAmb.userData.far) runScene.add(themeAmb.userData.far);
+  } else {
+    themeAmb = new THREE.Group();
+    themeAmb.name = "jungleAmb";
+    runScene.add(themeAmb);
+  }
+  // v8b: per-stage weather / sky extras (rain, fireflies, aurora, embers…) ride on the ambience group
+  {
+    const atm = buildStageAtmos(wid, lost ? 0 : st, isHigh());
+    if (atm) {
+      themeAmb.add(atm);
+      const prevU = themeAmb.userData.update;
+      themeAmb.userData.update = (dt, t, ctx) => { if (prevU) prevU(dt, t, ctx); if (atm.userData.update) atm.userData.update(dt, t, ctx); };
+    }
   }
   if (runMist) disposeDeep(runMist);
   runMist = makeMist();
@@ -2030,6 +2157,8 @@ async function startLevel(wid, st, lost, opt) {
   if (boss) {
     const b = BOSSES[wid - 1];
     bossActor = await createActor(MP(b.file), b.height, true);
+    fixZeroNormals(bossActor.model);
+    if (b.tint != null) tintActor(bossActor.model, b.tint);
     placeOnCourse(bossActor.model, 0, 0);
     runScene.add(bossActor.model);
     playAnim(bossActor, "sprint");
@@ -2041,11 +2170,17 @@ async function startLevel(wid, st, lost, opt) {
   setupQuestion();
   updateHud();
   const title = lost ? "📚 ספריית המילים האבודות" : (boss ? "⚔️ " + BOSSES[wid - 1].name : stageLabel(wid - 1, st));
+  const scene = lost ? "" : `<p class="scene-name">${esc(stageSceneName(wid, st))}</p>`;
   showUI("hud");
   $("btn-hint").classList.toggle("hidden", !S.settings.hints);
-  showModal(`<h2>${title}</h2><p>${boss ? "הבוס רץ מאחוריכם! ענו נכון כדי להחליש אותו!" : (st === 0 && !lost ? INTRO[wid - 1] : "קדימה, אתם יכולים!")}</p>
+  showModal(`<h2>${title}</h2>${scene}<p>${boss ? "הבוס רץ מאחוריכם! ענו נכון כדי להחליש אותו!" : (st === 0 && !lost ? INTRO[wid - 1] : "קדימה, אתם יכולים!")}</p>
     <button class="btn g" id="mgo">יוצאים לדרך ▶</button>`);
-  $("mgo").onclick = () => { hideModal(); paused = false; playAnim(player, "sprint"); };
+  $("mgo").onclick = () => {
+    hideModal(); paused = false; playAnim(player, "sprint");
+    // v8b: re-validate the boss shader once the run's light/shadow setup is final (fixes a black jungle boss)
+    const touchBoss = () => { if (bossActor && bossActor.model) bossActor.model.traverse((o) => { if (o.isMesh) [].concat(o.material || []).forEach((m) => { if (m) m.needsUpdate = true; }); }); };
+    touchBoss(); setTimeout(touchBoss, 400);
+  };
   return true;
 }
 
@@ -2522,7 +2657,7 @@ function openJourney() {
     <h2>🧭 המסע שלי</h2>
     <p>מילים שנלמדו: <b>${ln}</b> מתוך ${WORDS.length}</p>
     <div class="bar"><i style="width:${ln / WORDS.length * 100}%"></i></div>
-    <p>לתרגול: <b>${pr}</b> · עולמות: <b>${worldsDone()}</b>/5 · שלבים: ${Object.keys(S.prog).length}/25</p>
+    <p>לתרגול: <b>${pr}</b> · עולמות: <b>${worldsDone()}</b>/${WORLDS.length} · שלבים: ${Object.keys(S.prog).length}/${WORLDS.length * NSTAGES}</p>
     <p>🪙 ${S.coins} · ⭐ ${starSum()}</p>
     <div class="row">${achHtml}</div>
   </div>
@@ -2574,9 +2709,9 @@ function fillDevGrid() {
   grid.innerHTML = WORLDS.map((w, i) => {
     const stages = ST[i].map((t, k) => {
       const locked = !sOpen(i, k);
-      const label = (k === 4 ? "⚔️ " : "") + stageLabel(i, k) + (k === 4 ? " (בוס)" : "");
+      const label = (k === BOSS_ST ? "⚔️ " : "") + stageLabel(i, k) + (k === BOSS_ST ? " (בוס)" : "") + " · " + stageSceneName(w.id, k);
       const extra = locked ? " 🔒" : "";
-      return `<button class="btn s${k === 4 ? " boss" : ""}" data-dev-w="${w.id}" data-dev-st="${k}">${esc(label)}${extra}</button>`;
+      return `<button class="btn s${k === BOSS_ST ? " boss" : ""}" data-dev-w="${w.id}" data-dev-st="${k}">${esc(label)}${extra}</button>`;
     }).join("");
     return `<div class="dev-world"><h3>${w.icon} ${esc(w.name)}</h3><div class="dev-stages">${stages}</div></div>`;
   }).join("");
@@ -2801,9 +2936,9 @@ function checkLaneAlignment() {
   let nGates = 0, nSigns = 0, nPosts = 0;
   const stages = [];
   try {
-    for (let wi = 1; wi <= 5; wi++) {
-      for (let st = 0; st <= 4; st++) {
-        const layout = stageProfile(st, st === 4, wi);
+    for (let wi = 1; wi <= WORLDS.length; wi++) {
+      for (let st = 0; st < NSTAGES; st++) {
+        const layout = stageProfile(st, st === BOSS_ST, wi);
         run.layout = layout;
         run.course = buildCourse({
           curve: layout.curve,
@@ -2887,8 +3022,8 @@ function checkLaneAlignment() {
     ok: failures.length === 0,
     threshold: 0.1,
     thresholdUnitsNote: "0.1 * lane width (lane width is distance between adjacent lane centers)",
-    nWorlds: 5,
-    nStages: 25,
+    nWorlds: WORLDS.length,
+    nStages: WORLDS.length * NSTAGES,
     nGates,
     nSigns,
     nPosts,

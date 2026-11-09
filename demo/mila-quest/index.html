@@ -19,7 +19,7 @@ html,body{height:100%;margin:0;overflow:hidden;font-family:Rubik,"Noto Sans Hebr
 button{font:inherit;cursor:pointer}
 .en{direction:ltr;unicode-bidi:isolate;font-family:Fredoka,Rubik,sans-serif}
 .ui{position:fixed;inset:0;z-index:4;pointer-events:none}
-.ui button,.ui .pill,.ui .glass,.ui .prompt,.ui .stage-bar,.ui .box,.ui .sign,.ui .hero-btn,.ui a,.ui table,#dev-panel{pointer-events:auto}
+.ui button,.ui .pill,.ui .glass,.ui .prompt,.ui .stage-bar,.ui .world-chips,.ui .box,.ui .sign,.ui .hero-btn,.ui a,.ui table,#dev-panel{pointer-events:auto}
 .hidden{display:none !important}
 .sign{background:linear-gradient(#d49240,#8a5420);border:5px solid #4a2c0c;border-radius:24px;padding:8px 40px 12px;box-shadow:0 10px 0 #0005,0 18px 40px #0004;transform:rotate(-1deg)}
 .sign h1{margin:0;font-size:clamp(34px,7vw,64px);color:#ffd23d;font-family:Fredoka,Rubik,sans-serif;-webkit-text-stroke:2px #5b2d00;paint-order:stroke fill;text-shadow:0 4px 0 #5b2d00}
@@ -48,14 +48,26 @@ button{font:inherit;cursor:pointer}
 .hero-btn.sel{border-color:var(--gold);box-shadow:0 0 0 6px #ffc83d55}
 .map-chrome{position:absolute;inset:0;padding:12px;display:flex;flex-direction:column}
 .map-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
-.map-side{position:absolute;top:86px;right:14px;width:min(280px,32vw);display:flex;flex-direction:column;gap:8px}
+.map-side{position:absolute;top:86px;right:14px;bottom:215px;overflow-y:auto;width:min(280px,32vw);display:flex;flex-direction:column;gap:8px}
 @media (max-width:800px){.map-side{position:static;width:100%;max-height:34vh;overflow:auto;margin-top:8px}}
 .side-card{padding:10px 12px}
 .side-card h3{margin:0 0 6px;font-size:16px}
 .side-card p{margin:0 0 8px;font-size:13px;line-height:1.4}
-.stage-bar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:auto;padding-bottom:8px}
-.stage-bar .tile{background:rgba(255,253,246,.92);border:3px solid #8a5a2b;border-radius:14px;padding:8px 10px;min-width:92px;font-weight:800;text-align:center}
+.map-bottom{position:relative;z-index:2;margin-top:auto;display:flex;flex-direction:column;gap:6px;padding-bottom:8px;max-width:100%}
+.world-chips{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;padding:2px 4px 4px;pointer-events:auto}
+.world-chips .wchip{flex:0 0 auto;background:rgba(255,253,246,.88);border:3px solid #8a5a2b;border-radius:999px;padding:4px 9px;font-weight:800;font-size:14px;white-space:nowrap}
+.world-chips .wchip.sel{background:#ffc83d;border-color:#c0392b;box-shadow:0 0 0 4px #ffc83d66}
+.world-chips .wchip.lock{opacity:.6}
+.stage-bar{display:flex;gap:8px;overflow-x:auto;padding:2px 4px 6px;scrollbar-width:thin}
+.stage-bar>:first-child{margin-inline-start:auto}.stage-bar>:last-child{margin-inline-end:auto}
+.stage-bar .tile{flex:0 0 auto;background:rgba(255,253,246,.94);border:3px solid #8a5a2b;border-radius:14px;padding:7px 9px;min-width:104px;max-width:132px;font-weight:800;text-align:center;font-size:16px;line-height:1.25}
+.stage-bar .tile small{font-size:14px}
+.stage-bar .tile .t-scene{font-size:13px;font-weight:700;color:#5a3a1a;margin:2px 0}
+.stage-bar .tile.boss{border-color:#c0392b;background:rgba(255,232,220,.95)}
 .stage-bar .tile[disabled]{opacity:.45}
+.pic-big{font-size:1.6em;line-height:1}
+.riddle{font-size:clamp(16px,2.4vw,22px);font-weight:800;color:#5a3a1a;margin-top:2px}
+.scene-name{font-size:20px;font-weight:800;color:#8a5a2b;margin:2px 0 6px}
 .world-title{color:#fff;text-shadow:0 3px 0 #0006;font-size:clamp(22px,4vw,34px);margin:0}
 #mute{position:fixed;top:10px;left:10px;z-index:8}
 .note{color:#fff;text-shadow:0 2px 6px #0008}
@@ -143,7 +155,8 @@ table{width:100%;border-collapse:collapse;font-size:15px} th,td{padding:5px 6px;
       <h2 style="text-align:center">איך משחקים?</h2>
       <p>רצים במסלול תלת-ממדי כמו בהרפתקה. מולכם שלושה שלטים נפרדים — לכל שלט מילה. בחרו את הנתיב הנכון עם החצים או בהחלקה על המסך.</p>
       <p>כל עולם נעול במנעול. כשמנצחים את הבוס מקבלים מפתח זהב שפותח את האי הבא.</p>
-      <p>כל שלב מרגיש אחרת: פניות, גשרים, מסלול צר, תאורה ומהירות משתנים.</p>
+      <p>8 עולמות, ובכל עולם 7 שלבים — 6 שלבים ובוס. כל שלב נראה אחרת: נוף, חפצים, מזג אוויר ושעה ביום. העולמות המאוחרים מהירים וקשים יותר.</p>
+      <p>שלב 5 — «תמונה וחידה»: רואים ציור וחידה בעברית ורצים אל המילה באנגלית. שלב 6 — «סיבוב מהיר»: חזרה על כל סוגי השאלות במהירות גבוהה.</p>
       <p>⬆ / רווח — קפיצה מעל בורות ומכשולים נמוכים &nbsp; ←→ — מעבר נתיב, ובפנייה חדה של 90° חייבים להחליק לכיוון הפנייה &nbsp; ⬇ — החלקה מתחת לקורה</p>
       <p>בשלב 2 בכל עולם מקשיבים למילה באנגלית ורצים אל הפירוש בעברית.</p>
       <p>🦉 תקועים? לחצו ״צריכים עזרה?״ — שלושה רמזים בלי עונש.</p>
@@ -168,12 +181,15 @@ table{width:100%;border-collapse:collapse;font-size:15px} th,td{padding:5px 6px;
       <div class="glass side-card"><h3>🧭 המסע שלי</h3>
         <p>נלמדו: <b id="stat-learned">0</b> מתוך <span id="stat-total">0</span></p>
         <div class="bar"><i id="stat-bar"></i></div>
-        <p>לתרגול: <b id="stat-practice">0</b> · עולמות: <b id="stat-worlds">0</b>/5</p>
+        <p>לתרגול: <b id="stat-practice">0</b> · עולמות: <b id="stat-worlds">0</b>/8</p>
         <button class="btn s" id="btn-journey">לפתיחת המסע שלי</button>
       </div>
       <div class="glass side-card"><h3>📚 ספריית המילים האבודות</h3><p>תרגול נוסף למילים שברחו בדרך.</p><button class="btn s" id="btn-library">כניסה לספרייה</button></div>
     </aside>
-    <div class="stage-bar" id="stage-bar"></div>
+    <div class="map-bottom">
+      <div class="world-chips" id="world-chips"></div>
+      <div class="stage-bar" id="stage-bar"></div>
+    </div>
   </section>
 
   <section id="hud" class="hidden">

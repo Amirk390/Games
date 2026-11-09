@@ -4,14 +4,18 @@ import * as THREE from "../assets/lib/three.module.js";
 import { N, GFX } from "./gfx.js";
 import { pathAt } from "./worldkit.js";
 
-export const THEMES = ["jungle", "pirate", "magic", "space", "ice"];
+export const THEMES = ["jungle", "pirate", "magic", "space", "ice", "desert", "ocean", "volcano"];
 export const themeOf = (wid) => THEMES[(wid || 1) - 1] || "jungle";
 
 export const THEME_LOOK = {
   pirate: { exp: 1.1, hemi: 1.0, hemiSky: 0xd8f4ff, hemiGround: 0x2a6a8a, dir: 1.45, sun: 0xfff2d6, fog: 0xbfe8f6, fogNear: 45, fogFar: 330, skyTop: 0x1e8ee0, skyBot: 0xcff2ff, clear: 0x8fd6f4, sunDisk: 0xfff6c8, showSun: true },
   magic: { exp: 1.12, hemi: 0.95, hemiSky: 0xffd2f4, hemiGround: 0x3a2a68, dir: 1.05, sun: 0xffd8ec, fog: 0x8a64b8, fogNear: 36, fogFar: 300, skyTop: 0x241460, skyBot: 0xff9fd2, clear: 0x6a3a9a, sunDisk: 0xfff4dc, showSun: true },
   space: { exp: 1.16, hemi: 0.95, hemiSky: 0xa49cff, hemiGround: 0x1a1040, dir: 1.15, sun: 0xeef0ff, fog: 0x070618, fogNear: 70, fogFar: 380, skyTop: 0x020208, skyBot: 0x0a0822, clear: 0x03030c, showSun: false },
-  ice: { exp: 1.1, hemi: 1.05, hemiSky: 0xf2fbff, hemiGround: 0x8ab8d4, dir: 1.3, sun: 0xfffaf0, fog: 0xe2f4ff, fogNear: 34, fogFar: 340, skyTop: 0x5fb2ea, skyBot: 0xeef9ff, clear: 0xd8f0ff, sunDisk: 0xfffbe8, showSun: true }
+  ice: { exp: 1.1, hemi: 1.05, hemiSky: 0xf2fbff, hemiGround: 0x8ab8d4, dir: 1.3, sun: 0xfffaf0, fog: 0xe2f4ff, fogNear: 34, fogFar: 340, skyTop: 0x5fb2ea, skyBot: 0xeef9ff, clear: 0xd8f0ff, sunDisk: 0xfffbe8, showSun: true },
+  // v8b new worlds
+  desert: { exp: 1.12, hemi: 1.0, hemiSky: 0xfff0d0, hemiGround: 0xb08040, dir: 1.5, sun: 0xfff0c8, fog: 0xf2d9a8, fogNear: 40, fogFar: 330, skyTop: 0x3a9ae8, skyBot: 0xffe6b8, clear: 0xf4dcae, sunDisk: 0xfff4c0, showSun: true },
+  ocean: { exp: 1.12, hemi: 1.05, hemiSky: 0x9ff0ff, hemiGround: 0x0a4a6a, dir: 1.1, sun: 0xc8f4ff, fog: 0x1a7aa0, fogNear: 22, fogFar: 190, skyTop: 0x0a3a6a, skyBot: 0x2aa8c8, clear: 0x1a6a90, showSun: false },
+  volcano: { exp: 1.1, hemi: 0.9, hemiSky: 0xffb890, hemiGround: 0x3a1408, dir: 1.15, sun: 0xffa060, fog: 0x5a2a20, fogNear: 30, fogFar: 260, skyTop: 0x1a0a14, skyBot: 0xc8502a, clear: 0x4a1a14, sunDisk: 0xff7a3a, showSun: true }
 };
 
 const R = (a, b) => a + Math.random() * (b - a);
@@ -483,7 +487,7 @@ function makeTwinklePoints(n, place, opt = {}) {
       varying vec3 vC; varying float vA;
       void main(){
         vec3 p = position;
-        if (uFall > 0.0) {
+        if (uFall != 0.0) {
           p.y = mod(p.y - uTime * uFall * (0.7 + aPhase * 0.6), uBox);
           p.x += sin(uTime * 0.9 + aPhase * 30.0) * 0.6;
         }
@@ -745,6 +749,8 @@ function makeCastle(color = 0xe8d4ff, roof = 0x7a3fa0, opts = {}) {
    A child named "followGround" is moved under the player by game.js (height in userData.y). */
 export function buildThemeCourse(theme, course, opt = {}) {
   const high = opt.high !== false;
+  const bs = opt.baseScale == null ? 1 : opt.baseScale; // v8b: per-stage scenery replaces part of the base scatter
+  const NB = (a, b) => Math.round(N(high, a, b) * bs);
   const narrow = !!opt.narrow;
   const pathW = narrow ? 5.5 : 7.3;
   const turnDir = (course.turns[0] && course.turns[0].dir) || 1;
@@ -807,7 +813,7 @@ export function buildThemeCourse(theme, course, opt = {}) {
     updaters.push((dt, t) => { foamT.offset.y -= dt * 0.3; seaT.offset.x = Math.sin(t * 0.25) * 0.05; seaT.offset.y -= dt * 0.03; });
     // islands with palms, rocks in the water
     const sand = mat("sand", () => stdMat(0xf0d79a, { roughness: 0.95 }));
-    for (let i = 0; i < N(high, 10, 6); i++) {
+    for (let i = 0; i < NB(10, 6); i++) {
       const sp = sideSpot(course, 25 + i * 48, i % 2 ? 1 : -1, R(42, 80));
       if (!clearOfCourse(course, sp.x, sp.z, 32)) continue;
       const isl = new THREE.Group();
@@ -818,7 +824,7 @@ export function buildThemeCourse(theme, course, opt = {}) {
       g.add(isl);
     }
     const rockM = mat("seaRock", () => stdMat(0x6a6e74, { roughness: 0.9, flatShading: true }));
-    for (let i = 0; i < N(high, 26, 12); i++) {
+    for (let i = 0; i < NB(26, 12); i++) {
       const sp = sideSpot(course, 10 + i * 19, i % 2 ? 1 : -1, R(15, 40));
       if (!clearOfCourse(course, sp.x, sp.z, 13)) continue;
       const rk = new THREE.Mesh(new THREE.DodecahedronGeometry(R(0.8, 2.2), 0), rockM);
@@ -843,7 +849,7 @@ export function buildThemeCourse(theme, course, opt = {}) {
       });
     });
     g.userData.ships = [];
-    for (let i = 0; i < N(high, 5, 3); i++) {
+    for (let i = 0; i < NB(5, 3); i++) {
       const sp = sideSpot(course, 40 + i * 95, i % 2 ? -1 : 1, R(30, 55));
       if (!clearOfCourse(course, sp.x, sp.z, 24)) continue;
       g.userData.ships.push({ x: sp.x, y: SEA, z: sp.z, heading: sp.heading + (i % 2 ? 0.3 : -0.4) });
@@ -869,7 +875,7 @@ export function buildThemeCourse(theme, course, opt = {}) {
       return [s.x + Math.cos(s.heading) * lat, s.y + R(-2, 3.5), s.z + Math.sin(s.heading) * lat];
     }, { minSize: 2, maxSize: 5, persp: true, colors: [0xffffff, 0xbfa8ff, 0x9fe0ff, 0xffd8a8] }));
     const rocks = [];
-    for (let i = 0; i < N(high, 70, 36); i++) {
+    for (let i = 0; i < NB(70, 36); i++) {
       const sp = sideSpot(course, (i * 7.3) % (course.length - 4), i % 2 ? 1 : -1, R(10, 46));
       if (!clearOfCourse(course, sp.x, sp.z, 8.5)) continue;
       const a = makeAsteroid(R(0.5, i % 7 === 0 ? 3.2 : 1.6));
@@ -911,7 +917,7 @@ export function buildThemeCourse(theme, course, opt = {}) {
     const street = new THREE.Mesh(new THREE.CircleGeometry(300, 40), new THREE.MeshStandardMaterial({ map: stT, color: 0x6a5a8a, roughness: 0.9 }));
     street.rotation.x = -Math.PI / 2; street.name = "followGround"; street.userData.y = GROUND;
     g.add(street);
-    const nH = N(high, 130, 65);
+    const nH = NB(130, 65);
     for (let i = 0; i < nH; i++) {
       const sp = sideSpot(course, (i * 4.37) % (course.length - 4), i % 2 ? 1 : -1, R(11, 36));
       const w = R(3.5, 6.5), d = R(3.5, 6.5);
@@ -964,7 +970,7 @@ export function buildThemeCourse(theme, course, opt = {}) {
     field.rotation.x = -Math.PI / 2; field.name = "followGround"; field.userData.y = -0.32;
     field.receiveShadow = true; g.add(field);
     const rockM = mat("snowRock", () => stdMat(0x8a9aaa, { roughness: 0.9, flatShading: true }));
-    for (let i = 0; i < N(high, 120, 60); i++) {
+    for (let i = 0; i < NB(120, 60); i++) {
       const sp = sideSpot(course, (i * 4.71) % (course.length - 4), i % 2 ? 1 : -1, R(8.5, 42));
       if (!clearOfCourse(course, sp.x, sp.z, 8)) continue;
       const pick = i % 11;
@@ -1226,4 +1232,7 @@ export function makeThemedHazard(theme, kind, cTex) {
   return g;
 }
 
-export const THEME_MOUNTAINS = { magic: { color: 0x5a3a8a }, ice: { color: 0xa8cce4, top: 0xffffff } };
+export const THEME_MOUNTAINS = { magic: { color: 0x5a3a8a }, ocean: { color: 0x1a4a58 }, ice: { color: 0xa8cce4, top: 0xffffff }, desert: { color: 0xd8a860 }, volcano: { color: 0x2a1410 } };
+
+/* v8b: shared helpers for the stage-variety and new-world modules */
+export { R, sideSpot, clearOfCourse, onOtherStretch, instanced, mat, stdMat, canvasTex, tex, glowTex, makeTwinklePoints, makePalm, makeSnowPine, makeIceSpire, makeIgloo, makeAsteroid, makeCrystalCluster, makeLamp, makeBarrel, makeCrate, crateMat, makeCannon, makeCloud, makeHouse, makeTower, makeCastle, makeMast, foamTex, seaTex };

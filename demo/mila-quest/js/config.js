@@ -9,19 +9,28 @@ export const HEROES = [
 ];
 
 export const BOSSES = [
-  { name: "שומר הג'ונגל", file: "nature/tree_detailed.glb", height: 3.4, animated: false },
+  { name: "שומר הג'ונגל", file: "nature/tree_detailed.glb", height: 3.4, animated: false, tint: 0x5ac05a },
   { name: "קפטן הפיראטים", file: "heroes/boss-pirate.glb", height: 2.55, animated: true },
   { name: "הקוסם השומר", file: "heroes/boss-wizard.glb", height: 2.55, animated: true },
   { name: "חייל החלל", file: "heroes/boss-soldier.glb", height: 2.55, animated: true },
-  { name: "מלכת הקרח", file: "holiday/snowman-hat.glb", height: 2.6, animated: false }
+  { name: "מלכת הקרח", file: "holiday/snowman-hat.glb", height: 2.6, animated: false },
+  { name: "אביר המדבר", file: "mini/character-knight.glb", height: 2.6, animated: true, tint: 0xe0b060 },
+  { name: "רובוט המעמקים", file: "mini/character-robot.glb", height: 2.6, animated: true, tint: 0x40d0e0 },
+  { name: "ענק הלבה", file: "mini/character-male-a.glb", height: 3.1, animated: true, tint: 0xff5a20 }
 ];
 
+/* v8b: 7 stages per world — index 6 is the boss (BOSS_ST) */
+export const NSTAGES = 7;
+export const BOSS_ST = 6;
 export const ST = [
-  [["תרגום מילים", "tr"], ["האזנה ופירוש", "rev"], ["איסוף אותיות", "build"], ["אות חסרה", "let"], ["אתגר הבוס", "boss"]],
-  [["תרגום על הסיפון", "tr"], ["האזנה ופירוש", "rev"], ["אות חסרה", "let"], ["איסוף אותיות", "build"], ["אתגר הבוס", "boss"]],
-  [["תרגום על הגגות", "tr"], ["האזנה ופירוש", "rev"], ["אות חסרה", "let"], ["איסוף אותיות", "build"], ["אתגר הבוס", "boss"]],
-  [["תרגום בחלל", "tr"], ["האזנה ופירוש", "rev"], ["איסוף אותיות", "build"], ["אות חסרה", "let"], ["אתגר הבוס", "boss"]],
-  [["תרגום בשלג", "tr"], ["האזנה ופירוש", "rev"], ["אות חסרה", "let"], ["איסוף אותיות", "build"], ["אתגר הבוס", "boss"]]
+  [["תרגום מילים", "tr"], ["האזנה ופירוש", "rev"], ["איסוף אותיות", "build"], ["אות חסרה", "let"], ["תמונה וחידה", "picw"], ["סיבוב מהיר", "mix"], ["אתגר הבוס", "boss"]],
+  [["תרגום מילים", "tr"], ["האזנה ופירוש", "rev"], ["אות חסרה", "let"], ["איסוף אותיות", "build"], ["תמונה וחידה", "picw"], ["סיבוב מהיר", "mix"], ["אתגר הבוס", "boss"]],
+  [["תרגום מילים", "tr"], ["האזנה ופירוש", "rev"], ["אות חסרה", "let"], ["איסוף אותיות", "build"], ["תמונה וחידה", "picw"], ["סיבוב מהיר", "mix"], ["אתגר הבוס", "boss"]],
+  [["תרגום מילים", "tr"], ["האזנה ופירוש", "rev"], ["איסוף אותיות", "build"], ["אות חסרה", "let"], ["תמונה וחידה", "picw"], ["סיבוב מהיר", "mix"], ["אתגר הבוס", "boss"]],
+  [["תרגום מילים", "tr"], ["האזנה ופירוש", "rev"], ["אות חסרה", "let"], ["איסוף אותיות", "build"], ["תמונה וחידה", "picw"], ["סיבוב מהיר", "mix"], ["אתגר הבוס", "boss"]],
+  [["תרגום מילים", "tr"], ["האזנה ופירוש", "rev"], ["איסוף אותיות", "build"], ["אות חסרה", "let"], ["תמונה וחידה", "picw"], ["סיבוב מהיר", "mix"], ["אתגר הבוס", "boss"]],
+  [["תרגום מילים", "tr"], ["האזנה ופירוש", "rev"], ["אות חסרה", "let"], ["איסוף אותיות", "build"], ["תמונה וחידה", "picw"], ["סיבוב מהיר", "mix"], ["אתגר הבוס", "boss"]],
+  [["תרגום מילים", "tr"], ["האזנה ופירוש", "rev"], ["איסוף אותיות", "build"], ["אות חסרה", "let"], ["תמונה וחידה", "picw"], ["סיבוב מהיר", "mix"], ["אתגר הבוס", "boss"]]
 ];
 
 export const WORLDS = [
@@ -69,6 +78,33 @@ export const WORLDS = [
     decor: ["holiday/tree-snow-a.glb", "holiday/present-a-cube.glb", "holiday/sled.glb"],
     obstacle: ["holiday/rocks-large.glb"],
     extra: ["holiday/snowman-hat.glb"]
+  },
+  {
+    id: 6, name: "מדבר הפירמידות", en: "Pyramid Desert", icon: "🐫",
+    desc: "מדבר, היסטוריה וכיוונים",
+    sky: 0x5ab0f0, fog: 0xf2d9a8, pathA: 0xe2bf7c, pathB: 0x8a5a28,
+    ground: 0xe2b874, hemiSky: 0xfff0d0, hemiGround: 0xb08040, sun: 0xfff0c8,
+    decor: ["pirate/palm-straight.glb", "pirate/palm-detailed-straight.glb", "platformer/chest.glb"],
+    obstacle: ["platformer/crate.glb"],
+    extra: []
+  },
+  {
+    id: 7, name: "מעמקי הים", en: "Ocean Depths", icon: "🐠",
+    desc: "חיים בים, מדע וסביבה",
+    sky: 0x1a6a90, fog: 0x1a7aa0, pathA: 0xc9b98a, pathB: 0x7af0ff,
+    ground: 0x2a8aa0, hemiSky: 0x9ff0ff, hemiGround: 0x0a4a6a, sun: 0xc8f4ff,
+    decor: ["pirate/chest.glb", "pirate/barrel.glb", "pirate/ship-pirate-small.glb"],
+    obstacle: ["pirate/chest.glb"],
+    extra: []
+  },
+  {
+    id: 8, name: "ארץ הר הגעש", en: "Volcano Land", icon: "🌋",
+    desc: "כוחות הטבע, הצלה ודינוזאורים",
+    sky: 0x4a1a14, fog: 0x5a2a20, pathA: 0x3a3030, pathB: 0xffb050,
+    ground: 0x3a2a24, hemiSky: 0xffb890, hemiGround: 0x3a1408, sun: 0xffa060,
+    decor: ["space/rock_crystalsLargeA.glb", "space/meteor.glb", "space/crater.glb"],
+    obstacle: ["holiday/rocks-large.glb", "space/meteor.glb"],
+    extra: []
   }
 ];
 
@@ -77,7 +113,7 @@ export const ACH = [
   { id: "stars3", name: "כוכב על", desc: "השגתם שלושה כוכבים בשלב" },
   { id: "boss1", name: "ציידי בוסים", desc: "ניצחתם בוס ראשון" },
   { id: "world1", name: "מלכי הג'ונגל", desc: "סיימתם את אי הג'ונגל" },
-  { id: "worlds5", name: "גיבורי המסע", desc: "סיימתם את כל חמשת העולמות" },
+  { id: "worlds5", name: "גיבורי המסע", desc: "סיימתם את כל העולמות" },
   { id: "learn10", name: "עשר מילים", desc: "למדתם 10 מילים" },
   { id: "learn50", name: "חמישים מילים", desc: "למדתם 50 מילים" },
   { id: "learn100", name: "מאה מילים", desc: "למדתם 100 מילים" },
@@ -92,5 +128,8 @@ export const INTRO = [
   "תרגמו על הסיפון ורצו בין השערים. זהרו מקירות וחביות מתגלגלות!",
   "תרגמו על גגות העיר הקסומה. המסלול מתעקל והתאורה משתנה!",
   "תרגמו בין הכוכבים. התחמקו ממטאורים ומקירות באור החלל!",
-  "תרגמו על דרך הקרח החלקה. מלכת הקרח מחכה בסוף הדרך!"
+  "תרגמו על דרך הקרח החלקה. מלכת הקרח מחכה בסוף הדרך!",
+  "רוצו בין הפירמידות והדיונות. היזהרו מחול טובעני ומגלגלי קוצים!",
+  "צללו למעמקי הים! רוצו בין האלמוגים והתחמקו מדגי אבו־נפחא.",
+  "העולם הכי קשה: נהרות לבה, אבני אש ודינוזאורים. בהצלחה, גיבורים!"
 ];

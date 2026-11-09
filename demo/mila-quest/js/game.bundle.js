@@ -8269,14 +8269,14 @@
         blending: NoBlending
       });
       material.uniforms.tEquirect.value = texture;
-      const mesh = new Mesh(geometry, material);
+      const mesh2 = new Mesh(geometry, material);
       const currentMinFilter = texture.minFilter;
       if (texture.minFilter === LinearMipmapLinearFilter) texture.minFilter = LinearFilter;
       const camera2 = new CubeCamera(1, 10, this);
-      camera2.update(renderer2, mesh);
+      camera2.update(renderer2, mesh2);
       texture.minFilter = currentMinFilter;
-      mesh.geometry.dispose();
-      mesh.material.dispose();
+      mesh2.geometry.dispose();
+      mesh2.material.dispose();
       return this;
     }
     clear(renderer2, color, depth, stencil) {
@@ -10478,13 +10478,13 @@
         }
       }
       const material = isCubeTexture ? this._cubemapMaterial : this._equirectMaterial;
-      const mesh = new Mesh(this._lodPlanes[0], material);
+      const mesh2 = new Mesh(this._lodPlanes[0], material);
       const uniforms = material.uniforms;
       uniforms["envMap"].value = texture;
       const size = this._cubeSize;
       _setViewport(cubeUVRenderTarget, 0, 0, 3 * size, 2 * size);
       renderer2.setRenderTarget(cubeUVRenderTarget);
-      renderer2.render(mesh, _flatCamera);
+      renderer2.render(mesh2, _flatCamera);
     }
     _applyPMREM(cubeUVRenderTarget) {
       const renderer2 = this._renderer;
@@ -23626,7 +23626,7 @@
       const normal = new Vector3();
       const P1 = new Vector3();
       const P2 = new Vector3();
-      const B = new Vector3();
+      const B2 = new Vector3();
       const T = new Vector3();
       const N2 = new Vector3();
       for (let i = 0; i <= tubularSegments; ++i) {
@@ -23635,17 +23635,17 @@
         calculatePositionOnCurve(u + 0.01, p, q, radius, P2);
         T.subVectors(P2, P1);
         N2.addVectors(P2, P1);
-        B.crossVectors(T, N2);
-        N2.crossVectors(B, T);
-        B.normalize();
+        B2.crossVectors(T, N2);
+        N2.crossVectors(B2, T);
+        B2.normalize();
         N2.normalize();
         for (let j = 0; j <= radialSegments; ++j) {
           const v = j / radialSegments * Math.PI * 2;
           const cx = -tube * Math.cos(v);
           const cy = tube * Math.sin(v);
-          vertex2.x = P1.x + (cx * N2.x + cy * B.x);
-          vertex2.y = P1.y + (cx * N2.y + cy * B.y);
-          vertex2.z = P1.z + (cx * N2.z + cy * B.z);
+          vertex2.x = P1.x + (cx * N2.x + cy * B2.x);
+          vertex2.y = P1.y + (cx * N2.y + cy * B2.y);
+          vertex2.z = P1.z + (cx * N2.z + cy * B2.z);
           vertices.push(vertex2.x, vertex2.y, vertex2.z);
           normal.subVectors(vertex2, P1).normalize();
           normals.push(normal.x, normal.y, normal.z);
@@ -23725,14 +23725,14 @@
       function generateSegment(i) {
         P = path.getPointAt(i / tubularSegments, P);
         const N2 = frames.normals[i];
-        const B = frames.binormals[i];
+        const B2 = frames.binormals[i];
         for (let j = 0; j <= radialSegments; j++) {
           const v = j / radialSegments * Math.PI * 2;
           const sin = Math.sin(v);
           const cos = -Math.cos(v);
-          normal.x = cos * N2.x + sin * B.x;
-          normal.y = cos * N2.y + sin * B.y;
-          normal.z = cos * N2.z + sin * B.z;
+          normal.x = cos * N2.x + sin * B2.x;
+          normal.y = cos * N2.y + sin * B2.y;
+          normal.z = cos * N2.z + sin * B2.z;
           normal.normalize();
           normals.push(normal.x, normal.y, normal.z);
           vertex2.x = P.x + radius * normal.x;
@@ -29910,11 +29910,11 @@
       this.children[0].material.dispose();
     }
     update() {
-      const mesh = this.children[0];
+      const mesh2 = this.children[0];
       if (this.color !== void 0) {
         this.material.color.set(this.color);
       } else {
-        const colors = mesh.geometry.getAttribute("color");
+        const colors = mesh2.geometry.getAttribute("color");
         _color1.copy(this.light.color);
         _color2.copy(this.light.groundColor);
         for (let i = 0, l = colors.count; i < l; i++) {
@@ -29924,7 +29924,7 @@
         colors.needsUpdate = true;
       }
       this.light.updateWorldMatrix(true, false);
-      mesh.lookAt(_vector$1.setFromMatrixPosition(this.light.matrixWorld).negate());
+      mesh2.lookAt(_vector$1.setFromMatrixPosition(this.light.matrixWorld).negate());
     }
   };
   var GridHelper = class extends LineSegments {
@@ -31680,12 +31680,12 @@
         const meshes = nodeObject.isGroup ? nodeObject.children : [nodeObject];
         const count = results[0].count;
         const instancedMeshes = [];
-        for (const mesh of meshes) {
+        for (const mesh2 of meshes) {
           const m = new Matrix4();
           const p = new Vector3();
           const q = new Quaternion();
           const s = new Vector3(1, 1, 1);
-          const instancedMesh = new InstancedMesh(mesh.geometry, mesh.material, count);
+          const instancedMesh = new InstancedMesh(mesh2.geometry, mesh2.material, count);
           for (let i = 0; i < count; i++) {
             if (attributes.TRANSLATION) {
               p.fromBufferAttribute(attributes.TRANSLATION, i);
@@ -31703,10 +31703,10 @@
               const attr = attributes[attributeName];
               instancedMesh.instanceColor = new InstancedBufferAttribute(attr.array, attr.itemSize, attr.normalized);
             } else if (attributeName !== "TRANSLATION" && attributeName !== "ROTATION" && attributeName !== "SCALE") {
-              mesh.geometry.setAttribute(attributeName, attributes[attributeName]);
+              mesh2.geometry.setAttribute(attributeName, attributes[attributeName]);
             }
           }
-          Object3D.prototype.copy.call(instancedMesh, mesh);
+          Object3D.prototype.copy.call(instancedMesh, mesh2);
           this.parser.assignFinalMaterial(instancedMesh);
           instancedMeshes.push(instancedMesh);
         }
@@ -32038,19 +32038,19 @@
       return geometry;
     });
   }
-  function updateMorphTargets(mesh, meshDef) {
-    mesh.updateMorphTargets();
+  function updateMorphTargets(mesh2, meshDef) {
+    mesh2.updateMorphTargets();
     if (meshDef.weights !== void 0) {
       for (let i = 0, il = meshDef.weights.length; i < il; i++) {
-        mesh.morphTargetInfluences[i] = meshDef.weights[i];
+        mesh2.morphTargetInfluences[i] = meshDef.weights[i];
       }
     }
     if (meshDef.extras && Array.isArray(meshDef.extras.targetNames)) {
       const targetNames = meshDef.extras.targetNames;
-      if (mesh.morphTargetInfluences.length === targetNames.length) {
-        mesh.morphTargetDictionary = {};
+      if (mesh2.morphTargetInfluences.length === targetNames.length) {
+        mesh2.morphTargetDictionary = {};
         for (let i = 0, il = targetNames.length; i < il; i++) {
-          mesh.morphTargetDictionary[targetNames[i]] = i;
+          mesh2.morphTargetDictionary[targetNames[i]] = i;
         }
       } else {
         console.warn("THREE.GLTFLoader: Invalid extras.targetNames length. Ignoring names.");
@@ -32584,13 +32584,13 @@
      * be created if necessary, and reused from a cache.
      * @param  {Object3D} mesh Mesh, Line, or Points instance.
      */
-    assignFinalMaterial(mesh) {
-      const geometry = mesh.geometry;
-      let material = mesh.material;
+    assignFinalMaterial(mesh2) {
+      const geometry = mesh2.geometry;
+      let material = mesh2.material;
       const useDerivativeTangents = geometry.attributes.tangent === void 0;
       const useVertexColors = geometry.attributes.color !== void 0;
       const useFlatShading = geometry.attributes.normal === void 0;
-      if (mesh.isPoints) {
+      if (mesh2.isPoints) {
         const cacheKey = "PointsMaterial:" + material.uuid;
         let pointsMaterial = this.cache.get(cacheKey);
         if (!pointsMaterial) {
@@ -32602,7 +32602,7 @@
           this.cache.add(cacheKey, pointsMaterial);
         }
         material = pointsMaterial;
-      } else if (mesh.isLine) {
+      } else if (mesh2.isLine) {
         const cacheKey = "LineBasicMaterial:" + material.uuid;
         let lineMaterial = this.cache.get(cacheKey);
         if (!lineMaterial) {
@@ -32633,7 +32633,7 @@
         }
         material = cachedMaterial;
       }
-      mesh.material = material;
+      mesh2.material = material;
     }
     getMaterialType() {
       return MeshStandardMaterial;
@@ -32795,37 +32795,37 @@
         for (let i = 0, il = geometries.length; i < il; i++) {
           const geometry = geometries[i];
           const primitive = primitives[i];
-          let mesh;
+          let mesh2;
           const material = materials[i];
           if (primitive.mode === WEBGL_CONSTANTS.TRIANGLES || primitive.mode === WEBGL_CONSTANTS.TRIANGLE_STRIP || primitive.mode === WEBGL_CONSTANTS.TRIANGLE_FAN || primitive.mode === void 0) {
-            mesh = meshDef.isSkinnedMesh === true ? new SkinnedMesh(geometry, material) : new Mesh(geometry, material);
-            if (mesh.isSkinnedMesh === true) {
-              mesh.normalizeSkinWeights();
+            mesh2 = meshDef.isSkinnedMesh === true ? new SkinnedMesh(geometry, material) : new Mesh(geometry, material);
+            if (mesh2.isSkinnedMesh === true) {
+              mesh2.normalizeSkinWeights();
             }
             if (primitive.mode === WEBGL_CONSTANTS.TRIANGLE_STRIP) {
-              mesh.geometry = toTrianglesDrawMode(mesh.geometry, TriangleStripDrawMode);
+              mesh2.geometry = toTrianglesDrawMode(mesh2.geometry, TriangleStripDrawMode);
             } else if (primitive.mode === WEBGL_CONSTANTS.TRIANGLE_FAN) {
-              mesh.geometry = toTrianglesDrawMode(mesh.geometry, TriangleFanDrawMode);
+              mesh2.geometry = toTrianglesDrawMode(mesh2.geometry, TriangleFanDrawMode);
             }
           } else if (primitive.mode === WEBGL_CONSTANTS.LINES) {
-            mesh = new LineSegments(geometry, material);
+            mesh2 = new LineSegments(geometry, material);
           } else if (primitive.mode === WEBGL_CONSTANTS.LINE_STRIP) {
-            mesh = new Line(geometry, material);
+            mesh2 = new Line(geometry, material);
           } else if (primitive.mode === WEBGL_CONSTANTS.LINE_LOOP) {
-            mesh = new LineLoop(geometry, material);
+            mesh2 = new LineLoop(geometry, material);
           } else if (primitive.mode === WEBGL_CONSTANTS.POINTS) {
-            mesh = new Points(geometry, material);
+            mesh2 = new Points(geometry, material);
           } else {
             throw new Error("THREE.GLTFLoader: Primitive mode unsupported: " + primitive.mode);
           }
-          if (Object.keys(mesh.geometry.morphAttributes).length > 0) {
-            updateMorphTargets(mesh, meshDef);
+          if (Object.keys(mesh2.geometry.morphAttributes).length > 0) {
+            updateMorphTargets(mesh2, meshDef);
           }
-          mesh.name = parser.createUniqueName(meshDef.name || "mesh_" + meshIndex);
-          assignExtrasToUserData(mesh, meshDef);
-          if (primitive.extensions) addUnknownExtensionsToUserData(extensions, mesh, primitive);
-          parser.assignFinalMaterial(mesh);
-          meshes.push(mesh);
+          mesh2.name = parser.createUniqueName(meshDef.name || "mesh_" + meshIndex);
+          assignExtrasToUserData(mesh2, meshDef);
+          if (primitive.extensions) addUnknownExtensionsToUserData(extensions, mesh2, primitive);
+          parser.assignFinalMaterial(mesh2);
+          meshes.push(mesh2);
         }
         for (let i = 0, il = meshes.length; i < il; i++) {
           parser.associations.set(meshes[i], {
@@ -32972,8 +32972,8 @@
       const parser = this;
       const nodeDef = json.nodes[nodeIndex];
       if (nodeDef.mesh === void 0) return null;
-      return parser.getDependency("mesh", nodeDef.mesh).then(function(mesh) {
-        const node = parser._getNodeRef(parser.meshCache, nodeDef.mesh, mesh);
+      return parser.getDependency("mesh", nodeDef.mesh).then(function(mesh2) {
+        const node = parser._getNodeRef(parser.meshCache, nodeDef.mesh, mesh2);
         if (nodeDef.weights !== void 0) {
           node.traverse(function(o) {
             if (!o.isMesh) return;
@@ -33010,9 +33010,9 @@
         const children = results[1];
         const skeleton = results[2];
         if (skeleton !== null) {
-          node.traverse(function(mesh) {
-            if (!mesh.isSkinnedMesh) return;
-            mesh.bind(skeleton, _identityMatrix2);
+          node.traverse(function(mesh2) {
+            if (!mesh2.isSkinnedMesh) return;
+            mesh2.bind(skeleton, _identityMatrix2);
           });
         }
         for (let i = 0, il = children.length; i < il; i++) {
@@ -33325,7 +33325,7 @@
   }
 
   // mila-quest/js/data.js
-  var WORDS = [{ "en": "English", "he": "\u05D0\u05E0\u05D2\u05DC\u05D9\u05EA", "pic": "\u{1F1EC}\u{1F1E7}", "clue": "\u05D4\u05E9\u05E4\u05D4 \u05E9\u05D0\u05EA\u05DD \u05DC\u05D5\u05DE\u05D3\u05D9\u05DD \u05E2\u05DB\u05E9\u05D9\u05D5", "w": 1, "lvl": 1 }, { "en": "Brother", "he": "\u05D0\u05D7", "pic": "\u{1F466}", "clue": "\u05D1\u05DF \u05D1\u05D0\u05D5\u05EA\u05D4 \u05DE\u05E9\u05E4\u05D7\u05D4, \u05E9\u05D4\u05D5\u05D0 \u05D0\u05D7\u05D9\u05DB\u05DD", "w": 1, "lvl": 1 }, { "en": "Sister", "he": "\u05D0\u05D7\u05D5\u05EA", "pic": "\u{1F467}", "clue": "\u05D1\u05EA \u05D1\u05D0\u05D5\u05EA\u05D4 \u05DE\u05E9\u05E4\u05D7\u05D4, \u05E9\u05D4\u05D9\u05D0 \u05D0\u05D7\u05D5\u05EA\u05DB\u05DD", "w": 1, "lvl": 1 }, { "en": "Beautiful", "he": "\u05D9\u05E4\u05D4", "pic": "\u{1F33A}", "clue": "\u05DB\u05DE\u05D5 \u05E4\u05E8\u05D7 \u05D0\u05D5 \u05E9\u05E7\u05D9\u05E2\u05D4 \u05DE\u05E7\u05E1\u05D9\u05DE\u05D4", "w": 1, "lvl": 2 }, { "en": "Family", "he": "\u05DE\u05E9\u05E4\u05D7\u05D4", "pic": "\u{1F468}\u200D\u{1F469}\u200D\u{1F467}\u200D\u{1F466}", "clue": "\u05D0\u05DE\u05D0, \u05D0\u05D1\u05D0, \u05D9\u05DC\u05D3\u05D9\u05DD, \u05E1\u05D1\u05D0 \u05D5\u05E1\u05D1\u05EA\u05D0", "w": 1, "lvl": 1 }, { "en": "Read", "he": "\u05DC\u05E7\u05E8\u05D5\u05D0", "pic": "\u{1F4D6}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05E1\u05E4\u05E8?", "w": 1, "lvl": 1 }, { "en": "Eat", "he": "\u05DC\u05D0\u05DB\u05D5\u05DC", "pic": "\u{1F34E}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05EA\u05E4\u05D5\u05D7?", "w": 1, "lvl": 1 }, { "en": "Drink", "he": "\u05DC\u05E9\u05EA\u05D5\u05EA", "pic": "\u{1F964}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05DE\u05D9\u05DD \u05D0\u05D5 \u05DE\u05D9\u05E5?", "w": 1, "lvl": 1 }, { "en": "Mother", "he": "\u05D0\u05DE\u05D0", "pic": "\u{1F469}", "clue": "\u05D4\u05D4\u05D5\u05E8\u05D4 \u05E9\u05D4\u05D9\u05D0 \u05D0\u05D9\u05E9\u05D4", "w": 1, "lvl": 1 }, { "en": "Father", "he": "\u05D0\u05D1\u05D0", "pic": "\u{1F468}", "clue": "\u05D4\u05D4\u05D5\u05E8\u05D4 \u05E9\u05D4\u05D5\u05D0 \u05D2\u05D1\u05E8", "w": 1, "lvl": 1 }, { "en": "Baby", "he": "\u05EA\u05D9\u05E0\u05D5\u05E7", "pic": "\u{1F476}", "clue": "\u05D9\u05DC\u05D3 \u05D0\u05D5 \u05D9\u05DC\u05D3\u05D4 \u05E7\u05D8\u05E0\u05D9\u05DD \u05DE\u05D0\u05D5\u05D3", "w": 1, "lvl": 1 }, { "en": "Grandfather", "he": "\u05E1\u05D1\u05D0", "pic": "\u{1F474}", "clue": "\u05D0\u05D1\u05D0 \u05E9\u05DC \u05D0\u05DE\u05D0 \u05D0\u05D5 \u05E9\u05DC \u05D0\u05D1\u05D0", "w": 1, "lvl": 2 }, { "en": "Grandmother", "he": "\u05E1\u05D1\u05EA\u05D0", "pic": "\u{1F475}", "clue": "\u05D0\u05DE\u05D0 \u05E9\u05DC \u05D0\u05DE\u05D0 \u05D0\u05D5 \u05E9\u05DC \u05D0\u05D1\u05D0", "w": 1, "lvl": 2 }, { "en": "Boy", "he": "\u05D9\u05DC\u05D3", "pic": "\u{1F466}", "clue": "\u05D9\u05DC\u05D3, \u05DC\u05D0 \u05D9\u05DC\u05D3\u05D4", "w": 1, "lvl": 1 }, { "en": "Girl", "he": "\u05D9\u05DC\u05D3\u05D4", "pic": "\u{1F467}", "clue": "\u05D9\u05DC\u05D3\u05D4, \u05DC\u05D0 \u05D9\u05DC\u05D3", "w": 1, "lvl": 1 }, { "en": "Parents", "he": "\u05D4\u05D5\u05E8\u05D9\u05DD", "pic": "\u{1F46B}", "clue": "\u05D0\u05DE\u05D0 \u05D5\u05D0\u05D1\u05D0 \u05D9\u05D7\u05D3", "w": 1, "lvl": 1 }, { "en": "Lion", "he": "\u05D0\u05E8\u05D9\u05D4", "pic": "\u{1F981}", "clue": "\u05DE\u05DC\u05DA \u05D4\u05D7\u05D9\u05D5\u05EA, \u05E2\u05DD \u05E8\u05E2\u05DE\u05D4 \u05D2\u05D3\u05D5\u05DC\u05D4", "w": 1, "lvl": 1 }, { "en": "Tiger", "he": "\u05E0\u05DE\u05E8", "pic": "\u{1F42F}", "clue": "\u05D7\u05EA\u05D5\u05DC \u05D2\u05D3\u05D5\u05DC \u05E2\u05DD \u05E4\u05E1\u05D9\u05DD", "w": 1, "lvl": 1 }, { "en": "Monkey", "he": "\u05E7\u05D5\u05E3", "pic": "\u{1F435}", "clue": "\u05D0\u05D5\u05D4\u05D1 \u05DC\u05E7\u05E4\u05D5\u05E5 \u05E2\u05DC \u05E2\u05E6\u05D9\u05DD", "w": 1, "lvl": 1 }, { "en": "Elephant", "he": "\u05E4\u05D9\u05DC", "pic": "\u{1F418}", "clue": "\u05D4\u05D7\u05D9\u05D4 \u05D4\u05DB\u05D9 \u05D2\u05D3\u05D5\u05DC\u05D4 \u05D1\u05D9\u05D1\u05E9\u05D4, \u05E2\u05DD \u05D7\u05D3\u05E7", "w": 1, "lvl": 1 }, { "en": "Snake", "he": "\u05E0\u05D7\u05E9", "pic": "\u{1F40D}", "clue": "\u05D0\u05E8\u05D5\u05DA \u05D5\u05D6\u05D5\u05D7\u05DC \u05D1\u05DC\u05D9 \u05E8\u05D2\u05DC\u05D9\u05D9\u05DD", "w": 1, "lvl": 1 }, { "en": "Frog", "he": "\u05E6\u05E4\u05E8\u05D3\u05E2", "pic": "\u{1F438}", "clue": "\u05D9\u05E8\u05D5\u05E7\u05D4, \u05E7\u05D5\u05E4\u05E6\u05EA \u05D5\u05D7\u05D9\u05D4 \u05DC\u05D9\u05D3 \u05DE\u05D9\u05DD", "w": 1, "lvl": 1 }, { "en": "Butterfly", "he": "\u05E4\u05E8\u05E4\u05E8", "pic": "\u{1F98B}", "clue": "\u05D9\u05E4\u05D4 \u05D5\u05E2\u05E3 \u05DE\u05E4\u05E8\u05D7 \u05DC\u05E4\u05E8\u05D7", "w": 1, "lvl": 2 }, { "en": "Bear", "he": "\u05D3\u05D5\u05D1", "pic": "\u{1F43B}", "clue": "\u05D2\u05D3\u05D5\u05DC \u05D5\u05E4\u05E8\u05D5\u05D5\u05EA\u05D9, \u05D0\u05D5\u05D4\u05D1 \u05D3\u05D1\u05E9", "w": 1, "lvl": 1 }, { "en": "Giraffe", "he": "\u05D2'\u05D9\u05E8\u05E4\u05D4", "pic": "\u{1F992}", "clue": "\u05D4\u05D7\u05D9\u05D4 \u05D4\u05DB\u05D9 \u05D2\u05D1\u05D5\u05D4\u05D4, \u05E2\u05DD \u05E6\u05D5\u05D5\u05D0\u05E8 \u05D0\u05E8\u05D5\u05DA", "w": 1, "lvl": 2 }, { "en": "Parrot", "he": "\u05EA\u05D5\u05DB\u05D9", "pic": "\u{1F99C}", "clue": "\u05E6\u05D9\u05E4\u05D5\u05E8 \u05E6\u05D1\u05E2\u05D5\u05E0\u05D9\u05EA \u05E9\u05D9\u05D5\u05D3\u05E2\u05EA \u05DC\u05D7\u05E7\u05D5\u05EA \u05E7\u05D5\u05DC\u05D5\u05EA", "w": 1, "lvl": 1 }, { "en": "Dog", "he": "\u05DB\u05DC\u05D1", "pic": "\u{1F436}", "clue": "\u05D7\u05D9\u05D4 \u05E0\u05D0\u05DE\u05E0\u05D4 \u05E9\u05E0\u05D5\u05D1\u05D7\u05EA", "w": 1, "lvl": 1 }, { "en": "Cat", "he": "\u05D7\u05EA\u05D5\u05DC", "pic": "\u{1F431}", "clue": "\u05D7\u05D9\u05D4 \u05E9\u05D0\u05D5\u05DE\u05E8\u05EA \u05DE\u05D9\u05D0\u05D5", "w": 1, "lvl": 1 }, { "en": "Horse", "he": "\u05E1\u05D5\u05E1", "pic": "\u{1F434}", "clue": "\u05D7\u05D9\u05D4 \u05E9\u05E8\u05D5\u05DB\u05D1\u05D9\u05DD \u05E2\u05DC\u05D9\u05D4", "w": 1, "lvl": 1 }, { "en": "Rabbit", "he": "\u05D0\u05E8\u05E0\u05D1", "pic": "\u{1F430}", "clue": "\u05D7\u05D9\u05D4 \u05E7\u05D8\u05E0\u05D4 \u05E2\u05DD \u05D0\u05D5\u05D6\u05E0\u05D9\u05D9\u05DD \u05D0\u05E8\u05D5\u05DB\u05D5\u05EA", "w": 1, "lvl": 1 }, { "en": "Run", "he": "\u05DC\u05E8\u05D5\u05E5", "pic": "\u{1F3C3}", "clue": "\u05DC\u05D6\u05D5\u05D6 \u05DE\u05D4\u05E8 \u05D1\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD", "w": 1, "lvl": 1 }, { "en": "Jump", "he": "\u05DC\u05E7\u05E4\u05D5\u05E5", "pic": "\u{1F998}", "clue": "\u05DC\u05D4\u05EA\u05E8\u05D5\u05DE\u05DD \u05D1\u05D0\u05D5\u05D5\u05D9\u05E8 \u05DE\u05E2\u05DC \u05DE\u05E9\u05D4\u05D5", "w": 1, "lvl": 1 }, { "en": "Sleep", "he": "\u05DC\u05D9\u05E9\u05D5\u05DF", "pic": "\u{1F634}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05D1\u05DC\u05D9\u05DC\u05D4 \u05D1\u05DE\u05D9\u05D8\u05D4", "w": 1, "lvl": 1 }, { "en": "Play", "he": "\u05DC\u05E9\u05D7\u05E7", "pic": "\u{1F3AE}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05D1\u05E9\u05E2\u05D5\u05EA \u05D4\u05E4\u05E0\u05D0\u05D9", "w": 1, "lvl": 1 }, { "en": "Walk", "he": "\u05DC\u05DC\u05DB\u05EA", "pic": "\u{1F6B6}", "clue": "\u05DC\u05D6\u05D5\u05D6 \u05D1\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD, \u05DC\u05D0 \u05DE\u05D4\u05E8", "w": 1, "lvl": 1 }, { "en": "Big", "he": "\u05D2\u05D3\u05D5\u05DC", "pic": "\u{1F9A3}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05E7\u05D8\u05DF", "w": 1, "lvl": 1 }, { "en": "Small", "he": "\u05E7\u05D8\u05DF", "pic": "\u{1F42D}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05D2\u05D3\u05D5\u05DC", "w": 1, "lvl": 1 }, { "en": "Happy", "he": "\u05E9\u05DE\u05D7", "pic": "\u{1F604}", "clue": "\u05DB\u05E9\u05DE\u05E8\u05D2\u05D9\u05E9\u05D9\u05DD \u05D8\u05D5\u05D1 \u05D5\u05E6\u05D5\u05D7\u05E7\u05D9\u05DD", "w": 1, "lvl": 1 }, { "en": "Sad", "he": "\u05E2\u05E6\u05D5\u05D1", "pic": "\u{1F622}", "clue": "\u05DB\u05E9\u05DE\u05E8\u05D2\u05D9\u05E9\u05D9\u05DD \u05DC\u05D0 \u05D8\u05D5\u05D1 \u05D5\u05E8\u05D5\u05E6\u05D9\u05DD \u05DC\u05D1\u05DB\u05D5\u05EA", "w": 1, "lvl": 1 }, { "en": "Good", "he": "\u05D8\u05D5\u05D1", "pic": "\u{1F44D}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05E8\u05E2", "w": 1, "lvl": 1 }, { "en": "Tree", "he": "\u05E2\u05E5", "pic": "\u{1F333}", "clue": "\u05D2\u05D1\u05D5\u05D4, \u05E2\u05DD \u05D2\u05D6\u05E2 \u05D5\u05E2\u05DD \u05E2\u05DC\u05D9\u05DD", "w": 1, "lvl": 1 }, { "en": "Flower", "he": "\u05E4\u05E8\u05D7", "pic": "\u{1F338}", "clue": "\u05E6\u05D5\u05DE\u05D7 \u05D1\u05D2\u05D9\u05E0\u05D4 \u05D5\u05D4\u05D5\u05D0 \u05D9\u05E4\u05D4 \u05D5\u05E8\u05D9\u05D7\u05E0\u05D9", "w": 1, "lvl": 1 }, { "en": "Forest", "he": "\u05D9\u05E2\u05E8", "pic": "\u{1F332}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E2\u05DD \u05D4\u05E8\u05D1\u05D4 \u05E2\u05E6\u05D9\u05DD", "w": 1, "lvl": 1 }, { "en": "Leaf", "he": "\u05E2\u05DC\u05D4", "pic": "\u{1F343}", "clue": "\u05D4\u05D7\u05DC\u05E7 \u05D4\u05D9\u05E8\u05D5\u05E7 \u05E9\u05D2\u05D3\u05DC \u05E2\u05DC \u05D4\u05E2\u05E5", "w": 1, "lvl": 1 }, { "en": "Grass", "he": "\u05D3\u05E9\u05D0", "pic": "\u{1F331}", "clue": "\u05D9\u05E8\u05D5\u05E7 \u05D5\u05E6\u05D5\u05DE\u05D7 \u05E2\u05DC \u05D4\u05D0\u05D3\u05DE\u05D4 \u05D1\u05D2\u05D9\u05E0\u05D4", "w": 1, "lvl": 1 }, { "en": "Animal", "he": "\u05D7\u05D9\u05D4", "pic": "\u{1F43E}", "clue": "\u05DB\u05DC\u05D1, \u05D7\u05EA\u05D5\u05DC, \u05D0\u05E8\u05D9\u05D4 \u2014 \u05DB\u05D5\u05DC\u05DD...", "w": 1, "lvl": 1 }, { "en": "Fish", "he": "\u05D3\u05D2", "pic": "\u{1F41F}", "clue": "\u05D7\u05D9 \u05D1\u05DE\u05D9\u05DD \u05D5\u05D9\u05E9 \u05DC\u05D5 \u05E1\u05E0\u05E4\u05D9\u05E8\u05D9\u05DD", "w": 2, "lvl": 1 }, { "en": "Sea", "he": "\u05D9\u05DD", "pic": "\u{1F30A}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05D2\u05D3\u05D5\u05DC \u05D5\u05DE\u05DC\u05D5\u05D7 \u05E9\u05DE\u05E9\u05D9\u05D9\u05D8\u05D9\u05DD \u05D1\u05D5", "w": 2, "lvl": 1 }, { "en": "Ship", "he": "\u05E1\u05E4\u05D9\u05E0\u05D4", "pic": "\u{1F6A2}", "clue": "\u05DB\u05DC\u05D9 \u05E9\u05D9\u05D8 \u05D2\u05D3\u05D5\u05DC \u05E9\u05DE\u05E4\u05DC\u05D9\u05D2 \u05D1\u05D9\u05DD", "w": 2, "lvl": 1 }, { "en": "Island", "he": "\u05D0\u05D9", "pic": "\u{1F3DD}\uFE0F", "clue": "\u05D9\u05D1\u05E9\u05D4 \u05E7\u05D8\u05E0\u05D4 \u05E9\u05DE\u05D5\u05E7\u05E4\u05EA \u05DE\u05D9\u05DD \u05DE\u05DB\u05DC \u05D4\u05E6\u05D3\u05D3\u05D9\u05DD", "w": 2, "lvl": 1 }, { "en": "Bird", "he": "\u05E6\u05D9\u05E4\u05D5\u05E8", "pic": "\u{1F426}", "clue": "\u05D9\u05E9 \u05DC\u05D4 \u05DB\u05E0\u05E4\u05D9\u05D9\u05DD \u05D5\u05D4\u05D9\u05D0 \u05E2\u05E4\u05D4", "w": 2, "lvl": 1 }, { "en": "Shark", "he": "\u05DB\u05E8\u05D9\u05E9", "pic": "\u{1F988}", "clue": "\u05D3\u05D2 \u05D8\u05D5\u05E8\u05E3 \u05E2\u05DD \u05E9\u05D9\u05E0\u05D9\u05D9\u05DD \u05D7\u05D3\u05D5\u05EA", "w": 2, "lvl": 1 }, { "en": "Water", "he": "\u05DE\u05D9\u05DD", "pic": "\u{1F4A7}", "clue": "\u05DE\u05D4 \u05E9\u05D5\u05EA\u05D9\u05DD \u05DB\u05E9\u05E6\u05DE\u05D0\u05D9\u05DD", "w": 2, "lvl": 1 }, { "en": "Beach", "he": "\u05D7\u05D5\u05E3", "pic": "\u{1F3D6}\uFE0F", "clue": "\u05D7\u05D5\u05DC \u05D5\u05DE\u05D9\u05DD \u2014 \u05E9\u05DD \u05DE\u05EA\u05E8\u05D7\u05E6\u05D9\u05DD \u05D5\u05DE\u05E9\u05D7\u05E7\u05D9\u05DD", "w": 2, "lvl": 1 }, { "en": "Boat", "he": "\u05E1\u05D9\u05E8\u05D4", "pic": "\u{1F6A3}", "clue": "\u05DB\u05DC\u05D9 \u05E9\u05D9\u05D8 \u05E7\u05D8\u05DF \u05D9\u05D5\u05EA\u05E8 \u05DE\u05E1\u05E4\u05D9\u05E0\u05D4", "w": 2, "lvl": 1 }, { "en": "Pirate", "he": "\u05E4\u05D9\u05E8\u05D0\u05D8", "pic": "\u{1F3F4}\u200D\u2620\uFE0F", "clue": "\u05E9\u05D5\u05D3\u05D3 \u05D9\u05DD \u05E2\u05DD \u05DE\u05D8\u05E4\u05D7\u05EA \u05D5\u05E2\u05DD \u05DE\u05E4\u05D4", "w": 2, "lvl": 1 }, { "en": "Treasure", "he": "\u05D0\u05D5\u05E6\u05E8", "pic": "\u{1F4B0}", "clue": "\u05D6\u05D4\u05D1 \u05D5\u05DE\u05D8\u05D1\u05E2\u05D5\u05EA \u05E9\u05DE\u05D5\u05E6\u05D0\u05D9\u05DD \u05D1\u05EA\u05D9\u05D1\u05D4", "w": 2, "lvl": 2 }, { "en": "Wave", "he": "\u05D2\u05DC", "pic": "\u{1F30A}", "clue": "\u05D4\u05DE\u05D9\u05DD \u05E9\u05DE\u05EA\u05E8\u05D5\u05DE\u05DE\u05D9\u05DD \u05D5\u05E0\u05E9\u05D1\u05E8\u05D9\u05DD \u05D1\u05D9\u05DD", "w": 2, "lvl": 1 }, { "en": "Sand", "he": "\u05D7\u05D5\u05DC", "pic": "\u231B", "clue": "\u05DE\u05D4 \u05E9\u05D9\u05E9 \u05E2\u05DC \u05D4\u05D7\u05D5\u05E3, \u05E8\u05DA \u05D5\u05E6\u05D4\u05D5\u05D1", "w": 2, "lvl": 1 }, { "en": "Map", "he": "\u05DE\u05E4\u05D4", "pic": "\u{1F5FA}\uFE0F", "clue": "\u05DE\u05E8\u05D0\u05D4 \u05D0\u05D9\u05DA \u05DC\u05D4\u05D2\u05D9\u05E2 \u05DE\u05DE\u05E7\u05D5\u05DD \u05DC\u05DE\u05E7\u05D5\u05DD", "w": 2, "lvl": 1 }, { "en": "Gold", "he": "\u05D6\u05D4\u05D1", "pic": "\u{1F947}", "clue": "\u05DE\u05EA\u05DB\u05EA \u05D9\u05E7\u05E8\u05D4 \u05D5\u05D6\u05D4\u05D5\u05D1\u05D4", "w": 2, "lvl": 1 }, { "en": "Captain", "he": "\u05E7\u05E4\u05D8\u05DF", "pic": "\u{1F9D1}\u200D\u2708\uFE0F", "clue": "\u05DE\u05D9 \u05E9\u05DE\u05E0\u05D4\u05D9\u05D2 \u05D0\u05EA \u05D4\u05E1\u05E4\u05D9\u05E0\u05D4", "w": 2, "lvl": 2 }, { "en": "Flag", "he": "\u05D3\u05D2\u05DC", "pic": "\u{1F6A9}", "clue": "\u05D1\u05D3 \u05E2\u05DD \u05E6\u05D9\u05D5\u05E8, \u05EA\u05DC\u05D5\u05D9 \u05E2\u05DC \u05EA\u05E8\u05DF", "w": 2, "lvl": 1 }, { "en": "Red", "he": "\u05D0\u05D3\u05D5\u05DD", "pic": "\u{1F534}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05EA\u05D5\u05EA \u05D5\u05E9\u05DC \u05E2\u05D2\u05D1\u05E0\u05D9\u05D9\u05D4", "w": 2, "lvl": 1 }, { "en": "Blue", "he": "\u05DB\u05D7\u05D5\u05DC", "pic": "\u{1F535}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05D4\u05E9\u05DE\u05D9\u05D9\u05DD \u05D5\u05E9\u05DC \u05D4\u05D9\u05DD", "w": 2, "lvl": 1 }, { "en": "Green", "he": "\u05D9\u05E8\u05D5\u05E7", "pic": "\u{1F7E2}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05D3\u05E9\u05D0 \u05D5\u05E9\u05DC \u05E2\u05DC\u05D9\u05DD", "w": 2, "lvl": 1 }, { "en": "Yellow", "he": "\u05E6\u05D4\u05D5\u05D1", "pic": "\u{1F7E1}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05D1\u05E0\u05E0\u05D4 \u05D5\u05E9\u05DC \u05E9\u05DE\u05E9", "w": 2, "lvl": 1 }, { "en": "Orange", "he": "\u05DB\u05EA\u05D5\u05DD", "pic": "\u{1F7E0}", "clue": "\u05D6\u05D4 \u05D4\u05E6\u05D1\u05E2 \u2014 \u05DC\u05D0 \u05D4\u05E4\u05E8\u05D9 \u05EA\u05E4\u05D5\u05D6", "w": 2, "lvl": 1 }, { "en": "Purple", "he": "\u05E1\u05D2\u05D5\u05DC", "pic": "\u{1F7E3}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05E2\u05E0\u05D1\u05D9\u05DD \u05D5\u05E9\u05DC \u05D7\u05E6\u05D9\u05DC", "w": 2, "lvl": 1 }, { "en": "Pink", "he": "\u05D5\u05E8\u05D5\u05D3", "pic": "\u{1F497}", "clue": "\u05E6\u05D1\u05E2 \u05D1\u05D4\u05D9\u05E8 \u05DB\u05DE\u05D5 \u05DE\u05E1\u05D8\u05D9\u05E7 \u05D0\u05D5 \u05E4\u05E8\u05D7", "w": 2, "lvl": 1 }, { "en": "Black", "he": "\u05E9\u05D7\u05D5\u05E8", "pic": "\u26AB", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05D4\u05DC\u05D9\u05DC\u05D4, \u05D4\u05D4\u05E4\u05DA \u05DE\u05DC\u05D1\u05DF", "w": 2, "lvl": 1 }, { "en": "White", "he": "\u05DC\u05D1\u05DF", "pic": "\u26AA", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05D7\u05DC\u05D1 \u05D5\u05E9\u05DC \u05E9\u05DC\u05D2", "w": 2, "lvl": 1 }, { "en": "Brown", "he": "\u05D7\u05D5\u05DD", "pic": "\u{1F90E}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05E9\u05D5\u05E7\u05D5\u05DC\u05D3 \u05D5\u05E9\u05DC \u05D0\u05D3\u05DE\u05D4", "w": 2, "lvl": 1 }, { "en": "Color", "he": "\u05E6\u05D1\u05E2", "pic": "\u{1F3A8}", "clue": "\u05D0\u05D3\u05D5\u05DD, \u05DB\u05D7\u05D5\u05DC, \u05D9\u05E8\u05D5\u05E7 \u2014 \u05DB\u05DC \u05D0\u05D7\u05D3 \u05D4\u05D5\u05D0...", "w": 2, "lvl": 1 }, { "en": "Apple", "he": "\u05EA\u05E4\u05D5\u05D7", "pic": "\u{1F34E}", "clue": "\u05E4\u05E8\u05D9 \u05E2\u05D2\u05D5\u05DC, \u05D0\u05D3\u05D5\u05DD \u05D0\u05D5 \u05D9\u05E8\u05D5\u05E7", "w": 2, "lvl": 1 }, { "en": "Banana", "he": "\u05D1\u05E0\u05E0\u05D4", "pic": "\u{1F34C}", "clue": "\u05E4\u05E8\u05D9 \u05D0\u05E8\u05D5\u05DA \u05D5\u05E6\u05D4\u05D5\u05D1", "w": 2, "lvl": 1 }, { "en": "Bread", "he": "\u05DC\u05D7\u05DD", "pic": "\u{1F35E}", "clue": "\u05D0\u05D5\u05DB\u05DC\u05D9\u05DD \u05D0\u05D5\u05EA\u05D5 \u05D1\u05DB\u05E8\u05D9\u05DA", "w": 2, "lvl": 1 }, { "en": "Milk", "he": "\u05D7\u05DC\u05D1", "pic": "\u{1F95B}", "clue": "\u05DE\u05E9\u05E7\u05D4 \u05DC\u05D1\u05DF \u05E9\u05E9\u05D5\u05EA\u05D9\u05DD \u05D1\u05D1\u05D5\u05E7\u05E8", "w": 2, "lvl": 1 }, { "en": "Juice", "he": "\u05DE\u05D9\u05E5", "pic": "\u{1F9C3}", "clue": "\u05DE\u05E9\u05E7\u05D4 \u05E9\u05E1\u05D5\u05D7\u05D8\u05D9\u05DD \u05DE\u05E4\u05D9\u05E8\u05D5\u05EA", "w": 2, "lvl": 1 }, { "en": "Cake", "he": "\u05E2\u05D5\u05D2\u05D4", "pic": "\u{1F382}", "clue": "\u05DE\u05EA\u05D5\u05E7\u05D4, \u05D0\u05D5\u05DB\u05DC\u05D9\u05DD \u05D1\u05D9\u05D5\u05DD \u05D4\u05D5\u05DC\u05D3\u05EA", "w": 2, "lvl": 1 }, { "en": "Egg", "he": "\u05D1\u05D9\u05E6\u05D4", "pic": "\u{1F95A}", "clue": "\u05DE\u05D2\u05D9\u05E2\u05D4 \u05DE\u05EA\u05E8\u05E0\u05D2\u05D5\u05DC\u05EA, \u05E2\u05D2\u05D5\u05DC\u05D4 \u05D5\u05DC\u05D1\u05E0\u05D4", "w": 2, "lvl": 1 }, { "en": "Cheese", "he": "\u05D2\u05D1\u05D9\u05E0\u05D4", "pic": "\u{1F9C0}", "clue": "\u05E2\u05E9\u05D5\u05D9\u05D4 \u05DE\u05D7\u05DC\u05D1, \u05E9\u05DE\u05D9\u05DD \u05D1\u05DB\u05E8\u05D9\u05DA", "w": 2, "lvl": 1 }, { "en": "Pizza", "he": "\u05E4\u05D9\u05E6\u05D4", "pic": "\u{1F355}", "clue": "\u05E2\u05D2\u05D5\u05DC\u05D4, \u05E2\u05DD \u05D2\u05D1\u05D9\u05E0\u05D4 \u05D5\u05E2\u05DD \u05EA\u05D5\u05E1\u05E4\u05D5\u05EA \u05DE\u05DC\u05DE\u05E2\u05DC\u05D4", "w": 2, "lvl": 1 }, { "en": "Chocolate", "he": "\u05E9\u05D5\u05E7\u05D5\u05DC\u05D3", "pic": "\u{1F36B}", "clue": "\u05DE\u05EA\u05D5\u05E7 \u05D5\u05D7\u05D5\u05DD, \u05DE\u05DB\u05D9\u05E0\u05D9\u05DD \u05DE\u05E7\u05D9\u05E7\u05D0\u05D5", "w": 2, "lvl": 2 }, { "en": "Food", "he": "\u05D0\u05D5\u05DB\u05DC", "pic": "\u{1F37D}\uFE0F", "clue": "\u05DB\u05DC \u05DE\u05D4 \u05E9\u05D0\u05D5\u05DB\u05DC\u05D9\u05DD \u05D1\u05D0\u05E8\u05D5\u05D7\u05D4", "w": 2, "lvl": 1 }, { "en": "Ice cream", "he": "\u05D2\u05DC\u05D9\u05D3\u05D4", "pic": "\u{1F366}", "clue": "\u05E7\u05D9\u05E0\u05D5\u05D7 \u05E7\u05E8 \u05D5\u05DE\u05EA\u05D5\u05E7 \u05D1\u05E7\u05D9\u05E5", "w": 2, "lvl": 1 }, { "en": "Crab", "he": "\u05E1\u05E8\u05D8\u05DF", "pic": "\u{1F980}", "clue": "\u05D7\u05D9 \u05D1\u05D7\u05D5\u05E3 \u05D5\u05D9\u05E9 \u05DC\u05D5 \u05E6\u05D1\u05EA\u05D5\u05EA", "w": 2, "lvl": 1 }, { "en": "Turtle", "he": "\u05E6\u05D1", "pic": "\u{1F422}", "clue": "\u05D9\u05E9 \u05DC\u05D5 \u05E9\u05E8\u05D9\u05D5\u05DF \u05E2\u05DC \u05D4\u05D2\u05D1", "w": 2, "lvl": 1 }, { "en": "Dolphin", "he": "\u05D3\u05D5\u05DC\u05E4\u05D9\u05DF", "pic": "\u{1F42C}", "clue": "\u05D7\u05D9\u05D4 \u05D7\u05DB\u05DE\u05D4 \u05E9\u05E9\u05D5\u05D7\u05D4 \u05D1\u05D9\u05DD \u05D5\u05DE\u05E7\u05E4\u05E6\u05EA", "w": 2, "lvl": 2 }, { "en": "Whale", "he": "\u05DC\u05D5\u05D5\u05D9\u05D9\u05EA\u05DF", "pic": "\u{1F40B}", "clue": "\u05D4\u05D7\u05D9\u05D4 \u05D4\u05DB\u05D9 \u05D2\u05D3\u05D5\u05DC\u05D4 \u05D1\u05D9\u05DD", "w": 2, "lvl": 1 }, { "en": "Octopus", "he": "\u05EA\u05DE\u05E0\u05D5\u05DF", "pic": "\u{1F419}", "clue": "\u05D9\u05E9 \u05DC\u05D5 \u05E9\u05DE\u05D5\u05E0\u05D4 \u05D6\u05E8\u05D5\u05E2\u05D5\u05EA", "w": 2, "lvl": 2 }, { "en": "School", "he": "\u05D1\u05D9\u05EA \u05E1\u05E4\u05E8", "pic": "\u{1F3EB}", "clue": "\u05D4\u05DE\u05E7\u05D5\u05DD \u05E9\u05D1\u05D5 \u05DC\u05D5\u05DE\u05D3\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Book", "he": "\u05E1\u05E4\u05E8", "pic": "\u{1F4DA}", "clue": "\u05E7\u05D5\u05E8\u05D0\u05D9\u05DD \u05D1\u05D5 \u05E1\u05D9\u05E4\u05D5\u05E8\u05D9\u05DD \u05D5\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Friend", "he": "\u05D7\u05D1\u05E8", "pic": "\u{1F9D1}\u200D\u{1F91D}\u200D\u{1F9D1}", "clue": "\u05DE\u05D9 \u05E9\u05D0\u05D5\u05D4\u05D1\u05D9\u05DD \u05DC\u05E9\u05D7\u05E7 \u05D5\u05DC\u05D3\u05D1\u05E8 \u05D0\u05D9\u05EA\u05D5", "w": 3, "lvl": 1 }, { "en": "Teacher", "he": "\u05DE\u05D5\u05E8\u05D4", "pic": "\u{1F469}\u200D\u{1F3EB}", "clue": "\u05DE\u05D9 \u05E9\u05DE\u05DC\u05DE\u05D3 \u05D1\u05DB\u05D9\u05EA\u05D4", "w": 3, "lvl": 1 }, { "en": "House", "he": "\u05D1\u05D9\u05EA", "pic": "\u{1F3E0}", "clue": "\u05D4\u05DE\u05E7\u05D5\u05DD \u05E9\u05D1\u05D5 \u05D2\u05E8\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Car", "he": "\u05DE\u05DB\u05D5\u05E0\u05D9\u05EA", "pic": "\u{1F697}", "clue": "\u05E0\u05D5\u05E1\u05E2\u05D9\u05DD \u05D1\u05D4 \u05E2\u05DC \u05D0\u05E8\u05D1\u05E2\u05D4 \u05D2\u05DC\u05D2\u05DC\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Street", "he": "\u05E8\u05D7\u05D5\u05D1", "pic": "\u{1F6E3}\uFE0F", "clue": "\u05D4\u05D3\u05E8\u05DA \u05E9\u05D1\u05D9\u05DF \u05D4\u05D1\u05EA\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "City", "he": "\u05E2\u05D9\u05E8", "pic": "\u{1F306}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05D2\u05D3\u05D5\u05DC \u05E2\u05DD \u05D4\u05E8\u05D1\u05D4 \u05D1\u05E0\u05D9\u05D9\u05E0\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Student", "he": "\u05EA\u05DC\u05DE\u05D9\u05D3", "pic": "\u{1F9D1}\u200D\u{1F393}", "clue": "\u05DE\u05D9 \u05E9\u05DC\u05D5\u05DE\u05D3 \u05D1\u05D1\u05D9\u05EA \u05D4\u05E1\u05E4\u05E8", "w": 3, "lvl": 1 }, { "en": "Pencil", "he": "\u05E2\u05D9\u05E4\u05E8\u05D5\u05DF", "pic": "\u270F\uFE0F", "clue": "\u05DB\u05D5\u05EA\u05D1\u05D9\u05DD \u05D5\u05DE\u05D5\u05D7\u05E7\u05D9\u05DD \u05D0\u05D9\u05EA\u05D5", "w": 3, "lvl": 1 }, { "en": "Pen", "he": "\u05E2\u05D8", "pic": "\u{1F58A}\uFE0F", "clue": "\u05DB\u05D5\u05EA\u05D1\u05D9\u05DD \u05D0\u05D9\u05EA\u05D5 \u05D1\u05D3\u05D9\u05D5", "w": 3, "lvl": 1 }, { "en": "Bag", "he": "\u05EA\u05D9\u05E7", "pic": "\u{1F392}", "clue": "\u05E9\u05DE\u05D9\u05DD \u05D1\u05D5 \u05E1\u05E4\u05E8\u05D9\u05DD \u05DC\u05D1\u05D9\u05EA \u05D4\u05E1\u05E4\u05E8", "w": 3, "lvl": 1 }, { "en": "Chair", "he": "\u05DB\u05D9\u05E1\u05D0", "pic": "\u{1FA91}", "clue": "\u05E2\u05DC\u05D9\u05D5 \u05D9\u05D5\u05E9\u05D1\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Classroom", "he": "\u05DB\u05D9\u05EA\u05D4", "pic": "\u{1F6AA}", "clue": "\u05D4\u05D7\u05D3\u05E8 \u05D1\u05D1\u05D9\u05EA \u05D4\u05E1\u05E4\u05E8 \u05E9\u05D1\u05D5 \u05DC\u05D5\u05DE\u05D3\u05D9\u05DD", "w": 3, "lvl": 2 }, { "en": "Homework", "he": "\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA", "pic": "\u{1F4DD}", "clue": "\u05D4\u05E2\u05D1\u05D5\u05D3\u05D4 \u05E9\u05D4\u05DE\u05D5\u05E8\u05D4 \u05E0\u05D5\u05EA\u05DF \u05DC\u05E2\u05E9\u05D5\u05EA \u05D1\u05D1\u05D9\u05EA", "w": 3, "lvl": 2 }, { "en": "Notebook", "he": "\u05DE\u05D7\u05D1\u05E8\u05EA", "pic": "\u{1F4D3}", "clue": "\u05DE\u05D7\u05D1\u05E8\u05EA \u05DC\u05DB\u05EA\u05D9\u05D1\u05D4 \u05D1\u05E9\u05D9\u05E2\u05D5\u05E8", "w": 3, "lvl": 2 }, { "en": "Computer", "he": "\u05DE\u05D7\u05E9\u05D1", "pic": "\u{1F4BB}", "clue": "\u05DE\u05DB\u05D5\u05E0\u05D4 \u05DC\u05DC\u05DE\u05D9\u05D3\u05D4, \u05DC\u05DE\u05E9\u05D7\u05E7\u05D9\u05DD \u05D5\u05DC\u05E1\u05E8\u05D8\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Paper", "he": "\u05E0\u05D9\u05D9\u05E8", "pic": "\u{1F4C4}", "clue": "\u05D3\u05E3 \u05DC\u05D1\u05DF \u05E9\u05DB\u05D5\u05EA\u05D1\u05D9\u05DD \u05E2\u05DC\u05D9\u05D5", "w": 3, "lvl": 1 }, { "en": "Board", "he": "\u05DC\u05D5\u05D7", "pic": "\u{1F9D1}\u200D\u{1F3EB}", "clue": "\u05D4\u05DC\u05D5\u05D7 \u05D4\u05D2\u05D3\u05D5\u05DC \u05DE\u05DC\u05E4\u05E0\u05D9\u05DD \u05D1\u05DB\u05D9\u05EA\u05D4", "w": 3, "lvl": 1 }, { "en": "Door", "he": "\u05D3\u05DC\u05EA", "pic": "\u{1F6AA}", "clue": "\u05D3\u05E8\u05DA \u05D4\u05DB\u05E0\u05D9\u05E1\u05D4 \u05DC\u05D7\u05D3\u05E8 \u05D0\u05D5 \u05DC\u05D1\u05D9\u05EA", "w": 3, "lvl": 1 }, { "en": "Window", "he": "\u05D7\u05DC\u05D5\u05DF", "pic": "\u{1FA9F}", "clue": "\u05E4\u05D5\u05EA\u05D7\u05D9\u05DD \u05D0\u05D5\u05EA\u05D5 \u05DB\u05D3\u05D9 \u05DC\u05E8\u05D0\u05D5\u05EA \u05D4\u05D7\u05D5\u05E6\u05D4", "w": 3, "lvl": 1 }, { "en": "Room", "he": "\u05D7\u05D3\u05E8", "pic": "\u{1F6CF}\uFE0F", "clue": "\u05D7\u05DC\u05E7 \u05E1\u05D2\u05D5\u05E8 \u05D1\u05EA\u05D5\u05DA \u05D4\u05D1\u05D9\u05EA", "w": 3, "lvl": 1 }, { "en": "Kitchen", "he": "\u05DE\u05D8\u05D1\u05D7", "pic": "\u{1F373}", "clue": "\u05D4\u05D7\u05D3\u05E8 \u05E9\u05D1\u05D5 \u05DE\u05D1\u05E9\u05DC\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Bedroom", "he": "\u05D7\u05D3\u05E8 \u05E9\u05D9\u05E0\u05D4", "pic": "\u{1F6CC}", "clue": "\u05D4\u05D7\u05D3\u05E8 \u05E9\u05D1\u05D5 \u05D9\u05E9\u05E0\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Table", "he": "\u05E9\u05D5\u05DC\u05D7\u05DF", "pic": "\u{1F37D}\uFE0F", "clue": "\u05E2\u05DC\u05D9\u05D5 \u05D0\u05D5\u05DB\u05DC\u05D9\u05DD, \u05DB\u05D5\u05EA\u05D1\u05D9\u05DD \u05D0\u05D5 \u05DE\u05E9\u05D7\u05E7\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Bed", "he": "\u05DE\u05D9\u05D8\u05D4", "pic": "\u{1F6CF}\uFE0F", "clue": "\u05E2\u05DC\u05D9\u05D4 \u05D9\u05E9\u05E0\u05D9\u05DD \u05D1\u05DC\u05D9\u05DC\u05D4", "w": 3, "lvl": 1 }, { "en": "Lamp", "he": "\u05DE\u05E0\u05D5\u05E8\u05D4", "pic": "\u{1F4A1}", "clue": "\u05DE\u05D0\u05D9\u05E8\u05D4 \u05D0\u05EA \u05D4\u05D7\u05D3\u05E8", "w": 3, "lvl": 1 }, { "en": "Phone", "he": "\u05D8\u05DC\u05E4\u05D5\u05DF", "pic": "\u{1F4F1}", "clue": "\u05DE\u05EA\u05E7\u05E9\u05E8\u05D9\u05DD \u05D5\u05E9\u05D5\u05DC\u05D7\u05D9\u05DD \u05D0\u05D9\u05EA\u05D5 \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA", "w": 3, "lvl": 1 }, { "en": "Garden", "he": "\u05D2\u05D9\u05E0\u05D4", "pic": "\u{1F3E1}", "clue": "\u05DC\u05D9\u05D3 \u05D4\u05D1\u05D9\u05EA, \u05E2\u05DD \u05E4\u05E8\u05D7\u05D9\u05DD \u05D5\u05D3\u05E9\u05D0", "w": 3, "lvl": 1 }, { "en": "Bus", "he": "\u05D0\u05D5\u05D8\u05D5\u05D1\u05D5\u05E1", "pic": "\u{1F68C}", "clue": "\u05E8\u05DB\u05D1 \u05D2\u05D3\u05D5\u05DC \u05E9\u05DE\u05E1\u05D9\u05E2 \u05D4\u05E8\u05D1\u05D4 \u05D0\u05E0\u05E9\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Train", "he": "\u05E8\u05DB\u05D1\u05EA", "pic": "\u{1F686}", "clue": "\u05E0\u05D5\u05E1\u05E2\u05EA \u05E2\u05DC \u05E4\u05E1\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Bicycle", "he": "\u05D0\u05D5\u05E4\u05E0\u05D9\u05D9\u05DD", "pic": "\u{1F6B2}", "clue": "\u05E9\u05E0\u05D9 \u05D2\u05DC\u05D2\u05DC\u05D9\u05DD, \u05E8\u05D5\u05DB\u05D1\u05D9\u05DD \u05E2\u05DD \u05E8\u05D2\u05DC\u05D9\u05D9\u05DD", "w": 3, "lvl": 2 }, { "en": "Airplane", "he": "\u05DE\u05D8\u05D5\u05E1", "pic": "\u2708\uFE0F", "clue": "\u05D8\u05E1 \u05D1\u05E9\u05DE\u05D9\u05D9\u05DD \u05DE\u05DE\u05D3\u05D9\u05E0\u05D4 \u05DC\u05DE\u05D3\u05D9\u05E0\u05D4", "w": 3, "lvl": 1 }, { "en": "Taxi", "he": "\u05DE\u05D5\u05E0\u05D9\u05EA", "pic": "\u{1F695}", "clue": "\u05DE\u05DB\u05D5\u05E0\u05D9\u05EA \u05E9\u05DE\u05E9\u05DC\u05DE\u05D9\u05DD \u05DC\u05E0\u05D4\u05D2 \u05E9\u05DC\u05D4", "w": 3, "lvl": 1 }, { "en": "Shop", "he": "\u05D7\u05E0\u05D5\u05EA", "pic": "\u{1F6CD}\uFE0F", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E9\u05E7\u05D5\u05E0\u05D9\u05DD \u05D1\u05D5 \u05D3\u05D1\u05E8\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Park", "he": "\u05E4\u05D0\u05E8\u05E7", "pic": "\u{1F3DE}\uFE0F", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E4\u05EA\u05D5\u05D7 \u05E2\u05DD \u05D3\u05E9\u05D0 \u05D5\u05DE\u05E9\u05D7\u05E7\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Library", "he": "\u05E1\u05E4\u05E8\u05D9\u05D9\u05D4", "pic": "\u{1F4D6}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E2\u05DD \u05D4\u05E8\u05D1\u05D4 \u05E1\u05E4\u05E8\u05D9\u05DD \u05DC\u05D4\u05E9\u05D0\u05DC\u05D4", "w": 3, "lvl": 2 }, { "en": "Hospital", "he": "\u05D1\u05D9\u05EA \u05D7\u05D5\u05DC\u05D9\u05DD", "pic": "\u{1F3E5}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E9\u05D4\u05D5\u05DC\u05DB\u05D9\u05DD \u05D0\u05DC\u05D9\u05D5 \u05DB\u05E9\u05D7\u05D5\u05DC\u05D9\u05DD", "w": 3, "lvl": 2 }, { "en": "Castle", "he": "\u05D8\u05D9\u05E8\u05D4", "pic": "\u{1F3F0}", "clue": "\u05D1\u05D9\u05EA \u05E2\u05E0\u05E7 \u05E9\u05DC \u05DE\u05DC\u05DA \u05D5\u05E9\u05DC \u05DE\u05DC\u05DB\u05D4", "w": 3, "lvl": 1 }, { "en": "King", "he": "\u05DE\u05DC\u05DA", "pic": "\u{1F934}", "clue": "\u05D4\u05E9\u05DC\u05D9\u05D8 \u05E9\u05DC \u05D4\u05DE\u05DE\u05DC\u05DB\u05D4", "w": 3, "lvl": 1 }, { "en": "Queen", "he": "\u05DE\u05DC\u05DB\u05D4", "pic": "\u{1F478}", "clue": "\u05D4\u05E9\u05DC\u05D9\u05D8\u05D4 \u05E9\u05DC \u05D4\u05DE\u05DE\u05DC\u05DB\u05D4", "w": 3, "lvl": 1 }, { "en": "Magic", "he": "\u05E7\u05E1\u05DD", "pic": "\u2728", "clue": "\u05D3\u05D1\u05E8\u05D9\u05DD \u05DE\u05D9\u05D5\u05D7\u05D3\u05D9\u05DD \u05E9\u05E7\u05D5\u05E8\u05D9\u05DD \u05D1\u05E1\u05D9\u05E4\u05D5\u05E8\u05D9 \u05E4\u05DC\u05D0", "w": 3, "lvl": 1 }, { "en": "Clock", "he": "\u05E9\u05E2\u05D5\u05DF", "pic": "\u23F0", "clue": "\u05DE\u05E8\u05D0\u05D4 \u05DC\u05E0\u05D5 \u05DE\u05D4 \u05D4\u05E9\u05E2\u05D4", "w": 3, "lvl": 1 }, { "en": "Key", "he": "\u05DE\u05E4\u05EA\u05D7", "pic": "\u{1F511}", "clue": "\u05E4\u05D5\u05EA\u05D7\u05D9\u05DD \u05D0\u05D9\u05EA\u05D5 \u05D3\u05DC\u05EA", "w": 3, "lvl": 1 }, { "en": "Star", "he": "\u05DB\u05D5\u05DB\u05D1", "pic": "\u2B50", "clue": "\u05E0\u05D5\u05E6\u05E5 \u05D1\u05E9\u05DE\u05D9\u05D9\u05DD \u05D1\u05DC\u05D9\u05DC\u05D4", "w": 4, "lvl": 1 }, { "en": "Moon", "he": "\u05D9\u05E8\u05D7", "pic": "\u{1F319}", "clue": "\u05DE\u05D0\u05D9\u05E8 \u05D1\u05DC\u05D9\u05DC\u05D4 \u05D5\u05DE\u05E7\u05D9\u05E3 \u05D0\u05EA \u05DB\u05D3\u05D5\u05E8 \u05D4\u05D0\u05E8\u05E5", "w": 4, "lvl": 1 }, { "en": "Planet", "he": "\u05DB\u05D5\u05DB\u05D1 \u05DC\u05DB\u05EA", "pic": "\u{1FA90}", "clue": "\u05DB\u05DE\u05D5 \u05DB\u05D3\u05D5\u05E8 \u05D4\u05D0\u05E8\u05E5 \u05D0\u05D5 \u05DE\u05D0\u05D3\u05D9\u05DD", "w": 4, "lvl": 1 }, { "en": "Rocket", "he": "\u05E8\u05E7\u05D8\u05D4", "pic": "\u{1F680}", "clue": "\u05E2\u05D5\u05DC\u05D4 \u05DC\u05E9\u05DE\u05D9\u05D9\u05DD \u05E2\u05DD \u05D0\u05E9 \u05DE\u05DC\u05DE\u05D8\u05D4", "w": 4, "lvl": 1 }, { "en": "Space", "he": "\u05D7\u05DC\u05DC", "pic": "\u{1F30C}", "clue": "\u05DB\u05DC \u05DE\u05D4 \u05E9\u05DE\u05E2\u05DC \u05D4\u05E9\u05DE\u05D9\u05D9\u05DD, \u05D1\u05D9\u05DF \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD", "w": 4, "lvl": 1 }, { "en": "Alien", "he": "\u05D7\u05D9\u05D9\u05D6\u05E8", "pic": "\u{1F47D}", "clue": "\u05D9\u05E6\u05D5\u05E8 \u05E9\u05D4\u05D2\u05D9\u05E2 \u05DE\u05DB\u05D5\u05DB\u05D1 \u05D0\u05D7\u05E8", "w": 4, "lvl": 1 }, { "en": "Sun", "he": "\u05E9\u05DE\u05E9", "pic": "\u2600\uFE0F", "clue": "\u05DE\u05D0\u05D9\u05E8\u05D4 \u05D1\u05D9\u05D5\u05DD \u05D5\u05DE\u05D7\u05DE\u05DE\u05EA \u05D0\u05D5\u05EA\u05E0\u05D5", "w": 4, "lvl": 1 }, { "en": "Robot", "he": "\u05E8\u05D5\u05D1\u05D5\u05D8", "pic": "\u{1F916}", "clue": "\u05DE\u05DB\u05D5\u05E0\u05D4 \u05E9\u05E0\u05E8\u05D0\u05D9\u05EA \u05E7\u05E6\u05EA \u05DB\u05DE\u05D5 \u05D0\u05D3\u05DD", "w": 4, "lvl": 1 }, { "en": "Earth", "he": "\u05DB\u05D3\u05D5\u05E8 \u05D4\u05D0\u05E8\u05E5", "pic": "\u{1F30D}", "clue": "\u05D4\u05DB\u05D5\u05DB\u05D1 \u05E9\u05D1\u05D5 \u05D0\u05E0\u05D7\u05E0\u05D5 \u05D2\u05E8\u05D9\u05DD", "w": 4, "lvl": 1 }, { "en": "Astronaut", "he": "\u05D0\u05E1\u05D8\u05E8\u05D5\u05E0\u05D0\u05D5\u05D8", "pic": "\u{1F468}\u200D\u{1F680}", "clue": "\u05D0\u05D3\u05DD \u05E9\u05D8\u05E1 \u05DC\u05D7\u05DC\u05DC", "w": 4, "lvl": 2 }, { "en": "Galaxy", "he": "\u05D2\u05DC\u05E7\u05E1\u05D9\u05D4", "pic": "\u{1F300}", "clue": "\u05E7\u05D1\u05D5\u05E6\u05D4 \u05E2\u05E0\u05E7\u05D9\u05EA \u05E9\u05DC \u05DE\u05D9\u05DC\u05D9\u05D5\u05E0\u05D9 \u05DB\u05D5\u05DB\u05D1\u05D9\u05DD", "w": 4, "lvl": 2 }, { "en": "Spaceship", "he": "\u05D7\u05DC\u05DC\u05D9\u05EA", "pic": "\u{1F6F8}", "clue": "\u05DB\u05DC\u05D9 \u05E8\u05DB\u05D1 \u05E9\u05D8\u05E1 \u05D1\u05D7\u05DC\u05DC", "w": 4, "lvl": 2 }, { "en": "Comet", "he": "\u05E9\u05D1\u05D9\u05D8", "pic": "\u2604\uFE0F", "clue": "\u05DB\u05D5\u05DB\u05D1 \u05E2\u05DD \u05D6\u05E0\u05D1 \u05D0\u05D5\u05E8 \u05E9\u05D8\u05E1 \u05D1\u05E9\u05DE\u05D9\u05D9\u05DD", "w": 4, "lvl": 1 }, { "en": "One", "he": "\u05D0\u05D7\u05D3", "pic": "1\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 1", "w": 4, "lvl": 1 }, { "en": "Two", "he": "\u05E9\u05EA\u05D9\u05D9\u05DD", "pic": "2\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 2", "w": 4, "lvl": 1 }, { "en": "Three", "he": "\u05E9\u05DC\u05D5\u05E9", "pic": "3\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 3", "w": 4, "lvl": 1 }, { "en": "Four", "he": "\u05D0\u05E8\u05D1\u05E2", "pic": "4\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 4", "w": 4, "lvl": 1 }, { "en": "Five", "he": "\u05D7\u05DE\u05E9", "pic": "5\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 5", "w": 4, "lvl": 1 }, { "en": "Six", "he": "\u05E9\u05E9", "pic": "6\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 6", "w": 4, "lvl": 1 }, { "en": "Seven", "he": "\u05E9\u05D1\u05E2", "pic": "7\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 7", "w": 4, "lvl": 1 }, { "en": "Eight", "he": "\u05E9\u05DE\u05D5\u05E0\u05D4", "pic": "8\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 8", "w": 4, "lvl": 1 }, { "en": "Nine", "he": "\u05EA\u05E9\u05E2", "pic": "9\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 9", "w": 4, "lvl": 1 }, { "en": "Ten", "he": "\u05E2\u05E9\u05E8", "pic": "\u{1F51F}", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 10", "w": 4, "lvl": 1 }, { "en": "Number", "he": "\u05DE\u05E1\u05E4\u05E8", "pic": "\u{1F522}", "clue": "\u05D0\u05D7\u05D3, \u05E9\u05EA\u05D9\u05D9\u05DD, \u05E9\u05DC\u05D5\u05E9 \u05D4\u05DD...", "w": 4, "lvl": 1 }, { "en": "Day", "he": "\u05D9\u05D5\u05DD", "pic": "\u{1F4C5}", "clue": "\u05D4\u05D6\u05DE\u05DF \u05E9\u05D1\u05D5 \u05D9\u05E9 \u05D0\u05D5\u05E8 \u05E9\u05DE\u05E9", "w": 4, "lvl": 1 }, { "en": "Night", "he": "\u05DC\u05D9\u05DC\u05D4", "pic": "\u{1F303}", "clue": "\u05D4\u05D6\u05DE\u05DF \u05E9\u05D1\u05D5 \u05D7\u05E9\u05D5\u05DA \u05D5\u05D4\u05D9\u05E8\u05D7 \u05D1\u05D7\u05D5\u05E5", "w": 4, "lvl": 1 }, { "en": "Morning", "he": "\u05D1\u05D5\u05E7\u05E8", "pic": "\u{1F305}", "clue": "\u05EA\u05D7\u05D9\u05DC\u05EA \u05D4\u05D9\u05D5\u05DD, \u05D0\u05D7\u05E8\u05D9 \u05E9\u05E7\u05DE\u05D9\u05DD", "w": 4, "lvl": 1 }, { "en": "Today", "he": "\u05D4\u05D9\u05D5\u05DD", "pic": "\u{1F4CC}", "clue": "\u05D4\u05D9\u05D5\u05DD \u05D4\u05D6\u05D4, \u05DC\u05D0 \u05D0\u05EA\u05DE\u05D5\u05DC \u05D5\u05DC\u05D0 \u05DE\u05D7\u05E8", "w": 4, "lvl": 1 }, { "en": "Tomorrow", "he": "\u05DE\u05D7\u05E8", "pic": "\u23ED\uFE0F", "clue": "\u05D4\u05D9\u05D5\u05DD \u05E9\u05D9\u05D1\u05D5\u05D0 \u05D0\u05D7\u05E8\u05D9 \u05D4\u05D9\u05D5\u05DD", "w": 4, "lvl": 2 }, { "en": "Week", "he": "\u05E9\u05D1\u05D5\u05E2", "pic": "\u{1F4C6}", "clue": "\u05E9\u05D1\u05E2\u05D4 \u05D9\u05DE\u05D9\u05DD \u05D9\u05D7\u05D3", "w": 4, "lvl": 1 }, { "en": "Year", "he": "\u05E9\u05E0\u05D4", "pic": "\u{1F386}", "clue": "\u05E9\u05E0\u05D9\u05D9\u05DD-\u05E2\u05E9\u05E8 \u05D7\u05D5\u05D3\u05E9\u05D9\u05DD \u05D9\u05D7\u05D3", "w": 4, "lvl": 1 }, { "en": "Time", "he": "\u05D6\u05DE\u05DF", "pic": "\u23F1\uFE0F", "clue": "\u05DE\u05D4 \u05E9\u05D4\u05E9\u05E2\u05D5\u05DF \u05DE\u05D5\u05D3\u05D3", "w": 4, "lvl": 1 }, { "en": "Write", "he": "\u05DC\u05DB\u05EA\u05D5\u05D1", "pic": "\u270D\uFE0F", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05E2\u05D9\u05E4\u05E8\u05D5\u05DF \u05E2\u05DC \u05D3\u05E3", "w": 4, "lvl": 1 }, { "en": "See", "he": "\u05DC\u05E8\u05D0\u05D5\u05EA", "pic": "\u{1F440}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05D4\u05E2\u05D9\u05E0\u05D9\u05D9\u05DD", "w": 4, "lvl": 1 }, { "en": "Hear", "he": "\u05DC\u05E9\u05DE\u05D5\u05E2", "pic": "\u{1F442}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05D4\u05D0\u05D5\u05D6\u05E0\u05D9\u05D9\u05DD", "w": 4, "lvl": 1 }, { "en": "Come", "he": "\u05DC\u05D1\u05D5\u05D0", "pic": "\u{1F44B}", "clue": "\u05DC\u05D4\u05D2\u05D9\u05E2 \u05DC\u05DB\u05D0\u05DF, \u05D0\u05DC\u05D9\u05E0\u05D5", "w": 4, "lvl": 1 }, { "en": "Look", "he": "\u05DC\u05D4\u05E1\u05EA\u05DB\u05DC", "pic": "\u{1F441}\uFE0F", "clue": "\u05DC\u05DB\u05D5\u05D5\u05DF \u05D0\u05EA \u05D4\u05E2\u05D9\u05E0\u05D9\u05D9\u05DD \u05DC\u05DE\u05E9\u05D4\u05D5", "w": 4, "lvl": 1 }, { "en": "Like", "he": "\u05D0\u05D5\u05D4\u05D1", "pic": "\u{1F497}", "clue": "\u05DB\u05E9\u05DE\u05E9\u05D4\u05D5 \u05DE\u05D5\u05E6\u05D0 \u05D7\u05DF \u05D1\u05E2\u05D9\u05E0\u05D9\u05E0\u05D5", "w": 4, "lvl": 1 }, { "en": "Want", "he": "\u05DC\u05E8\u05E6\u05D5\u05EA", "pic": "\u{1F64F}", "clue": "\u05DB\u05E9\u05DE\u05DE\u05E9 \u05DE\u05E7\u05D5\u05D5\u05D9\u05DD \u05DC\u05E7\u05D1\u05DC \u05DE\u05E9\u05D4\u05D5", "w": 4, "lvl": 1 }, { "en": "Help", "he": "\u05DC\u05E2\u05D6\u05D5\u05E8", "pic": "\u{1F198}", "clue": "\u05DC\u05EA\u05EA \u05D9\u05D3 \u05DC\u05DE\u05D9\u05E9\u05D4\u05D5 \u05E9\u05E6\u05E8\u05D9\u05DA", "w": 4, "lvl": 1 }, { "en": "Find", "he": "\u05DC\u05DE\u05E6\u05D5\u05D0", "pic": "\u{1F50D}", "clue": "\u05DC\u05D2\u05DC\u05D5\u05EA \u05DE\u05E9\u05D4\u05D5 \u05E9\u05D7\u05D9\u05E4\u05E9\u05E0\u05D5", "w": 4, "lvl": 1 }, { "en": "Fly", "he": "\u05DC\u05E2\u05D5\u05E3", "pic": "\u{1F985}", "clue": "\u05DC\u05D6\u05D5\u05D6 \u05D1\u05D0\u05D5\u05D5\u05D9\u05E8 \u05DB\u05DE\u05D5 \u05E6\u05D9\u05E4\u05D5\u05E8", "w": 4, "lvl": 1 }, { "en": "New", "he": "\u05D7\u05D3\u05E9", "pic": "\u2728", "clue": "\u05DE\u05E9\u05D4\u05D5 \u05E9\u05E8\u05E7 \u05E2\u05DB\u05E9\u05D9\u05D5 \u05E7\u05D9\u05D1\u05DC\u05E0\u05D5, \u05DC\u05D0 \u05D9\u05E9\u05DF", "w": 4, "lvl": 1 }, { "en": "Old", "he": "\u05D9\u05E9\u05DF", "pic": "\u{1F4DC}", "clue": "\u05DE\u05E9\u05D4\u05D5 \u05E9\u05D4\u05D9\u05D4 \u05D4\u05E8\u05D1\u05D4 \u05D6\u05DE\u05DF, \u05D4\u05D4\u05E4\u05DA \u05DE\u05D7\u05D3\u05E9", "w": 4, "lvl": 1 }, { "en": "Fast", "he": "\u05DE\u05D4\u05D9\u05E8", "pic": "\u26A1", "clue": "\u05D6\u05D6 \u05D1\u05DE\u05D4\u05D9\u05E8\u05D5\u05EA, \u05D4\u05D4\u05E4\u05DA \u05DE\u05D0\u05D9\u05D8\u05D9", "w": 4, "lvl": 1 }, { "en": "Slow", "he": "\u05D0\u05D9\u05D8\u05D9", "pic": "\u{1F422}", "clue": "\u05D6\u05D6 \u05DC\u05D0\u05D8, \u05DB\u05DE\u05D5 \u05E6\u05D1", "w": 4, "lvl": 1 }, { "en": "Snow", "he": "\u05E9\u05DC\u05D2", "pic": "\u2744\uFE0F", "clue": "\u05D9\u05D5\u05E8\u05D3 \u05D1\u05D7\u05D5\u05E8\u05E3, \u05DC\u05D1\u05DF \u05D5\u05E7\u05E8", "w": 5, "lvl": 1 }, { "en": "Ice", "he": "\u05E7\u05E8\u05D7", "pic": "\u{1F9CA}", "clue": "\u05DE\u05D9\u05DD \u05E9\u05D4\u05E4\u05DB\u05D5 \u05DC\u05E7\u05E9\u05D9\u05DD \u05D5\u05E7\u05E8\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Cold", "he": "\u05E7\u05E8", "pic": "\u{1F976}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05D7\u05DD", "w": 5, "lvl": 1 }, { "en": "Jacket", "he": "\u05DE\u05E2\u05D9\u05DC", "pic": "\u{1F9E5}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05D1\u05D7\u05D5\u05E8\u05E3 \u05E2\u05DC \u05D4\u05D2\u05D5\u05E3", "w": 5, "lvl": 1 }, { "en": "Hat", "he": "\u05DB\u05D5\u05D1\u05E2", "pic": "\u{1F9E2}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05E2\u05DC \u05D4\u05E8\u05D0\u05E9", "w": 5, "lvl": 1 }, { "en": "Gloves", "he": "\u05DB\u05E4\u05E4\u05D5\u05EA", "pic": "\u{1F9E4}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05E2\u05DC \u05D4\u05D9\u05D3\u05D9\u05D9\u05DD \u05D1\u05E7\u05D5\u05E8", "w": 5, "lvl": 1 }, { "en": "Winter", "he": "\u05D7\u05D5\u05E8\u05E3", "pic": "\u26C4", "clue": "\u05D4\u05E2\u05D5\u05E0\u05D4 \u05D4\u05E7\u05E8\u05D4 \u05D1\u05E9\u05E0\u05D4", "w": 5, "lvl": 1 }, { "en": "Boots", "he": "\u05DE\u05D2\u05E4\u05D9\u05D9\u05DD", "pic": "\u{1F97E}", "clue": "\u05E0\u05D5\u05E2\u05DC\u05D9\u05DD \u05D1\u05D7\u05D5\u05E8\u05E3 \u05E2\u05DC \u05D4\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Shirt", "he": "\u05D7\u05D5\u05DC\u05E6\u05D4", "pic": "\u{1F455}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05E2\u05DC \u05E4\u05DC\u05D2 \u05D4\u05D2\u05D5\u05E3 \u05D4\u05E2\u05DC\u05D9\u05D5\u05DF", "w": 5, "lvl": 1 }, { "en": "Pants", "he": "\u05DE\u05DB\u05E0\u05E1\u05D9\u05D9\u05DD", "pic": "\u{1F456}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05E2\u05DC \u05D4\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Shoes", "he": "\u05E0\u05E2\u05DC\u05D9\u05D9\u05DD", "pic": "\u{1F45F}", "clue": "\u05E0\u05D5\u05E2\u05DC\u05D9\u05DD \u05E2\u05DC \u05D4\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD \u05DB\u05DC \u05D9\u05D5\u05DD", "w": 5, "lvl": 1 }, { "en": "Dress", "he": "\u05E9\u05DE\u05DC\u05D4", "pic": "\u{1F457}", "clue": "\u05D1\u05D2\u05D3 \u05E9\u05DC\u05DD \u05E9\u05DC\u05E8\u05D5\u05D1 \u05D1\u05E0\u05D5\u05EA \u05DC\u05D5\u05D1\u05E9\u05D5\u05EA", "w": 5, "lvl": 1 }, { "en": "Socks", "he": "\u05D2\u05E8\u05D1\u05D9\u05D9\u05DD", "pic": "\u{1F9E6}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05E2\u05DC \u05D4\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD \u05D1\u05EA\u05D5\u05DA \u05D4\u05E0\u05E2\u05DC\u05D9\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Coat", "he": "\u05DE\u05E2\u05D9\u05DC \u05D0\u05E8\u05D5\u05DA", "pic": "\u{1F9E5}", "clue": "\u05DE\u05E2\u05D9\u05DC \u05D0\u05E8\u05D5\u05DA \u05D1\u05DE\u05D9\u05D5\u05D7\u05D3 \u05DC\u05D9\u05DE\u05D9\u05DD \u05E7\u05E8\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Sweater", "he": "\u05E1\u05D5\u05D5\u05D3\u05E8", "pic": "\u{1F9F6}", "clue": "\u05D1\u05D2\u05D3 \u05D7\u05DD \u05E1\u05E8\u05D5\u05D2 \u05DC\u05D7\u05D5\u05E8\u05E3", "w": 5, "lvl": 2 }, { "en": "Umbrella", "he": "\u05DE\u05D8\u05E8\u05D9\u05D9\u05D4", "pic": "\u2602\uFE0F", "clue": "\u05E9\u05D5\u05DE\u05E8\u05EA \u05E2\u05DC\u05D9\u05E0\u05D5 \u05DE\u05D4\u05D2\u05E9\u05DD", "w": 5, "lvl": 2 }, { "en": "Rain", "he": "\u05D2\u05E9\u05DD", "pic": "\u{1F327}\uFE0F", "clue": "\u05DE\u05D9\u05DD \u05E9\u05D9\u05D5\u05E8\u05D3\u05D9\u05DD \u05DE\u05D4\u05E2\u05E0\u05E0\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Wind", "he": "\u05E8\u05D5\u05D7", "pic": "\u{1F4A8}", "clue": "\u05D0\u05D5\u05D5\u05D9\u05E8 \u05E9\u05D6\u05D6 \u05D5\u05DE\u05E8\u05D2\u05D9\u05E9\u05D9\u05DD \u05E2\u05DC \u05D4\u05E4\u05E0\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Cloud", "he": "\u05E2\u05E0\u05DF", "pic": "\u2601\uFE0F", "clue": "\u05DC\u05D1\u05DF \u05D0\u05D5 \u05D0\u05E4\u05D5\u05E8 \u05D1\u05E9\u05DE\u05D9\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Summer", "he": "\u05E7\u05D9\u05E5", "pic": "\u2600\uFE0F", "clue": "\u05D4\u05E2\u05D5\u05E0\u05D4 \u05D4\u05D7\u05DE\u05D4 \u05D1\u05E9\u05E0\u05D4", "w": 5, "lvl": 1 }, { "en": "Spring", "he": "\u05D0\u05D1\u05D9\u05D1", "pic": "\u{1F337}", "clue": "\u05D4\u05E2\u05D5\u05E0\u05D4 \u05E9\u05D1\u05D4 \u05D4\u05E4\u05E8\u05D7\u05D9\u05DD \u05E4\u05D5\u05E8\u05D7\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Autumn", "he": "\u05E1\u05EA\u05D9\u05D5", "pic": "\u{1F342}", "clue": "\u05D4\u05E2\u05D5\u05E0\u05D4 \u05E9\u05D1\u05D4 \u05D4\u05E2\u05DC\u05D9\u05DD \u05E0\u05D5\u05E9\u05E8\u05D9\u05DD", "w": 5, "lvl": 2 }, { "en": "Weather", "he": "\u05DE\u05D6\u05D2 \u05D0\u05D5\u05D5\u05D9\u05E8", "pic": "\u{1F326}\uFE0F", "clue": "\u05D7\u05DD, \u05E7\u05E8, \u05D2\u05E9\u05D5\u05DD \u05D0\u05D5 \u05E9\u05DE\u05E9\u05D9", "w": 5, "lvl": 2 }, { "en": "Hot", "he": "\u05D7\u05DD", "pic": "\u{1F975}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05E7\u05E8", "w": 5, "lvl": 1 }, { "en": "Warm", "he": "\u05D7\u05DE\u05D9\u05DD", "pic": "\u{1F60A}", "clue": "\u05DC\u05D0 \u05E7\u05E8 \u05D5\u05DC\u05D0 \u05DE\u05DE\u05E9 \u05D7\u05DD \u2014 \u05E0\u05E2\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Head", "he": "\u05E8\u05D0\u05E9", "pic": "\u{1F5E3}\uFE0F", "clue": "\u05D4\u05D7\u05DC\u05E7 \u05D4\u05E2\u05DC\u05D9\u05D5\u05DF \u05E9\u05DC \u05D4\u05D2\u05D5\u05E3", "w": 5, "lvl": 1 }, { "en": "Eye", "he": "\u05E2\u05D9\u05DF", "pic": "\u{1F441}\uFE0F", "clue": "\u05D1\u05D4 \u05E8\u05D5\u05D0\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Ear", "he": "\u05D0\u05D5\u05D6\u05DF", "pic": "\u{1F442}", "clue": "\u05D1\u05D4 \u05E9\u05D5\u05DE\u05E2\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Nose", "he": "\u05D0\u05E3", "pic": "\u{1F443}", "clue": "\u05D1\u05D5 \u05DE\u05E8\u05D9\u05D7\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Mouth", "he": "\u05E4\u05D4", "pic": "\u{1F444}", "clue": "\u05D1\u05D5 \u05DE\u05D3\u05D1\u05E8\u05D9\u05DD \u05D5\u05D0\u05D5\u05DB\u05DC\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Hand", "he": "\u05D9\u05D3", "pic": "\u270B", "clue": "\u05D1\u05D4 \u05D0\u05D5\u05D7\u05D6\u05D9\u05DD \u05D5\u05DB\u05D5\u05EA\u05D1\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Foot", "he": "\u05DB\u05E3 \u05E8\u05D2\u05DC", "pic": "\u{1F9B6}", "clue": "\u05D4\u05D7\u05DC\u05E7 \u05E9\u05E0\u05D5\u05D2\u05E2 \u05D1\u05E8\u05E6\u05E4\u05D4 \u05DB\u05E9\u05D4\u05D5\u05DC\u05DB\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Hair", "he": "\u05E9\u05D9\u05E2\u05E8", "pic": "\u{1F487}", "clue": "\u05E6\u05D5\u05DE\u05D7 \u05E2\u05DC \u05D4\u05E8\u05D0\u05E9", "w": 5, "lvl": 1 }, { "en": "Face", "he": "\u05E4\u05E0\u05D9\u05DD", "pic": "\u{1F603}", "clue": "\u05D4\u05D7\u05DC\u05E7 \u05D4\u05E7\u05D3\u05DE\u05D9 \u05E9\u05DC \u05D4\u05E8\u05D0\u05E9", "w": 5, "lvl": 1 }, { "en": "Body", "he": "\u05D2\u05D5\u05E3", "pic": "\u{1F9CD}", "clue": "\u05DB\u05DC \u05D4\u05D7\u05DC\u05E7\u05D9\u05DD \u05E9\u05DC\u05E0\u05D5 \u05D9\u05D7\u05D3", "w": 5, "lvl": 1 }, { "en": "Leg", "he": "\u05E8\u05D2\u05DC", "pic": "\u{1F9B5}", "clue": "\u05D1\u05D4 \u05D4\u05D5\u05DC\u05DB\u05D9\u05DD, \u05DE\u05E2\u05DC \u05DB\u05E3 \u05D4\u05E8\u05D2\u05DC", "w": 5, "lvl": 1 }, { "en": "Tired", "he": "\u05E2\u05D9\u05D9\u05E3", "pic": "\u{1F971}", "clue": "\u05DB\u05E9\u05E8\u05D5\u05E6\u05D9\u05DD \u05DC\u05D9\u05E9\u05D5\u05DF", "w": 5, "lvl": 2 }, { "en": "Hungry", "he": "\u05E8\u05E2\u05D1", "pic": "\u{1F60B}", "clue": "\u05DB\u05E9\u05E8\u05D5\u05E6\u05D9\u05DD \u05DC\u05D0\u05DB\u05D5\u05DC", "w": 5, "lvl": 2 }, { "en": "Thirsty", "he": "\u05E6\u05DE\u05D0", "pic": "\u{1F964}", "clue": "\u05DB\u05E9\u05E8\u05D5\u05E6\u05D9\u05DD \u05DC\u05E9\u05EA\u05D5\u05EA", "w": 5, "lvl": 2 }, { "en": "Scared", "he": "\u05DE\u05E4\u05D7\u05D3", "pic": "\u{1F631}", "clue": "\u05DB\u05E9\u05DE\u05E9\u05D4\u05D5 \u05DE\u05E4\u05D7\u05D9\u05D3 \u05D0\u05D5\u05EA\u05E0\u05D5", "w": 5, "lvl": 2 }, { "en": "Brave", "he": "\u05D0\u05DE\u05D9\u05E5", "pic": "\u{1F9B8}", "clue": "\u05DC\u05D0 \u05DE\u05E4\u05D7\u05D3 \u05DC\u05E2\u05D6\u05D5\u05E8 \u05D5\u05DC\u05D0 \u05DE\u05D5\u05D5\u05EA\u05E8", "w": 5, "lvl": 2 }, { "en": "Funny", "he": "\u05DE\u05E6\u05D7\u05D9\u05E7", "pic": "\u{1F602}", "clue": "\u05D2\u05D5\u05E8\u05DD \u05DC\u05E0\u05D5 \u05DC\u05E6\u05D7\u05D5\u05E7", "w": 5, "lvl": 1 }, { "en": "Nice", "he": "\u05E0\u05D7\u05DE\u05D3", "pic": "\u{1F60A}", "clue": "\u05D0\u05D3\u05DD \u05D8\u05D5\u05D1 \u05D5\u05E0\u05E2\u05D9\u05DD \u05DC\u05D0\u05D7\u05E8\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Clean", "he": "\u05E0\u05E7\u05D9", "pic": "\u{1F9FC}", "clue": "\u05D1\u05DC\u05D9 \u05DC\u05DB\u05DC\u05D5\u05DA, \u05D4\u05D4\u05E4\u05DA \u05DE\u05DE\u05DC\u05D5\u05DB\u05DC\u05DA", "w": 5, "lvl": 1 }, { "en": "Penguin", "he": "\u05E4\u05D9\u05E0\u05D2\u05D5\u05D5\u05D9\u05DF", "pic": "\u{1F427}", "clue": "\u05E6\u05D9\u05E4\u05D5\u05E8 \u05E9\u05D7\u05D5\u05E8\u05D4-\u05DC\u05D1\u05E0\u05D4 \u05E9\u05D7\u05D9\u05D4 \u05D1\u05E7\u05D5\u05E8", "w": 5, "lvl": 1 }, { "en": "Uncle", "he": "\u05D3\u05D5\u05D3", "pic": "\u{1F468}", "clue": "\u05D4\u05D0\u05D7 \u05E9\u05DC \u05D0\u05DE\u05D0 \u05D0\u05D5 \u05E9\u05DC \u05D0\u05D1\u05D0", "w": 1, "lvl": 2 }, { "en": "Aunt", "he": "\u05D3\u05D5\u05D3\u05D4", "pic": "\u{1F469}", "clue": "\u05D4\u05D0\u05D7\u05D5\u05EA \u05E9\u05DC \u05D0\u05DE\u05D0 \u05D0\u05D5 \u05E9\u05DC \u05D0\u05D1\u05D0", "w": 1, "lvl": 2 }, { "en": "Cousin", "he": "\u05D1\u05DF \u05D3\u05D5\u05D3", "pic": "\u{1F466}", "clue": "\u05D4\u05D1\u05DF \u05E9\u05DC \u05D4\u05D3\u05D5\u05D3 \u05D0\u05D5 \u05E9\u05DC \u05D4\u05D3\u05D5\u05D3\u05D4", "w": 1, "lvl": 2 }, { "en": "River", "he": "\u05E0\u05D4\u05E8", "pic": "\u{1F3DE}\uFE0F", "clue": "\u05DE\u05D9\u05DD \u05E9\u05D6\u05D5\u05E8\u05DE\u05D9\u05DD \u05D1\u05D9\u05DF \u05E9\u05EA\u05D9 \u05D2\u05D3\u05D5\u05EA", "w": 1, "lvl": 2 }, { "en": "Nest", "he": "\u05E7\u05DF", "pic": "\u{1FABA}", "clue": "\u05D4\u05D1\u05D9\u05EA \u05E9\u05D4\u05E6\u05D9\u05E4\u05D5\u05E8 \u05D1\u05D5\u05E0\u05D4 \u05DC\u05D1\u05D9\u05E6\u05D9\u05DD \u05E9\u05DC\u05D4", "w": 1, "lvl": 2 }, { "en": "Insect", "he": "\u05D7\u05E8\u05E7", "pic": "\u{1F41E}", "clue": "\u05D9\u05E6\u05D5\u05E8 \u05E7\u05D8\u05DF \u05E2\u05DD \u05E9\u05E9 \u05E8\u05D2\u05DC\u05D9\u05D9\u05DD, \u05DB\u05DE\u05D5 \u05E0\u05DE\u05DC\u05D4", "w": 1, "lvl": 2 }, { "en": "Climb", "he": "\u05DC\u05D8\u05E4\u05E1", "pic": "\u{1F9D7}", "clue": "\u05DC\u05E2\u05DC\u05D5\u05EA \u05DC\u05DE\u05E2\u05DC\u05D4 \u05E2\u05DC \u05E2\u05E5 \u05D0\u05D5 \u05E2\u05DC \u05E7\u05D9\u05E8", "w": 1, "lvl": 2 }, { "en": "Hide", "he": "\u05DC\u05D4\u05EA\u05D7\u05D1\u05D0", "pic": "\u{1F648}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05D1\u05DE\u05E9\u05D7\u05E7 \u05DE\u05D7\u05D1\u05D5\u05D0\u05D9\u05DD?", "w": 1, "lvl": 2 }, { "en": "Wild", "he": "\u05E4\u05E8\u05D0\u05D9", "pic": "\u{1F417}", "clue": "\u05D7\u05D9 \u05D7\u05D5\u05E4\u05E9\u05D9 \u05D1\u05D8\u05D1\u05E2, \u05DC\u05D0 \u05D1\u05D1\u05D9\u05EA \u05D5\u05DC\u05D0 \u05D1\u05D2\u05DF \u05D7\u05D9\u05D5\u05EA", "w": 1, "lvl": 3 }, { "en": "Danger", "he": "\u05E1\u05DB\u05E0\u05D4", "pic": "\u26A0\uFE0F", "clue": "\u05DE\u05E6\u05D1 \u05E9\u05D1\u05D5 \u05DE\u05E9\u05D4\u05D5 \u05E8\u05E2 \u05E2\u05DC\u05D5\u05DC \u05DC\u05E7\u05E8\u05D5\u05EA", "w": 1, "lvl": 3 }, { "en": "Dangerous", "he": "\u05DE\u05E1\u05D5\u05DB\u05DF", "pic": "\u2620\uFE0F", "clue": "\u05DE\u05E9\u05D4\u05D5 \u05E9\u05E2\u05DC\u05D5\u05DC \u05DC\u05E4\u05D2\u05D5\u05E2 \u05D1\u05DB\u05DD", "w": 1, "lvl": 3 }, { "en": "Protect", "he": "\u05DC\u05D4\u05D2\u05DF", "pic": "\u{1F6E1}\uFE0F", "clue": "\u05DC\u05E9\u05DE\u05D5\u05E8 \u05E2\u05DC \u05DE\u05D9\u05E9\u05D4\u05D5 \u05E9\u05DC\u05D0 \u05D9\u05D9\u05E4\u05D2\u05E2", "w": 1, "lvl": 3 }, { "en": "Survive", "he": "\u05DC\u05E9\u05E8\u05D5\u05D3", "pic": "\u{1F4AA}", "clue": "\u05DC\u05D4\u05D9\u05E9\u05D0\u05E8 \u05D1\u05D7\u05D9\u05D9\u05DD \u05D1\u05DE\u05E6\u05D1 \u05E7\u05E9\u05D4", "w": 1, "lvl": 3 }, { "en": "Environment", "he": "\u05E1\u05D1\u05D9\u05D1\u05D4", "pic": "\u{1F30D}", "clue": "\u05D4\u05D8\u05D1\u05E2 \u05D5\u05D4\u05DE\u05E7\u05D5\u05DD \u05E9\u05DE\u05E1\u05D1\u05D9\u05D1\u05E0\u05D5", "w": 1, "lvl": 3 }, { "en": "Rare", "he": "\u05E0\u05D3\u05D9\u05E8", "pic": "\u{1F48E}", "clue": "\u05DE\u05E9\u05D4\u05D5 \u05E9\u05DB\u05DE\u05E2\u05D8 \u05D0\u05D9\u05DF \u05DE\u05DE\u05E0\u05D5, \u05E7\u05E9\u05D4 \u05DC\u05DE\u05E6\u05D5\u05D0 \u05D0\u05D5\u05EA\u05D5", "w": 1, "lvl": 3 }, { "en": "Ocean", "he": "\u05D0\u05D5\u05E7\u05D9\u05D9\u05E0\u05D5\u05E1", "pic": "\u{1F30A}", "clue": "\u05D9\u05DD \u05E2\u05E0\u05E7 \u05DE\u05D0\u05D5\u05D3, \u05DB\u05DE\u05D5 \u05D4\u05D0\u05D8\u05DC\u05E0\u05D8\u05D9", "w": 2, "lvl": 2 }, { "en": "Anchor", "he": "\u05E2\u05D5\u05D2\u05DF", "pic": "\u2693", "clue": "\u05D7\u05E4\u05E5 \u05DB\u05D1\u05D3 \u05E9\u05DE\u05D7\u05D6\u05D9\u05E7 \u05D0\u05EA \u05D4\u05E1\u05E4\u05D9\u05E0\u05D4 \u05D1\u05DE\u05E7\u05D5\u05DD", "w": 2, "lvl": 2 }, { "en": "Storm", "he": "\u05E1\u05E2\u05E8\u05D4", "pic": "\u26C8\uFE0F", "clue": "\u05E8\u05D5\u05D7 \u05D7\u05D6\u05E7\u05D4, \u05D2\u05E9\u05DD \u05D5\u05D2\u05DC\u05D9\u05DD \u05D2\u05D1\u05D5\u05D4\u05D9\u05DD", "w": 2, "lvl": 2 }, { "en": "Rope", "he": "\u05D7\u05D1\u05DC", "pic": "\u{1FAA2}", "clue": "\u05E7\u05D5\u05E9\u05E8\u05D9\u05DD \u05D0\u05D9\u05EA\u05D5 \u05D0\u05EA \u05D4\u05E1\u05D9\u05E8\u05D4 \u05DC\u05E8\u05E6\u05D9\u05E3", "w": 2, "lvl": 2 }, { "en": "Deep", "he": "\u05E2\u05DE\u05D5\u05E7", "pic": "\u{1F93F}", "clue": "\u05E8\u05D7\u05D5\u05E7 \u05DE\u05D0\u05D5\u05D3 \u05DC\u05DE\u05D8\u05D4, \u05D4\u05D4\u05E4\u05DA \u05DE\u05E8\u05D3\u05D5\u05D3", "w": 2, "lvl": 2 }, { "en": "Delicious", "he": "\u05D8\u05E2\u05D9\u05DD", "pic": "\u{1F60B}", "clue": "\u05D0\u05D5\u05DB\u05DC \u05E9\u05DE\u05DE\u05E9 \u05DB\u05D9\u05E3 \u05DC\u05D0\u05DB\u05D5\u05DC", "w": 2, "lvl": 2 }, { "en": "Vegetables", "he": "\u05D9\u05E8\u05E7\u05D5\u05EA", "pic": "\u{1F955}", "clue": "\u05D2\u05D6\u05E8, \u05DE\u05DC\u05E4\u05E4\u05D5\u05DF \u05D5\u05E2\u05D2\u05D1\u05E0\u05D9\u05D9\u05D4", "w": 2, "lvl": 2 }, { "en": "Meal", "he": "\u05D0\u05E8\u05D5\u05D7\u05D4", "pic": "\u{1F37D}\uFE0F", "clue": "\u05D1\u05D5\u05E7\u05E8, \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD \u05D0\u05D5 \u05E2\u05E8\u05D1", "w": 2, "lvl": 2 }, { "en": "Salt", "he": "\u05DE\u05DC\u05D7", "pic": "\u{1F9C2}", "clue": "\u05DC\u05D1\u05DF, \u05D5\u05D9\u05E9 \u05D4\u05E8\u05D1\u05D4 \u05DE\u05DE\u05E0\u05D5 \u05D1\u05DE\u05D9 \u05D4\u05D9\u05DD", "w": 2, "lvl": 2 }, { "en": "Sweet", "he": "\u05DE\u05EA\u05D5\u05E7", "pic": "\u{1F36C}", "clue": "\u05D4\u05D8\u05E2\u05DD \u05E9\u05DC \u05E1\u05D5\u05DB\u05E8 \u05D5\u05D3\u05D1\u05E9", "w": 2, "lvl": 2 }, { "en": "Compass", "he": "\u05DE\u05E6\u05E4\u05DF", "pic": "\u{1F9ED}", "clue": "\u05DE\u05E8\u05D0\u05D4 \u05DC\u05D0\u05D9\u05D6\u05D4 \u05DB\u05D9\u05D5\u05D5\u05DF \u05D4\u05E6\u05E4\u05D5\u05DF", "w": 2, "lvl": 3 }, { "en": "Journey", "he": "\u05DE\u05E1\u05E2", "pic": "\u{1F5FA}\uFE0F", "clue": "\u05D3\u05E8\u05DA \u05D0\u05E8\u05D5\u05DB\u05D4 \u05DE\u05DE\u05E7\u05D5\u05DD \u05DC\u05DE\u05E7\u05D5\u05DD", "w": 2, "lvl": 3 }, { "en": "Discover", "he": "\u05DC\u05D2\u05DC\u05D5\u05EA", "pic": "\u{1F52D}", "clue": "\u05DC\u05DE\u05E6\u05D5\u05D0 \u05DE\u05E9\u05D4\u05D5 \u05D1\u05E4\u05E2\u05DD \u05D4\u05E8\u05D0\u05E9\u05D5\u05E0\u05D4", "w": 2, "lvl": 3 }, { "en": "Crew", "he": "\u05E6\u05D5\u05D5\u05EA", "pic": "\u{1F465}", "clue": "\u05DB\u05DC \u05D4\u05D0\u05E0\u05E9\u05D9\u05DD \u05E9\u05E2\u05D5\u05D1\u05D3\u05D9\u05DD \u05D9\u05D7\u05D3 \u05E2\u05DC \u05D4\u05E1\u05E4\u05D9\u05E0\u05D4", "w": 2, "lvl": 3 }, { "en": "Bitter", "he": "\u05DE\u05E8", "pic": "\u2615", "clue": "\u05D8\u05E2\u05DD \u05D7\u05D6\u05E7 \u05D5\u05DC\u05D0 \u05DE\u05EA\u05D5\u05E7, \u05DB\u05DE\u05D5 \u05E7\u05E4\u05D4 \u05D1\u05DC\u05D9 \u05E1\u05D5\u05DB\u05E8", "w": 2, "lvl": 3 }, { "en": "Neighbor", "he": "\u05E9\u05DB\u05DF", "pic": "\u{1F3D8}\uFE0F", "clue": "\u05DE\u05D9 \u05E9\u05D2\u05E8 \u05D1\u05D1\u05D9\u05EA \u05DC\u05D9\u05D3 \u05D4\u05D1\u05D9\u05EA \u05E9\u05DC\u05DB\u05DD", "w": 3, "lvl": 2 }, { "en": "Building", "he": "\u05D1\u05E0\u05D9\u05D9\u05DF", "pic": "\u{1F3E2}", "clue": "\u05D9\u05E9 \u05D1\u05D5 \u05D4\u05E8\u05D1\u05D4 \u05E7\u05D5\u05DE\u05D5\u05EA \u05D5\u05D3\u05D9\u05E8\u05D5\u05EA", "w": 3, "lvl": 2 }, { "en": "Bridge", "he": "\u05D2\u05E9\u05E8", "pic": "\u{1F309}", "clue": "\u05E2\u05D5\u05D1\u05E8\u05D9\u05DD \u05E2\u05DC\u05D9\u05D5 \u05DE\u05E2\u05DC \u05E0\u05D4\u05E8 \u05D0\u05D5 \u05DB\u05D1\u05D9\u05E9", "w": 3, "lvl": 2 }, { "en": "Market", "he": "\u05E9\u05D5\u05E7", "pic": "\u{1F6D2}", "clue": "\u05E7\u05D5\u05E0\u05D9\u05DD \u05D1\u05D5 \u05E4\u05D9\u05E8\u05D5\u05EA \u05D5\u05D9\u05E8\u05E7\u05D5\u05EA \u05D1\u05D3\u05D5\u05DB\u05E0\u05D9\u05DD", "w": 3, "lvl": 2 }, { "en": "Museum", "he": "\u05DE\u05D5\u05D6\u05D9\u05D0\u05D5\u05DF", "pic": "\u{1F3DB}\uFE0F", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E9\u05E8\u05D5\u05D0\u05D9\u05DD \u05D1\u05D5 \u05D0\u05D5\u05DE\u05E0\u05D5\u05EA \u05D5\u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D4", "w": 3, "lvl": 2 }, { "en": "Lesson", "he": "\u05E9\u05D9\u05E2\u05D5\u05E8", "pic": "\u{1F4DA}", "clue": "\u05D6\u05DE\u05DF \u05D4\u05DC\u05D9\u05DE\u05D5\u05D3 \u05D1\u05DB\u05D9\u05EA\u05D4 \u05E2\u05DD \u05D4\u05DE\u05D5\u05E8\u05D4", "w": 3, "lvl": 2 }, { "en": "Question", "he": "\u05E9\u05D0\u05DC\u05D4", "pic": "\u2753", "clue": "\u05DE\u05E9\u05E4\u05D8 \u05E9\u05DE\u05E1\u05EA\u05D9\u05D9\u05DD \u05D1\u05E1\u05D9\u05DE\u05DF ?", "w": 3, "lvl": 2 }, { "en": "Answer", "he": "\u05EA\u05E9\u05D5\u05D1\u05D4", "pic": "\u2705", "clue": "\u05DE\u05D4 \u05E9\u05D0\u05D5\u05DE\u05E8\u05D9\u05DD \u05D0\u05D7\u05E8\u05D9 \u05E9\u05E0\u05E9\u05D0\u05DC\u05D9\u05DD", "w": 3, "lvl": 2 }, { "en": "Village", "he": "\u05DB\u05E4\u05E8", "pic": "\u{1F3E1}", "clue": "\u05D9\u05D9\u05E9\u05D5\u05D1 \u05E7\u05D8\u05DF, \u05D4\u05E8\u05D1\u05D4 \u05D9\u05D5\u05EA\u05E8 \u05E7\u05D8\u05DF \u05DE\u05E2\u05D9\u05E8", "w": 3, "lvl": 2 }, { "en": "Exam", "he": "\u05DE\u05D1\u05D7\u05DF", "pic": "\u{1F4DD}", "clue": "\u05D1\u05D5\u05D3\u05E7\u05D9\u05DD \u05D1\u05D5 \u05DE\u05D4 \u05DC\u05DE\u05D3\u05EA\u05DD", "w": 3, "lvl": 3 }, { "en": "Secret", "he": "\u05E1\u05D5\u05D3", "pic": "\u{1F92B}", "clue": "\u05DE\u05E9\u05D4\u05D5 \u05E9\u05D0\u05E1\u05D5\u05E8 \u05DC\u05E1\u05E4\u05E8 \u05DC\u05D0\u05E3 \u05D0\u05D7\u05D3", "w": 3, "lvl": 3 }, { "en": "Remember", "he": "\u05DC\u05D6\u05DB\u05D5\u05E8", "pic": "\u{1F9E0}", "clue": "\u05DC\u05D0 \u05DC\u05E9\u05DB\u05D5\u05D7", "w": 3, "lvl": 3 }, { "en": "Forget", "he": "\u05DC\u05E9\u05DB\u05D5\u05D7", "pic": "\u{1F914}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05DC\u05D6\u05DB\u05D5\u05E8", "w": 3, "lvl": 3 }, { "en": "Explain", "he": "\u05DC\u05D4\u05E1\u05D1\u05D9\u05E8", "pic": "\u{1F5E3}\uFE0F", "clue": "\u05DC\u05E2\u05D6\u05D5\u05E8 \u05DC\u05DE\u05D9\u05E9\u05D4\u05D5 \u05DC\u05D4\u05D1\u05D9\u05DF \u05DE\u05E9\u05D4\u05D5", "w": 3, "lvl": 3 }, { "en": "Knowledge", "he": "\u05D9\u05D3\u05E2", "pic": "\u{1F393}", "clue": "\u05DB\u05DC \u05DE\u05D4 \u05E9\u05D0\u05EA\u05DD \u05D9\u05D5\u05D3\u05E2\u05D9\u05DD \u05D5\u05DC\u05DE\u05D3\u05EA\u05DD", "w": 3, "lvl": 3 }, { "en": "Wizard", "he": "\u05E7\u05D5\u05E1\u05DD", "pic": "\u{1F9D9}", "clue": "\u05D0\u05D9\u05E9 \u05E2\u05DD \u05DB\u05D5\u05D1\u05E2 \u05DE\u05D7\u05D5\u05D3\u05D3 \u05D5\u05E9\u05E8\u05D1\u05D9\u05D8 \u05E7\u05E1\u05DE\u05D9\u05DD", "w": 3, "lvl": 3 }, { "en": "Hundred", "he": "\u05DE\u05D0\u05D4", "pic": "\u{1F4AF}", "clue": "\u05E2\u05E9\u05E8 \u05E4\u05E2\u05DE\u05D9\u05DD \u05E2\u05E9\u05E8", "w": 4, "lvl": 2 }, { "en": "Thousand", "he": "\u05D0\u05DC\u05E3", "pic": "\u{1F522}", "clue": "\u05E2\u05E9\u05E8 \u05E4\u05E2\u05DE\u05D9\u05DD \u05DE\u05D0\u05D4", "w": 4, "lvl": 2 }, { "en": "Hour", "he": "\u05E9\u05E2\u05D4", "pic": "\u23F0", "clue": "\u05E9\u05D9\u05E9\u05D9\u05DD \u05D3\u05E7\u05D5\u05EA", "w": 4, "lvl": 2 }, { "en": "Minute", "he": "\u05D3\u05E7\u05D4", "pic": "\u23F1\uFE0F", "clue": "\u05E9\u05D9\u05E9\u05D9\u05DD \u05E9\u05E0\u05D9\u05D5\u05EA", "w": 4, "lvl": 2 }, { "en": "Month", "he": "\u05D7\u05D5\u05D3\u05E9", "pic": "\u{1F4C5}", "clue": "\u05D1\u05E9\u05E0\u05D4 \u05D9\u05E9 \u05E9\u05E0\u05D9\u05DD \u05E2\u05E9\u05E8 \u05DB\u05D0\u05DC\u05D4", "w": 4, "lvl": 2 }, { "en": "Yesterday", "he": "\u05D0\u05EA\u05DE\u05D5\u05DC", "pic": "\u{1F4C6}", "clue": "\u05D4\u05D9\u05D5\u05DD \u05E9\u05D4\u05D9\u05D4 \u05DC\u05E4\u05E0\u05D9 \u05D4\u05D9\u05D5\u05DD", "w": 4, "lvl": 2 }, { "en": "Early", "he": "\u05DE\u05D5\u05E7\u05D3\u05DD", "pic": "\u{1F305}", "clue": "\u05DC\u05E4\u05E0\u05D9 \u05D4\u05D6\u05DE\u05DF, \u05D4\u05D4\u05E4\u05DA \u05DE\u05DE\u05D0\u05D5\u05D7\u05E8", "w": 4, "lvl": 2 }, { "en": "Late", "he": "\u05DE\u05D0\u05D5\u05D7\u05E8", "pic": "\u{1F559}", "clue": "\u05D0\u05D7\u05E8\u05D9 \u05D4\u05D6\u05DE\u05DF, \u05D4\u05D4\u05E4\u05DA \u05DE\u05DE\u05D5\u05E7\u05D3\u05DD", "w": 4, "lvl": 2 }, { "en": "Future", "he": "\u05E2\u05EA\u05D9\u05D3", "pic": "\u{1F52E}", "clue": "\u05D4\u05D6\u05DE\u05DF \u05E9\u05E2\u05D5\u05D3 \u05D9\u05D1\u05D5\u05D0", "w": 4, "lvl": 3 }, { "en": "Past", "he": "\u05E2\u05D1\u05E8", "pic": "\u{1F570}\uFE0F", "clue": "\u05D4\u05D6\u05DE\u05DF \u05E9\u05DB\u05D1\u05E8 \u05D4\u05D9\u05D4", "w": 4, "lvl": 3 }, { "en": "Universe", "he": "\u05D9\u05E7\u05D5\u05DD", "pic": "\u{1F30C}", "clue": "\u05DB\u05DC \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD \u05D5\u05D4\u05D2\u05DC\u05E7\u05E1\u05D9\u05D5\u05EA \u05D1\u05D9\u05D7\u05D3", "w": 4, "lvl": 3 }, { "en": "Orbit", "he": "\u05DE\u05E1\u05DC\u05D5\u05DC", "pic": "\u{1F6F0}\uFE0F", "clue": "\u05D4\u05D3\u05E8\u05DA \u05E9\u05D1\u05D4 \u05D4\u05D9\u05E8\u05D7 \u05DE\u05E1\u05EA\u05D5\u05D1\u05D1 \u05E1\u05D1\u05D9\u05D1 \u05DB\u05D3\u05D5\u05E8 \u05D4\u05D0\u05E8\u05E5", "w": 4, "lvl": 3 }, { "en": "Explore", "he": "\u05DC\u05D7\u05E7\u05D5\u05E8", "pic": "\u{1F50D}", "clue": "\u05DC\u05D1\u05D3\u05D5\u05E7 \u05DE\u05E7\u05D5\u05DD \u05D7\u05D3\u05E9 \u05DB\u05D3\u05D9 \u05DC\u05DC\u05DE\u05D5\u05D3 \u05E2\u05DC\u05D9\u05D5", "w": 4, "lvl": 3 }, { "en": "Launch", "he": "\u05DC\u05E9\u05D2\u05E8", "pic": "\u{1F680}", "clue": "\u05DC\u05E9\u05DC\u05D5\u05D7 \u05E8\u05E7\u05D8\u05D4 \u05DC\u05D7\u05DC\u05DC", "w": 4, "lvl": 3 }, { "en": "Distance", "he": "\u05DE\u05E8\u05D7\u05E7", "pic": "\u{1F4CF}", "clue": "\u05DB\u05DE\u05D4 \u05E8\u05D7\u05D5\u05E7 \u05DE\u05DE\u05E7\u05D5\u05DD \u05D0\u05D7\u05D3 \u05DC\u05DE\u05E7\u05D5\u05DD \u05D0\u05D7\u05E8", "w": 4, "lvl": 3 }, { "en": "Scarf", "he": "\u05E6\u05E2\u05D9\u05E3", "pic": "\u{1F9E3}", "clue": "\u05E2\u05D5\u05D8\u05E4\u05D9\u05DD \u05D0\u05D9\u05EA\u05D5 \u05D0\u05EA \u05D4\u05E6\u05D5\u05D5\u05D0\u05E8 \u05D1\u05D7\u05D5\u05E8\u05E3", "w": 5, "lvl": 2 }, { "en": "Knee", "he": "\u05D1\u05E8\u05DA", "pic": "\u{1F9B5}", "clue": "\u05D4\u05DE\u05E4\u05E8\u05E7 \u05D1\u05D0\u05DE\u05E6\u05E2 \u05D4\u05E8\u05D2\u05DC", "w": 5, "lvl": 2 }, { "en": "Heart", "he": "\u05DC\u05D1", "pic": "\u2764\uFE0F", "clue": "\u05E4\u05D5\u05E2\u05DD \u05D1\u05EA\u05D5\u05DA \u05D4\u05D7\u05D6\u05D4", "w": 5, "lvl": 2 }, { "en": "Shoulder", "he": "\u05DB\u05EA\u05E3", "pic": "\u{1F937}", "clue": "\u05D1\u05D9\u05DF \u05D4\u05E6\u05D5\u05D5\u05D0\u05E8 \u05DC\u05D1\u05D9\u05DF \u05D4\u05D9\u05D3", "w": 5, "lvl": 2 }, { "en": "Sick", "he": "\u05D7\u05D5\u05DC\u05D4", "pic": "\u{1F912}", "clue": "\u05DE\u05D9 \u05E9\u05D9\u05E9 \u05DC\u05D5 \u05D7\u05D5\u05DD \u05D5\u05E9\u05E4\u05E2\u05EA", "w": 5, "lvl": 2 }, { "en": "Healthy", "he": "\u05D1\u05E8\u05D9\u05D0", "pic": "\u{1F34F}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05D7\u05D5\u05DC\u05D4", "w": 5, "lvl": 2 }, { "en": "Pain", "he": "\u05DB\u05D0\u05D1", "pic": "\u{1F915}", "clue": "\u05DE\u05D4 \u05E9\u05DE\u05E8\u05D2\u05D9\u05E9\u05D9\u05DD \u05DB\u05E9\u05E0\u05E4\u05E6\u05E2\u05D9\u05DD", "w": 5, "lvl": 2 }, { "en": "Strong", "he": "\u05D7\u05D6\u05E7", "pic": "\u{1F3CB}\uFE0F", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05D7\u05DC\u05E9", "w": 5, "lvl": 2 }, { "en": "Wear", "he": "\u05DC\u05DC\u05D1\u05D5\u05E9", "pic": "\u{1F455}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05D1\u05D2\u05D3\u05D9\u05DD?", "w": 5, "lvl": 2 }, { "en": "Freeze", "he": "\u05DC\u05E7\u05E4\u05D5\u05D0", "pic": "\u{1F976}", "clue": "\u05DE\u05D4 \u05E7\u05D5\u05E8\u05D4 \u05DC\u05DE\u05D9\u05DD \u05D1\u05E7\u05D5\u05E8 \u05D2\u05D3\u05D5\u05DC", "w": 5, "lvl": 3 }, { "en": "Temperature", "he": "\u05D8\u05DE\u05E4\u05E8\u05D8\u05D5\u05E8\u05D4", "pic": "\u{1F321}\uFE0F", "clue": "\u05DB\u05DE\u05D4 \u05D7\u05DD \u05D0\u05D5 \u05DB\u05DE\u05D4 \u05E7\u05E8, \u05D1\u05DE\u05E2\u05DC\u05D5\u05EA", "w": 5, "lvl": 3 }, { "en": "Forecast", "he": "\u05EA\u05D7\u05D6\u05D9\u05EA", "pic": "\u{1F4FA}", "clue": "\u05DE\u05D4 \u05DE\u05D6\u05D2 \u05D4\u05D0\u05D5\u05D5\u05D9\u05E8 \u05D9\u05D4\u05D9\u05D4 \u05DE\u05D7\u05E8", "w": 5, "lvl": 3 }, { "en": "Lightning", "he": "\u05D1\u05E8\u05E7", "pic": "\u26A1", "clue": "\u05D0\u05D5\u05E8 \u05D7\u05D6\u05E7 \u05D1\u05E9\u05DE\u05D9\u05D9\u05DD \u05D1\u05D6\u05DE\u05DF \u05E1\u05E2\u05E8\u05D4", "w": 5, "lvl": 3 }, { "en": "Thunder", "he": "\u05E8\u05E2\u05DD", "pic": "\u{1F329}\uFE0F", "clue": "\u05D4\u05E8\u05E2\u05E9 \u05D4\u05D7\u05D6\u05E7 \u05E9\u05D1\u05D0 \u05D0\u05D7\u05E8\u05D9 \u05D4\u05D1\u05E8\u05E7", "w": 5, "lvl": 3 }, { "en": "Medicine", "he": "\u05EA\u05E8\u05D5\u05E4\u05D4", "pic": "\u{1F48A}", "clue": "\u05DC\u05D5\u05E7\u05D7\u05D9\u05DD \u05D0\u05D5\u05EA\u05D4 \u05DB\u05E9\u05D7\u05D5\u05DC\u05D9\u05DD", "w": 5, "lvl": 3 }, { "en": "Slippery", "he": "\u05D7\u05DC\u05E7\u05DC\u05E7", "pic": "\u26F8\uFE0F", "clue": "\u05E7\u05DC \u05DE\u05D0\u05D5\u05D3 \u05DC\u05D4\u05D7\u05DC\u05D9\u05E7 \u05E2\u05DC\u05D9\u05D5, \u05DB\u05DE\u05D5 \u05E7\u05E8\u05D7", "w": 5, "lvl": 3 }, { "en": "Comfortable", "he": "\u05E0\u05D5\u05D7", "pic": "\u{1F6CB}\uFE0F", "clue": "\u05E0\u05E2\u05D9\u05DD \u05DC\u05E9\u05D1\u05EA \u05D0\u05D5 \u05DC\u05DC\u05D1\u05D5\u05E9", "w": 5, "lvl": 3 }];
+  var WORDS = [{ "en": "English", "he": "\u05D0\u05E0\u05D2\u05DC\u05D9\u05EA", "pic": "\u{1F1EC}\u{1F1E7}", "clue": "\u05D4\u05E9\u05E4\u05D4 \u05E9\u05D0\u05EA\u05DD \u05DC\u05D5\u05DE\u05D3\u05D9\u05DD \u05E2\u05DB\u05E9\u05D9\u05D5", "w": 1, "lvl": 1 }, { "en": "Brother", "he": "\u05D0\u05D7", "pic": "\u{1F466}", "clue": "\u05D1\u05DF \u05D1\u05D0\u05D5\u05EA\u05D4 \u05DE\u05E9\u05E4\u05D7\u05D4, \u05E9\u05D4\u05D5\u05D0 \u05D0\u05D7\u05D9\u05DB\u05DD", "w": 1, "lvl": 1 }, { "en": "Sister", "he": "\u05D0\u05D7\u05D5\u05EA", "pic": "\u{1F467}", "clue": "\u05D1\u05EA \u05D1\u05D0\u05D5\u05EA\u05D4 \u05DE\u05E9\u05E4\u05D7\u05D4, \u05E9\u05D4\u05D9\u05D0 \u05D0\u05D7\u05D5\u05EA\u05DB\u05DD", "w": 1, "lvl": 1 }, { "en": "Beautiful", "he": "\u05D9\u05E4\u05D4", "pic": "\u{1F33A}", "clue": "\u05DB\u05DE\u05D5 \u05E4\u05E8\u05D7 \u05D0\u05D5 \u05E9\u05E7\u05D9\u05E2\u05D4 \u05DE\u05E7\u05E1\u05D9\u05DE\u05D4", "w": 1, "lvl": 2 }, { "en": "Family", "he": "\u05DE\u05E9\u05E4\u05D7\u05D4", "pic": "\u{1F468}\u200D\u{1F469}\u200D\u{1F467}\u200D\u{1F466}", "clue": "\u05D0\u05DE\u05D0, \u05D0\u05D1\u05D0, \u05D9\u05DC\u05D3\u05D9\u05DD, \u05E1\u05D1\u05D0 \u05D5\u05E1\u05D1\u05EA\u05D0", "w": 1, "lvl": 1 }, { "en": "Read", "he": "\u05DC\u05E7\u05E8\u05D5\u05D0", "pic": "\u{1F4D6}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05E1\u05E4\u05E8?", "w": 1, "lvl": 1 }, { "en": "Eat", "he": "\u05DC\u05D0\u05DB\u05D5\u05DC", "pic": "\u{1F34E}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05EA\u05E4\u05D5\u05D7?", "w": 1, "lvl": 1 }, { "en": "Drink", "he": "\u05DC\u05E9\u05EA\u05D5\u05EA", "pic": "\u{1F964}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05DE\u05D9\u05DD \u05D0\u05D5 \u05DE\u05D9\u05E5?", "w": 1, "lvl": 1 }, { "en": "Mother", "he": "\u05D0\u05DE\u05D0", "pic": "\u{1F469}", "clue": "\u05D4\u05D4\u05D5\u05E8\u05D4 \u05E9\u05D4\u05D9\u05D0 \u05D0\u05D9\u05E9\u05D4", "w": 1, "lvl": 1 }, { "en": "Father", "he": "\u05D0\u05D1\u05D0", "pic": "\u{1F468}", "clue": "\u05D4\u05D4\u05D5\u05E8\u05D4 \u05E9\u05D4\u05D5\u05D0 \u05D2\u05D1\u05E8", "w": 1, "lvl": 1 }, { "en": "Baby", "he": "\u05EA\u05D9\u05E0\u05D5\u05E7", "pic": "\u{1F476}", "clue": "\u05D9\u05DC\u05D3 \u05D0\u05D5 \u05D9\u05DC\u05D3\u05D4 \u05E7\u05D8\u05E0\u05D9\u05DD \u05DE\u05D0\u05D5\u05D3", "w": 1, "lvl": 1 }, { "en": "Grandfather", "he": "\u05E1\u05D1\u05D0", "pic": "\u{1F474}", "clue": "\u05D0\u05D1\u05D0 \u05E9\u05DC \u05D0\u05DE\u05D0 \u05D0\u05D5 \u05E9\u05DC \u05D0\u05D1\u05D0", "w": 1, "lvl": 2 }, { "en": "Grandmother", "he": "\u05E1\u05D1\u05EA\u05D0", "pic": "\u{1F475}", "clue": "\u05D0\u05DE\u05D0 \u05E9\u05DC \u05D0\u05DE\u05D0 \u05D0\u05D5 \u05E9\u05DC \u05D0\u05D1\u05D0", "w": 1, "lvl": 2 }, { "en": "Boy", "he": "\u05D9\u05DC\u05D3", "pic": "\u{1F466}", "clue": "\u05D9\u05DC\u05D3, \u05DC\u05D0 \u05D9\u05DC\u05D3\u05D4", "w": 1, "lvl": 1 }, { "en": "Girl", "he": "\u05D9\u05DC\u05D3\u05D4", "pic": "\u{1F467}", "clue": "\u05D9\u05DC\u05D3\u05D4, \u05DC\u05D0 \u05D9\u05DC\u05D3", "w": 1, "lvl": 1 }, { "en": "Parents", "he": "\u05D4\u05D5\u05E8\u05D9\u05DD", "pic": "\u{1F46B}", "clue": "\u05D0\u05DE\u05D0 \u05D5\u05D0\u05D1\u05D0 \u05D9\u05D7\u05D3", "w": 1, "lvl": 1 }, { "en": "Lion", "he": "\u05D0\u05E8\u05D9\u05D4", "pic": "\u{1F981}", "clue": "\u05DE\u05DC\u05DA \u05D4\u05D7\u05D9\u05D5\u05EA, \u05E2\u05DD \u05E8\u05E2\u05DE\u05D4 \u05D2\u05D3\u05D5\u05DC\u05D4", "w": 1, "lvl": 1 }, { "en": "Tiger", "he": "\u05E0\u05DE\u05E8", "pic": "\u{1F42F}", "clue": "\u05D7\u05EA\u05D5\u05DC \u05D2\u05D3\u05D5\u05DC \u05E2\u05DD \u05E4\u05E1\u05D9\u05DD", "w": 1, "lvl": 1 }, { "en": "Monkey", "he": "\u05E7\u05D5\u05E3", "pic": "\u{1F435}", "clue": "\u05D0\u05D5\u05D4\u05D1 \u05DC\u05E7\u05E4\u05D5\u05E5 \u05E2\u05DC \u05E2\u05E6\u05D9\u05DD", "w": 1, "lvl": 1 }, { "en": "Elephant", "he": "\u05E4\u05D9\u05DC", "pic": "\u{1F418}", "clue": "\u05D4\u05D7\u05D9\u05D4 \u05D4\u05DB\u05D9 \u05D2\u05D3\u05D5\u05DC\u05D4 \u05D1\u05D9\u05D1\u05E9\u05D4, \u05E2\u05DD \u05D7\u05D3\u05E7", "w": 1, "lvl": 1 }, { "en": "Snake", "he": "\u05E0\u05D7\u05E9", "pic": "\u{1F40D}", "clue": "\u05D0\u05E8\u05D5\u05DA \u05D5\u05D6\u05D5\u05D7\u05DC \u05D1\u05DC\u05D9 \u05E8\u05D2\u05DC\u05D9\u05D9\u05DD", "w": 1, "lvl": 1 }, { "en": "Frog", "he": "\u05E6\u05E4\u05E8\u05D3\u05E2", "pic": "\u{1F438}", "clue": "\u05D9\u05E8\u05D5\u05E7\u05D4, \u05E7\u05D5\u05E4\u05E6\u05EA \u05D5\u05D7\u05D9\u05D4 \u05DC\u05D9\u05D3 \u05DE\u05D9\u05DD", "w": 1, "lvl": 1 }, { "en": "Butterfly", "he": "\u05E4\u05E8\u05E4\u05E8", "pic": "\u{1F98B}", "clue": "\u05D9\u05E4\u05D4 \u05D5\u05E2\u05E3 \u05DE\u05E4\u05E8\u05D7 \u05DC\u05E4\u05E8\u05D7", "w": 1, "lvl": 2 }, { "en": "Bear", "he": "\u05D3\u05D5\u05D1", "pic": "\u{1F43B}", "clue": "\u05D2\u05D3\u05D5\u05DC \u05D5\u05E4\u05E8\u05D5\u05D5\u05EA\u05D9, \u05D0\u05D5\u05D4\u05D1 \u05D3\u05D1\u05E9", "w": 1, "lvl": 1 }, { "en": "Giraffe", "he": "\u05D2'\u05D9\u05E8\u05E4\u05D4", "pic": "\u{1F992}", "clue": "\u05D4\u05D7\u05D9\u05D4 \u05D4\u05DB\u05D9 \u05D2\u05D1\u05D5\u05D4\u05D4, \u05E2\u05DD \u05E6\u05D5\u05D5\u05D0\u05E8 \u05D0\u05E8\u05D5\u05DA", "w": 1, "lvl": 2 }, { "en": "Parrot", "he": "\u05EA\u05D5\u05DB\u05D9", "pic": "\u{1F99C}", "clue": "\u05E6\u05D9\u05E4\u05D5\u05E8 \u05E6\u05D1\u05E2\u05D5\u05E0\u05D9\u05EA \u05E9\u05D9\u05D5\u05D3\u05E2\u05EA \u05DC\u05D7\u05E7\u05D5\u05EA \u05E7\u05D5\u05DC\u05D5\u05EA", "w": 1, "lvl": 1 }, { "en": "Dog", "he": "\u05DB\u05DC\u05D1", "pic": "\u{1F436}", "clue": "\u05D7\u05D9\u05D4 \u05E0\u05D0\u05DE\u05E0\u05D4 \u05E9\u05E0\u05D5\u05D1\u05D7\u05EA", "w": 1, "lvl": 1 }, { "en": "Cat", "he": "\u05D7\u05EA\u05D5\u05DC", "pic": "\u{1F431}", "clue": "\u05D7\u05D9\u05D4 \u05E9\u05D0\u05D5\u05DE\u05E8\u05EA \u05DE\u05D9\u05D0\u05D5", "w": 1, "lvl": 1 }, { "en": "Horse", "he": "\u05E1\u05D5\u05E1", "pic": "\u{1F434}", "clue": "\u05D7\u05D9\u05D4 \u05E9\u05E8\u05D5\u05DB\u05D1\u05D9\u05DD \u05E2\u05DC\u05D9\u05D4", "w": 1, "lvl": 1 }, { "en": "Rabbit", "he": "\u05D0\u05E8\u05E0\u05D1", "pic": "\u{1F430}", "clue": "\u05D7\u05D9\u05D4 \u05E7\u05D8\u05E0\u05D4 \u05E2\u05DD \u05D0\u05D5\u05D6\u05E0\u05D9\u05D9\u05DD \u05D0\u05E8\u05D5\u05DB\u05D5\u05EA", "w": 1, "lvl": 1 }, { "en": "Run", "he": "\u05DC\u05E8\u05D5\u05E5", "pic": "\u{1F3C3}", "clue": "\u05DC\u05D6\u05D5\u05D6 \u05DE\u05D4\u05E8 \u05D1\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD", "w": 1, "lvl": 1 }, { "en": "Jump", "he": "\u05DC\u05E7\u05E4\u05D5\u05E5", "pic": "\u{1F998}", "clue": "\u05DC\u05D4\u05EA\u05E8\u05D5\u05DE\u05DD \u05D1\u05D0\u05D5\u05D5\u05D9\u05E8 \u05DE\u05E2\u05DC \u05DE\u05E9\u05D4\u05D5", "w": 1, "lvl": 1 }, { "en": "Sleep", "he": "\u05DC\u05D9\u05E9\u05D5\u05DF", "pic": "\u{1F634}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05D1\u05DC\u05D9\u05DC\u05D4 \u05D1\u05DE\u05D9\u05D8\u05D4", "w": 1, "lvl": 1 }, { "en": "Play", "he": "\u05DC\u05E9\u05D7\u05E7", "pic": "\u{1F3AE}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05D1\u05E9\u05E2\u05D5\u05EA \u05D4\u05E4\u05E0\u05D0\u05D9", "w": 1, "lvl": 1 }, { "en": "Walk", "he": "\u05DC\u05DC\u05DB\u05EA", "pic": "\u{1F6B6}", "clue": "\u05DC\u05D6\u05D5\u05D6 \u05D1\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD, \u05DC\u05D0 \u05DE\u05D4\u05E8", "w": 1, "lvl": 1 }, { "en": "Big", "he": "\u05D2\u05D3\u05D5\u05DC", "pic": "\u{1F9A3}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05E7\u05D8\u05DF", "w": 1, "lvl": 1 }, { "en": "Small", "he": "\u05E7\u05D8\u05DF", "pic": "\u{1F42D}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05D2\u05D3\u05D5\u05DC", "w": 1, "lvl": 1 }, { "en": "Happy", "he": "\u05E9\u05DE\u05D7", "pic": "\u{1F604}", "clue": "\u05DB\u05E9\u05DE\u05E8\u05D2\u05D9\u05E9\u05D9\u05DD \u05D8\u05D5\u05D1 \u05D5\u05E6\u05D5\u05D7\u05E7\u05D9\u05DD", "w": 1, "lvl": 1 }, { "en": "Sad", "he": "\u05E2\u05E6\u05D5\u05D1", "pic": "\u{1F622}", "clue": "\u05DB\u05E9\u05DE\u05E8\u05D2\u05D9\u05E9\u05D9\u05DD \u05DC\u05D0 \u05D8\u05D5\u05D1 \u05D5\u05E8\u05D5\u05E6\u05D9\u05DD \u05DC\u05D1\u05DB\u05D5\u05EA", "w": 1, "lvl": 1 }, { "en": "Good", "he": "\u05D8\u05D5\u05D1", "pic": "\u{1F44D}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05E8\u05E2", "w": 1, "lvl": 1 }, { "en": "Tree", "he": "\u05E2\u05E5", "pic": "\u{1F333}", "clue": "\u05D2\u05D1\u05D5\u05D4, \u05E2\u05DD \u05D2\u05D6\u05E2 \u05D5\u05E2\u05DD \u05E2\u05DC\u05D9\u05DD", "w": 1, "lvl": 1 }, { "en": "Flower", "he": "\u05E4\u05E8\u05D7", "pic": "\u{1F338}", "clue": "\u05E6\u05D5\u05DE\u05D7 \u05D1\u05D2\u05D9\u05E0\u05D4 \u05D5\u05D4\u05D5\u05D0 \u05D9\u05E4\u05D4 \u05D5\u05E8\u05D9\u05D7\u05E0\u05D9", "w": 1, "lvl": 1 }, { "en": "Forest", "he": "\u05D9\u05E2\u05E8", "pic": "\u{1F332}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E2\u05DD \u05D4\u05E8\u05D1\u05D4 \u05E2\u05E6\u05D9\u05DD", "w": 1, "lvl": 1 }, { "en": "Leaf", "he": "\u05E2\u05DC\u05D4", "pic": "\u{1F343}", "clue": "\u05D4\u05D7\u05DC\u05E7 \u05D4\u05D9\u05E8\u05D5\u05E7 \u05E9\u05D2\u05D3\u05DC \u05E2\u05DC \u05D4\u05E2\u05E5", "w": 1, "lvl": 1 }, { "en": "Grass", "he": "\u05D3\u05E9\u05D0", "pic": "\u{1F331}", "clue": "\u05D9\u05E8\u05D5\u05E7 \u05D5\u05E6\u05D5\u05DE\u05D7 \u05E2\u05DC \u05D4\u05D0\u05D3\u05DE\u05D4 \u05D1\u05D2\u05D9\u05E0\u05D4", "w": 1, "lvl": 1 }, { "en": "Animal", "he": "\u05D7\u05D9\u05D4", "pic": "\u{1F43E}", "clue": "\u05DB\u05DC\u05D1, \u05D7\u05EA\u05D5\u05DC, \u05D0\u05E8\u05D9\u05D4 \u2014 \u05DB\u05D5\u05DC\u05DD...", "w": 1, "lvl": 1 }, { "en": "Fish", "he": "\u05D3\u05D2", "pic": "\u{1F41F}", "clue": "\u05D7\u05D9 \u05D1\u05DE\u05D9\u05DD \u05D5\u05D9\u05E9 \u05DC\u05D5 \u05E1\u05E0\u05E4\u05D9\u05E8\u05D9\u05DD", "w": 2, "lvl": 1 }, { "en": "Sea", "he": "\u05D9\u05DD", "pic": "\u{1F30A}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05D2\u05D3\u05D5\u05DC \u05D5\u05DE\u05DC\u05D5\u05D7 \u05E9\u05DE\u05E9\u05D9\u05D9\u05D8\u05D9\u05DD \u05D1\u05D5", "w": 2, "lvl": 1 }, { "en": "Ship", "he": "\u05E1\u05E4\u05D9\u05E0\u05D4", "pic": "\u{1F6A2}", "clue": "\u05DB\u05DC\u05D9 \u05E9\u05D9\u05D8 \u05D2\u05D3\u05D5\u05DC \u05E9\u05DE\u05E4\u05DC\u05D9\u05D2 \u05D1\u05D9\u05DD", "w": 2, "lvl": 1 }, { "en": "Island", "he": "\u05D0\u05D9", "pic": "\u{1F3DD}\uFE0F", "clue": "\u05D9\u05D1\u05E9\u05D4 \u05E7\u05D8\u05E0\u05D4 \u05E9\u05DE\u05D5\u05E7\u05E4\u05EA \u05DE\u05D9\u05DD \u05DE\u05DB\u05DC \u05D4\u05E6\u05D3\u05D3\u05D9\u05DD", "w": 2, "lvl": 1 }, { "en": "Bird", "he": "\u05E6\u05D9\u05E4\u05D5\u05E8", "pic": "\u{1F426}", "clue": "\u05D9\u05E9 \u05DC\u05D4 \u05DB\u05E0\u05E4\u05D9\u05D9\u05DD \u05D5\u05D4\u05D9\u05D0 \u05E2\u05E4\u05D4", "w": 2, "lvl": 1 }, { "en": "Shark", "he": "\u05DB\u05E8\u05D9\u05E9", "pic": "\u{1F988}", "clue": "\u05D3\u05D2 \u05D8\u05D5\u05E8\u05E3 \u05E2\u05DD \u05E9\u05D9\u05E0\u05D9\u05D9\u05DD \u05D7\u05D3\u05D5\u05EA", "w": 2, "lvl": 1 }, { "en": "Water", "he": "\u05DE\u05D9\u05DD", "pic": "\u{1F4A7}", "clue": "\u05DE\u05D4 \u05E9\u05D5\u05EA\u05D9\u05DD \u05DB\u05E9\u05E6\u05DE\u05D0\u05D9\u05DD", "w": 2, "lvl": 1 }, { "en": "Beach", "he": "\u05D7\u05D5\u05E3", "pic": "\u{1F3D6}\uFE0F", "clue": "\u05D7\u05D5\u05DC \u05D5\u05DE\u05D9\u05DD \u2014 \u05E9\u05DD \u05DE\u05EA\u05E8\u05D7\u05E6\u05D9\u05DD \u05D5\u05DE\u05E9\u05D7\u05E7\u05D9\u05DD", "w": 2, "lvl": 1 }, { "en": "Boat", "he": "\u05E1\u05D9\u05E8\u05D4", "pic": "\u{1F6A3}", "clue": "\u05DB\u05DC\u05D9 \u05E9\u05D9\u05D8 \u05E7\u05D8\u05DF \u05D9\u05D5\u05EA\u05E8 \u05DE\u05E1\u05E4\u05D9\u05E0\u05D4", "w": 2, "lvl": 1 }, { "en": "Pirate", "he": "\u05E4\u05D9\u05E8\u05D0\u05D8", "pic": "\u{1F3F4}\u200D\u2620\uFE0F", "clue": "\u05E9\u05D5\u05D3\u05D3 \u05D9\u05DD \u05E2\u05DD \u05DE\u05D8\u05E4\u05D7\u05EA \u05D5\u05E2\u05DD \u05DE\u05E4\u05D4", "w": 2, "lvl": 1 }, { "en": "Treasure", "he": "\u05D0\u05D5\u05E6\u05E8", "pic": "\u{1F4B0}", "clue": "\u05D6\u05D4\u05D1 \u05D5\u05DE\u05D8\u05D1\u05E2\u05D5\u05EA \u05E9\u05DE\u05D5\u05E6\u05D0\u05D9\u05DD \u05D1\u05EA\u05D9\u05D1\u05D4", "w": 2, "lvl": 2 }, { "en": "Wave", "he": "\u05D2\u05DC", "pic": "\u{1F30A}", "clue": "\u05D4\u05DE\u05D9\u05DD \u05E9\u05DE\u05EA\u05E8\u05D5\u05DE\u05DE\u05D9\u05DD \u05D5\u05E0\u05E9\u05D1\u05E8\u05D9\u05DD \u05D1\u05D9\u05DD", "w": 2, "lvl": 1 }, { "en": "Sand", "he": "\u05D7\u05D5\u05DC", "pic": "\u231B", "clue": "\u05DE\u05D4 \u05E9\u05D9\u05E9 \u05E2\u05DC \u05D4\u05D7\u05D5\u05E3, \u05E8\u05DA \u05D5\u05E6\u05D4\u05D5\u05D1", "w": 2, "lvl": 1 }, { "en": "Map", "he": "\u05DE\u05E4\u05D4", "pic": "\u{1F5FA}\uFE0F", "clue": "\u05DE\u05E8\u05D0\u05D4 \u05D0\u05D9\u05DA \u05DC\u05D4\u05D2\u05D9\u05E2 \u05DE\u05DE\u05E7\u05D5\u05DD \u05DC\u05DE\u05E7\u05D5\u05DD", "w": 2, "lvl": 1 }, { "en": "Gold", "he": "\u05D6\u05D4\u05D1", "pic": "\u{1F947}", "clue": "\u05DE\u05EA\u05DB\u05EA \u05D9\u05E7\u05E8\u05D4 \u05D5\u05D6\u05D4\u05D5\u05D1\u05D4", "w": 2, "lvl": 1 }, { "en": "Captain", "he": "\u05E7\u05E4\u05D8\u05DF", "pic": "\u{1F9D1}\u200D\u2708\uFE0F", "clue": "\u05DE\u05D9 \u05E9\u05DE\u05E0\u05D4\u05D9\u05D2 \u05D0\u05EA \u05D4\u05E1\u05E4\u05D9\u05E0\u05D4", "w": 2, "lvl": 2 }, { "en": "Flag", "he": "\u05D3\u05D2\u05DC", "pic": "\u{1F6A9}", "clue": "\u05D1\u05D3 \u05E2\u05DD \u05E6\u05D9\u05D5\u05E8, \u05EA\u05DC\u05D5\u05D9 \u05E2\u05DC \u05EA\u05E8\u05DF", "w": 2, "lvl": 1 }, { "en": "Red", "he": "\u05D0\u05D3\u05D5\u05DD", "pic": "\u{1F534}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05EA\u05D5\u05EA \u05D5\u05E9\u05DC \u05E2\u05D2\u05D1\u05E0\u05D9\u05D9\u05D4", "w": 2, "lvl": 1 }, { "en": "Blue", "he": "\u05DB\u05D7\u05D5\u05DC", "pic": "\u{1F535}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05D4\u05E9\u05DE\u05D9\u05D9\u05DD \u05D5\u05E9\u05DC \u05D4\u05D9\u05DD", "w": 2, "lvl": 1 }, { "en": "Green", "he": "\u05D9\u05E8\u05D5\u05E7", "pic": "\u{1F7E2}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05D3\u05E9\u05D0 \u05D5\u05E9\u05DC \u05E2\u05DC\u05D9\u05DD", "w": 2, "lvl": 1 }, { "en": "Yellow", "he": "\u05E6\u05D4\u05D5\u05D1", "pic": "\u{1F7E1}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05D1\u05E0\u05E0\u05D4 \u05D5\u05E9\u05DC \u05E9\u05DE\u05E9", "w": 2, "lvl": 1 }, { "en": "Orange", "he": "\u05DB\u05EA\u05D5\u05DD", "pic": "\u{1F7E0}", "clue": "\u05D6\u05D4 \u05D4\u05E6\u05D1\u05E2 \u2014 \u05DC\u05D0 \u05D4\u05E4\u05E8\u05D9 \u05EA\u05E4\u05D5\u05D6", "w": 2, "lvl": 1 }, { "en": "Purple", "he": "\u05E1\u05D2\u05D5\u05DC", "pic": "\u{1F7E3}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05E2\u05E0\u05D1\u05D9\u05DD \u05D5\u05E9\u05DC \u05D7\u05E6\u05D9\u05DC", "w": 2, "lvl": 1 }, { "en": "Pink", "he": "\u05D5\u05E8\u05D5\u05D3", "pic": "\u{1F497}", "clue": "\u05E6\u05D1\u05E2 \u05D1\u05D4\u05D9\u05E8 \u05DB\u05DE\u05D5 \u05DE\u05E1\u05D8\u05D9\u05E7 \u05D0\u05D5 \u05E4\u05E8\u05D7", "w": 2, "lvl": 1 }, { "en": "Black", "he": "\u05E9\u05D7\u05D5\u05E8", "pic": "\u26AB", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05D4\u05DC\u05D9\u05DC\u05D4, \u05D4\u05D4\u05E4\u05DA \u05DE\u05DC\u05D1\u05DF", "w": 2, "lvl": 1 }, { "en": "White", "he": "\u05DC\u05D1\u05DF", "pic": "\u26AA", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05D7\u05DC\u05D1 \u05D5\u05E9\u05DC \u05E9\u05DC\u05D2", "w": 2, "lvl": 1 }, { "en": "Brown", "he": "\u05D7\u05D5\u05DD", "pic": "\u{1F90E}", "clue": "\u05E6\u05D1\u05E2 \u05E9\u05DC \u05E9\u05D5\u05E7\u05D5\u05DC\u05D3 \u05D5\u05E9\u05DC \u05D0\u05D3\u05DE\u05D4", "w": 2, "lvl": 1 }, { "en": "Color", "he": "\u05E6\u05D1\u05E2", "pic": "\u{1F3A8}", "clue": "\u05D0\u05D3\u05D5\u05DD, \u05DB\u05D7\u05D5\u05DC, \u05D9\u05E8\u05D5\u05E7 \u2014 \u05DB\u05DC \u05D0\u05D7\u05D3 \u05D4\u05D5\u05D0...", "w": 2, "lvl": 1 }, { "en": "Apple", "he": "\u05EA\u05E4\u05D5\u05D7", "pic": "\u{1F34E}", "clue": "\u05E4\u05E8\u05D9 \u05E2\u05D2\u05D5\u05DC, \u05D0\u05D3\u05D5\u05DD \u05D0\u05D5 \u05D9\u05E8\u05D5\u05E7", "w": 2, "lvl": 1 }, { "en": "Banana", "he": "\u05D1\u05E0\u05E0\u05D4", "pic": "\u{1F34C}", "clue": "\u05E4\u05E8\u05D9 \u05D0\u05E8\u05D5\u05DA \u05D5\u05E6\u05D4\u05D5\u05D1", "w": 2, "lvl": 1 }, { "en": "Bread", "he": "\u05DC\u05D7\u05DD", "pic": "\u{1F35E}", "clue": "\u05D0\u05D5\u05DB\u05DC\u05D9\u05DD \u05D0\u05D5\u05EA\u05D5 \u05D1\u05DB\u05E8\u05D9\u05DA", "w": 2, "lvl": 1 }, { "en": "Milk", "he": "\u05D7\u05DC\u05D1", "pic": "\u{1F95B}", "clue": "\u05DE\u05E9\u05E7\u05D4 \u05DC\u05D1\u05DF \u05E9\u05E9\u05D5\u05EA\u05D9\u05DD \u05D1\u05D1\u05D5\u05E7\u05E8", "w": 2, "lvl": 1 }, { "en": "Juice", "he": "\u05DE\u05D9\u05E5", "pic": "\u{1F9C3}", "clue": "\u05DE\u05E9\u05E7\u05D4 \u05E9\u05E1\u05D5\u05D7\u05D8\u05D9\u05DD \u05DE\u05E4\u05D9\u05E8\u05D5\u05EA", "w": 2, "lvl": 1 }, { "en": "Cake", "he": "\u05E2\u05D5\u05D2\u05D4", "pic": "\u{1F382}", "clue": "\u05DE\u05EA\u05D5\u05E7\u05D4, \u05D0\u05D5\u05DB\u05DC\u05D9\u05DD \u05D1\u05D9\u05D5\u05DD \u05D4\u05D5\u05DC\u05D3\u05EA", "w": 2, "lvl": 1 }, { "en": "Egg", "he": "\u05D1\u05D9\u05E6\u05D4", "pic": "\u{1F95A}", "clue": "\u05DE\u05D2\u05D9\u05E2\u05D4 \u05DE\u05EA\u05E8\u05E0\u05D2\u05D5\u05DC\u05EA, \u05E2\u05D2\u05D5\u05DC\u05D4 \u05D5\u05DC\u05D1\u05E0\u05D4", "w": 2, "lvl": 1 }, { "en": "Cheese", "he": "\u05D2\u05D1\u05D9\u05E0\u05D4", "pic": "\u{1F9C0}", "clue": "\u05E2\u05E9\u05D5\u05D9\u05D4 \u05DE\u05D7\u05DC\u05D1, \u05E9\u05DE\u05D9\u05DD \u05D1\u05DB\u05E8\u05D9\u05DA", "w": 2, "lvl": 1 }, { "en": "Pizza", "he": "\u05E4\u05D9\u05E6\u05D4", "pic": "\u{1F355}", "clue": "\u05E2\u05D2\u05D5\u05DC\u05D4, \u05E2\u05DD \u05D2\u05D1\u05D9\u05E0\u05D4 \u05D5\u05E2\u05DD \u05EA\u05D5\u05E1\u05E4\u05D5\u05EA \u05DE\u05DC\u05DE\u05E2\u05DC\u05D4", "w": 2, "lvl": 1 }, { "en": "Chocolate", "he": "\u05E9\u05D5\u05E7\u05D5\u05DC\u05D3", "pic": "\u{1F36B}", "clue": "\u05DE\u05EA\u05D5\u05E7 \u05D5\u05D7\u05D5\u05DD, \u05DE\u05DB\u05D9\u05E0\u05D9\u05DD \u05DE\u05E7\u05D9\u05E7\u05D0\u05D5", "w": 2, "lvl": 2 }, { "en": "Food", "he": "\u05D0\u05D5\u05DB\u05DC", "pic": "\u{1F37D}\uFE0F", "clue": "\u05DB\u05DC \u05DE\u05D4 \u05E9\u05D0\u05D5\u05DB\u05DC\u05D9\u05DD \u05D1\u05D0\u05E8\u05D5\u05D7\u05D4", "w": 2, "lvl": 1 }, { "en": "Ice cream", "he": "\u05D2\u05DC\u05D9\u05D3\u05D4", "pic": "\u{1F366}", "clue": "\u05E7\u05D9\u05E0\u05D5\u05D7 \u05E7\u05E8 \u05D5\u05DE\u05EA\u05D5\u05E7 \u05D1\u05E7\u05D9\u05E5", "w": 2, "lvl": 1 }, { "en": "Crab", "he": "\u05E1\u05E8\u05D8\u05DF", "pic": "\u{1F980}", "clue": "\u05D7\u05D9 \u05D1\u05D7\u05D5\u05E3 \u05D5\u05D9\u05E9 \u05DC\u05D5 \u05E6\u05D1\u05EA\u05D5\u05EA", "w": 2, "lvl": 1 }, { "en": "Turtle", "he": "\u05E6\u05D1", "pic": "\u{1F422}", "clue": "\u05D9\u05E9 \u05DC\u05D5 \u05E9\u05E8\u05D9\u05D5\u05DF \u05E2\u05DC \u05D4\u05D2\u05D1", "w": 2, "lvl": 1 }, { "en": "Dolphin", "he": "\u05D3\u05D5\u05DC\u05E4\u05D9\u05DF", "pic": "\u{1F42C}", "clue": "\u05D7\u05D9\u05D4 \u05D7\u05DB\u05DE\u05D4 \u05E9\u05E9\u05D5\u05D7\u05D4 \u05D1\u05D9\u05DD \u05D5\u05DE\u05E7\u05E4\u05E6\u05EA", "w": 2, "lvl": 2 }, { "en": "Whale", "he": "\u05DC\u05D5\u05D5\u05D9\u05D9\u05EA\u05DF", "pic": "\u{1F40B}", "clue": "\u05D4\u05D7\u05D9\u05D4 \u05D4\u05DB\u05D9 \u05D2\u05D3\u05D5\u05DC\u05D4 \u05D1\u05D9\u05DD", "w": 2, "lvl": 1 }, { "en": "Octopus", "he": "\u05EA\u05DE\u05E0\u05D5\u05DF", "pic": "\u{1F419}", "clue": "\u05D9\u05E9 \u05DC\u05D5 \u05E9\u05DE\u05D5\u05E0\u05D4 \u05D6\u05E8\u05D5\u05E2\u05D5\u05EA", "w": 2, "lvl": 2 }, { "en": "School", "he": "\u05D1\u05D9\u05EA \u05E1\u05E4\u05E8", "pic": "\u{1F3EB}", "clue": "\u05D4\u05DE\u05E7\u05D5\u05DD \u05E9\u05D1\u05D5 \u05DC\u05D5\u05DE\u05D3\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Book", "he": "\u05E1\u05E4\u05E8", "pic": "\u{1F4DA}", "clue": "\u05E7\u05D5\u05E8\u05D0\u05D9\u05DD \u05D1\u05D5 \u05E1\u05D9\u05E4\u05D5\u05E8\u05D9\u05DD \u05D5\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Friend", "he": "\u05D7\u05D1\u05E8", "pic": "\u{1F9D1}\u200D\u{1F91D}\u200D\u{1F9D1}", "clue": "\u05DE\u05D9 \u05E9\u05D0\u05D5\u05D4\u05D1\u05D9\u05DD \u05DC\u05E9\u05D7\u05E7 \u05D5\u05DC\u05D3\u05D1\u05E8 \u05D0\u05D9\u05EA\u05D5", "w": 3, "lvl": 1 }, { "en": "Teacher", "he": "\u05DE\u05D5\u05E8\u05D4", "pic": "\u{1F469}\u200D\u{1F3EB}", "clue": "\u05DE\u05D9 \u05E9\u05DE\u05DC\u05DE\u05D3 \u05D1\u05DB\u05D9\u05EA\u05D4", "w": 3, "lvl": 1 }, { "en": "House", "he": "\u05D1\u05D9\u05EA", "pic": "\u{1F3E0}", "clue": "\u05D4\u05DE\u05E7\u05D5\u05DD \u05E9\u05D1\u05D5 \u05D2\u05E8\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Car", "he": "\u05DE\u05DB\u05D5\u05E0\u05D9\u05EA", "pic": "\u{1F697}", "clue": "\u05E0\u05D5\u05E1\u05E2\u05D9\u05DD \u05D1\u05D4 \u05E2\u05DC \u05D0\u05E8\u05D1\u05E2\u05D4 \u05D2\u05DC\u05D2\u05DC\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Street", "he": "\u05E8\u05D7\u05D5\u05D1", "pic": "\u{1F6E3}\uFE0F", "clue": "\u05D4\u05D3\u05E8\u05DA \u05E9\u05D1\u05D9\u05DF \u05D4\u05D1\u05EA\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "City", "he": "\u05E2\u05D9\u05E8", "pic": "\u{1F306}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05D2\u05D3\u05D5\u05DC \u05E2\u05DD \u05D4\u05E8\u05D1\u05D4 \u05D1\u05E0\u05D9\u05D9\u05E0\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Student", "he": "\u05EA\u05DC\u05DE\u05D9\u05D3", "pic": "\u{1F9D1}\u200D\u{1F393}", "clue": "\u05DE\u05D9 \u05E9\u05DC\u05D5\u05DE\u05D3 \u05D1\u05D1\u05D9\u05EA \u05D4\u05E1\u05E4\u05E8", "w": 3, "lvl": 1 }, { "en": "Pencil", "he": "\u05E2\u05D9\u05E4\u05E8\u05D5\u05DF", "pic": "\u270F\uFE0F", "clue": "\u05DB\u05D5\u05EA\u05D1\u05D9\u05DD \u05D5\u05DE\u05D5\u05D7\u05E7\u05D9\u05DD \u05D0\u05D9\u05EA\u05D5", "w": 3, "lvl": 1 }, { "en": "Pen", "he": "\u05E2\u05D8", "pic": "\u{1F58A}\uFE0F", "clue": "\u05DB\u05D5\u05EA\u05D1\u05D9\u05DD \u05D0\u05D9\u05EA\u05D5 \u05D1\u05D3\u05D9\u05D5", "w": 3, "lvl": 1 }, { "en": "Bag", "he": "\u05EA\u05D9\u05E7", "pic": "\u{1F392}", "clue": "\u05E9\u05DE\u05D9\u05DD \u05D1\u05D5 \u05E1\u05E4\u05E8\u05D9\u05DD \u05DC\u05D1\u05D9\u05EA \u05D4\u05E1\u05E4\u05E8", "w": 3, "lvl": 1 }, { "en": "Chair", "he": "\u05DB\u05D9\u05E1\u05D0", "pic": "\u{1FA91}", "clue": "\u05E2\u05DC\u05D9\u05D5 \u05D9\u05D5\u05E9\u05D1\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Classroom", "he": "\u05DB\u05D9\u05EA\u05D4", "pic": "\u{1F6AA}", "clue": "\u05D4\u05D7\u05D3\u05E8 \u05D1\u05D1\u05D9\u05EA \u05D4\u05E1\u05E4\u05E8 \u05E9\u05D1\u05D5 \u05DC\u05D5\u05DE\u05D3\u05D9\u05DD", "w": 3, "lvl": 2 }, { "en": "Homework", "he": "\u05E9\u05D9\u05E2\u05D5\u05E8\u05D9 \u05D1\u05D9\u05EA", "pic": "\u{1F4DD}", "clue": "\u05D4\u05E2\u05D1\u05D5\u05D3\u05D4 \u05E9\u05D4\u05DE\u05D5\u05E8\u05D4 \u05E0\u05D5\u05EA\u05DF \u05DC\u05E2\u05E9\u05D5\u05EA \u05D1\u05D1\u05D9\u05EA", "w": 3, "lvl": 2 }, { "en": "Notebook", "he": "\u05DE\u05D7\u05D1\u05E8\u05EA", "pic": "\u{1F4D3}", "clue": "\u05DE\u05D7\u05D1\u05E8\u05EA \u05DC\u05DB\u05EA\u05D9\u05D1\u05D4 \u05D1\u05E9\u05D9\u05E2\u05D5\u05E8", "w": 3, "lvl": 2 }, { "en": "Computer", "he": "\u05DE\u05D7\u05E9\u05D1", "pic": "\u{1F4BB}", "clue": "\u05DE\u05DB\u05D5\u05E0\u05D4 \u05DC\u05DC\u05DE\u05D9\u05D3\u05D4, \u05DC\u05DE\u05E9\u05D7\u05E7\u05D9\u05DD \u05D5\u05DC\u05E1\u05E8\u05D8\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Paper", "he": "\u05E0\u05D9\u05D9\u05E8", "pic": "\u{1F4C4}", "clue": "\u05D3\u05E3 \u05DC\u05D1\u05DF \u05E9\u05DB\u05D5\u05EA\u05D1\u05D9\u05DD \u05E2\u05DC\u05D9\u05D5", "w": 3, "lvl": 1 }, { "en": "Board", "he": "\u05DC\u05D5\u05D7", "pic": "\u{1F9D1}\u200D\u{1F3EB}", "clue": "\u05D4\u05DC\u05D5\u05D7 \u05D4\u05D2\u05D3\u05D5\u05DC \u05DE\u05DC\u05E4\u05E0\u05D9\u05DD \u05D1\u05DB\u05D9\u05EA\u05D4", "w": 3, "lvl": 1 }, { "en": "Door", "he": "\u05D3\u05DC\u05EA", "pic": "\u{1F6AA}", "clue": "\u05D3\u05E8\u05DA \u05D4\u05DB\u05E0\u05D9\u05E1\u05D4 \u05DC\u05D7\u05D3\u05E8 \u05D0\u05D5 \u05DC\u05D1\u05D9\u05EA", "w": 3, "lvl": 1 }, { "en": "Window", "he": "\u05D7\u05DC\u05D5\u05DF", "pic": "\u{1FA9F}", "clue": "\u05E4\u05D5\u05EA\u05D7\u05D9\u05DD \u05D0\u05D5\u05EA\u05D5 \u05DB\u05D3\u05D9 \u05DC\u05E8\u05D0\u05D5\u05EA \u05D4\u05D7\u05D5\u05E6\u05D4", "w": 3, "lvl": 1 }, { "en": "Room", "he": "\u05D7\u05D3\u05E8", "pic": "\u{1F6CF}\uFE0F", "clue": "\u05D7\u05DC\u05E7 \u05E1\u05D2\u05D5\u05E8 \u05D1\u05EA\u05D5\u05DA \u05D4\u05D1\u05D9\u05EA", "w": 3, "lvl": 1 }, { "en": "Kitchen", "he": "\u05DE\u05D8\u05D1\u05D7", "pic": "\u{1F373}", "clue": "\u05D4\u05D7\u05D3\u05E8 \u05E9\u05D1\u05D5 \u05DE\u05D1\u05E9\u05DC\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Bedroom", "he": "\u05D7\u05D3\u05E8 \u05E9\u05D9\u05E0\u05D4", "pic": "\u{1F6CC}", "clue": "\u05D4\u05D7\u05D3\u05E8 \u05E9\u05D1\u05D5 \u05D9\u05E9\u05E0\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Table", "he": "\u05E9\u05D5\u05DC\u05D7\u05DF", "pic": "\u{1F37D}\uFE0F", "clue": "\u05E2\u05DC\u05D9\u05D5 \u05D0\u05D5\u05DB\u05DC\u05D9\u05DD, \u05DB\u05D5\u05EA\u05D1\u05D9\u05DD \u05D0\u05D5 \u05DE\u05E9\u05D7\u05E7\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Bed", "he": "\u05DE\u05D9\u05D8\u05D4", "pic": "\u{1F6CF}\uFE0F", "clue": "\u05E2\u05DC\u05D9\u05D4 \u05D9\u05E9\u05E0\u05D9\u05DD \u05D1\u05DC\u05D9\u05DC\u05D4", "w": 3, "lvl": 1 }, { "en": "Lamp", "he": "\u05DE\u05E0\u05D5\u05E8\u05D4", "pic": "\u{1F4A1}", "clue": "\u05DE\u05D0\u05D9\u05E8\u05D4 \u05D0\u05EA \u05D4\u05D7\u05D3\u05E8", "w": 3, "lvl": 1 }, { "en": "Phone", "he": "\u05D8\u05DC\u05E4\u05D5\u05DF", "pic": "\u{1F4F1}", "clue": "\u05DE\u05EA\u05E7\u05E9\u05E8\u05D9\u05DD \u05D5\u05E9\u05D5\u05DC\u05D7\u05D9\u05DD \u05D0\u05D9\u05EA\u05D5 \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA", "w": 3, "lvl": 1 }, { "en": "Garden", "he": "\u05D2\u05D9\u05E0\u05D4", "pic": "\u{1F3E1}", "clue": "\u05DC\u05D9\u05D3 \u05D4\u05D1\u05D9\u05EA, \u05E2\u05DD \u05E4\u05E8\u05D7\u05D9\u05DD \u05D5\u05D3\u05E9\u05D0", "w": 3, "lvl": 1 }, { "en": "Bus", "he": "\u05D0\u05D5\u05D8\u05D5\u05D1\u05D5\u05E1", "pic": "\u{1F68C}", "clue": "\u05E8\u05DB\u05D1 \u05D2\u05D3\u05D5\u05DC \u05E9\u05DE\u05E1\u05D9\u05E2 \u05D4\u05E8\u05D1\u05D4 \u05D0\u05E0\u05E9\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Train", "he": "\u05E8\u05DB\u05D1\u05EA", "pic": "\u{1F686}", "clue": "\u05E0\u05D5\u05E1\u05E2\u05EA \u05E2\u05DC \u05E4\u05E1\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Bicycle", "he": "\u05D0\u05D5\u05E4\u05E0\u05D9\u05D9\u05DD", "pic": "\u{1F6B2}", "clue": "\u05E9\u05E0\u05D9 \u05D2\u05DC\u05D2\u05DC\u05D9\u05DD, \u05E8\u05D5\u05DB\u05D1\u05D9\u05DD \u05E2\u05DD \u05E8\u05D2\u05DC\u05D9\u05D9\u05DD", "w": 3, "lvl": 2 }, { "en": "Airplane", "he": "\u05DE\u05D8\u05D5\u05E1", "pic": "\u2708\uFE0F", "clue": "\u05D8\u05E1 \u05D1\u05E9\u05DE\u05D9\u05D9\u05DD \u05DE\u05DE\u05D3\u05D9\u05E0\u05D4 \u05DC\u05DE\u05D3\u05D9\u05E0\u05D4", "w": 3, "lvl": 1 }, { "en": "Taxi", "he": "\u05DE\u05D5\u05E0\u05D9\u05EA", "pic": "\u{1F695}", "clue": "\u05DE\u05DB\u05D5\u05E0\u05D9\u05EA \u05E9\u05DE\u05E9\u05DC\u05DE\u05D9\u05DD \u05DC\u05E0\u05D4\u05D2 \u05E9\u05DC\u05D4", "w": 3, "lvl": 1 }, { "en": "Shop", "he": "\u05D7\u05E0\u05D5\u05EA", "pic": "\u{1F6CD}\uFE0F", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E9\u05E7\u05D5\u05E0\u05D9\u05DD \u05D1\u05D5 \u05D3\u05D1\u05E8\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Park", "he": "\u05E4\u05D0\u05E8\u05E7", "pic": "\u{1F3DE}\uFE0F", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E4\u05EA\u05D5\u05D7 \u05E2\u05DD \u05D3\u05E9\u05D0 \u05D5\u05DE\u05E9\u05D7\u05E7\u05D9\u05DD", "w": 3, "lvl": 1 }, { "en": "Library", "he": "\u05E1\u05E4\u05E8\u05D9\u05D9\u05D4", "pic": "\u{1F4D6}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E2\u05DD \u05D4\u05E8\u05D1\u05D4 \u05E1\u05E4\u05E8\u05D9\u05DD \u05DC\u05D4\u05E9\u05D0\u05DC\u05D4", "w": 3, "lvl": 2 }, { "en": "Hospital", "he": "\u05D1\u05D9\u05EA \u05D7\u05D5\u05DC\u05D9\u05DD", "pic": "\u{1F3E5}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E9\u05D4\u05D5\u05DC\u05DB\u05D9\u05DD \u05D0\u05DC\u05D9\u05D5 \u05DB\u05E9\u05D7\u05D5\u05DC\u05D9\u05DD", "w": 3, "lvl": 2 }, { "en": "Castle", "he": "\u05D8\u05D9\u05E8\u05D4", "pic": "\u{1F3F0}", "clue": "\u05D1\u05D9\u05EA \u05E2\u05E0\u05E7 \u05E9\u05DC \u05DE\u05DC\u05DA \u05D5\u05E9\u05DC \u05DE\u05DC\u05DB\u05D4", "w": 3, "lvl": 1 }, { "en": "King", "he": "\u05DE\u05DC\u05DA", "pic": "\u{1F934}", "clue": "\u05D4\u05E9\u05DC\u05D9\u05D8 \u05E9\u05DC \u05D4\u05DE\u05DE\u05DC\u05DB\u05D4", "w": 3, "lvl": 1 }, { "en": "Queen", "he": "\u05DE\u05DC\u05DB\u05D4", "pic": "\u{1F478}", "clue": "\u05D4\u05E9\u05DC\u05D9\u05D8\u05D4 \u05E9\u05DC \u05D4\u05DE\u05DE\u05DC\u05DB\u05D4", "w": 3, "lvl": 1 }, { "en": "Magic", "he": "\u05E7\u05E1\u05DD", "pic": "\u2728", "clue": "\u05D3\u05D1\u05E8\u05D9\u05DD \u05DE\u05D9\u05D5\u05D7\u05D3\u05D9\u05DD \u05E9\u05E7\u05D5\u05E8\u05D9\u05DD \u05D1\u05E1\u05D9\u05E4\u05D5\u05E8\u05D9 \u05E4\u05DC\u05D0", "w": 3, "lvl": 1 }, { "en": "Clock", "he": "\u05E9\u05E2\u05D5\u05DF", "pic": "\u23F0", "clue": "\u05DE\u05E8\u05D0\u05D4 \u05DC\u05E0\u05D5 \u05DE\u05D4 \u05D4\u05E9\u05E2\u05D4", "w": 3, "lvl": 1 }, { "en": "Key", "he": "\u05DE\u05E4\u05EA\u05D7", "pic": "\u{1F511}", "clue": "\u05E4\u05D5\u05EA\u05D7\u05D9\u05DD \u05D0\u05D9\u05EA\u05D5 \u05D3\u05DC\u05EA", "w": 3, "lvl": 1 }, { "en": "Star", "he": "\u05DB\u05D5\u05DB\u05D1", "pic": "\u2B50", "clue": "\u05E0\u05D5\u05E6\u05E5 \u05D1\u05E9\u05DE\u05D9\u05D9\u05DD \u05D1\u05DC\u05D9\u05DC\u05D4", "w": 4, "lvl": 1 }, { "en": "Moon", "he": "\u05D9\u05E8\u05D7", "pic": "\u{1F319}", "clue": "\u05DE\u05D0\u05D9\u05E8 \u05D1\u05DC\u05D9\u05DC\u05D4 \u05D5\u05DE\u05E7\u05D9\u05E3 \u05D0\u05EA \u05DB\u05D3\u05D5\u05E8 \u05D4\u05D0\u05E8\u05E5", "w": 4, "lvl": 1 }, { "en": "Planet", "he": "\u05DB\u05D5\u05DB\u05D1 \u05DC\u05DB\u05EA", "pic": "\u{1FA90}", "clue": "\u05DB\u05DE\u05D5 \u05DB\u05D3\u05D5\u05E8 \u05D4\u05D0\u05E8\u05E5 \u05D0\u05D5 \u05DE\u05D0\u05D3\u05D9\u05DD", "w": 4, "lvl": 1 }, { "en": "Rocket", "he": "\u05E8\u05E7\u05D8\u05D4", "pic": "\u{1F680}", "clue": "\u05E2\u05D5\u05DC\u05D4 \u05DC\u05E9\u05DE\u05D9\u05D9\u05DD \u05E2\u05DD \u05D0\u05E9 \u05DE\u05DC\u05DE\u05D8\u05D4", "w": 4, "lvl": 1 }, { "en": "Space", "he": "\u05D7\u05DC\u05DC", "pic": "\u{1F30C}", "clue": "\u05DB\u05DC \u05DE\u05D4 \u05E9\u05DE\u05E2\u05DC \u05D4\u05E9\u05DE\u05D9\u05D9\u05DD, \u05D1\u05D9\u05DF \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD", "w": 4, "lvl": 1 }, { "en": "Alien", "he": "\u05D7\u05D9\u05D9\u05D6\u05E8", "pic": "\u{1F47D}", "clue": "\u05D9\u05E6\u05D5\u05E8 \u05E9\u05D4\u05D2\u05D9\u05E2 \u05DE\u05DB\u05D5\u05DB\u05D1 \u05D0\u05D7\u05E8", "w": 4, "lvl": 1 }, { "en": "Sun", "he": "\u05E9\u05DE\u05E9", "pic": "\u2600\uFE0F", "clue": "\u05DE\u05D0\u05D9\u05E8\u05D4 \u05D1\u05D9\u05D5\u05DD \u05D5\u05DE\u05D7\u05DE\u05DE\u05EA \u05D0\u05D5\u05EA\u05E0\u05D5", "w": 4, "lvl": 1 }, { "en": "Robot", "he": "\u05E8\u05D5\u05D1\u05D5\u05D8", "pic": "\u{1F916}", "clue": "\u05DE\u05DB\u05D5\u05E0\u05D4 \u05E9\u05E0\u05E8\u05D0\u05D9\u05EA \u05E7\u05E6\u05EA \u05DB\u05DE\u05D5 \u05D0\u05D3\u05DD", "w": 4, "lvl": 1 }, { "en": "Earth", "he": "\u05DB\u05D3\u05D5\u05E8 \u05D4\u05D0\u05E8\u05E5", "pic": "\u{1F30D}", "clue": "\u05D4\u05DB\u05D5\u05DB\u05D1 \u05E9\u05D1\u05D5 \u05D0\u05E0\u05D7\u05E0\u05D5 \u05D2\u05E8\u05D9\u05DD", "w": 4, "lvl": 1 }, { "en": "Astronaut", "he": "\u05D0\u05E1\u05D8\u05E8\u05D5\u05E0\u05D0\u05D5\u05D8", "pic": "\u{1F468}\u200D\u{1F680}", "clue": "\u05D0\u05D3\u05DD \u05E9\u05D8\u05E1 \u05DC\u05D7\u05DC\u05DC", "w": 4, "lvl": 2 }, { "en": "Galaxy", "he": "\u05D2\u05DC\u05E7\u05E1\u05D9\u05D4", "pic": "\u{1F300}", "clue": "\u05E7\u05D1\u05D5\u05E6\u05D4 \u05E2\u05E0\u05E7\u05D9\u05EA \u05E9\u05DC \u05DE\u05D9\u05DC\u05D9\u05D5\u05E0\u05D9 \u05DB\u05D5\u05DB\u05D1\u05D9\u05DD", "w": 4, "lvl": 2 }, { "en": "Spaceship", "he": "\u05D7\u05DC\u05DC\u05D9\u05EA", "pic": "\u{1F6F8}", "clue": "\u05DB\u05DC\u05D9 \u05E8\u05DB\u05D1 \u05E9\u05D8\u05E1 \u05D1\u05D7\u05DC\u05DC", "w": 4, "lvl": 2 }, { "en": "Comet", "he": "\u05E9\u05D1\u05D9\u05D8", "pic": "\u2604\uFE0F", "clue": "\u05DB\u05D5\u05DB\u05D1 \u05E2\u05DD \u05D6\u05E0\u05D1 \u05D0\u05D5\u05E8 \u05E9\u05D8\u05E1 \u05D1\u05E9\u05DE\u05D9\u05D9\u05DD", "w": 4, "lvl": 1 }, { "en": "One", "he": "\u05D0\u05D7\u05D3", "pic": "1\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 1", "w": 4, "lvl": 1 }, { "en": "Two", "he": "\u05E9\u05EA\u05D9\u05D9\u05DD", "pic": "2\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 2", "w": 4, "lvl": 1 }, { "en": "Three", "he": "\u05E9\u05DC\u05D5\u05E9", "pic": "3\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 3", "w": 4, "lvl": 1 }, { "en": "Four", "he": "\u05D0\u05E8\u05D1\u05E2", "pic": "4\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 4", "w": 4, "lvl": 1 }, { "en": "Five", "he": "\u05D7\u05DE\u05E9", "pic": "5\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 5", "w": 4, "lvl": 1 }, { "en": "Six", "he": "\u05E9\u05E9", "pic": "6\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 6", "w": 4, "lvl": 1 }, { "en": "Seven", "he": "\u05E9\u05D1\u05E2", "pic": "7\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 7", "w": 4, "lvl": 1 }, { "en": "Eight", "he": "\u05E9\u05DE\u05D5\u05E0\u05D4", "pic": "8\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 8", "w": 4, "lvl": 1 }, { "en": "Nine", "he": "\u05EA\u05E9\u05E2", "pic": "9\uFE0F\u20E3", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 9", "w": 4, "lvl": 1 }, { "en": "Ten", "he": "\u05E2\u05E9\u05E8", "pic": "\u{1F51F}", "clue": "\u05D4\u05DE\u05E1\u05E4\u05E8 10", "w": 4, "lvl": 1 }, { "en": "Number", "he": "\u05DE\u05E1\u05E4\u05E8", "pic": "\u{1F522}", "clue": "\u05D0\u05D7\u05D3, \u05E9\u05EA\u05D9\u05D9\u05DD, \u05E9\u05DC\u05D5\u05E9 \u05D4\u05DD...", "w": 4, "lvl": 1 }, { "en": "Day", "he": "\u05D9\u05D5\u05DD", "pic": "\u{1F4C5}", "clue": "\u05D4\u05D6\u05DE\u05DF \u05E9\u05D1\u05D5 \u05D9\u05E9 \u05D0\u05D5\u05E8 \u05E9\u05DE\u05E9", "w": 4, "lvl": 1 }, { "en": "Night", "he": "\u05DC\u05D9\u05DC\u05D4", "pic": "\u{1F303}", "clue": "\u05D4\u05D6\u05DE\u05DF \u05E9\u05D1\u05D5 \u05D7\u05E9\u05D5\u05DA \u05D5\u05D4\u05D9\u05E8\u05D7 \u05D1\u05D7\u05D5\u05E5", "w": 4, "lvl": 1 }, { "en": "Morning", "he": "\u05D1\u05D5\u05E7\u05E8", "pic": "\u{1F305}", "clue": "\u05EA\u05D7\u05D9\u05DC\u05EA \u05D4\u05D9\u05D5\u05DD, \u05D0\u05D7\u05E8\u05D9 \u05E9\u05E7\u05DE\u05D9\u05DD", "w": 4, "lvl": 1 }, { "en": "Today", "he": "\u05D4\u05D9\u05D5\u05DD", "pic": "\u{1F4CC}", "clue": "\u05D4\u05D9\u05D5\u05DD \u05D4\u05D6\u05D4, \u05DC\u05D0 \u05D0\u05EA\u05DE\u05D5\u05DC \u05D5\u05DC\u05D0 \u05DE\u05D7\u05E8", "w": 4, "lvl": 1 }, { "en": "Tomorrow", "he": "\u05DE\u05D7\u05E8", "pic": "\u23ED\uFE0F", "clue": "\u05D4\u05D9\u05D5\u05DD \u05E9\u05D9\u05D1\u05D5\u05D0 \u05D0\u05D7\u05E8\u05D9 \u05D4\u05D9\u05D5\u05DD", "w": 4, "lvl": 2 }, { "en": "Week", "he": "\u05E9\u05D1\u05D5\u05E2", "pic": "\u{1F4C6}", "clue": "\u05E9\u05D1\u05E2\u05D4 \u05D9\u05DE\u05D9\u05DD \u05D9\u05D7\u05D3", "w": 4, "lvl": 1 }, { "en": "Year", "he": "\u05E9\u05E0\u05D4", "pic": "\u{1F386}", "clue": "\u05E9\u05E0\u05D9\u05D9\u05DD-\u05E2\u05E9\u05E8 \u05D7\u05D5\u05D3\u05E9\u05D9\u05DD \u05D9\u05D7\u05D3", "w": 4, "lvl": 1 }, { "en": "Time", "he": "\u05D6\u05DE\u05DF", "pic": "\u23F1\uFE0F", "clue": "\u05DE\u05D4 \u05E9\u05D4\u05E9\u05E2\u05D5\u05DF \u05DE\u05D5\u05D3\u05D3", "w": 4, "lvl": 1 }, { "en": "Write", "he": "\u05DC\u05DB\u05EA\u05D5\u05D1", "pic": "\u270D\uFE0F", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05E2\u05D9\u05E4\u05E8\u05D5\u05DF \u05E2\u05DC \u05D3\u05E3", "w": 4, "lvl": 1 }, { "en": "See", "he": "\u05DC\u05E8\u05D0\u05D5\u05EA", "pic": "\u{1F440}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05D4\u05E2\u05D9\u05E0\u05D9\u05D9\u05DD", "w": 4, "lvl": 1 }, { "en": "Hear", "he": "\u05DC\u05E9\u05DE\u05D5\u05E2", "pic": "\u{1F442}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05D4\u05D0\u05D5\u05D6\u05E0\u05D9\u05D9\u05DD", "w": 4, "lvl": 1 }, { "en": "Come", "he": "\u05DC\u05D1\u05D5\u05D0", "pic": "\u{1F44B}", "clue": "\u05DC\u05D4\u05D2\u05D9\u05E2 \u05DC\u05DB\u05D0\u05DF, \u05D0\u05DC\u05D9\u05E0\u05D5", "w": 4, "lvl": 1 }, { "en": "Look", "he": "\u05DC\u05D4\u05E1\u05EA\u05DB\u05DC", "pic": "\u{1F441}\uFE0F", "clue": "\u05DC\u05DB\u05D5\u05D5\u05DF \u05D0\u05EA \u05D4\u05E2\u05D9\u05E0\u05D9\u05D9\u05DD \u05DC\u05DE\u05E9\u05D4\u05D5", "w": 4, "lvl": 1 }, { "en": "Like", "he": "\u05D0\u05D5\u05D4\u05D1", "pic": "\u{1F497}", "clue": "\u05DB\u05E9\u05DE\u05E9\u05D4\u05D5 \u05DE\u05D5\u05E6\u05D0 \u05D7\u05DF \u05D1\u05E2\u05D9\u05E0\u05D9\u05E0\u05D5", "w": 4, "lvl": 1 }, { "en": "Want", "he": "\u05DC\u05E8\u05E6\u05D5\u05EA", "pic": "\u{1F64F}", "clue": "\u05DB\u05E9\u05DE\u05DE\u05E9 \u05DE\u05E7\u05D5\u05D5\u05D9\u05DD \u05DC\u05E7\u05D1\u05DC \u05DE\u05E9\u05D4\u05D5", "w": 4, "lvl": 1 }, { "en": "Help", "he": "\u05DC\u05E2\u05D6\u05D5\u05E8", "pic": "\u{1F198}", "clue": "\u05DC\u05EA\u05EA \u05D9\u05D3 \u05DC\u05DE\u05D9\u05E9\u05D4\u05D5 \u05E9\u05E6\u05E8\u05D9\u05DA", "w": 4, "lvl": 1 }, { "en": "Find", "he": "\u05DC\u05DE\u05E6\u05D5\u05D0", "pic": "\u{1F50D}", "clue": "\u05DC\u05D2\u05DC\u05D5\u05EA \u05DE\u05E9\u05D4\u05D5 \u05E9\u05D7\u05D9\u05E4\u05E9\u05E0\u05D5", "w": 4, "lvl": 1 }, { "en": "Fly", "he": "\u05DC\u05E2\u05D5\u05E3", "pic": "\u{1F985}", "clue": "\u05DC\u05D6\u05D5\u05D6 \u05D1\u05D0\u05D5\u05D5\u05D9\u05E8 \u05DB\u05DE\u05D5 \u05E6\u05D9\u05E4\u05D5\u05E8", "w": 4, "lvl": 1 }, { "en": "New", "he": "\u05D7\u05D3\u05E9", "pic": "\u2728", "clue": "\u05DE\u05E9\u05D4\u05D5 \u05E9\u05E8\u05E7 \u05E2\u05DB\u05E9\u05D9\u05D5 \u05E7\u05D9\u05D1\u05DC\u05E0\u05D5, \u05DC\u05D0 \u05D9\u05E9\u05DF", "w": 4, "lvl": 1 }, { "en": "Old", "he": "\u05D9\u05E9\u05DF", "pic": "\u{1F4DC}", "clue": "\u05DE\u05E9\u05D4\u05D5 \u05E9\u05D4\u05D9\u05D4 \u05D4\u05E8\u05D1\u05D4 \u05D6\u05DE\u05DF, \u05D4\u05D4\u05E4\u05DA \u05DE\u05D7\u05D3\u05E9", "w": 4, "lvl": 1 }, { "en": "Fast", "he": "\u05DE\u05D4\u05D9\u05E8", "pic": "\u26A1", "clue": "\u05D6\u05D6 \u05D1\u05DE\u05D4\u05D9\u05E8\u05D5\u05EA, \u05D4\u05D4\u05E4\u05DA \u05DE\u05D0\u05D9\u05D8\u05D9", "w": 4, "lvl": 1 }, { "en": "Slow", "he": "\u05D0\u05D9\u05D8\u05D9", "pic": "\u{1F422}", "clue": "\u05D6\u05D6 \u05DC\u05D0\u05D8, \u05DB\u05DE\u05D5 \u05E6\u05D1", "w": 4, "lvl": 1 }, { "en": "Snow", "he": "\u05E9\u05DC\u05D2", "pic": "\u2744\uFE0F", "clue": "\u05D9\u05D5\u05E8\u05D3 \u05D1\u05D7\u05D5\u05E8\u05E3, \u05DC\u05D1\u05DF \u05D5\u05E7\u05E8", "w": 5, "lvl": 1 }, { "en": "Ice", "he": "\u05E7\u05E8\u05D7", "pic": "\u{1F9CA}", "clue": "\u05DE\u05D9\u05DD \u05E9\u05D4\u05E4\u05DB\u05D5 \u05DC\u05E7\u05E9\u05D9\u05DD \u05D5\u05E7\u05E8\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Cold", "he": "\u05E7\u05E8", "pic": "\u{1F976}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05D7\u05DD", "w": 5, "lvl": 1 }, { "en": "Jacket", "he": "\u05DE\u05E2\u05D9\u05DC", "pic": "\u{1F9E5}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05D1\u05D7\u05D5\u05E8\u05E3 \u05E2\u05DC \u05D4\u05D2\u05D5\u05E3", "w": 5, "lvl": 1 }, { "en": "Hat", "he": "\u05DB\u05D5\u05D1\u05E2", "pic": "\u{1F9E2}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05E2\u05DC \u05D4\u05E8\u05D0\u05E9", "w": 5, "lvl": 1 }, { "en": "Gloves", "he": "\u05DB\u05E4\u05E4\u05D5\u05EA", "pic": "\u{1F9E4}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05E2\u05DC \u05D4\u05D9\u05D3\u05D9\u05D9\u05DD \u05D1\u05E7\u05D5\u05E8", "w": 5, "lvl": 1 }, { "en": "Winter", "he": "\u05D7\u05D5\u05E8\u05E3", "pic": "\u26C4", "clue": "\u05D4\u05E2\u05D5\u05E0\u05D4 \u05D4\u05E7\u05E8\u05D4 \u05D1\u05E9\u05E0\u05D4", "w": 5, "lvl": 1 }, { "en": "Boots", "he": "\u05DE\u05D2\u05E4\u05D9\u05D9\u05DD", "pic": "\u{1F97E}", "clue": "\u05E0\u05D5\u05E2\u05DC\u05D9\u05DD \u05D1\u05D7\u05D5\u05E8\u05E3 \u05E2\u05DC \u05D4\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Shirt", "he": "\u05D7\u05D5\u05DC\u05E6\u05D4", "pic": "\u{1F455}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05E2\u05DC \u05E4\u05DC\u05D2 \u05D4\u05D2\u05D5\u05E3 \u05D4\u05E2\u05DC\u05D9\u05D5\u05DF", "w": 5, "lvl": 1 }, { "en": "Pants", "he": "\u05DE\u05DB\u05E0\u05E1\u05D9\u05D9\u05DD", "pic": "\u{1F456}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05E2\u05DC \u05D4\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Shoes", "he": "\u05E0\u05E2\u05DC\u05D9\u05D9\u05DD", "pic": "\u{1F45F}", "clue": "\u05E0\u05D5\u05E2\u05DC\u05D9\u05DD \u05E2\u05DC \u05D4\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD \u05DB\u05DC \u05D9\u05D5\u05DD", "w": 5, "lvl": 1 }, { "en": "Dress", "he": "\u05E9\u05DE\u05DC\u05D4", "pic": "\u{1F457}", "clue": "\u05D1\u05D2\u05D3 \u05E9\u05DC\u05DD \u05E9\u05DC\u05E8\u05D5\u05D1 \u05D1\u05E0\u05D5\u05EA \u05DC\u05D5\u05D1\u05E9\u05D5\u05EA", "w": 5, "lvl": 1 }, { "en": "Socks", "he": "\u05D2\u05E8\u05D1\u05D9\u05D9\u05DD", "pic": "\u{1F9E6}", "clue": "\u05DC\u05D5\u05D1\u05E9\u05D9\u05DD \u05E2\u05DC \u05D4\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD \u05D1\u05EA\u05D5\u05DA \u05D4\u05E0\u05E2\u05DC\u05D9\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Coat", "he": "\u05DE\u05E2\u05D9\u05DC \u05D0\u05E8\u05D5\u05DA", "pic": "\u{1F9E5}", "clue": "\u05DE\u05E2\u05D9\u05DC \u05D0\u05E8\u05D5\u05DA \u05D1\u05DE\u05D9\u05D5\u05D7\u05D3 \u05DC\u05D9\u05DE\u05D9\u05DD \u05E7\u05E8\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Sweater", "he": "\u05E1\u05D5\u05D5\u05D3\u05E8", "pic": "\u{1F9F6}", "clue": "\u05D1\u05D2\u05D3 \u05D7\u05DD \u05E1\u05E8\u05D5\u05D2 \u05DC\u05D7\u05D5\u05E8\u05E3", "w": 5, "lvl": 2 }, { "en": "Umbrella", "he": "\u05DE\u05D8\u05E8\u05D9\u05D9\u05D4", "pic": "\u2602\uFE0F", "clue": "\u05E9\u05D5\u05DE\u05E8\u05EA \u05E2\u05DC\u05D9\u05E0\u05D5 \u05DE\u05D4\u05D2\u05E9\u05DD", "w": 5, "lvl": 2 }, { "en": "Rain", "he": "\u05D2\u05E9\u05DD", "pic": "\u{1F327}\uFE0F", "clue": "\u05DE\u05D9\u05DD \u05E9\u05D9\u05D5\u05E8\u05D3\u05D9\u05DD \u05DE\u05D4\u05E2\u05E0\u05E0\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Wind", "he": "\u05E8\u05D5\u05D7", "pic": "\u{1F4A8}", "clue": "\u05D0\u05D5\u05D5\u05D9\u05E8 \u05E9\u05D6\u05D6 \u05D5\u05DE\u05E8\u05D2\u05D9\u05E9\u05D9\u05DD \u05E2\u05DC \u05D4\u05E4\u05E0\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Cloud", "he": "\u05E2\u05E0\u05DF", "pic": "\u2601\uFE0F", "clue": "\u05DC\u05D1\u05DF \u05D0\u05D5 \u05D0\u05E4\u05D5\u05E8 \u05D1\u05E9\u05DE\u05D9\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Summer", "he": "\u05E7\u05D9\u05E5", "pic": "\u2600\uFE0F", "clue": "\u05D4\u05E2\u05D5\u05E0\u05D4 \u05D4\u05D7\u05DE\u05D4 \u05D1\u05E9\u05E0\u05D4", "w": 5, "lvl": 1 }, { "en": "Spring", "he": "\u05D0\u05D1\u05D9\u05D1", "pic": "\u{1F337}", "clue": "\u05D4\u05E2\u05D5\u05E0\u05D4 \u05E9\u05D1\u05D4 \u05D4\u05E4\u05E8\u05D7\u05D9\u05DD \u05E4\u05D5\u05E8\u05D7\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Autumn", "he": "\u05E1\u05EA\u05D9\u05D5", "pic": "\u{1F342}", "clue": "\u05D4\u05E2\u05D5\u05E0\u05D4 \u05E9\u05D1\u05D4 \u05D4\u05E2\u05DC\u05D9\u05DD \u05E0\u05D5\u05E9\u05E8\u05D9\u05DD", "w": 5, "lvl": 2 }, { "en": "Weather", "he": "\u05DE\u05D6\u05D2 \u05D0\u05D5\u05D5\u05D9\u05E8", "pic": "\u{1F326}\uFE0F", "clue": "\u05D7\u05DD, \u05E7\u05E8, \u05D2\u05E9\u05D5\u05DD \u05D0\u05D5 \u05E9\u05DE\u05E9\u05D9", "w": 5, "lvl": 2 }, { "en": "Hot", "he": "\u05D7\u05DD", "pic": "\u{1F975}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05E7\u05E8", "w": 5, "lvl": 1 }, { "en": "Warm", "he": "\u05D7\u05DE\u05D9\u05DD", "pic": "\u{1F60A}", "clue": "\u05DC\u05D0 \u05E7\u05E8 \u05D5\u05DC\u05D0 \u05DE\u05DE\u05E9 \u05D7\u05DD \u2014 \u05E0\u05E2\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Head", "he": "\u05E8\u05D0\u05E9", "pic": "\u{1F5E3}\uFE0F", "clue": "\u05D4\u05D7\u05DC\u05E7 \u05D4\u05E2\u05DC\u05D9\u05D5\u05DF \u05E9\u05DC \u05D4\u05D2\u05D5\u05E3", "w": 5, "lvl": 1 }, { "en": "Eye", "he": "\u05E2\u05D9\u05DF", "pic": "\u{1F441}\uFE0F", "clue": "\u05D1\u05D4 \u05E8\u05D5\u05D0\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Ear", "he": "\u05D0\u05D5\u05D6\u05DF", "pic": "\u{1F442}", "clue": "\u05D1\u05D4 \u05E9\u05D5\u05DE\u05E2\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Nose", "he": "\u05D0\u05E3", "pic": "\u{1F443}", "clue": "\u05D1\u05D5 \u05DE\u05E8\u05D9\u05D7\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Mouth", "he": "\u05E4\u05D4", "pic": "\u{1F444}", "clue": "\u05D1\u05D5 \u05DE\u05D3\u05D1\u05E8\u05D9\u05DD \u05D5\u05D0\u05D5\u05DB\u05DC\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Hand", "he": "\u05D9\u05D3", "pic": "\u270B", "clue": "\u05D1\u05D4 \u05D0\u05D5\u05D7\u05D6\u05D9\u05DD \u05D5\u05DB\u05D5\u05EA\u05D1\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Foot", "he": "\u05DB\u05E3 \u05E8\u05D2\u05DC", "pic": "\u{1F9B6}", "clue": "\u05D4\u05D7\u05DC\u05E7 \u05E9\u05E0\u05D5\u05D2\u05E2 \u05D1\u05E8\u05E6\u05E4\u05D4 \u05DB\u05E9\u05D4\u05D5\u05DC\u05DB\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Hair", "he": "\u05E9\u05D9\u05E2\u05E8", "pic": "\u{1F487}", "clue": "\u05E6\u05D5\u05DE\u05D7 \u05E2\u05DC \u05D4\u05E8\u05D0\u05E9", "w": 5, "lvl": 1 }, { "en": "Face", "he": "\u05E4\u05E0\u05D9\u05DD", "pic": "\u{1F603}", "clue": "\u05D4\u05D7\u05DC\u05E7 \u05D4\u05E7\u05D3\u05DE\u05D9 \u05E9\u05DC \u05D4\u05E8\u05D0\u05E9", "w": 5, "lvl": 1 }, { "en": "Body", "he": "\u05D2\u05D5\u05E3", "pic": "\u{1F9CD}", "clue": "\u05DB\u05DC \u05D4\u05D7\u05DC\u05E7\u05D9\u05DD \u05E9\u05DC\u05E0\u05D5 \u05D9\u05D7\u05D3", "w": 5, "lvl": 1 }, { "en": "Leg", "he": "\u05E8\u05D2\u05DC", "pic": "\u{1F9B5}", "clue": "\u05D1\u05D4 \u05D4\u05D5\u05DC\u05DB\u05D9\u05DD, \u05DE\u05E2\u05DC \u05DB\u05E3 \u05D4\u05E8\u05D2\u05DC", "w": 5, "lvl": 1 }, { "en": "Tired", "he": "\u05E2\u05D9\u05D9\u05E3", "pic": "\u{1F971}", "clue": "\u05DB\u05E9\u05E8\u05D5\u05E6\u05D9\u05DD \u05DC\u05D9\u05E9\u05D5\u05DF", "w": 5, "lvl": 2 }, { "en": "Hungry", "he": "\u05E8\u05E2\u05D1", "pic": "\u{1F60B}", "clue": "\u05DB\u05E9\u05E8\u05D5\u05E6\u05D9\u05DD \u05DC\u05D0\u05DB\u05D5\u05DC", "w": 5, "lvl": 2 }, { "en": "Thirsty", "he": "\u05E6\u05DE\u05D0", "pic": "\u{1F964}", "clue": "\u05DB\u05E9\u05E8\u05D5\u05E6\u05D9\u05DD \u05DC\u05E9\u05EA\u05D5\u05EA", "w": 5, "lvl": 2 }, { "en": "Scared", "he": "\u05DE\u05E4\u05D7\u05D3", "pic": "\u{1F631}", "clue": "\u05DB\u05E9\u05DE\u05E9\u05D4\u05D5 \u05DE\u05E4\u05D7\u05D9\u05D3 \u05D0\u05D5\u05EA\u05E0\u05D5", "w": 5, "lvl": 2 }, { "en": "Brave", "he": "\u05D0\u05DE\u05D9\u05E5", "pic": "\u{1F9B8}", "clue": "\u05DC\u05D0 \u05DE\u05E4\u05D7\u05D3 \u05DC\u05E2\u05D6\u05D5\u05E8 \u05D5\u05DC\u05D0 \u05DE\u05D5\u05D5\u05EA\u05E8", "w": 5, "lvl": 2 }, { "en": "Funny", "he": "\u05DE\u05E6\u05D7\u05D9\u05E7", "pic": "\u{1F602}", "clue": "\u05D2\u05D5\u05E8\u05DD \u05DC\u05E0\u05D5 \u05DC\u05E6\u05D7\u05D5\u05E7", "w": 5, "lvl": 1 }, { "en": "Nice", "he": "\u05E0\u05D7\u05DE\u05D3", "pic": "\u{1F60A}", "clue": "\u05D0\u05D3\u05DD \u05D8\u05D5\u05D1 \u05D5\u05E0\u05E2\u05D9\u05DD \u05DC\u05D0\u05D7\u05E8\u05D9\u05DD", "w": 5, "lvl": 1 }, { "en": "Clean", "he": "\u05E0\u05E7\u05D9", "pic": "\u{1F9FC}", "clue": "\u05D1\u05DC\u05D9 \u05DC\u05DB\u05DC\u05D5\u05DA, \u05D4\u05D4\u05E4\u05DA \u05DE\u05DE\u05DC\u05D5\u05DB\u05DC\u05DA", "w": 5, "lvl": 1 }, { "en": "Penguin", "he": "\u05E4\u05D9\u05E0\u05D2\u05D5\u05D5\u05D9\u05DF", "pic": "\u{1F427}", "clue": "\u05E6\u05D9\u05E4\u05D5\u05E8 \u05E9\u05D7\u05D5\u05E8\u05D4-\u05DC\u05D1\u05E0\u05D4 \u05E9\u05D7\u05D9\u05D4 \u05D1\u05E7\u05D5\u05E8", "w": 5, "lvl": 1 }, { "en": "Uncle", "he": "\u05D3\u05D5\u05D3", "pic": "\u{1F468}", "clue": "\u05D4\u05D0\u05D7 \u05E9\u05DC \u05D0\u05DE\u05D0 \u05D0\u05D5 \u05E9\u05DC \u05D0\u05D1\u05D0", "w": 1, "lvl": 2 }, { "en": "Aunt", "he": "\u05D3\u05D5\u05D3\u05D4", "pic": "\u{1F469}", "clue": "\u05D4\u05D0\u05D7\u05D5\u05EA \u05E9\u05DC \u05D0\u05DE\u05D0 \u05D0\u05D5 \u05E9\u05DC \u05D0\u05D1\u05D0", "w": 1, "lvl": 2 }, { "en": "Cousin", "he": "\u05D1\u05DF \u05D3\u05D5\u05D3", "pic": "\u{1F466}", "clue": "\u05D4\u05D1\u05DF \u05E9\u05DC \u05D4\u05D3\u05D5\u05D3 \u05D0\u05D5 \u05E9\u05DC \u05D4\u05D3\u05D5\u05D3\u05D4", "w": 1, "lvl": 2 }, { "en": "River", "he": "\u05E0\u05D4\u05E8", "pic": "\u{1F3DE}\uFE0F", "clue": "\u05DE\u05D9\u05DD \u05E9\u05D6\u05D5\u05E8\u05DE\u05D9\u05DD \u05D1\u05D9\u05DF \u05E9\u05EA\u05D9 \u05D2\u05D3\u05D5\u05EA", "w": 1, "lvl": 2 }, { "en": "Nest", "he": "\u05E7\u05DF", "pic": "\u{1FABA}", "clue": "\u05D4\u05D1\u05D9\u05EA \u05E9\u05D4\u05E6\u05D9\u05E4\u05D5\u05E8 \u05D1\u05D5\u05E0\u05D4 \u05DC\u05D1\u05D9\u05E6\u05D9\u05DD \u05E9\u05DC\u05D4", "w": 1, "lvl": 2 }, { "en": "Insect", "he": "\u05D7\u05E8\u05E7", "pic": "\u{1F41E}", "clue": "\u05D9\u05E6\u05D5\u05E8 \u05E7\u05D8\u05DF \u05E2\u05DD \u05E9\u05E9 \u05E8\u05D2\u05DC\u05D9\u05D9\u05DD, \u05DB\u05DE\u05D5 \u05E0\u05DE\u05DC\u05D4", "w": 1, "lvl": 2 }, { "en": "Climb", "he": "\u05DC\u05D8\u05E4\u05E1", "pic": "\u{1F9D7}", "clue": "\u05DC\u05E2\u05DC\u05D5\u05EA \u05DC\u05DE\u05E2\u05DC\u05D4 \u05E2\u05DC \u05E2\u05E5 \u05D0\u05D5 \u05E2\u05DC \u05E7\u05D9\u05E8", "w": 1, "lvl": 2 }, { "en": "Hide", "he": "\u05DC\u05D4\u05EA\u05D7\u05D1\u05D0", "pic": "\u{1F648}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05D1\u05DE\u05E9\u05D7\u05E7 \u05DE\u05D7\u05D1\u05D5\u05D0\u05D9\u05DD?", "w": 1, "lvl": 2 }, { "en": "Wild", "he": "\u05E4\u05E8\u05D0\u05D9", "pic": "\u{1F417}", "clue": "\u05D7\u05D9 \u05D7\u05D5\u05E4\u05E9\u05D9 \u05D1\u05D8\u05D1\u05E2, \u05DC\u05D0 \u05D1\u05D1\u05D9\u05EA \u05D5\u05DC\u05D0 \u05D1\u05D2\u05DF \u05D7\u05D9\u05D5\u05EA", "w": 1, "lvl": 3 }, { "en": "Danger", "he": "\u05E1\u05DB\u05E0\u05D4", "pic": "\u26A0\uFE0F", "clue": "\u05DE\u05E6\u05D1 \u05E9\u05D1\u05D5 \u05DE\u05E9\u05D4\u05D5 \u05E8\u05E2 \u05E2\u05DC\u05D5\u05DC \u05DC\u05E7\u05E8\u05D5\u05EA", "w": 1, "lvl": 3 }, { "en": "Dangerous", "he": "\u05DE\u05E1\u05D5\u05DB\u05DF", "pic": "\u2620\uFE0F", "clue": "\u05DE\u05E9\u05D4\u05D5 \u05E9\u05E2\u05DC\u05D5\u05DC \u05DC\u05E4\u05D2\u05D5\u05E2 \u05D1\u05DB\u05DD", "w": 1, "lvl": 3 }, { "en": "Protect", "he": "\u05DC\u05D4\u05D2\u05DF", "pic": "\u{1F6E1}\uFE0F", "clue": "\u05DC\u05E9\u05DE\u05D5\u05E8 \u05E2\u05DC \u05DE\u05D9\u05E9\u05D4\u05D5 \u05E9\u05DC\u05D0 \u05D9\u05D9\u05E4\u05D2\u05E2", "w": 1, "lvl": 3 }, { "en": "Survive", "he": "\u05DC\u05E9\u05E8\u05D5\u05D3", "pic": "\u{1F4AA}", "clue": "\u05DC\u05D4\u05D9\u05E9\u05D0\u05E8 \u05D1\u05D7\u05D9\u05D9\u05DD \u05D1\u05DE\u05E6\u05D1 \u05E7\u05E9\u05D4", "w": 1, "lvl": 3 }, { "en": "Environment", "he": "\u05E1\u05D1\u05D9\u05D1\u05D4", "pic": "\u{1F30D}", "clue": "\u05D4\u05D8\u05D1\u05E2 \u05D5\u05D4\u05DE\u05E7\u05D5\u05DD \u05E9\u05DE\u05E1\u05D1\u05D9\u05D1\u05E0\u05D5", "w": 1, "lvl": 3 }, { "en": "Rare", "he": "\u05E0\u05D3\u05D9\u05E8", "pic": "\u{1F48E}", "clue": "\u05DE\u05E9\u05D4\u05D5 \u05E9\u05DB\u05DE\u05E2\u05D8 \u05D0\u05D9\u05DF \u05DE\u05DE\u05E0\u05D5, \u05E7\u05E9\u05D4 \u05DC\u05DE\u05E6\u05D5\u05D0 \u05D0\u05D5\u05EA\u05D5", "w": 1, "lvl": 3 }, { "en": "Ocean", "he": "\u05D0\u05D5\u05E7\u05D9\u05D9\u05E0\u05D5\u05E1", "pic": "\u{1F30A}", "clue": "\u05D9\u05DD \u05E2\u05E0\u05E7 \u05DE\u05D0\u05D5\u05D3, \u05DB\u05DE\u05D5 \u05D4\u05D0\u05D8\u05DC\u05E0\u05D8\u05D9", "w": 2, "lvl": 2 }, { "en": "Anchor", "he": "\u05E2\u05D5\u05D2\u05DF", "pic": "\u2693", "clue": "\u05D7\u05E4\u05E5 \u05DB\u05D1\u05D3 \u05E9\u05DE\u05D7\u05D6\u05D9\u05E7 \u05D0\u05EA \u05D4\u05E1\u05E4\u05D9\u05E0\u05D4 \u05D1\u05DE\u05E7\u05D5\u05DD", "w": 2, "lvl": 2 }, { "en": "Storm", "he": "\u05E1\u05E2\u05E8\u05D4", "pic": "\u26C8\uFE0F", "clue": "\u05E8\u05D5\u05D7 \u05D7\u05D6\u05E7\u05D4, \u05D2\u05E9\u05DD \u05D5\u05D2\u05DC\u05D9\u05DD \u05D2\u05D1\u05D5\u05D4\u05D9\u05DD", "w": 2, "lvl": 2 }, { "en": "Rope", "he": "\u05D7\u05D1\u05DC", "pic": "\u{1FAA2}", "clue": "\u05E7\u05D5\u05E9\u05E8\u05D9\u05DD \u05D0\u05D9\u05EA\u05D5 \u05D0\u05EA \u05D4\u05E1\u05D9\u05E8\u05D4 \u05DC\u05E8\u05E6\u05D9\u05E3", "w": 2, "lvl": 2 }, { "en": "Deep", "he": "\u05E2\u05DE\u05D5\u05E7", "pic": "\u{1F93F}", "clue": "\u05E8\u05D7\u05D5\u05E7 \u05DE\u05D0\u05D5\u05D3 \u05DC\u05DE\u05D8\u05D4, \u05D4\u05D4\u05E4\u05DA \u05DE\u05E8\u05D3\u05D5\u05D3", "w": 2, "lvl": 2 }, { "en": "Delicious", "he": "\u05D8\u05E2\u05D9\u05DD", "pic": "\u{1F60B}", "clue": "\u05D0\u05D5\u05DB\u05DC \u05E9\u05DE\u05DE\u05E9 \u05DB\u05D9\u05E3 \u05DC\u05D0\u05DB\u05D5\u05DC", "w": 2, "lvl": 2 }, { "en": "Vegetables", "he": "\u05D9\u05E8\u05E7\u05D5\u05EA", "pic": "\u{1F955}", "clue": "\u05D2\u05D6\u05E8, \u05DE\u05DC\u05E4\u05E4\u05D5\u05DF \u05D5\u05E2\u05D2\u05D1\u05E0\u05D9\u05D9\u05D4", "w": 2, "lvl": 2 }, { "en": "Meal", "he": "\u05D0\u05E8\u05D5\u05D7\u05D4", "pic": "\u{1F37D}\uFE0F", "clue": "\u05D1\u05D5\u05E7\u05E8, \u05E6\u05D4\u05E8\u05D9\u05D9\u05DD \u05D0\u05D5 \u05E2\u05E8\u05D1", "w": 2, "lvl": 2 }, { "en": "Salt", "he": "\u05DE\u05DC\u05D7", "pic": "\u{1F9C2}", "clue": "\u05DC\u05D1\u05DF, \u05D5\u05D9\u05E9 \u05D4\u05E8\u05D1\u05D4 \u05DE\u05DE\u05E0\u05D5 \u05D1\u05DE\u05D9 \u05D4\u05D9\u05DD", "w": 2, "lvl": 2 }, { "en": "Sweet", "he": "\u05DE\u05EA\u05D5\u05E7", "pic": "\u{1F36C}", "clue": "\u05D4\u05D8\u05E2\u05DD \u05E9\u05DC \u05E1\u05D5\u05DB\u05E8 \u05D5\u05D3\u05D1\u05E9", "w": 2, "lvl": 2 }, { "en": "Compass", "he": "\u05DE\u05E6\u05E4\u05DF", "pic": "\u{1F9ED}", "clue": "\u05DE\u05E8\u05D0\u05D4 \u05DC\u05D0\u05D9\u05D6\u05D4 \u05DB\u05D9\u05D5\u05D5\u05DF \u05D4\u05E6\u05E4\u05D5\u05DF", "w": 2, "lvl": 3 }, { "en": "Journey", "he": "\u05DE\u05E1\u05E2", "pic": "\u{1F5FA}\uFE0F", "clue": "\u05D3\u05E8\u05DA \u05D0\u05E8\u05D5\u05DB\u05D4 \u05DE\u05DE\u05E7\u05D5\u05DD \u05DC\u05DE\u05E7\u05D5\u05DD", "w": 2, "lvl": 3 }, { "en": "Discover", "he": "\u05DC\u05D2\u05DC\u05D5\u05EA", "pic": "\u{1F52D}", "clue": "\u05DC\u05DE\u05E6\u05D5\u05D0 \u05DE\u05E9\u05D4\u05D5 \u05D1\u05E4\u05E2\u05DD \u05D4\u05E8\u05D0\u05E9\u05D5\u05E0\u05D4", "w": 2, "lvl": 3 }, { "en": "Crew", "he": "\u05E6\u05D5\u05D5\u05EA", "pic": "\u{1F465}", "clue": "\u05DB\u05DC \u05D4\u05D0\u05E0\u05E9\u05D9\u05DD \u05E9\u05E2\u05D5\u05D1\u05D3\u05D9\u05DD \u05D9\u05D7\u05D3 \u05E2\u05DC \u05D4\u05E1\u05E4\u05D9\u05E0\u05D4", "w": 2, "lvl": 3 }, { "en": "Bitter", "he": "\u05DE\u05E8", "pic": "\u2615", "clue": "\u05D8\u05E2\u05DD \u05D7\u05D6\u05E7 \u05D5\u05DC\u05D0 \u05DE\u05EA\u05D5\u05E7, \u05DB\u05DE\u05D5 \u05E7\u05E4\u05D4 \u05D1\u05DC\u05D9 \u05E1\u05D5\u05DB\u05E8", "w": 2, "lvl": 3 }, { "en": "Neighbor", "he": "\u05E9\u05DB\u05DF", "pic": "\u{1F3D8}\uFE0F", "clue": "\u05DE\u05D9 \u05E9\u05D2\u05E8 \u05D1\u05D1\u05D9\u05EA \u05DC\u05D9\u05D3 \u05D4\u05D1\u05D9\u05EA \u05E9\u05DC\u05DB\u05DD", "w": 3, "lvl": 2 }, { "en": "Building", "he": "\u05D1\u05E0\u05D9\u05D9\u05DF", "pic": "\u{1F3E2}", "clue": "\u05D9\u05E9 \u05D1\u05D5 \u05D4\u05E8\u05D1\u05D4 \u05E7\u05D5\u05DE\u05D5\u05EA \u05D5\u05D3\u05D9\u05E8\u05D5\u05EA", "w": 3, "lvl": 2 }, { "en": "Bridge", "he": "\u05D2\u05E9\u05E8", "pic": "\u{1F309}", "clue": "\u05E2\u05D5\u05D1\u05E8\u05D9\u05DD \u05E2\u05DC\u05D9\u05D5 \u05DE\u05E2\u05DC \u05E0\u05D4\u05E8 \u05D0\u05D5 \u05DB\u05D1\u05D9\u05E9", "w": 3, "lvl": 2 }, { "en": "Market", "he": "\u05E9\u05D5\u05E7", "pic": "\u{1F6D2}", "clue": "\u05E7\u05D5\u05E0\u05D9\u05DD \u05D1\u05D5 \u05E4\u05D9\u05E8\u05D5\u05EA \u05D5\u05D9\u05E8\u05E7\u05D5\u05EA \u05D1\u05D3\u05D5\u05DB\u05E0\u05D9\u05DD", "w": 3, "lvl": 2 }, { "en": "Museum", "he": "\u05DE\u05D5\u05D6\u05D9\u05D0\u05D5\u05DF", "pic": "\u{1F3DB}\uFE0F", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E9\u05E8\u05D5\u05D0\u05D9\u05DD \u05D1\u05D5 \u05D0\u05D5\u05DE\u05E0\u05D5\u05EA \u05D5\u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D4", "w": 3, "lvl": 2 }, { "en": "Lesson", "he": "\u05E9\u05D9\u05E2\u05D5\u05E8", "pic": "\u{1F4DA}", "clue": "\u05D6\u05DE\u05DF \u05D4\u05DC\u05D9\u05DE\u05D5\u05D3 \u05D1\u05DB\u05D9\u05EA\u05D4 \u05E2\u05DD \u05D4\u05DE\u05D5\u05E8\u05D4", "w": 3, "lvl": 2 }, { "en": "Question", "he": "\u05E9\u05D0\u05DC\u05D4", "pic": "\u2753", "clue": "\u05DE\u05E9\u05E4\u05D8 \u05E9\u05DE\u05E1\u05EA\u05D9\u05D9\u05DD \u05D1\u05E1\u05D9\u05DE\u05DF ?", "w": 3, "lvl": 2 }, { "en": "Answer", "he": "\u05EA\u05E9\u05D5\u05D1\u05D4", "pic": "\u2705", "clue": "\u05DE\u05D4 \u05E9\u05D0\u05D5\u05DE\u05E8\u05D9\u05DD \u05D0\u05D7\u05E8\u05D9 \u05E9\u05E0\u05E9\u05D0\u05DC\u05D9\u05DD", "w": 3, "lvl": 2 }, { "en": "Village", "he": "\u05DB\u05E4\u05E8", "pic": "\u{1F3E1}", "clue": "\u05D9\u05D9\u05E9\u05D5\u05D1 \u05E7\u05D8\u05DF, \u05D4\u05E8\u05D1\u05D4 \u05D9\u05D5\u05EA\u05E8 \u05E7\u05D8\u05DF \u05DE\u05E2\u05D9\u05E8", "w": 3, "lvl": 2 }, { "en": "Exam", "he": "\u05DE\u05D1\u05D7\u05DF", "pic": "\u{1F4DD}", "clue": "\u05D1\u05D5\u05D3\u05E7\u05D9\u05DD \u05D1\u05D5 \u05DE\u05D4 \u05DC\u05DE\u05D3\u05EA\u05DD", "w": 3, "lvl": 3 }, { "en": "Secret", "he": "\u05E1\u05D5\u05D3", "pic": "\u{1F92B}", "clue": "\u05DE\u05E9\u05D4\u05D5 \u05E9\u05D0\u05E1\u05D5\u05E8 \u05DC\u05E1\u05E4\u05E8 \u05DC\u05D0\u05E3 \u05D0\u05D7\u05D3", "w": 3, "lvl": 3 }, { "en": "Remember", "he": "\u05DC\u05D6\u05DB\u05D5\u05E8", "pic": "\u{1F9E0}", "clue": "\u05DC\u05D0 \u05DC\u05E9\u05DB\u05D5\u05D7", "w": 3, "lvl": 3 }, { "en": "Forget", "he": "\u05DC\u05E9\u05DB\u05D5\u05D7", "pic": "\u{1F914}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05DC\u05D6\u05DB\u05D5\u05E8", "w": 3, "lvl": 3 }, { "en": "Explain", "he": "\u05DC\u05D4\u05E1\u05D1\u05D9\u05E8", "pic": "\u{1F5E3}\uFE0F", "clue": "\u05DC\u05E2\u05D6\u05D5\u05E8 \u05DC\u05DE\u05D9\u05E9\u05D4\u05D5 \u05DC\u05D4\u05D1\u05D9\u05DF \u05DE\u05E9\u05D4\u05D5", "w": 3, "lvl": 3 }, { "en": "Knowledge", "he": "\u05D9\u05D3\u05E2", "pic": "\u{1F393}", "clue": "\u05DB\u05DC \u05DE\u05D4 \u05E9\u05D0\u05EA\u05DD \u05D9\u05D5\u05D3\u05E2\u05D9\u05DD \u05D5\u05DC\u05DE\u05D3\u05EA\u05DD", "w": 3, "lvl": 3 }, { "en": "Wizard", "he": "\u05E7\u05D5\u05E1\u05DD", "pic": "\u{1F9D9}", "clue": "\u05D0\u05D9\u05E9 \u05E2\u05DD \u05DB\u05D5\u05D1\u05E2 \u05DE\u05D7\u05D5\u05D3\u05D3 \u05D5\u05E9\u05E8\u05D1\u05D9\u05D8 \u05E7\u05E1\u05DE\u05D9\u05DD", "w": 3, "lvl": 3 }, { "en": "Hundred", "he": "\u05DE\u05D0\u05D4", "pic": "\u{1F4AF}", "clue": "\u05E2\u05E9\u05E8 \u05E4\u05E2\u05DE\u05D9\u05DD \u05E2\u05E9\u05E8", "w": 4, "lvl": 2 }, { "en": "Thousand", "he": "\u05D0\u05DC\u05E3", "pic": "\u{1F522}", "clue": "\u05E2\u05E9\u05E8 \u05E4\u05E2\u05DE\u05D9\u05DD \u05DE\u05D0\u05D4", "w": 4, "lvl": 2 }, { "en": "Hour", "he": "\u05E9\u05E2\u05D4", "pic": "\u23F0", "clue": "\u05E9\u05D9\u05E9\u05D9\u05DD \u05D3\u05E7\u05D5\u05EA", "w": 4, "lvl": 2 }, { "en": "Minute", "he": "\u05D3\u05E7\u05D4", "pic": "\u23F1\uFE0F", "clue": "\u05E9\u05D9\u05E9\u05D9\u05DD \u05E9\u05E0\u05D9\u05D5\u05EA", "w": 4, "lvl": 2 }, { "en": "Month", "he": "\u05D7\u05D5\u05D3\u05E9", "pic": "\u{1F4C5}", "clue": "\u05D1\u05E9\u05E0\u05D4 \u05D9\u05E9 \u05E9\u05E0\u05D9\u05DD \u05E2\u05E9\u05E8 \u05DB\u05D0\u05DC\u05D4", "w": 4, "lvl": 2 }, { "en": "Yesterday", "he": "\u05D0\u05EA\u05DE\u05D5\u05DC", "pic": "\u{1F4C6}", "clue": "\u05D4\u05D9\u05D5\u05DD \u05E9\u05D4\u05D9\u05D4 \u05DC\u05E4\u05E0\u05D9 \u05D4\u05D9\u05D5\u05DD", "w": 4, "lvl": 2 }, { "en": "Early", "he": "\u05DE\u05D5\u05E7\u05D3\u05DD", "pic": "\u{1F305}", "clue": "\u05DC\u05E4\u05E0\u05D9 \u05D4\u05D6\u05DE\u05DF, \u05D4\u05D4\u05E4\u05DA \u05DE\u05DE\u05D0\u05D5\u05D7\u05E8", "w": 4, "lvl": 2 }, { "en": "Late", "he": "\u05DE\u05D0\u05D5\u05D7\u05E8", "pic": "\u{1F559}", "clue": "\u05D0\u05D7\u05E8\u05D9 \u05D4\u05D6\u05DE\u05DF, \u05D4\u05D4\u05E4\u05DA \u05DE\u05DE\u05D5\u05E7\u05D3\u05DD", "w": 4, "lvl": 2 }, { "en": "Future", "he": "\u05E2\u05EA\u05D9\u05D3", "pic": "\u{1F52E}", "clue": "\u05D4\u05D6\u05DE\u05DF \u05E9\u05E2\u05D5\u05D3 \u05D9\u05D1\u05D5\u05D0", "w": 4, "lvl": 3 }, { "en": "Past", "he": "\u05E2\u05D1\u05E8", "pic": "\u{1F570}\uFE0F", "clue": "\u05D4\u05D6\u05DE\u05DF \u05E9\u05DB\u05D1\u05E8 \u05D4\u05D9\u05D4", "w": 4, "lvl": 3 }, { "en": "Universe", "he": "\u05D9\u05E7\u05D5\u05DD", "pic": "\u{1F30C}", "clue": "\u05DB\u05DC \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD \u05D5\u05D4\u05D2\u05DC\u05E7\u05E1\u05D9\u05D5\u05EA \u05D1\u05D9\u05D7\u05D3", "w": 4, "lvl": 3 }, { "en": "Orbit", "he": "\u05DE\u05E1\u05DC\u05D5\u05DC", "pic": "\u{1F6F0}\uFE0F", "clue": "\u05D4\u05D3\u05E8\u05DA \u05E9\u05D1\u05D4 \u05D4\u05D9\u05E8\u05D7 \u05DE\u05E1\u05EA\u05D5\u05D1\u05D1 \u05E1\u05D1\u05D9\u05D1 \u05DB\u05D3\u05D5\u05E8 \u05D4\u05D0\u05E8\u05E5", "w": 4, "lvl": 3 }, { "en": "Explore", "he": "\u05DC\u05D7\u05E7\u05D5\u05E8", "pic": "\u{1F50D}", "clue": "\u05DC\u05D1\u05D3\u05D5\u05E7 \u05DE\u05E7\u05D5\u05DD \u05D7\u05D3\u05E9 \u05DB\u05D3\u05D9 \u05DC\u05DC\u05DE\u05D5\u05D3 \u05E2\u05DC\u05D9\u05D5", "w": 4, "lvl": 3 }, { "en": "Launch", "he": "\u05DC\u05E9\u05D2\u05E8", "pic": "\u{1F680}", "clue": "\u05DC\u05E9\u05DC\u05D5\u05D7 \u05E8\u05E7\u05D8\u05D4 \u05DC\u05D7\u05DC\u05DC", "w": 4, "lvl": 3 }, { "en": "Distance", "he": "\u05DE\u05E8\u05D7\u05E7", "pic": "\u{1F4CF}", "clue": "\u05DB\u05DE\u05D4 \u05E8\u05D7\u05D5\u05E7 \u05DE\u05DE\u05E7\u05D5\u05DD \u05D0\u05D7\u05D3 \u05DC\u05DE\u05E7\u05D5\u05DD \u05D0\u05D7\u05E8", "w": 4, "lvl": 3 }, { "en": "Scarf", "he": "\u05E6\u05E2\u05D9\u05E3", "pic": "\u{1F9E3}", "clue": "\u05E2\u05D5\u05D8\u05E4\u05D9\u05DD \u05D0\u05D9\u05EA\u05D5 \u05D0\u05EA \u05D4\u05E6\u05D5\u05D5\u05D0\u05E8 \u05D1\u05D7\u05D5\u05E8\u05E3", "w": 5, "lvl": 2 }, { "en": "Knee", "he": "\u05D1\u05E8\u05DA", "pic": "\u{1F9B5}", "clue": "\u05D4\u05DE\u05E4\u05E8\u05E7 \u05D1\u05D0\u05DE\u05E6\u05E2 \u05D4\u05E8\u05D2\u05DC", "w": 5, "lvl": 2 }, { "en": "Heart", "he": "\u05DC\u05D1", "pic": "\u2764\uFE0F", "clue": "\u05E4\u05D5\u05E2\u05DD \u05D1\u05EA\u05D5\u05DA \u05D4\u05D7\u05D6\u05D4", "w": 5, "lvl": 2 }, { "en": "Shoulder", "he": "\u05DB\u05EA\u05E3", "pic": "\u{1F937}", "clue": "\u05D1\u05D9\u05DF \u05D4\u05E6\u05D5\u05D5\u05D0\u05E8 \u05DC\u05D1\u05D9\u05DF \u05D4\u05D9\u05D3", "w": 5, "lvl": 2 }, { "en": "Sick", "he": "\u05D7\u05D5\u05DC\u05D4", "pic": "\u{1F912}", "clue": "\u05DE\u05D9 \u05E9\u05D9\u05E9 \u05DC\u05D5 \u05D7\u05D5\u05DD \u05D5\u05E9\u05E4\u05E2\u05EA", "w": 5, "lvl": 2 }, { "en": "Healthy", "he": "\u05D1\u05E8\u05D9\u05D0", "pic": "\u{1F34F}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05D7\u05D5\u05DC\u05D4", "w": 5, "lvl": 2 }, { "en": "Pain", "he": "\u05DB\u05D0\u05D1", "pic": "\u{1F915}", "clue": "\u05DE\u05D4 \u05E9\u05DE\u05E8\u05D2\u05D9\u05E9\u05D9\u05DD \u05DB\u05E9\u05E0\u05E4\u05E6\u05E2\u05D9\u05DD", "w": 5, "lvl": 2 }, { "en": "Strong", "he": "\u05D7\u05D6\u05E7", "pic": "\u{1F3CB}\uFE0F", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05D7\u05DC\u05E9", "w": 5, "lvl": 2 }, { "en": "Wear", "he": "\u05DC\u05DC\u05D1\u05D5\u05E9", "pic": "\u{1F455}", "clue": "\u05DE\u05D4 \u05E2\u05D5\u05E9\u05D9\u05DD \u05E2\u05DD \u05D1\u05D2\u05D3\u05D9\u05DD?", "w": 5, "lvl": 2 }, { "en": "Freeze", "he": "\u05DC\u05E7\u05E4\u05D5\u05D0", "pic": "\u{1F976}", "clue": "\u05DE\u05D4 \u05E7\u05D5\u05E8\u05D4 \u05DC\u05DE\u05D9\u05DD \u05D1\u05E7\u05D5\u05E8 \u05D2\u05D3\u05D5\u05DC", "w": 5, "lvl": 3 }, { "en": "Temperature", "he": "\u05D8\u05DE\u05E4\u05E8\u05D8\u05D5\u05E8\u05D4", "pic": "\u{1F321}\uFE0F", "clue": "\u05DB\u05DE\u05D4 \u05D7\u05DD \u05D0\u05D5 \u05DB\u05DE\u05D4 \u05E7\u05E8, \u05D1\u05DE\u05E2\u05DC\u05D5\u05EA", "w": 5, "lvl": 3 }, { "en": "Forecast", "he": "\u05EA\u05D7\u05D6\u05D9\u05EA", "pic": "\u{1F4FA}", "clue": "\u05DE\u05D4 \u05DE\u05D6\u05D2 \u05D4\u05D0\u05D5\u05D5\u05D9\u05E8 \u05D9\u05D4\u05D9\u05D4 \u05DE\u05D7\u05E8", "w": 5, "lvl": 3 }, { "en": "Lightning", "he": "\u05D1\u05E8\u05E7", "pic": "\u26A1", "clue": "\u05D0\u05D5\u05E8 \u05D7\u05D6\u05E7 \u05D1\u05E9\u05DE\u05D9\u05D9\u05DD \u05D1\u05D6\u05DE\u05DF \u05E1\u05E2\u05E8\u05D4", "w": 5, "lvl": 3 }, { "en": "Thunder", "he": "\u05E8\u05E2\u05DD", "pic": "\u{1F329}\uFE0F", "clue": "\u05D4\u05E8\u05E2\u05E9 \u05D4\u05D7\u05D6\u05E7 \u05E9\u05D1\u05D0 \u05D0\u05D7\u05E8\u05D9 \u05D4\u05D1\u05E8\u05E7", "w": 5, "lvl": 3 }, { "en": "Medicine", "he": "\u05EA\u05E8\u05D5\u05E4\u05D4", "pic": "\u{1F48A}", "clue": "\u05DC\u05D5\u05E7\u05D7\u05D9\u05DD \u05D0\u05D5\u05EA\u05D4 \u05DB\u05E9\u05D7\u05D5\u05DC\u05D9\u05DD", "w": 5, "lvl": 3 }, { "en": "Slippery", "he": "\u05D7\u05DC\u05E7\u05DC\u05E7", "pic": "\u26F8\uFE0F", "clue": "\u05E7\u05DC \u05DE\u05D0\u05D5\u05D3 \u05DC\u05D4\u05D7\u05DC\u05D9\u05E7 \u05E2\u05DC\u05D9\u05D5, \u05DB\u05DE\u05D5 \u05E7\u05E8\u05D7", "w": 5, "lvl": 3 }, { "en": "Comfortable", "he": "\u05E0\u05D5\u05D7", "pic": "\u{1F6CB}\uFE0F", "clue": "\u05E0\u05E2\u05D9\u05DD \u05DC\u05E9\u05D1\u05EA \u05D0\u05D5 \u05DC\u05DC\u05D1\u05D5\u05E9", "w": 5, "lvl": 3 }, { "en": "Desert", "he": "\u05DE\u05D3\u05D1\u05E8", "pic": "\u{1F3DC}\uFE0F", "clue": "\u05DE\u05E7\u05D5\u05DD \u05D7\u05DD \u05D5\u05D9\u05D1\u05E9 \u05E9\u05D9\u05E9 \u05D1\u05D5 \u05D4\u05E8\u05D1\u05D4 \u05D7\u05D5\u05DC", "w": 6, "lvl": 1 }, { "en": "Camel", "he": "\u05D2\u05DE\u05DC", "pic": "\u{1F42B}", "clue": "\u05D7\u05D9\u05D4 \u05E2\u05DD \u05D3\u05D1\u05E9\u05EA \u05E9\u05D4\u05D5\u05DC\u05DB\u05EA \u05D9\u05DE\u05D9\u05DD \u05D1\u05DC\u05D9 \u05DC\u05E9\u05EA\u05D5\u05EA", "w": 6, "lvl": 1 }, { "en": "Cactus", "he": "\u05E7\u05E7\u05D8\u05D5\u05E1", "pic": "\u{1F335}", "clue": "\u05E6\u05DE\u05D7 \u05DE\u05D3\u05D1\u05E8 \u05E2\u05DD \u05E7\u05D5\u05E6\u05D9\u05DD", "w": 6, "lvl": 1 }, { "en": "Dry", "he": "\u05D9\u05D1\u05E9", "pic": "\u{1F342}", "clue": "\u05D1\u05DC\u05D9 \u05DE\u05D9\u05DD, \u05D4\u05D4\u05E4\u05DA \u05DE\u05E8\u05D8\u05D5\u05D1", "w": 6, "lvl": 1 }, { "en": "Wet", "he": "\u05E8\u05D8\u05D5\u05D1", "pic": "\u{1F4A6}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05D9\u05D1\u05E9, \u05DB\u05DE\u05D5 \u05D0\u05D7\u05E8\u05D9 \u05DE\u05E7\u05DC\u05D7\u05EA", "w": 6, "lvl": 1 }, { "en": "Tent", "he": "\u05D0\u05D5\u05D4\u05DC", "pic": "\u26FA", "clue": "\u05D1\u05D9\u05EA \u05DE\u05D1\u05D3 \u05E9\u05D9\u05E9\u05E0\u05D9\u05DD \u05D1\u05D5 \u05D1\u05D8\u05D9\u05D5\u05DC", "w": 6, "lvl": 1 }, { "en": "Crown", "he": "\u05DB\u05EA\u05E8", "pic": "\u{1F451}", "clue": "\u05E9\u05DE\u05D9\u05DD \u05D0\u05D5\u05EA\u05D5 \u05E2\u05DC \u05E8\u05D0\u05E9 \u05D4\u05DE\u05DC\u05DA", "w": 6, "lvl": 1 }, { "en": "Left", "he": "\u05E9\u05DE\u05D0\u05DC", "pic": "\u{1F448}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05D9\u05DE\u05D9\u05DF", "w": 6, "lvl": 1 }, { "en": "Right", "he": "\u05D9\u05DE\u05D9\u05DF", "pic": "\u{1F449}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05E9\u05DE\u05D0\u05DC", "w": 6, "lvl": 1 }, { "en": "Far", "he": "\u05E8\u05D7\u05D5\u05E7", "pic": "\u{1F52D}", "clue": "\u05DC\u05D0 \u05E7\u05E8\u05D5\u05D1, \u05E6\u05E8\u05D9\u05DA \u05DC\u05DC\u05DB\u05EA \u05D4\u05E8\u05D1\u05D4", "w": 6, "lvl": 1 }, { "en": "Near", "he": "\u05E7\u05E8\u05D5\u05D1", "pic": "\u{1F4CD}", "clue": "\u05DE\u05DE\u05E9 \u05DC\u05D9\u05D3, \u05D4\u05D4\u05E4\u05DA \u05DE\u05E8\u05D7\u05D5\u05E7", "w": 6, "lvl": 1 }, { "en": "Trip", "he": "\u05D8\u05D9\u05D5\u05DC", "pic": "\u{1F68C}", "clue": "\u05D9\u05E6\u05D9\u05D0\u05D4 \u05DC\u05D9\u05D5\u05DD \u05D0\u05D5 \u05DC\u05DB\u05DE\u05D4 \u05D9\u05DE\u05D9\u05DD \u05DC\u05DE\u05E7\u05D5\u05DD \u05D0\u05D7\u05E8", "w": 6, "lvl": 1 }, { "en": "Stone", "he": "\u05D0\u05D1\u05DF", "pic": "\u{1FAA8}", "clue": "\u05D7\u05EA\u05D9\u05DB\u05D4 \u05E7\u05E9\u05D4 \u05DE\u05D4\u05D0\u05D3\u05DE\u05D4", "w": 6, "lvl": 1 }, { "en": "North", "he": "\u05E6\u05E4\u05D5\u05DF", "pic": "\u2B06\uFE0F", "clue": "\u05D4\u05DB\u05D9\u05D5\u05D5\u05DF \u05E9\u05D4\u05DE\u05E6\u05E4\u05DF \u05DE\u05E8\u05D0\u05D4", "w": 6, "lvl": 2 }, { "en": "South", "he": "\u05D3\u05E8\u05D5\u05DD", "pic": "\u2B07\uFE0F", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05E6\u05E4\u05D5\u05DF", "w": 6, "lvl": 2 }, { "en": "East", "he": "\u05DE\u05D6\u05E8\u05D7", "pic": "\u{1F304}", "clue": "\u05D4\u05DB\u05D9\u05D5\u05D5\u05DF \u05E9\u05DE\u05DE\u05E0\u05D5 \u05D4\u05E9\u05DE\u05E9 \u05D6\u05D5\u05E8\u05D7\u05EA", "w": 6, "lvl": 2 }, { "en": "West", "he": "\u05DE\u05E2\u05E8\u05D1", "pic": "\u{1F307}", "clue": "\u05D4\u05DB\u05D9\u05D5\u05D5\u05DF \u05E9\u05D1\u05D5 \u05D4\u05E9\u05DE\u05E9 \u05E9\u05D5\u05E7\u05E2\u05EA", "w": 6, "lvl": 2 }, { "en": "Pyramid", "he": "\u05E4\u05D9\u05E8\u05DE\u05D9\u05D3\u05D4", "pic": "\u{1F53A}", "clue": "\u05DE\u05D1\u05E0\u05D4 \u05E2\u05E0\u05E7 \u05D1\u05DE\u05E6\u05E8\u05D9\u05DD \u05E2\u05DD \u05D0\u05E8\u05D1\u05E2\u05D4 \u05E6\u05D3\u05D3\u05D9\u05DD \u05DE\u05E9\u05D5\u05DC\u05E9\u05D9\u05DD", "w": 6, "lvl": 2 }, { "en": "History", "he": "\u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D4", "pic": "\u{1F4DC}", "clue": "\u05DE\u05D4 \u05E9\u05E7\u05E8\u05D4 \u05D1\u05E2\u05D5\u05DC\u05DD \u05DC\u05E4\u05E0\u05D9 \u05D4\u05E8\u05D1\u05D4 \u05E9\u05E0\u05D9\u05DD", "w": 6, "lvl": 2 }, { "en": "Travel", "he": "\u05DC\u05D8\u05D9\u05D9\u05DC", "pic": "\u{1F9F3}", "clue": "\u05DC\u05E0\u05E1\u05D5\u05E2 \u05DC\u05DE\u05E7\u05D5\u05DE\u05D5\u05EA \u05D7\u05D3\u05E9\u05D9\u05DD", "w": 6, "lvl": 2 }, { "en": "Guide", "he": "\u05DE\u05D3\u05E8\u05D9\u05DA", "pic": "\u{1F64B}", "clue": "\u05DE\u05D9 \u05E9\u05DE\u05D5\u05D1\u05D9\u05DC \u05D0\u05EA \u05D4\u05E7\u05D1\u05D5\u05E6\u05D4 \u05D1\u05D8\u05D9\u05D5\u05DC \u05D5\u05DE\u05E1\u05D1\u05D9\u05E8", "w": 6, "lvl": 2 }, { "en": "Shadow", "he": "\u05E6\u05DC", "pic": "\u{1F464}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05D7\u05E9\u05D5\u05DA \u05E7\u05D8\u05DF \u05E9\u05E0\u05D5\u05E6\u05E8 \u05DB\u05E9\u05DE\u05E9\u05D4\u05D5 \u05DE\u05E1\u05EA\u05D9\u05E8 \u05D0\u05EA \u05D4\u05E9\u05DE\u05E9", "w": 6, "lvl": 2 }, { "en": "Statue", "he": "\u05E4\u05E1\u05DC", "pic": "\u{1F5FF}", "clue": "\u05D3\u05DE\u05D5\u05EA \u05DE\u05D0\u05D1\u05DF \u05D0\u05D5 \u05DE\u05DE\u05EA\u05DB\u05EA", "w": 6, "lvl": 2 }, { "en": "Adventure", "he": "\u05D4\u05E8\u05E4\u05EA\u05E7\u05D4", "pic": "\u{1F920}", "clue": "\u05DE\u05E1\u05E2 \u05DE\u05DC\u05D0 \u05E8\u05D9\u05D2\u05D5\u05E9\u05D9\u05DD \u05D5\u05D2\u05D9\u05DC\u05D5\u05D9\u05D9\u05DD", "w": 6, "lvl": 2 }, { "en": "Lost", "he": "\u05D0\u05D1\u05D5\u05D3", "pic": "\u{1F615}", "clue": "\u05DB\u05E9\u05DC\u05D0 \u05D9\u05D5\u05D3\u05E2\u05D9\u05DD \u05D0\u05D9\u05E4\u05D4 \u05E0\u05DE\u05E6\u05D0\u05D9\u05DD \u05D5\u05D0\u05D9\u05DA \u05DC\u05D7\u05D6\u05D5\u05E8", "w": 6, "lvl": 2 }, { "en": "Empty", "he": "\u05E8\u05D9\u05E7", "pic": "\u{1FAD9}", "clue": "\u05D0\u05D9\u05DF \u05D1\u05D5 \u05DB\u05DC\u05D5\u05DD, \u05D4\u05D4\u05E4\u05DA \u05DE\u05DE\u05DC\u05D0", "w": 6, "lvl": 2 }, { "en": "Full", "he": "\u05DE\u05DC\u05D0", "pic": "\u{1FAA3}", "clue": "\u05D0\u05D9\u05DF \u05D1\u05D5 \u05D9\u05D5\u05EA\u05E8 \u05DE\u05E7\u05D5\u05DD, \u05D4\u05D4\u05E4\u05DA \u05DE\u05E8\u05D9\u05E7", "w": 6, "lvl": 2 }, { "en": "Sell", "he": "\u05DC\u05DE\u05DB\u05D5\u05E8", "pic": "\u{1F3F7}\uFE0F", "clue": "\u05DC\u05EA\u05EA \u05DE\u05E9\u05D4\u05D5 \u05EA\u05DE\u05D5\u05E8\u05EA \u05DB\u05E1\u05E3", "w": 6, "lvl": 2 }, { "en": "Carry", "he": "\u05DC\u05E1\u05D7\u05D5\u05D1", "pic": "\u{1F4E6}", "clue": "\u05DC\u05D4\u05D7\u05D6\u05D9\u05E7 \u05DE\u05E9\u05D4\u05D5 \u05D5\u05DC\u05E7\u05D7\u05EA \u05D0\u05D5\u05EA\u05D5 \u05D0\u05D9\u05EA\u05DB\u05DD", "w": 6, "lvl": 2 }, { "en": "Huge", "he": "\u05E2\u05E0\u05E7", "pic": "\u{1F5FB}", "clue": "\u05D2\u05D3\u05D5\u05DC \u05DE\u05D0\u05D5\u05D3 \u05DE\u05D0\u05D5\u05D3", "w": 6, "lvl": 2 }, { "en": "Oasis", "he": "\u05E0\u05D5\u05D5\u05D4 \u05DE\u05D3\u05D1\u05E8", "pic": "\u{1F334}", "clue": "\u05DE\u05E7\u05D5\u05DD \u05E2\u05DD \u05DE\u05D9\u05DD \u05D5\u05E2\u05E6\u05D9\u05DD \u05D1\u05D0\u05DE\u05E6\u05E2 \u05D4\u05DE\u05D3\u05D1\u05E8", "w": 6, "lvl": 3 }, { "en": "Ancient", "he": "\u05E2\u05EA\u05D9\u05E7", "pic": "\u{1F3FA}", "clue": "\u05D9\u05E9\u05DF \u05DE\u05D0\u05D5\u05D3, \u05DE\u05DC\u05E4\u05E0\u05D9 \u05D0\u05DC\u05E4\u05D9 \u05E9\u05E0\u05D9\u05DD", "w": 6, "lvl": 3 }, { "en": "Footprints", "he": "\u05E2\u05E7\u05D1\u05D5\u05EA", "pic": "\u{1F463}", "clue": "\u05D4\u05E1\u05D9\u05DE\u05E0\u05D9\u05DD \u05E9\u05D4\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD \u05DE\u05E9\u05D0\u05D9\u05E8\u05D5\u05EA \u05D1\u05D7\u05D5\u05DC", "w": 6, "lvl": 3 }, { "en": "Direction", "he": "\u05DB\u05D9\u05D5\u05D5\u05DF", "pic": "\u2197\uFE0F", "clue": "\u05E6\u05E4\u05D5\u05DF, \u05D3\u05E8\u05D5\u05DD, \u05DE\u05D6\u05E8\u05D7 \u05D0\u05D5 \u05DE\u05E2\u05E8\u05D1", "w": 6, "lvl": 3 }, { "en": "Hidden", "he": "\u05DE\u05D5\u05E1\u05EA\u05E8", "pic": "\u{1FAE3}", "clue": "\u05DE\u05E9\u05D4\u05D5 \u05E9\u05DE\u05D7\u05D1\u05D9\u05D0\u05D9\u05DD \u05DB\u05D3\u05D9 \u05E9\u05DC\u05D0 \u05D9\u05E8\u05D0\u05D5 \u05D0\u05D5\u05EA\u05D5", "w": 6, "lvl": 3 }, { "en": "Mystery", "he": "\u05EA\u05E2\u05DC\u05D5\u05DE\u05D4", "pic": "\u{1F575}\uFE0F", "clue": "\u05DE\u05E9\u05D4\u05D5 \u05DE\u05E1\u05EA\u05D5\u05E8\u05D9 \u05E9\u05E7\u05E9\u05D4 \u05DC\u05D4\u05D1\u05D9\u05DF", "w": 6, "lvl": 3 }, { "en": "Temple", "he": "\u05DE\u05E7\u05D3\u05E9", "pic": "\u{1F6D5}", "clue": "\u05D1\u05E0\u05D9\u05D9\u05DF \u05E2\u05EA\u05D9\u05E7 \u05E9\u05D1\u05D5 \u05D4\u05EA\u05E4\u05DC\u05DC\u05D5", "w": 6, "lvl": 3 }, { "en": "Patience", "he": "\u05E1\u05D1\u05DC\u05E0\u05D5\u05EA", "pic": "\u23F3", "clue": "\u05D4\u05D9\u05DB\u05D5\u05DC\u05EA \u05DC\u05D7\u05DB\u05D5\u05EA \u05D1\u05DC\u05D9 \u05DC\u05DB\u05E2\u05D5\u05E1", "w": 6, "lvl": 3 }, { "en": "Disappear", "he": "\u05DC\u05D4\u05D9\u05E2\u05DC\u05DD", "pic": "\u{1FAE5}", "clue": "\u05DC\u05D4\u05E4\u05E1\u05D9\u05E7 \u05DC\u05D4\u05D9\u05D5\u05EA \u05D1\u05DE\u05E7\u05D5\u05DD, \u05DB\u05D1\u05E8 \u05DC\u05D0 \u05E8\u05D5\u05D0\u05D9\u05DD", "w": 6, "lvl": 3 }, { "en": "Horizon", "he": "\u05D0\u05D5\u05E4\u05E7", "pic": "\u{1F305}", "clue": "\u05D4\u05E7\u05D5 \u05D4\u05E8\u05D7\u05D5\u05E7 \u05E9\u05D1\u05D5 \u05D4\u05E9\u05DE\u05D9\u05D9\u05DD \u05E4\u05D5\u05D2\u05E9\u05D9\u05DD \u05D0\u05EA \u05D4\u05D0\u05D3\u05DE\u05D4", "w": 6, "lvl": 3 }, { "en": "Ruins", "he": "\u05D7\u05D5\u05E8\u05D1\u05D5\u05EA", "pic": "\u{1F3DA}\uFE0F", "clue": "\u05DE\u05D4 \u05E9\u05E0\u05E9\u05D0\u05E8 \u05DE\u05D1\u05E0\u05D9\u05D9\u05DF \u05E2\u05EA\u05D9\u05E7 \u05E9\u05E0\u05D4\u05E8\u05E1", "w": 6, "lvl": 3 }, { "en": "Swim", "he": "\u05DC\u05E9\u05D7\u05D5\u05EA", "pic": "\u{1F3CA}", "clue": "\u05DC\u05D6\u05D5\u05D6 \u05D1\u05DE\u05D9\u05DD \u05E2\u05DD \u05D4\u05D9\u05D3\u05D9\u05D9\u05DD \u05D5\u05D4\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD", "w": 7, "lvl": 1 }, { "en": "Shell", "he": "\u05E6\u05D3\u05E3", "pic": "\u{1F41A}", "clue": "\u05D4\u05D1\u05D9\u05EA \u05D4\u05E7\u05E9\u05D4 \u05E9\u05DC \u05D7\u05D9\u05D4 \u05E7\u05D8\u05E0\u05D4 \u05D1\u05D9\u05DD", "w": 7, "lvl": 1 }, { "en": "Bubble", "he": "\u05D1\u05D5\u05E2\u05D4", "pic": "\u{1FAE7}", "clue": "\u05DB\u05D3\u05D5\u05E8 \u05E7\u05D8\u05DF \u05E9\u05DC \u05D0\u05D5\u05D5\u05D9\u05E8 \u05D1\u05EA\u05D5\u05DA \u05DE\u05D9\u05DD", "w": 7, "lvl": 1 }, { "en": "Starfish", "he": "\u05DB\u05D5\u05DB\u05D1 \u05D9\u05DD", "pic": "\u2B50", "clue": "\u05D7\u05D9\u05D4 \u05D1\u05E6\u05D5\u05E8\u05EA \u05DB\u05D5\u05DB\u05D1 \u05E9\u05D7\u05D9\u05D4 \u05D1\u05E7\u05E8\u05E7\u05E2\u05D9\u05EA \u05D4\u05D9\u05DD", "w": 7, "lvl": 1 }, { "en": "Jellyfish", "he": "\u05DE\u05D3\u05D5\u05D6\u05D4", "pic": "\u{1FABC}", "clue": "\u05D7\u05D9\u05D4 \u05E9\u05E7\u05D5\u05E4\u05D4 \u05D1\u05D9\u05DD \u05E9\u05D9\u05DB\u05D5\u05DC\u05D4 \u05DC\u05E2\u05E7\u05D5\u05E5", "w": 7, "lvl": 1 }, { "en": "Light", "he": "\u05D0\u05D5\u05E8", "pic": "\u{1F4A1}", "clue": "\u05DE\u05D4 \u05E9\u05E2\u05D5\u05D6\u05E8 \u05DC\u05E0\u05D5 \u05DC\u05E8\u05D0\u05D5\u05EA, \u05D4\u05D4\u05E4\u05DA \u05DE\u05D7\u05D5\u05E9\u05DA", "w": 7, "lvl": 1 }, { "en": "Dark", "he": "\u05D7\u05E9\u05D5\u05DA", "pic": "\u{1F311}", "clue": "\u05D1\u05DC\u05D9 \u05D0\u05D5\u05E8, \u05DB\u05DE\u05D5 \u05D1\u05DC\u05D9\u05DC\u05D4", "w": 7, "lvl": 1 }, { "en": "Under", "he": "\u05DE\u05EA\u05D7\u05EA", "pic": "\u{1F447}", "clue": "\u05DC\u05DE\u05D8\u05D4, \u05D4\u05D4\u05E4\u05DA \u05DE\u05DE\u05E2\u05DC", "w": 7, "lvl": 1 }, { "en": "Dirty", "he": "\u05DE\u05DC\u05D5\u05DB\u05DC\u05DA", "pic": "\u{1F437}", "clue": "\u05DC\u05D0 \u05E0\u05E7\u05D9", "w": 7, "lvl": 1 }, { "en": "Seahorse", "he": "\u05E1\u05D5\u05E1\u05D5\u05DF \u05D9\u05DD", "pic": "\u{1F3A0}", "clue": "\u05D3\u05D2 \u05E7\u05D8\u05DF \u05E9\u05D4\u05E8\u05D0\u05E9 \u05E9\u05DC\u05D5 \u05E0\u05E8\u05D0\u05D4 \u05DB\u05DE\u05D5 \u05E9\u05DC \u05E1\u05D5\u05E1", "w": 7, "lvl": 2 }, { "en": "Fin", "he": "\u05E1\u05E0\u05E4\u05D9\u05E8", "pic": "\u{1F988}", "clue": "\u05D4\u05D7\u05DC\u05E7 \u05E9\u05E2\u05D5\u05D6\u05E8 \u05DC\u05D3\u05D2 \u05DC\u05E9\u05D7\u05D5\u05EA", "w": 7, "lvl": 2 }, { "en": "Diver", "he": "\u05E6\u05D5\u05DC\u05DC\u05DF", "pic": "\u{1F93F}", "clue": "\u05D0\u05D3\u05DD \u05E9\u05E9\u05D5\u05D7\u05D4 \u05DE\u05EA\u05D7\u05EA \u05DC\u05DE\u05D9\u05DD \u05E2\u05DD \u05DE\u05E1\u05DB\u05D4 \u05D5\u05DE\u05D9\u05DB\u05DC \u05D0\u05D5\u05D5\u05D9\u05E8", "w": 7, "lvl": 2 }, { "en": "Submarine", "he": "\u05E6\u05D5\u05DC\u05DC\u05EA", "pic": "\u{1F6F3}\uFE0F", "clue": "\u05DB\u05DC\u05D9 \u05E9\u05D9\u05D8 \u05E9\u05E0\u05D5\u05E1\u05E2 \u05DE\u05EA\u05D7\u05EA \u05DC\u05DE\u05D9\u05DD", "w": 7, "lvl": 2 }, { "en": "Pearl", "he": "\u05E4\u05E0\u05D9\u05E0\u05D4", "pic": "\u{1F9AA}", "clue": "\u05DB\u05D3\u05D5\u05E8 \u05DC\u05D1\u05DF \u05D5\u05D9\u05E7\u05E8 \u05E9\u05E0\u05DE\u05E6\u05D0 \u05D1\u05EA\u05D5\u05DA \u05E6\u05D3\u05E4\u05D4", "w": 7, "lvl": 2 }, { "en": "Coral", "he": "\u05D0\u05DC\u05DE\u05D5\u05D2", "pic": "\u{1FAB8}", "clue": "\u05E6\u05D1\u05E2\u05D5\u05E0\u05D9 \u05D5\u05D2\u05D3\u05DC \u05D1\u05E9\u05D5\u05E0\u05D9\u05EA \u05D1\u05D9\u05DD", "w": 7, "lvl": 2 }, { "en": "Seaweed", "he": "\u05D0\u05E6\u05D4", "pic": "\u{1F33F}", "clue": "\u05E6\u05DE\u05D7 \u05D9\u05E8\u05D5\u05E7 \u05E9\u05D2\u05D3\u05DC \u05D1\u05D9\u05DD", "w": 7, "lvl": 2 }, { "en": "Above", "he": "\u05DE\u05E2\u05DC", "pic": "\u{1F446}", "clue": "\u05DC\u05DE\u05E2\u05DC\u05D4, \u05D4\u05D4\u05E4\u05DA \u05DE\u05DE\u05EA\u05D7\u05EA", "w": 7, "lvl": 2 }, { "en": "Breathe", "he": "\u05DC\u05E0\u05E9\u05D5\u05DD", "pic": "\u{1F62E}\u200D\u{1F4A8}", "clue": "\u05DC\u05D4\u05DB\u05E0\u05D9\u05E1 \u05D0\u05D5\u05D5\u05D9\u05E8 \u05DC\u05E8\u05D9\u05D0\u05D5\u05EA", "w": 7, "lvl": 2 }, { "en": "Float", "he": "\u05DC\u05E6\u05D5\u05E3", "pic": "\u{1F6DF}", "clue": "\u05DC\u05D4\u05D9\u05E9\u05D0\u05E8 \u05E2\u05DC \u05E4\u05E0\u05D9 \u05D4\u05DE\u05D9\u05DD \u05D1\u05DC\u05D9 \u05DC\u05E9\u05E7\u05D5\u05E2", "w": 7, "lvl": 2 }, { "en": "Dive", "he": "\u05DC\u05E6\u05DC\u05D5\u05DC", "pic": "\u{1F3CA}\u200D\u2640\uFE0F", "clue": "\u05DC\u05E7\u05E4\u05D5\u05E5 \u05D5\u05DC\u05E8\u05D3\u05EA \u05E2\u05DE\u05D5\u05E7 \u05DC\u05EA\u05D5\u05DA \u05D4\u05DE\u05D9\u05DD", "w": 7, "lvl": 2 }, { "en": "Plastic", "he": "\u05E4\u05DC\u05E1\u05D8\u05D9\u05E7", "pic": "\u{1F9F4}", "clue": "\u05D7\u05D5\u05DE\u05E8 \u05E9\u05E2\u05D5\u05E9\u05D9\u05DD \u05DE\u05DE\u05E0\u05D5 \u05D1\u05E7\u05D1\u05D5\u05E7\u05D9\u05DD \u05D5\u05E9\u05E7\u05D9\u05D5\u05EA", "w": 7, "lvl": 2 }, { "en": "Nature", "he": "\u05D8\u05D1\u05E2", "pic": "\u{1F340}", "clue": "\u05E2\u05E6\u05D9\u05DD, \u05D7\u05D9\u05D5\u05EA, \u05D9\u05DD \u05D5\u05D4\u05E8\u05D9\u05DD \u2014 \u05DB\u05DC \u05DE\u05D4 \u05E9\u05DC\u05D0 \u05D1\u05E0\u05D4 \u05D4\u05D0\u05D3\u05DD", "w": 7, "lvl": 2 }, { "en": "Silent", "he": "\u05E9\u05E7\u05D8", "pic": "\u{1F507}", "clue": "\u05D1\u05DC\u05D9 \u05E9\u05D5\u05DD \u05E8\u05E2\u05E9", "w": 7, "lvl": 2 }, { "en": "Tiny", "he": "\u05D6\u05E2\u05D9\u05E8", "pic": "\u{1F41C}", "clue": "\u05E7\u05D8\u05DF \u05DE\u05D0\u05D5\u05D3 \u05DE\u05D0\u05D5\u05D3", "w": 7, "lvl": 2 }, { "en": "Colorful", "he": "\u05E6\u05D1\u05E2\u05D5\u05E0\u05D9", "pic": "\u{1F308}", "clue": "\u05D9\u05E9 \u05D1\u05D5 \u05D4\u05E8\u05D1\u05D4 \u05E6\u05D1\u05E2\u05D9\u05DD", "w": 7, "lvl": 2 }, { "en": "Net", "he": "\u05E8\u05E9\u05EA", "pic": "\u{1F945}", "clue": "\u05D3\u05D9\u05D9\u05D2\u05D9\u05DD \u05EA\u05D5\u05E4\u05E1\u05D9\u05DD \u05D0\u05D9\u05EA\u05D4 \u05D3\u05D2\u05D9\u05DD", "w": 7, "lvl": 2 }, { "en": "Bottom", "he": "\u05EA\u05D7\u05EA\u05D9\u05EA", "pic": "\u{1F53B}", "clue": "\u05D4\u05D7\u05DC\u05E7 \u05D4\u05DB\u05D9 \u05E0\u05DE\u05D5\u05DA \u05E9\u05DC \u05DE\u05E9\u05D4\u05D5", "w": 7, "lvl": 2 }, { "en": "Recycle", "he": "\u05DC\u05DE\u05D7\u05D6\u05E8", "pic": "\u267B\uFE0F", "clue": "\u05DC\u05D4\u05E9\u05EA\u05DE\u05E9 \u05E9\u05D5\u05D1 \u05D1\u05D1\u05E7\u05D1\u05D5\u05E7\u05D9\u05DD \u05D5\u05D1\u05E0\u05D9\u05D9\u05E8 \u05D1\u05DE\u05E7\u05D5\u05DD \u05DC\u05D6\u05E8\u05D5\u05E7", "w": 7, "lvl": 3 }, { "en": "Pollution", "he": "\u05D6\u05D9\u05D4\u05D5\u05DD", "pic": "\u{1F3ED}", "clue": "\u05DC\u05DB\u05DC\u05D5\u05DA \u05D1\u05D0\u05D5\u05D5\u05D9\u05E8, \u05D1\u05DE\u05D9\u05DD \u05D0\u05D5 \u05D1\u05D0\u05D3\u05DE\u05D4", "w": 7, "lvl": 3 }, { "en": "Scientist", "he": "\u05DE\u05D3\u05E2\u05DF", "pic": "\u{1F9D1}\u200D\u{1F52C}", "clue": "\u05D0\u05D3\u05DD \u05E9\u05D7\u05D5\u05E7\u05E8 \u05D5\u05E2\u05D5\u05E9\u05D4 \u05E0\u05D9\u05E1\u05D5\u05D9\u05D9\u05DD", "w": 7, "lvl": 3 }, { "en": "Experiment", "he": "\u05E0\u05D9\u05E1\u05D5\u05D9", "pic": "\u{1F9EA}", "clue": "\u05D1\u05D3\u05D9\u05E7\u05D4 \u05E9\u05E2\u05D5\u05E9\u05D9\u05DD \u05DB\u05D3\u05D9 \u05DC\u05D2\u05DC\u05D5\u05EA \u05DE\u05E9\u05D4\u05D5 \u05D7\u05D3\u05E9", "w": 7, "lvl": 3 }, { "en": "Oxygen", "he": "\u05D7\u05DE\u05E6\u05DF", "pic": "\u{1FAC1}", "clue": "\u05D4\u05D2\u05D6 \u05D1\u05D0\u05D5\u05D5\u05D9\u05E8 \u05E9\u05D0\u05E0\u05D7\u05E0\u05D5 \u05E6\u05E8\u05D9\u05DB\u05D9\u05DD \u05DB\u05D3\u05D9 \u05DC\u05E0\u05E9\u05D5\u05DD", "w": 7, "lvl": 3 }, { "en": "Creature", "he": "\u05D9\u05E6\u05D5\u05E8", "pic": "\u{1F47E}", "clue": "\u05DB\u05DC \u05D7\u05D9\u05D4, \u05D2\u05DD \u05DE\u05D5\u05D6\u05E8\u05D4 \u05D0\u05D5 \u05D3\u05DE\u05D9\u05D5\u05E0\u05D9\u05EA", "w": 7, "lvl": 3 }, { "en": "Glow", "he": "\u05DC\u05D6\u05D4\u05D5\u05E8", "pic": "\u2728", "clue": "\u05DC\u05D4\u05D0\u05D9\u05E8 \u05D1\u05D0\u05D5\u05E8 \u05D7\u05DC\u05E9", "w": 7, "lvl": 3 }, { "en": "Current", "he": "\u05D6\u05E8\u05DD", "pic": "\u{1F300}", "clue": "\u05DE\u05D9\u05DD \u05E9\u05D6\u05D5\u05E8\u05DE\u05D9\u05DD \u05D1\u05DB\u05D5\u05D7 \u05DC\u05DB\u05D9\u05D5\u05D5\u05DF \u05D0\u05D7\u05D3", "w": 7, "lvl": 3 }, { "en": "Wonderful", "he": "\u05E0\u05E4\u05DC\u05D0", "pic": "\u{1F929}", "clue": "\u05D8\u05D5\u05D1 \u05D5\u05D9\u05E4\u05D4 \u05DE\u05D0\u05D5\u05D3", "w": 7, "lvl": 3 }, { "en": "Surface", "he": "\u05E4\u05E0\u05D9 \u05D4\u05E9\u05D8\u05D7", "pic": "\u{1F3C4}", "clue": "\u05D4\u05D7\u05DC\u05E7 \u05D4\u05E2\u05DC\u05D9\u05D5\u05DF \u05E9\u05DC \u05D4\u05DE\u05D9\u05DD, \u05E9\u05DD \u05D0\u05E4\u05E9\u05E8 \u05DC\u05E0\u05E9\u05D5\u05DD", "w": 7, "lvl": 3 }, { "en": "Fire", "he": "\u05D0\u05E9", "pic": "\u{1F525}", "clue": "\u05D7\u05DE\u05D4 \u05D5\u05D1\u05D5\u05E2\u05E8\u05EA, \u05E6\u05D1\u05E2\u05D4 \u05D0\u05D3\u05D5\u05DD \u05D5\u05DB\u05EA\u05D5\u05DD", "w": 8, "lvl": 1 }, { "en": "Mountain", "he": "\u05D4\u05E8", "pic": "\u26F0\uFE0F", "clue": "\u05D2\u05D1\u05D5\u05D4 \u05DE\u05D0\u05D5\u05D3, \u05DE\u05D8\u05E4\u05E1\u05D9\u05DD \u05E2\u05DC\u05D9\u05D5", "w": 8, "lvl": 1 }, { "en": "Smoke", "he": "\u05E2\u05E9\u05DF", "pic": "\u{1F4A8}", "clue": "\u05E2\u05E0\u05DF \u05D0\u05E4\u05D5\u05E8 \u05E9\u05E2\u05D5\u05DC\u05D4 \u05DE\u05D0\u05E9", "w": 8, "lvl": 1 }, { "en": "Hero", "he": "\u05D2\u05D9\u05D1\u05D5\u05E8", "pic": "\u{1F9B8}\u200D\u2642\uFE0F", "clue": "\u05DE\u05D9 \u05E9\u05E2\u05D5\u05E9\u05D4 \u05DE\u05E2\u05E9\u05D4 \u05D0\u05DE\u05D9\u05E5 \u05D5\u05DE\u05E6\u05D9\u05DC \u05D0\u05D7\u05E8\u05D9\u05DD", "w": 8, "lvl": 1 }, { "en": "Dinosaur", "he": "\u05D3\u05D9\u05E0\u05D5\u05D6\u05D0\u05D5\u05E8", "pic": "\u{1F996}", "clue": "\u05D7\u05D9\u05D4 \u05E2\u05E0\u05E7\u05D9\u05EA \u05E9\u05D7\u05D9\u05D4 \u05DC\u05E4\u05E0\u05D9 \u05DE\u05D9\u05DC\u05D9\u05D5\u05E0\u05D9 \u05E9\u05E0\u05D9\u05DD", "w": 8, "lvl": 1 }, { "en": "Ground", "he": "\u05D0\u05D3\u05DE\u05D4", "pic": "\u{1F7EB}", "clue": "\u05DE\u05D4 \u05E9\u05D9\u05E9 \u05DE\u05EA\u05D7\u05EA \u05DC\u05E8\u05D2\u05DC\u05D9\u05D9\u05DD \u05D1\u05D7\u05D5\u05E5", "w": 8, "lvl": 1 }, { "en": "Volcano", "he": "\u05D4\u05E8 \u05D2\u05E2\u05E9", "pic": "\u{1F30B}", "clue": "\u05D4\u05E8 \u05E9\u05D9\u05D5\u05E6\u05D0\u05D9\u05DD \u05DE\u05DE\u05E0\u05D5 \u05D0\u05E9 \u05D5\u05DC\u05D1\u05D4", "w": 8, "lvl": 2 }, { "en": "Lava", "he": "\u05DC\u05D1\u05D4", "pic": "\u2668\uFE0F", "clue": "\u05E1\u05DC\u05E2 \u05E0\u05D5\u05D6\u05DC\u05D9 \u05D5\u05E8\u05D5\u05EA\u05D7 \u05E9\u05D9\u05D5\u05E6\u05D0 \u05DE\u05D4\u05E8 \u05D2\u05E2\u05E9", "w": 8, "lvl": 2 }, { "en": "Ash", "he": "\u05D0\u05E4\u05E8", "pic": "\u26B1\uFE0F", "clue": "\u05D4\u05D0\u05D1\u05E7\u05D4 \u05D4\u05D0\u05E4\u05D5\u05E8\u05D4 \u05E9\u05E0\u05E9\u05D0\u05E8\u05EA \u05D0\u05D7\u05E8\u05D9 \u05E9\u05E8\u05D9\u05E4\u05D4", "w": 8, "lvl": 2 }, { "en": "Burn", "he": "\u05DC\u05E9\u05E8\u05D5\u05E3", "pic": "\u{1F56F}\uFE0F", "clue": "\u05DC\u05D2\u05E8\u05D5\u05DD \u05DC\u05DE\u05E9\u05D4\u05D5 \u05DC\u05D1\u05E2\u05D5\u05E8 \u05D1\u05D0\u05E9", "w": 8, "lvl": 2 }, { "en": "Melt", "he": "\u05DC\u05D4\u05D9\u05DE\u05E1", "pic": "\u{1FAE0}", "clue": "\u05DE\u05D4 \u05E9\u05E7\u05D5\u05E8\u05D4 \u05DC\u05D2\u05DC\u05D9\u05D3\u05D4 \u05D1\u05E9\u05DE\u05E9", "w": 8, "lvl": 2 }, { "en": "Escape", "he": "\u05DC\u05D1\u05E8\u05D5\u05D7", "pic": "\u{1F3C3}\u200D\u2642\uFE0F", "clue": "\u05DC\u05E6\u05D0\u05EA \u05DE\u05D4\u05E8 \u05DE\u05DE\u05E7\u05D5\u05DD \u05DE\u05E1\u05D5\u05DB\u05DF", "w": 8, "lvl": 2 }, { "en": "Power", "he": "\u05DB\u05D5\u05D7", "pic": "\u{1F4AA}", "clue": "\u05DB\u05DE\u05D4 \u05D7\u05D6\u05E7 \u05DE\u05E9\u05D4\u05D5", "w": 8, "lvl": 2 }, { "en": "Energy", "he": "\u05D0\u05E0\u05E8\u05D2\u05D9\u05D4", "pic": "\u{1F50B}", "clue": "\u05DE\u05D4 \u05E9\u05E0\u05D5\u05EA\u05DF \u05DB\u05D5\u05D7 \u05DC\u05D6\u05D5\u05D6 \u05D5\u05DC\u05E2\u05D1\u05D5\u05D3", "w": 8, "lvl": 2 }, { "en": "Warning", "he": "\u05D0\u05D6\u05D4\u05E8\u05D4", "pic": "\u{1F6A8}", "clue": "\u05D4\u05D5\u05D3\u05E2\u05D4 \u05E9\u05DE\u05E9\u05D4\u05D5 \u05DE\u05E1\u05D5\u05DB\u05DF \u05E2\u05D5\u05DE\u05D3 \u05DC\u05E7\u05E8\u05D5\u05EA", "w": 8, "lvl": 2 }, { "en": "Rescue", "he": "\u05DC\u05D4\u05E6\u05D9\u05DC", "pic": "\u{1F692}", "clue": "\u05DC\u05E2\u05D6\u05D5\u05E8 \u05DC\u05DE\u05D9\u05E9\u05D4\u05D5 \u05DC\u05E6\u05D0\u05EA \u05DE\u05E1\u05DB\u05E0\u05D4", "w": 8, "lvl": 2 }, { "en": "Safe", "he": "\u05D1\u05D8\u05D5\u05D7", "pic": "\u{1F9BA}", "clue": "\u05E9\u05D5\u05DD \u05D3\u05D1\u05E8 \u05E8\u05E2 \u05DC\u05D0 \u05D9\u05E7\u05E8\u05D4, \u05D4\u05D4\u05E4\u05DA \u05DE\u05DE\u05E1\u05D5\u05DB\u05DF", "w": 8, "lvl": 2 }, { "en": "Bone", "he": "\u05E2\u05E6\u05DD", "pic": "\u{1F9B4}", "clue": "\u05D7\u05DC\u05E7 \u05E7\u05E9\u05D4 \u05D5\u05DC\u05D1\u05DF \u05D1\u05EA\u05D5\u05DA \u05D4\u05D2\u05D5\u05E3", "w": 8, "lvl": 2 }, { "en": "Weak", "he": "\u05D7\u05DC\u05E9", "pic": "\u{1F940}", "clue": "\u05D4\u05D4\u05E4\u05DA \u05DE\u05D7\u05D6\u05E7", "w": 8, "lvl": 2 }, { "en": "Careful", "he": "\u05D6\u05D4\u05D9\u05E8", "pic": "\u{1F6A7}", "clue": "\u05DE\u05D9 \u05E9\u05E9\u05DD \u05DC\u05D1 \u05DB\u05D3\u05D9 \u05DC\u05D0 \u05DC\u05D4\u05D9\u05E4\u05D2\u05E2", "w": 8, "lvl": 2 }, { "en": "Fear", "he": "\u05E4\u05D7\u05D3", "pic": "\u{1F628}", "clue": "\u05D4\u05D4\u05E8\u05D2\u05E9\u05D4 \u05DB\u05E9\u05DE\u05E9\u05D4\u05D5 \u05DE\u05E4\u05D7\u05D9\u05D3", "w": 8, "lvl": 2 }, { "en": "Calm", "he": "\u05E8\u05D2\u05D5\u05E2", "pic": "\u{1F60C}", "clue": "\u05E9\u05E7\u05D8 \u05D5\u05DC\u05D0 \u05DC\u05D7\u05D5\u05E5", "w": 8, "lvl": 2 }, { "en": "Earthquake", "he": "\u05E8\u05E2\u05D9\u05D3\u05EA \u05D0\u05D3\u05DE\u05D4", "pic": "\u{1F4F3}", "clue": "\u05DB\u05E9\u05D4\u05D0\u05D3\u05DE\u05D4 \u05D6\u05D6\u05D4 \u05D5\u05E8\u05D5\u05E2\u05D3\u05EA", "w": 8, "lvl": 3 }, { "en": "Emergency", "he": "\u05DE\u05E6\u05D1 \u05D7\u05D9\u05E8\u05D5\u05DD", "pic": "\u{1F691}", "clue": "\u05DE\u05E6\u05D1 \u05DE\u05E1\u05D5\u05DB\u05DF \u05E9\u05E6\u05E8\u05D9\u05DA \u05DC\u05E2\u05D6\u05D5\u05E8 \u05D1\u05D5 \u05DE\u05D9\u05D3", "w": 8, "lvl": 3 }, { "en": "Courage", "he": "\u05D0\u05D5\u05DE\u05E5", "pic": "\u{1F396}\uFE0F", "clue": "\u05DB\u05E9\u05DC\u05D0 \u05DE\u05E4\u05D7\u05D3\u05D9\u05DD \u05DC\u05E2\u05E9\u05D5\u05EA \u05DE\u05E9\u05D4\u05D5 \u05E7\u05E9\u05D4", "w": 8, "lvl": 3 }, { "en": "Erupt", "he": "\u05DC\u05D4\u05EA\u05E4\u05E8\u05E5", "pic": "\u{1F4A5}", "clue": "\u05DE\u05D4 \u05E9\u05D4\u05E8 \u05D2\u05E2\u05E9 \u05E2\u05D5\u05E9\u05D4 \u05DB\u05E9\u05DC\u05D1\u05D4 \u05D9\u05D5\u05E6\u05D0\u05EA \u05DE\u05DE\u05E0\u05D5", "w": 8, "lvl": 3 }, { "en": "Crater", "he": "\u05DE\u05DB\u05EA\u05E9", "pic": "\u{1F573}\uFE0F", "clue": "\u05D1\u05D5\u05E8 \u05E2\u05E0\u05E7 \u05D5\u05E2\u05D2\u05D5\u05DC \u05D1\u05D0\u05D3\u05DE\u05D4", "w": 8, "lvl": 3 }, { "en": "Prepare", "he": "\u05DC\u05D4\u05EA\u05DB\u05D5\u05E0\u05DF", "pic": "\u{1F4CB}", "clue": "\u05DC\u05E2\u05E9\u05D5\u05EA \u05D3\u05D1\u05E8\u05D9\u05DD \u05DE\u05E8\u05D0\u05E9 \u05DC\u05E4\u05E0\u05D9 \u05E9\u05DE\u05E9\u05D4\u05D5 \u05E7\u05D5\u05E8\u05D4", "w": 8, "lvl": 3 }, { "en": "Destroy", "he": "\u05DC\u05D4\u05E8\u05D5\u05E1", "pic": "\u{1F3D7}\uFE0F", "clue": "\u05DC\u05E9\u05D1\u05D5\u05E8 \u05DE\u05E9\u05D4\u05D5 \u05E2\u05D3 \u05E9\u05DC\u05D0 \u05E0\u05E9\u05D0\u05E8 \u05DE\u05DE\u05E0\u05D5 \u05DB\u05DC\u05D5\u05DD", "w": 8, "lvl": 3 }, { "en": "Extinct", "he": "\u05E0\u05DB\u05D7\u05D3", "pic": "\u{1F995}", "clue": "\u05DB\u05E9\u05D0\u05E3 \u05D1\u05E2\u05DC \u05D7\u05D9\u05D9\u05DD \u05DE\u05D4\u05E1\u05D5\u05D2 \u05D4\u05D6\u05D4 \u05DC\u05D0 \u05D7\u05D9 \u05D9\u05D5\u05EA\u05E8", "w": 8, "lvl": 3 }, { "en": "Fossil", "he": "\u05DE\u05D0\u05D5\u05D1\u05DF", "pic": "\u{1F41A}", "clue": "\u05E9\u05D0\u05E8\u05D9\u05EA \u05E9\u05DC \u05D7\u05D9\u05D4 \u05E2\u05EA\u05D9\u05E7\u05D4 \u05E9\u05D4\u05E4\u05DB\u05D4 \u05DC\u05D0\u05D1\u05DF", "w": 8, "lvl": 3 }, { "en": "Disaster", "he": "\u05D0\u05E1\u05D5\u05DF", "pic": "\u{1F32A}\uFE0F", "clue": "\u05DE\u05E9\u05D4\u05D5 \u05E8\u05E2 \u05DE\u05D0\u05D5\u05D3 \u05E9\u05E7\u05D5\u05E8\u05D4 \u05DC\u05D4\u05E8\u05D1\u05D4 \u05D0\u05E0\u05E9\u05D9\u05DD", "w": 8, "lvl": 3 }, { "en": "Rock", "he": "\u05E1\u05DC\u05E2", "pic": "\u{1FAA8}", "clue": "\u05D0\u05D1\u05DF \u05D2\u05D3\u05D5\u05DC\u05D4 \u05D5\u05E7\u05E9\u05D4", "w": 8, "lvl": 1 }, { "en": "Hill", "he": "\u05D2\u05D1\u05E2\u05D4", "pic": "\u{1F3DE}\uFE0F", "clue": "\u05D4\u05E8 \u05E7\u05D8\u05DF \u05D5\u05E0\u05DE\u05D5\u05DA", "w": 8, "lvl": 1 }, { "en": "Tail", "he": "\u05D6\u05E0\u05D1", "pic": "\u{1F98E}", "clue": "\u05D4\u05D7\u05DC\u05E7 \u05D1\u05E1\u05D5\u05E3 \u05D4\u05D2\u05D5\u05E3 \u05E9\u05DC \u05D4\u05D7\u05D9\u05D4", "w": 8, "lvl": 1 }];
 
   // mila-quest/js/config.js
   var KEY = "milaQuestV2";
@@ -33337,18 +33337,26 @@
     { name: "\u05E0\u05D5\u05D1\u05D4", file: "heroes/hero-nova.glb" }
   ];
   var BOSSES = [
-    { name: "\u05E9\u05D5\u05DE\u05E8 \u05D4\u05D2'\u05D5\u05E0\u05D2\u05DC", file: "nature/tree_detailed.glb", height: 3.4, animated: false },
+    { name: "\u05E9\u05D5\u05DE\u05E8 \u05D4\u05D2'\u05D5\u05E0\u05D2\u05DC", file: "nature/tree_detailed.glb", height: 3.4, animated: false, tint: 5947482 },
     { name: "\u05E7\u05E4\u05D8\u05DF \u05D4\u05E4\u05D9\u05E8\u05D0\u05D8\u05D9\u05DD", file: "heroes/boss-pirate.glb", height: 2.55, animated: true },
     { name: "\u05D4\u05E7\u05D5\u05E1\u05DD \u05D4\u05E9\u05D5\u05DE\u05E8", file: "heroes/boss-wizard.glb", height: 2.55, animated: true },
     { name: "\u05D7\u05D9\u05D9\u05DC \u05D4\u05D7\u05DC\u05DC", file: "heroes/boss-soldier.glb", height: 2.55, animated: true },
-    { name: "\u05DE\u05DC\u05DB\u05EA \u05D4\u05E7\u05E8\u05D7", file: "holiday/snowman-hat.glb", height: 2.6, animated: false }
+    { name: "\u05DE\u05DC\u05DB\u05EA \u05D4\u05E7\u05E8\u05D7", file: "holiday/snowman-hat.glb", height: 2.6, animated: false },
+    { name: "\u05D0\u05D1\u05D9\u05E8 \u05D4\u05DE\u05D3\u05D1\u05E8", file: "mini/character-knight.glb", height: 2.6, animated: true, tint: 14725216 },
+    { name: "\u05E8\u05D5\u05D1\u05D5\u05D8 \u05D4\u05DE\u05E2\u05DE\u05E7\u05D9\u05DD", file: "mini/character-robot.glb", height: 2.6, animated: true, tint: 4247776 },
+    { name: "\u05E2\u05E0\u05E7 \u05D4\u05DC\u05D1\u05D4", file: "mini/character-male-a.glb", height: 3.1, animated: true, tint: 16734752 }
   ];
+  var NSTAGES = 7;
+  var BOSS_ST = 6;
   var ST = [
-    [["\u05EA\u05E8\u05D2\u05D5\u05DD \u05DE\u05D9\u05DC\u05D9\u05DD", "tr"], ["\u05D4\u05D0\u05D6\u05E0\u05D4 \u05D5\u05E4\u05D9\u05E8\u05D5\u05E9", "rev"], ["\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", "build"], ["\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4", "let"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]],
-    [["\u05EA\u05E8\u05D2\u05D5\u05DD \u05E2\u05DC \u05D4\u05E1\u05D9\u05E4\u05D5\u05DF", "tr"], ["\u05D4\u05D0\u05D6\u05E0\u05D4 \u05D5\u05E4\u05D9\u05E8\u05D5\u05E9", "rev"], ["\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4", "let"], ["\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", "build"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]],
-    [["\u05EA\u05E8\u05D2\u05D5\u05DD \u05E2\u05DC \u05D4\u05D2\u05D2\u05D5\u05EA", "tr"], ["\u05D4\u05D0\u05D6\u05E0\u05D4 \u05D5\u05E4\u05D9\u05E8\u05D5\u05E9", "rev"], ["\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4", "let"], ["\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", "build"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]],
-    [["\u05EA\u05E8\u05D2\u05D5\u05DD \u05D1\u05D7\u05DC\u05DC", "tr"], ["\u05D4\u05D0\u05D6\u05E0\u05D4 \u05D5\u05E4\u05D9\u05E8\u05D5\u05E9", "rev"], ["\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", "build"], ["\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4", "let"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]],
-    [["\u05EA\u05E8\u05D2\u05D5\u05DD \u05D1\u05E9\u05DC\u05D2", "tr"], ["\u05D4\u05D0\u05D6\u05E0\u05D4 \u05D5\u05E4\u05D9\u05E8\u05D5\u05E9", "rev"], ["\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4", "let"], ["\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", "build"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]]
+    [["\u05EA\u05E8\u05D2\u05D5\u05DD \u05DE\u05D9\u05DC\u05D9\u05DD", "tr"], ["\u05D4\u05D0\u05D6\u05E0\u05D4 \u05D5\u05E4\u05D9\u05E8\u05D5\u05E9", "rev"], ["\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", "build"], ["\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4", "let"], ["\u05EA\u05DE\u05D5\u05E0\u05D4 \u05D5\u05D7\u05D9\u05D3\u05D4", "picw"], ["\u05E1\u05D9\u05D1\u05D5\u05D1 \u05DE\u05D4\u05D9\u05E8", "mix"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]],
+    [["\u05EA\u05E8\u05D2\u05D5\u05DD \u05DE\u05D9\u05DC\u05D9\u05DD", "tr"], ["\u05D4\u05D0\u05D6\u05E0\u05D4 \u05D5\u05E4\u05D9\u05E8\u05D5\u05E9", "rev"], ["\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4", "let"], ["\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", "build"], ["\u05EA\u05DE\u05D5\u05E0\u05D4 \u05D5\u05D7\u05D9\u05D3\u05D4", "picw"], ["\u05E1\u05D9\u05D1\u05D5\u05D1 \u05DE\u05D4\u05D9\u05E8", "mix"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]],
+    [["\u05EA\u05E8\u05D2\u05D5\u05DD \u05DE\u05D9\u05DC\u05D9\u05DD", "tr"], ["\u05D4\u05D0\u05D6\u05E0\u05D4 \u05D5\u05E4\u05D9\u05E8\u05D5\u05E9", "rev"], ["\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4", "let"], ["\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", "build"], ["\u05EA\u05DE\u05D5\u05E0\u05D4 \u05D5\u05D7\u05D9\u05D3\u05D4", "picw"], ["\u05E1\u05D9\u05D1\u05D5\u05D1 \u05DE\u05D4\u05D9\u05E8", "mix"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]],
+    [["\u05EA\u05E8\u05D2\u05D5\u05DD \u05DE\u05D9\u05DC\u05D9\u05DD", "tr"], ["\u05D4\u05D0\u05D6\u05E0\u05D4 \u05D5\u05E4\u05D9\u05E8\u05D5\u05E9", "rev"], ["\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", "build"], ["\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4", "let"], ["\u05EA\u05DE\u05D5\u05E0\u05D4 \u05D5\u05D7\u05D9\u05D3\u05D4", "picw"], ["\u05E1\u05D9\u05D1\u05D5\u05D1 \u05DE\u05D4\u05D9\u05E8", "mix"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]],
+    [["\u05EA\u05E8\u05D2\u05D5\u05DD \u05DE\u05D9\u05DC\u05D9\u05DD", "tr"], ["\u05D4\u05D0\u05D6\u05E0\u05D4 \u05D5\u05E4\u05D9\u05E8\u05D5\u05E9", "rev"], ["\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4", "let"], ["\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", "build"], ["\u05EA\u05DE\u05D5\u05E0\u05D4 \u05D5\u05D7\u05D9\u05D3\u05D4", "picw"], ["\u05E1\u05D9\u05D1\u05D5\u05D1 \u05DE\u05D4\u05D9\u05E8", "mix"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]],
+    [["\u05EA\u05E8\u05D2\u05D5\u05DD \u05DE\u05D9\u05DC\u05D9\u05DD", "tr"], ["\u05D4\u05D0\u05D6\u05E0\u05D4 \u05D5\u05E4\u05D9\u05E8\u05D5\u05E9", "rev"], ["\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", "build"], ["\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4", "let"], ["\u05EA\u05DE\u05D5\u05E0\u05D4 \u05D5\u05D7\u05D9\u05D3\u05D4", "picw"], ["\u05E1\u05D9\u05D1\u05D5\u05D1 \u05DE\u05D4\u05D9\u05E8", "mix"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]],
+    [["\u05EA\u05E8\u05D2\u05D5\u05DD \u05DE\u05D9\u05DC\u05D9\u05DD", "tr"], ["\u05D4\u05D0\u05D6\u05E0\u05D4 \u05D5\u05E4\u05D9\u05E8\u05D5\u05E9", "rev"], ["\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4", "let"], ["\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", "build"], ["\u05EA\u05DE\u05D5\u05E0\u05D4 \u05D5\u05D7\u05D9\u05D3\u05D4", "picw"], ["\u05E1\u05D9\u05D1\u05D5\u05D1 \u05DE\u05D4\u05D9\u05E8", "mix"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]],
+    [["\u05EA\u05E8\u05D2\u05D5\u05DD \u05DE\u05D9\u05DC\u05D9\u05DD", "tr"], ["\u05D4\u05D0\u05D6\u05E0\u05D4 \u05D5\u05E4\u05D9\u05E8\u05D5\u05E9", "rev"], ["\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", "build"], ["\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4", "let"], ["\u05EA\u05DE\u05D5\u05E0\u05D4 \u05D5\u05D7\u05D9\u05D3\u05D4", "picw"], ["\u05E1\u05D9\u05D1\u05D5\u05D1 \u05DE\u05D4\u05D9\u05E8", "mix"], ["\u05D0\u05EA\u05D2\u05E8 \u05D4\u05D1\u05D5\u05E1", "boss"]]
   ];
   var WORLDS = [
     {
@@ -33440,6 +33448,60 @@
       decor: ["holiday/tree-snow-a.glb", "holiday/present-a-cube.glb", "holiday/sled.glb"],
       obstacle: ["holiday/rocks-large.glb"],
       extra: ["holiday/snowman-hat.glb"]
+    },
+    {
+      id: 6,
+      name: "\u05DE\u05D3\u05D1\u05E8 \u05D4\u05E4\u05D9\u05E8\u05DE\u05D9\u05D3\u05D5\u05EA",
+      en: "Pyramid Desert",
+      icon: "\u{1F42B}",
+      desc: "\u05DE\u05D3\u05D1\u05E8, \u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D4 \u05D5\u05DB\u05D9\u05D5\u05D5\u05E0\u05D9\u05DD",
+      sky: 5943536,
+      fog: 15915432,
+      pathA: 14860156,
+      pathB: 9067048,
+      ground: 14858356,
+      hemiSky: 16773328,
+      hemiGround: 11567168,
+      sun: 16773320,
+      decor: ["pirate/palm-straight.glb", "pirate/palm-detailed-straight.glb", "platformer/chest.glb"],
+      obstacle: ["platformer/crate.glb"],
+      extra: []
+    },
+    {
+      id: 7,
+      name: "\u05DE\u05E2\u05DE\u05E7\u05D9 \u05D4\u05D9\u05DD",
+      en: "Ocean Depths",
+      icon: "\u{1F420}",
+      desc: "\u05D7\u05D9\u05D9\u05DD \u05D1\u05D9\u05DD, \u05DE\u05D3\u05E2 \u05D5\u05E1\u05D1\u05D9\u05D1\u05D4",
+      sky: 1731216,
+      fog: 1735328,
+      pathA: 13220234,
+      pathB: 8057087,
+      ground: 2788e3,
+      hemiSky: 10481919,
+      hemiGround: 674410,
+      sun: 13169919,
+      decor: ["pirate/chest.glb", "pirate/barrel.glb", "pirate/ship-pirate-small.glb"],
+      obstacle: ["pirate/chest.glb"],
+      extra: []
+    },
+    {
+      id: 8,
+      name: "\u05D0\u05E8\u05E5 \u05D4\u05E8 \u05D4\u05D2\u05E2\u05E9",
+      en: "Volcano Land",
+      icon: "\u{1F30B}",
+      desc: "\u05DB\u05D5\u05D7\u05D5\u05EA \u05D4\u05D8\u05D1\u05E2, \u05D4\u05E6\u05DC\u05D4 \u05D5\u05D3\u05D9\u05E0\u05D5\u05D6\u05D0\u05D5\u05E8\u05D9\u05DD",
+      sky: 4856340,
+      fog: 5909024,
+      pathA: 3813424,
+      pathB: 16756816,
+      ground: 3811876,
+      hemiSky: 16758928,
+      hemiGround: 3806216,
+      sun: 16752736,
+      decor: ["space/rock_crystalsLargeA.glb", "space/meteor.glb", "space/crater.glb"],
+      obstacle: ["holiday/rocks-large.glb", "space/meteor.glb"],
+      extra: []
     }
   ];
   var ACH = [
@@ -33447,7 +33509,7 @@
     { id: "stars3", name: "\u05DB\u05D5\u05DB\u05D1 \u05E2\u05DC", desc: "\u05D4\u05E9\u05D2\u05EA\u05DD \u05E9\u05DC\u05D5\u05E9\u05D4 \u05DB\u05D5\u05DB\u05D1\u05D9\u05DD \u05D1\u05E9\u05DC\u05D1" },
     { id: "boss1", name: "\u05E6\u05D9\u05D9\u05D3\u05D9 \u05D1\u05D5\u05E1\u05D9\u05DD", desc: "\u05E0\u05D9\u05E6\u05D7\u05EA\u05DD \u05D1\u05D5\u05E1 \u05E8\u05D0\u05E9\u05D5\u05DF" },
     { id: "world1", name: "\u05DE\u05DC\u05DB\u05D9 \u05D4\u05D2'\u05D5\u05E0\u05D2\u05DC", desc: "\u05E1\u05D9\u05D9\u05DE\u05EA\u05DD \u05D0\u05EA \u05D0\u05D9 \u05D4\u05D2'\u05D5\u05E0\u05D2\u05DC" },
-    { id: "worlds5", name: "\u05D2\u05D9\u05D1\u05D5\u05E8\u05D9 \u05D4\u05DE\u05E1\u05E2", desc: "\u05E1\u05D9\u05D9\u05DE\u05EA\u05DD \u05D0\u05EA \u05DB\u05DC \u05D7\u05DE\u05E9\u05EA \u05D4\u05E2\u05D5\u05DC\u05DE\u05D5\u05EA" },
+    { id: "worlds5", name: "\u05D2\u05D9\u05D1\u05D5\u05E8\u05D9 \u05D4\u05DE\u05E1\u05E2", desc: "\u05E1\u05D9\u05D9\u05DE\u05EA\u05DD \u05D0\u05EA \u05DB\u05DC \u05D4\u05E2\u05D5\u05DC\u05DE\u05D5\u05EA" },
     { id: "learn10", name: "\u05E2\u05E9\u05E8 \u05DE\u05D9\u05DC\u05D9\u05DD", desc: "\u05DC\u05DE\u05D3\u05EA\u05DD 10 \u05DE\u05D9\u05DC\u05D9\u05DD" },
     { id: "learn50", name: "\u05D7\u05DE\u05D9\u05E9\u05D9\u05DD \u05DE\u05D9\u05DC\u05D9\u05DD", desc: "\u05DC\u05DE\u05D3\u05EA\u05DD 50 \u05DE\u05D9\u05DC\u05D9\u05DD" },
     { id: "learn100", name: "\u05DE\u05D0\u05D4 \u05DE\u05D9\u05DC\u05D9\u05DD", desc: "\u05DC\u05DE\u05D3\u05EA\u05DD 100 \u05DE\u05D9\u05DC\u05D9\u05DD" },
@@ -33461,7 +33523,10 @@
     "\u05EA\u05E8\u05D2\u05DE\u05D5 \u05E2\u05DC \u05D4\u05E1\u05D9\u05E4\u05D5\u05DF \u05D5\u05E8\u05E6\u05D5 \u05D1\u05D9\u05DF \u05D4\u05E9\u05E2\u05E8\u05D9\u05DD. \u05D6\u05D4\u05E8\u05D5 \u05DE\u05E7\u05D9\u05E8\u05D5\u05EA \u05D5\u05D7\u05D1\u05D9\u05D5\u05EA \u05DE\u05EA\u05D2\u05DC\u05D2\u05DC\u05D5\u05EA!",
     "\u05EA\u05E8\u05D2\u05DE\u05D5 \u05E2\u05DC \u05D2\u05D2\u05D5\u05EA \u05D4\u05E2\u05D9\u05E8 \u05D4\u05E7\u05E1\u05D5\u05DE\u05D4. \u05D4\u05DE\u05E1\u05DC\u05D5\u05DC \u05DE\u05EA\u05E2\u05E7\u05DC \u05D5\u05D4\u05EA\u05D0\u05D5\u05E8\u05D4 \u05DE\u05E9\u05EA\u05E0\u05D4!",
     "\u05EA\u05E8\u05D2\u05DE\u05D5 \u05D1\u05D9\u05DF \u05D4\u05DB\u05D5\u05DB\u05D1\u05D9\u05DD. \u05D4\u05EA\u05D7\u05DE\u05E7\u05D5 \u05DE\u05DE\u05D8\u05D0\u05D5\u05E8\u05D9\u05DD \u05D5\u05DE\u05E7\u05D9\u05E8\u05D5\u05EA \u05D1\u05D0\u05D5\u05E8 \u05D4\u05D7\u05DC\u05DC!",
-    "\u05EA\u05E8\u05D2\u05DE\u05D5 \u05E2\u05DC \u05D3\u05E8\u05DA \u05D4\u05E7\u05E8\u05D7 \u05D4\u05D7\u05DC\u05E7\u05D4. \u05DE\u05DC\u05DB\u05EA \u05D4\u05E7\u05E8\u05D7 \u05DE\u05D7\u05DB\u05D4 \u05D1\u05E1\u05D5\u05E3 \u05D4\u05D3\u05E8\u05DA!"
+    "\u05EA\u05E8\u05D2\u05DE\u05D5 \u05E2\u05DC \u05D3\u05E8\u05DA \u05D4\u05E7\u05E8\u05D7 \u05D4\u05D7\u05DC\u05E7\u05D4. \u05DE\u05DC\u05DB\u05EA \u05D4\u05E7\u05E8\u05D7 \u05DE\u05D7\u05DB\u05D4 \u05D1\u05E1\u05D5\u05E3 \u05D4\u05D3\u05E8\u05DA!",
+    "\u05E8\u05D5\u05E6\u05D5 \u05D1\u05D9\u05DF \u05D4\u05E4\u05D9\u05E8\u05DE\u05D9\u05D3\u05D5\u05EA \u05D5\u05D4\u05D3\u05D9\u05D5\u05E0\u05D5\u05EA. \u05D4\u05D9\u05D6\u05D4\u05E8\u05D5 \u05DE\u05D7\u05D5\u05DC \u05D8\u05D5\u05D1\u05E2\u05E0\u05D9 \u05D5\u05DE\u05D2\u05DC\u05D2\u05DC\u05D9 \u05E7\u05D5\u05E6\u05D9\u05DD!",
+    "\u05E6\u05DC\u05DC\u05D5 \u05DC\u05DE\u05E2\u05DE\u05E7\u05D9 \u05D4\u05D9\u05DD! \u05E8\u05D5\u05E6\u05D5 \u05D1\u05D9\u05DF \u05D4\u05D0\u05DC\u05DE\u05D5\u05D2\u05D9\u05DD \u05D5\u05D4\u05EA\u05D7\u05DE\u05E7\u05D5 \u05DE\u05D3\u05D2\u05D9 \u05D0\u05D1\u05D5\u05BE\u05E0\u05E4\u05D7\u05D0.",
+    "\u05D4\u05E2\u05D5\u05DC\u05DD \u05D4\u05DB\u05D9 \u05E7\u05E9\u05D4: \u05E0\u05D4\u05E8\u05D5\u05EA \u05DC\u05D1\u05D4, \u05D0\u05D1\u05E0\u05D9 \u05D0\u05E9 \u05D5\u05D3\u05D9\u05E0\u05D5\u05D6\u05D0\u05D5\u05E8\u05D9\u05DD. \u05D1\u05D4\u05E6\u05DC\u05D7\u05D4, \u05D2\u05D9\u05D1\u05D5\u05E8\u05D9\u05DD!"
   ];
 
   // mila-quest/js/gfx.js
@@ -34019,10 +34084,10 @@
     }
     return group;
   }
-  function scatterGroundDetails(course, theme = "jungle", high = true) {
+  function scatterGroundDetails(course, theme = "jungle", high = true, scale = 1) {
     const group = new Group();
     group.name = "groundScatter";
-    const n = N(high, 72, 34);
+    const n = Math.round(N(high, 72, 34) * scale);
     const colors = [3115578, 3840580, 2521139];
     const len = course.length || 240;
     for (let i = 0; i < n; i++) {
@@ -34223,13 +34288,17 @@
   }
 
   // mila-quest/js/themes.js
-  var THEMES = ["jungle", "pirate", "magic", "space", "ice"];
+  var THEMES = ["jungle", "pirate", "magic", "space", "ice", "desert", "ocean", "volcano"];
   var themeOf = (wid) => THEMES[(wid || 1) - 1] || "jungle";
   var THEME_LOOK = {
     pirate: { exp: 1.1, hemi: 1, hemiSky: 14218495, hemiGround: 2779786, dir: 1.45, sun: 16773846, fog: 12577014, fogNear: 45, fogFar: 330, skyTop: 2002656, skyBot: 13628159, clear: 9426676, sunDisk: 16774856, showSun: true },
     magic: { exp: 1.12, hemi: 0.95, hemiSky: 16765684, hemiGround: 3811944, dir: 1.05, sun: 16767212, fog: 9069752, fogNear: 36, fogFar: 300, skyTop: 2364512, skyBot: 16752594, clear: 6961818, sunDisk: 16774364, showSun: true },
     space: { exp: 1.16, hemi: 0.95, hemiSky: 10788095, hemiGround: 1708096, dir: 1.15, sun: 15659263, fog: 460312, fogNear: 70, fogFar: 380, skyTop: 131592, skyBot: 657442, clear: 197388, showSun: false },
-    ice: { exp: 1.1, hemi: 1.05, hemiSky: 15924223, hemiGround: 9091284, dir: 1.3, sun: 16775920, fog: 14873855, fogNear: 34, fogFar: 340, skyTop: 6271722, skyBot: 15661567, clear: 14217471, sunDisk: 16776168, showSun: true }
+    ice: { exp: 1.1, hemi: 1.05, hemiSky: 15924223, hemiGround: 9091284, dir: 1.3, sun: 16775920, fog: 14873855, fogNear: 34, fogFar: 340, skyTop: 6271722, skyBot: 15661567, clear: 14217471, sunDisk: 16776168, showSun: true },
+    // v8b new worlds
+    desert: { exp: 1.12, hemi: 1, hemiSky: 16773328, hemiGround: 11567168, dir: 1.5, sun: 16773320, fog: 15915432, fogNear: 40, fogFar: 330, skyTop: 3840744, skyBot: 16770744, clear: 16047278, sunDisk: 16774336, showSun: true },
+    ocean: { exp: 1.12, hemi: 1.05, hemiSky: 10481919, hemiGround: 674410, dir: 1.1, sun: 13169919, fog: 1735328, fogNear: 22, fogFar: 190, skyTop: 670314, skyBot: 2795720, clear: 1731216, showSun: false },
+    volcano: { exp: 1.1, hemi: 0.9, hemiSky: 16758928, hemiGround: 3806216, dir: 1.15, sun: 16752736, fog: 5909024, fogNear: 30, fogFar: 260, skyTop: 1706516, skyBot: 13127722, clear: 4856340, sunDisk: 16742970, showSun: true }
   };
   var R = (a, b) => a + Math.random() * (b - a);
   function runsOf(samples, pred) {
@@ -34881,7 +34950,7 @@
       varying vec3 vC; varying float vA;
       void main(){
         vec3 p = position;
-        if (uFall > 0.0) {
+        if (uFall != 0.0) {
           p.y = mod(p.y - uTime * uFall * (0.7 + aPhase * 0.6), uBox);
           p.x += sin(uTime * 0.9 + aPhase * 30.0) * 0.6;
         }
@@ -34922,10 +34991,10 @@
   var stdMat = (color, o = {}) => new MeshStandardMaterial(Object.assign({ color, roughness: 0.75, metalness: 0.05 }, o));
   function makeMast(high) {
     const g = new Group();
-    const wood = mat("mastWood", () => stdMat(6963232, { roughness: 0.7 }));
+    const wood2 = mat("mastWood", () => stdMat(6963232, { roughness: 0.7 }));
     const sailM = mat("sail", () => new MeshStandardMaterial({ map: sailTex(), side: DoubleSide, roughness: 0.9, emissive: 3813408, emissiveIntensity: 0.25 }));
     const H = 10.5;
-    const mast = new Mesh(new CylinderGeometry(0.13, 0.2, H, 10), wood);
+    const mast = new Mesh(new CylinderGeometry(0.13, 0.2, H, 10), wood2);
     mast.position.y = H / 2;
     mast.castShadow = high;
     g.add(mast);
@@ -34942,7 +35011,7 @@
       s.position.set(0.05, y + h / 2, w / 2 + 0.1);
       s.castShadow = high;
       g.add(s);
-      const boom = new Mesh(new CylinderGeometry(0.06, 0.06, w + 0.3, 6), wood);
+      const boom = new Mesh(new CylinderGeometry(0.06, 0.06, w + 0.3, 6), wood2);
       boom.rotation.x = Math.PI / 2;
       boom.position.set(0, y, w / 2 + 0.1);
       g.add(boom);
@@ -34991,18 +35060,18 @@
   }
   function makeCannon() {
     const g = new Group();
-    const iron = mat("iron", () => stdMat(2303532, { metalness: 0.7, roughness: 0.35 }));
-    const wood = mat("carriage", () => stdMat(6962204));
-    const base = new Mesh(new BoxGeometry(0.8, 0.35, 1.1), wood);
+    const iron2 = mat("iron", () => stdMat(2303532, { metalness: 0.7, roughness: 0.35 }));
+    const wood2 = mat("carriage", () => stdMat(6962204));
+    const base = new Mesh(new BoxGeometry(0.8, 0.35, 1.1), wood2);
     base.position.y = 0.3;
     g.add(base);
     [-0.42, 0.42].forEach((x) => [-0.35, 0.35].forEach((z) => {
-      const w = new Mesh(new CylinderGeometry(0.2, 0.2, 0.1, 10), wood);
+      const w = new Mesh(new CylinderGeometry(0.2, 0.2, 0.1, 10), wood2);
       w.rotation.z = Math.PI / 2;
       w.position.set(x, 0.2, z);
       g.add(w);
     }));
-    const barrel = new Mesh(new CylinderGeometry(0.17, 0.24, 1.5, 12), iron);
+    const barrel = new Mesh(new CylinderGeometry(0.17, 0.24, 1.5, 12), iron2);
     barrel.rotation.x = Math.PI / 2 - 0.12;
     barrel.position.set(0, 0.62, 0.35);
     barrel.castShadow = true;
@@ -35137,14 +35206,14 @@
   }
   function makeLamp() {
     const g = new Group();
-    const iron = mat("lampIron", () => stdMat(2761280, { metalness: 0.6, roughness: 0.4 }));
-    const pole = new Mesh(new CylinderGeometry(0.06, 0.09, 3.2, 8), iron);
+    const iron2 = mat("lampIron", () => stdMat(2761280, { metalness: 0.6, roughness: 0.4 }));
+    const pole = new Mesh(new CylinderGeometry(0.06, 0.09, 3.2, 8), iron2);
     pole.position.y = 1.6;
     g.add(pole);
     const glow = new Mesh(new SphereGeometry(0.28, 12, 10), mat("lampGlow", () => new MeshBasicMaterial({ color: 16769162, toneMapped: false })));
     glow.position.y = 3.35;
     g.add(glow);
-    const cap = new Mesh(new ConeGeometry(0.34, 0.3, 6), iron);
+    const cap = new Mesh(new ConeGeometry(0.34, 0.3, 6), iron2);
     cap.position.y = 3.7;
     g.add(cap);
     const halo = new Sprite(mat("lampHalo", () => new SpriteMaterial({ map: glowTex("255,220,140", 0.9), transparent: true, depthWrite: false, blending: AdditiveBlending })));
@@ -35232,6 +35301,8 @@
   }
   function buildThemeCourse(theme, course, opt = {}) {
     const high = opt.high !== false;
+    const bs = opt.baseScale == null ? 1 : opt.baseScale;
+    const NB = (a, b) => Math.round(N(high, a, b) * bs);
     const narrow = !!opt.narrow;
     const pathW = narrow ? 5.5 : 7.3;
     const turnDir = course.turns[0] && course.turns[0].dir || 1;
@@ -35298,7 +35369,7 @@
         seaT.offset.y -= dt * 0.03;
       });
       const sand = mat("sand", () => stdMat(15783834, { roughness: 0.95 }));
-      for (let i = 0; i < N(high, 10, 6); i++) {
+      for (let i = 0; i < NB(10, 6); i++) {
         const sp = sideSpot(course, 25 + i * 48, i % 2 ? 1 : -1, R(42, 80));
         if (!clearOfCourse(course, sp.x, sp.z, 32)) continue;
         const isl = new Group();
@@ -35316,7 +35387,7 @@
         g.add(isl);
       }
       const rockM = mat("seaRock", () => stdMat(6975092, { roughness: 0.9, flatShading: true }));
-      for (let i = 0; i < N(high, 26, 12); i++) {
+      for (let i = 0; i < NB(26, 12); i++) {
         const sp = sideSpot(course, 10 + i * 19, i % 2 ? 1 : -1, R(15, 40));
         if (!clearOfCourse(course, sp.x, sp.z, 13)) continue;
         const rk = new Mesh(new DodecahedronGeometry(R(0.8, 2.2), 0), rockM);
@@ -35344,7 +35415,7 @@
         });
       });
       g.userData.ships = [];
-      for (let i = 0; i < N(high, 5, 3); i++) {
+      for (let i = 0; i < NB(5, 3); i++) {
         const sp = sideSpot(course, 40 + i * 95, i % 2 ? -1 : 1, R(30, 55));
         if (!clearOfCourse(course, sp.x, sp.z, 24)) continue;
         g.userData.ships.push({ x: sp.x, y: SEA, z: sp.z, heading: sp.heading + (i % 2 ? 0.3 : -0.4) });
@@ -35370,7 +35441,7 @@
         return [s.x + Math.cos(s.heading) * lat, s.y + R(-2, 3.5), s.z + Math.sin(s.heading) * lat];
       }, { minSize: 2, maxSize: 5, persp: true, colors: [16777215, 12560639, 10477823, 16767144] }));
       const rocks = [];
-      for (let i = 0; i < N(high, 70, 36); i++) {
+      for (let i = 0; i < NB(70, 36); i++) {
         const sp = sideSpot(course, i * 7.3 % (course.length - 4), i % 2 ? 1 : -1, R(10, 46));
         if (!clearOfCourse(course, sp.x, sp.z, 8.5)) continue;
         const a = makeAsteroid(R(0.5, i % 7 === 0 ? 3.2 : 1.6));
@@ -35420,7 +35491,7 @@
       street.name = "followGround";
       street.userData.y = GROUND;
       g.add(street);
-      const nH = N(high, 130, 65);
+      const nH = NB(130, 65);
       for (let i = 0; i < nH; i++) {
         const sp = sideSpot(course, i * 4.37 % (course.length - 4), i % 2 ? 1 : -1, R(11, 36));
         const w = R(3.5, 6.5), d = R(3.5, 6.5);
@@ -35456,9 +35527,9 @@
       road.receiveShadow = true;
       g.add(road);
       laneLines(4888776, { opacity: 0.55 });
-      const snowM = new MeshStandardMaterial({ map: snowTex([4, 1]), roughness: 0.85 });
-      const banks = new Mesh(ribbon(course, { width: 14, yLift: -0.05, pred: notTurn, vScale: 0.08, uRepeat: 4 }), snowM);
-      const banksT = new Mesh(ribbon(course, { width: 8.6, yLift: -0.06, pred: isTurn, vScale: 0.08, uRepeat: 2.4 }), snowM);
+      const snowM2 = new MeshStandardMaterial({ map: snowTex([4, 1]), roughness: 0.85 });
+      const banks = new Mesh(ribbon(course, { width: 14, yLift: -0.05, pred: notTurn, vScale: 0.08, uRepeat: 4 }), snowM2);
+      const banksT = new Mesh(ribbon(course, { width: 8.6, yLift: -0.06, pred: isTurn, vScale: 0.08, uRepeat: 2.4 }), snowM2);
       banks.receiveShadow = banksT.receiveShadow = true;
       g.add(banks, banksT);
       const ridgeM = mat("ridge", () => stdMat(16317695, { roughness: 0.8, emissive: 11061472, emissiveIntensity: 0.12 }));
@@ -35479,7 +35550,7 @@
       field.receiveShadow = true;
       g.add(field);
       const rockM = mat("snowRock", () => stdMat(9083562, { roughness: 0.9, flatShading: true }));
-      for (let i = 0; i < N(high, 120, 60); i++) {
+      for (let i = 0; i < NB(120, 60); i++) {
         const sp = sideSpot(course, i * 4.71 % (course.length - 4), i % 2 ? 1 : -1, R(8.5, 42));
         if (!clearOfCourse(course, sp.x, sp.z, 8)) continue;
         const pick2 = i % 11;
@@ -35836,23 +35907,24 @@
     g.add(stripe);
     return g;
   }
-  var THEME_MOUNTAINS = { magic: { color: 5913226 }, ice: { color: 11062500, top: 16777215 } };
+  var THEME_MOUNTAINS = { magic: { color: 5913226 }, ocean: { color: 1722968 }, ice: { color: 11062500, top: 16777215 }, desert: { color: 14198880 }, volcano: { color: 2757648 } };
 
   // mila-quest/js/merge.js
-  var CHUNK = 120;
+  var CHUNK = 160;
   var SKIP_NAMES = /followGround|israelFlags|gateFlag|sky/;
   var bakeable = (m) => (m.isMeshStandardMaterial || m.isMeshLambertMaterial || m.isMeshPhongMaterial || m.isMeshBasicMaterial) && !m.map && !m.vertexColors && !m.isShaderMaterial;
   function matSig(m) {
     const bake = bakeable(m);
     const c = (x) => x && x.isColor ? x.getHexString() : "";
     const t = (x) => x ? x.uuid : "";
+    const q = (v) => bake && v != null ? Math.round(v * 4) / 4 : v;
     return [
       m.type,
       bake ? "bake" : c(m.color),
       c(m.emissive),
       m.emissiveIntensity,
-      m.roughness,
-      m.metalness,
+      q(m.roughness),
+      q(m.metalness),
       t(m.map),
       t(m.emissiveMap),
       t(m.alphaMap),
@@ -35867,7 +35939,7 @@
       m.blending,
       m.wireframe,
       m.isShaderMaterial ? m.uuid : "",
-      m.onBeforeCompile && m.onBeforeCompile.toString().length > 20 ? m.uuid : ""
+      m.onBeforeCompile && m.onBeforeCompile !== Material.prototype.onBeforeCompile ? m.uuid : ""
     ].join("/");
   }
   function snapshot(root) {
@@ -35954,7 +36026,10 @@
         merged = null;
       }
       geos.forEach((g) => g.dispose());
-      if (!merged) continue;
+      if (!merged) {
+        rs.mergeFail = (rs.mergeFail || 0) + list.length;
+        continue;
+      }
       merged.computeBoundingSphere();
       let mat2 = list[0].material;
       if (bakeable(mat2)) {
@@ -35963,12 +36038,12 @@
         mat2.vertexColors = true;
         mat2.userData.mergedOwn = true;
       }
-      const mesh = new Mesh(merged, mat2);
-      mesh.castShadow = list.some((o) => o.castShadow);
-      mesh.receiveShadow = list.some((o) => o.receiveShadow);
-      mesh.renderOrder = list[0].renderOrder;
-      mesh.name = "merged";
-      root.add(mesh);
+      const mesh2 = new Mesh(merged, mat2);
+      mesh2.castShadow = list.some((o) => o.castShadow);
+      mesh2.receiveShadow = list.some((o) => o.receiveShadow);
+      mesh2.renderOrder = list[0].renderOrder;
+      mesh2.name = "merged";
+      root.add(mesh2);
       list.forEach((o) => {
         if (o.parent) o.parent.remove(o);
       });
@@ -35984,6 +36059,1852 @@
     return { before, after, cand, groups: groups.size, moved: moved.size, rs };
   }
 
+  // mila-quest/js/worlds2.js
+  var NEW_THEMES = ["desert", "ocean", "volcano"];
+  function sandRoadTex() {
+    return tex("sandRoad", () => canvasTex(256, 256, (ctx, W, H) => {
+      ctx.fillStyle = "#e2bf7c";
+      ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 900; i++) {
+        ctx.fillStyle = `rgba(${150 + Math.random() * 80 | 0},${110 + Math.random() * 60 | 0},${60 + Math.random() * 40 | 0},0.25)`;
+        ctx.fillRect(Math.random() * W, Math.random() * H, 2, 2);
+      }
+      for (let y = 0; y < 4; y++) for (let x = 0; x < 3; x++) {
+        ctx.strokeStyle = "rgba(120,80,30,0.35)";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(x * 86 + y % 2 * 30 - 20, y * 64 + 2, 84, 60);
+      }
+    }, [1, 1]));
+  }
+  function duneTex(rep) {
+    return tex("dune" + rep, () => canvasTex(256, 256, (ctx, W, H) => {
+      ctx.fillStyle = "#e8c47e";
+      ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 26; i++) {
+        ctx.strokeStyle = `rgba(${170 + Math.random() * 40 | 0},120,60,0.28)`;
+        ctx.lineWidth = 3;
+        const y = Math.random() * H;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        for (let x = 0; x <= W; x += 16) ctx.lineTo(x, y + Math.sin(x / 30 + i) * 6);
+        ctx.stroke();
+      }
+      for (let i = 0; i < 600; i++) {
+        ctx.fillStyle = "rgba(255,240,200,0.35)";
+        ctx.fillRect(Math.random() * W, Math.random() * H, 1.5, 1.5);
+      }
+    }, [rep, rep]));
+  }
+  function hieroTex() {
+    return tex("hiero", () => canvasTex(128, 128, (ctx, W, H) => {
+      ctx.fillStyle = "#d8b070";
+      ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = "#8a5a28";
+      ctx.lineWidth = 3;
+      ctx.strokeRect(4, 4, W - 8, H - 8);
+      ctx.fillStyle = "#6a3a18";
+      const glyph = ["\u2625", "\u{13080}", "\u25C9", "\u25B2", "\u2248", "\u2318"];
+      ctx.font = "26px serif";
+      ctx.textAlign = "center";
+      for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) ctx.fillText(glyph[(r * 3 + c) % glyph.length], 24 + c * 40, 36 + r * 38);
+    }));
+  }
+  function seabedTex(rep) {
+    return tex("seabed" + rep, () => canvasTex(256, 256, (ctx, W, H) => {
+      ctx.fillStyle = "#c9b98a";
+      ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 30; i++) {
+        ctx.strokeStyle = "rgba(120,100,60,0.25)";
+        ctx.lineWidth = 2;
+        const y = Math.random() * H;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        for (let x = 0; x <= W; x += 12) ctx.lineTo(x, y + Math.sin(x / 18 + i) * 4);
+        ctx.stroke();
+      }
+      for (let i = 0; i < 40; i++) {
+        ctx.fillStyle = ["#f4e8d8", "#f0b8b0", "#ffffff"][i % 3];
+        ctx.beginPath();
+        ctx.arc(Math.random() * W, Math.random() * H, 2 + Math.random() * 3, 0, 7);
+        ctx.fill();
+      }
+    }, [rep, rep]));
+  }
+  function causticTex() {
+    return tex("caustic", () => canvasTex(256, 256, (ctx, W, H) => {
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = "rgba(160,240,255,0.55)";
+      ctx.lineWidth = 3;
+      for (let i = 0; i < 46; i++) {
+        const x = Math.random() * W, y = Math.random() * H, r = 12 + Math.random() * 22;
+        ctx.beginPath();
+        for (let a = 0; a <= 6.3; a += 0.6) {
+          const rr = r * (0.7 + Math.random() * 0.5);
+          ctx.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+    }, [1, 1]));
+  }
+  function basaltTex(emissive) {
+    return tex("basalt" + (emissive ? "E" : ""), () => canvasTex(256, 256, (ctx, W, H) => {
+      ctx.fillStyle = emissive ? "#000" : "#3a3030";
+      ctx.fillRect(0, 0, W, H);
+      if (!emissive) for (let i = 0; i < 700; i++) {
+        ctx.fillStyle = `rgba(${60 + Math.random() * 40 | 0},${50 + Math.random() * 30 | 0},${50 + Math.random() * 30 | 0},0.6)`;
+        ctx.fillRect(Math.random() * W, Math.random() * H, 3, 3);
+      }
+      ctx.strokeStyle = emissive ? "rgba(255,120,30,1)" : "#1a1210";
+      ctx.lineWidth = emissive ? 2.5 : 4;
+      for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) {
+        const cx = c * 48 + r % 2 * 24, cy = r * 44 + 20;
+        if (emissive && (r * 5 + c * 3) % 4) continue;
+        ctx.beginPath();
+        for (let k = 0; k < 6; k++) {
+          const a = k / 6 * Math.PI * 2;
+          ctx.lineTo(cx + Math.cos(a) * 26, cy + Math.sin(a) * 24);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+    }, [1, 1]));
+  }
+  function lavaTex() {
+    return tex("lava", () => canvasTex(256, 256, (ctx, W, H) => {
+      const g = ctx.createLinearGradient(0, 0, W, 0);
+      g.addColorStop(0, "#ff4a10");
+      g.addColorStop(0.5, "#ffb030");
+      g.addColorStop(1, "#ff4a10");
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 40; i++) {
+        ctx.fillStyle = `rgba(${90 + Math.random() * 60 | 0},20,10,${0.4 + Math.random() * 0.4})`;
+        ctx.beginPath();
+        ctx.ellipse(Math.random() * W, Math.random() * H, 8 + Math.random() * 26, 4 + Math.random() * 10, Math.random() * 3, 0, 7);
+        ctx.fill();
+      }
+      for (let i = 0; i < 30; i++) {
+        ctx.fillStyle = "rgba(255,240,140,0.7)";
+        ctx.beginPath();
+        ctx.arc(Math.random() * W, Math.random() * H, 2 + Math.random() * 4, 0, 7);
+        ctx.fill();
+      }
+    }, [1, 1]));
+  }
+  function ashTex(rep) {
+    return tex("ash" + rep, () => canvasTex(256, 256, (ctx, W, H) => {
+      ctx.fillStyle = "#3a2c28";
+      ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 1200; i++) {
+        ctx.fillStyle = `rgba(${20 + Math.random() * 60 | 0},${16 + Math.random() * 40 | 0},${14 + Math.random() * 30 | 0},0.6)`;
+        ctx.fillRect(Math.random() * W, Math.random() * H, 2 + Math.random() * 3, 2);
+      }
+      for (let i = 0; i < 12; i++) {
+        ctx.strokeStyle = "rgba(255,90,20,0.55)";
+        ctx.lineWidth = 1.5;
+        let x = Math.random() * W, y = Math.random() * H;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        for (let k = 0; k < 4; k++) {
+          x += (Math.random() - 0.5) * 30;
+          y += (Math.random() - 0.5) * 30;
+          ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+    }, [rep, rep]));
+  }
+  function makeCactus(h = 2.4) {
+    const g = new Group();
+    const m = mat("cactus", () => stdMat(3840586, { roughness: 0.7 }));
+    const body = new Mesh(new CapsuleGeometry(0.28, h - 0.56, 4, 8), m);
+    body.position.y = h / 2;
+    g.add(body);
+    [[-1, 0.45], [1, 0.62]].forEach(([s, f]) => {
+      const arm = new Mesh(new CapsuleGeometry(0.17, h * 0.22, 4, 8), m);
+      arm.position.set(s * 0.5, h * f + h * 0.12, 0);
+      g.add(arm);
+      const elbow = new Mesh(new CapsuleGeometry(0.17, 0.32, 4, 8), m);
+      elbow.rotation.z = Math.PI / 2;
+      elbow.position.set(s * 0.32, h * f, 0);
+      g.add(elbow);
+    });
+    return g;
+  }
+  function makePyramid(size = 20, color = 14726250) {
+    const geo = new ConeGeometry(size * 0.75, size * 0.62, 4, 1);
+    geo.rotateY(Math.PI / 4);
+    const m = new Mesh(geo, mat("pyr" + color, () => stdMat(color, { roughness: 0.9, flatShading: true })));
+    m.position.y = size * 0.31;
+    const g = new Group();
+    g.add(m);
+    const cap = new Mesh(new ConeGeometry(size * 0.75 * 0.12, size * 0.62 * 0.12, 4), mat("pyrCap", () => stdMat(16767050, { metalness: 0.6, roughness: 0.3, emissive: 6965760, emissiveIntensity: 0.4 })));
+    cap.rotation.y = Math.PI / 4;
+    cap.position.y = size * 0.62 * 0.94;
+    g.add(cap);
+    return g;
+  }
+  function makeObelisk(h = 6) {
+    const g = new Group();
+    const m = mat("obelisk", () => new MeshStandardMaterial({ map: hieroTex(), roughness: 0.8 }));
+    const shaft = new Mesh(new CylinderGeometry(0.42, 0.62, h, 4), m);
+    shaft.rotation.y = Math.PI / 4;
+    shaft.position.y = h / 2;
+    g.add(shaft);
+    const tip = new Mesh(new ConeGeometry(0.42, 0.8, 4), mat("pyrCap", () => stdMat(16767050, { metalness: 0.6, roughness: 0.3, emissive: 6965760, emissiveIntensity: 0.4 })));
+    tip.rotation.y = Math.PI / 4;
+    tip.position.y = h + 0.4;
+    g.add(tip);
+    return g;
+  }
+  function makeCoral(h = 1.6, color = 16738954) {
+    const g = new Group();
+    const m = mat("coral" + color, () => stdMat(color, { roughness: 0.6, emissive: color, emissiveIntensity: 0.18 }));
+    const n = 5;
+    for (let i = 0; i < n; i++) {
+      const hh = h * R(0.5, 1);
+      const b = new Mesh(new CylinderGeometry(0.08, 0.14, hh, 6), m);
+      const a = i / n * Math.PI * 2;
+      b.position.set(Math.cos(a) * 0.25, hh / 2, Math.sin(a) * 0.25);
+      b.rotation.set(Math.sin(a) * 0.4, 0, Math.cos(a) * 0.4);
+      g.add(b);
+      const tip = new Mesh(new SphereGeometry(0.14, 8, 6), m);
+      tip.position.set(Math.cos(a) * (0.25 + hh * 0.35), hh * 0.95, Math.sin(a) * (0.25 + hh * 0.35));
+      g.add(tip);
+    }
+    return g;
+  }
+  function makeBrainCoral(r = 0.8, color = 16752704) {
+    const m = new Mesh(new SphereGeometry(r, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), mat("bcoral" + color, () => stdMat(color, { roughness: 0.85, flatShading: true, emissive: color, emissiveIntensity: 0.12 })));
+    const g = new Group();
+    g.add(m);
+    m.scale.y = 0.75;
+    return g;
+  }
+  function makeSeaweed(h = 3, color = 2795616) {
+    const g = new Group();
+    const m = mat("weed" + color, () => stdMat(color, { side: DoubleSide, roughness: 0.7, emissive: 670234, emissiveIntensity: 0.3 }));
+    for (let k = 0; k < 3; k++) {
+      const geo = new PlaneGeometry(0.35, h, 1, 8);
+      const p = geo.attributes.position;
+      for (let i = 0; i < p.count; i++) {
+        const y = p.getY(i) + h / 2;
+        p.setX(i, p.getX(i) * (1 - y / h * 0.6) + Math.sin(y * 1.6 + k) * 0.25);
+      }
+      geo.computeVertexNormals();
+      const blade = new Mesh(geo, m);
+      blade.position.set((k - 1) * 0.22, h / 2, 0);
+      blade.rotation.y = k * 1.1;
+      g.add(blade);
+    }
+    return g;
+  }
+  function makeLavaRock(r = 1) {
+    const m = makeAsteroid(r);
+    m.material = mat("lavaRock", () => new MeshStandardMaterial({ color: 2760734, roughness: 0.95, flatShading: true, emissive: 3803648, emissiveIntensity: 0.4 }));
+    const g = new Group();
+    g.add(m);
+    m.position.y = r * 0.5;
+    return g;
+  }
+  function makeVolcanoCone(h = 40, glow = true) {
+    const g = new Group();
+    const cone = new Mesh(new CylinderGeometry(h * 0.12, h * 0.8, h, 14, 1, true), mat("volcCone", () => stdMat(3810336, { roughness: 1, flatShading: true })));
+    cone.position.y = h / 2;
+    g.add(cone);
+    if (glow) {
+      const top = new Mesh(new CircleGeometry(h * 0.12, 14), mat("volcTop", () => new MeshBasicMaterial({ color: 16738842, toneMapped: false, fog: false })));
+      top.rotation.x = -Math.PI / 2;
+      top.position.y = h - 0.2;
+      g.add(top);
+      const halo = new Sprite(mat("volcHalo", () => new SpriteMaterial({ map: glowTex("255,110,30", 0.9), transparent: true, depthWrite: false, blending: AdditiveBlending, fog: false })));
+      halo.scale.set(h * 0.9, h * 0.6, 1);
+      halo.position.y = h + h * 0.1;
+      g.add(halo);
+      const sm = mat("volcStreak", () => new MeshBasicMaterial({ color: 16734736, toneMapped: false }));
+      for (let i = 0; i < 3; i++) {
+        const a = i * 2.1 + 0.4;
+        const s = new Mesh(new BoxGeometry(h * 0.04, h * 0.55, 0.3), sm);
+        const rr = h * 0.33;
+        s.position.set(Math.sin(a) * rr, h * 0.62, Math.cos(a) * rr);
+        s.rotation.y = a;
+        s.rotation.x = 0.55;
+        g.add(s);
+      }
+    }
+    return g;
+  }
+  function makeTumbleweed(r = 0.45) {
+    const m = new Mesh(new IcosahedronGeometry(r, 1), mat("tumble", () => new MeshStandardMaterial({ color: 11042890, roughness: 1, wireframe: true })));
+    const core = new Mesh(new IcosahedronGeometry(r * 0.72, 1), mat("tumbleIn", () => stdMat(9068596, { roughness: 1, flatShading: true })));
+    const g = new Group();
+    g.add(core, m);
+    return g;
+  }
+  function buildWorld2Course(theme, course, opt = {}) {
+    const high = opt.high !== false;
+    const bs = opt.baseScale == null ? 1 : opt.baseScale;
+    const NB = (a, b) => Math.round(N(high, a, b) * bs);
+    const narrow = !!opt.narrow;
+    const pathW = narrow ? 5.5 : 7.3;
+    const span = narrow ? 1.7 : 2;
+    const g = new Group();
+    g.name = "courseVisual";
+    const updaters = [];
+    const notTurn = (s) => s.kind !== "turn";
+    const isTurn = (s) => s.kind === "turn";
+    const laneLines = (color, o = {}) => {
+      const m = new MeshBasicMaterial(Object.assign({ color, transparent: true, opacity: 0.8, toneMapped: false }, o));
+      [-span / 2, span / 2].forEach((x) => g.add(new Mesh(ribbon(course, { width: 0.1, yLift: 0.06, offset: x }), m)));
+    };
+    const edges = (geo, matl, off, y = 0.12, sc = [0.5, 0.26, 1.3]) => {
+      const list = [];
+      for (let i = 0; i < course.samples.length; i += 2) {
+        const s = course.samples[i];
+        if (s.kind === "turn") continue;
+        for (const side of [-1, 1]) {
+          const o = side * off;
+          list.push([s.x + Math.cos(s.heading) * o, s.y + y, s.z + Math.sin(s.heading) * o, -s.heading, sc[0], sc[1], sc[2]]);
+        }
+      }
+      g.add(instanced(geo, matl, list));
+    };
+    const ground = (map, y, color) => {
+      const f = new Mesh(new CircleGeometry(240, 48), new MeshStandardMaterial({ map, color: color || 16777215, roughness: 0.95 }));
+      f.rotation.x = -Math.PI / 2;
+      f.name = "followGround";
+      f.userData.y = y;
+      f.receiveShadow = true;
+      g.add(f);
+      return f;
+    };
+    const along = (n, offMin, offMax, minClear, make, yFn) => {
+      for (let i = 0; i < n; i++) {
+        const sp = sideSpot(course, (i * 5.3 + 3) % Math.max(10, course.length - 4), i % 2 ? 1 : -1, R(offMin, offMax));
+        if (!clearOfCourse(course, sp.x, sp.z, minClear)) continue;
+        const o = make(i, sp);
+        if (!o) continue;
+        o.position.set(sp.x, yFn ? yFn(sp) : sp.y, sp.z);
+        if (!o.userData.keepRot) o.rotation.y = R(0, 6);
+        g.add(o);
+      }
+    };
+    if (theme === "desert") {
+      const road = new Mesh(ribbon(course, { width: pathW, yLift: 0.03, vScale: 0.14, uRepeat: 1.6 }), new MeshStandardMaterial({ map: sandRoadTex(), roughness: 0.9 }));
+      road.receiveShadow = true;
+      g.add(road);
+      laneLines(9067048, { opacity: 0.55 });
+      const bankM = new MeshStandardMaterial({ map: duneTex(4), roughness: 0.95 });
+      const banks = new Mesh(ribbon(course, { width: 15, yLift: -0.05, pred: notTurn, vScale: 0.06, uRepeat: 4 }), bankM);
+      const banksT = new Mesh(ribbon(course, { width: 8.6, yLift: -0.06, pred: isTurn, vScale: 0.06, uRepeat: 2.4 }), bankM);
+      banks.receiveShadow = banksT.receiveShadow = true;
+      g.add(banks, banksT);
+      edges(new BoxGeometry(1, 1, 1), mat("sandstone", () => stdMat(13146714, { roughness: 0.9 })), pathW / 2 + 0.35, 0.1, [0.55, 0.32, 1.5]);
+      ground(duneTex(40), -0.3);
+      const duneM = mat("duneM", () => stdMat(14858356, { roughness: 1 }));
+      along(NB(40, 20), 14, 60, 12, () => {
+        const d = new Mesh(new SphereGeometry(1, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), duneM);
+        d.scale.set(R(6, 14), R(1.5, 4), R(4, 9));
+        const gg = new Group();
+        gg.add(d);
+        return gg;
+      }, () => -0.35);
+      along(NB(60, 30), 8.5, 30, 8, (i) => i % 4 === 0 ? makeLavaRockSand(R(0.5, 1.2)) : makeCactus(R(1.6, 3.2)));
+    } else if (theme === "ocean") {
+      const pathM = new MeshStandardMaterial({ map: seabedTex(1), color: 15266016, roughness: 0.9 });
+      pathM.map.repeat.set(1.5, 1);
+      const road = new Mesh(ribbon(course, { width: pathW, yLift: 0.03, vScale: 0.12, uRepeat: 1.5 }), pathM);
+      road.receiveShadow = true;
+      g.add(road);
+      const cT = causticTex();
+      const caus = new Mesh(ribbon(course, { width: pathW + 4, yLift: 0.05, vScale: 0.05, uRepeat: 1.2 }), new MeshBasicMaterial({ map: cT, transparent: true, blending: AdditiveBlending, depthWrite: false, opacity: 0.55, toneMapped: false }));
+      caus.renderOrder = 1;
+      g.add(caus);
+      updaters.push((dt) => {
+        cT.offset.y -= dt * 0.05;
+        cT.offset.x = Math.sin(performance.now() * 4e-4) * 0.1;
+      });
+      laneLines(8057087, { opacity: 0.7, blending: AdditiveBlending, depthWrite: false });
+      const bedM = new MeshStandardMaterial({ map: seabedTex(4), color: 10139816, roughness: 0.95 });
+      const banks = new Mesh(ribbon(course, { width: 16, yLift: -0.05, pred: notTurn, vScale: 0.06, uRepeat: 4 }), bedM);
+      const banksT = new Mesh(ribbon(course, { width: 8.6, yLift: -0.06, pred: isTurn, vScale: 0.06, uRepeat: 2.4 }), bedM);
+      g.add(banks, banksT);
+      edges(new IcosahedronGeometry(0.5, 0), mat("pebble", () => stdMat(9083546, { roughness: 0.9, flatShading: true })), pathW / 2 + 0.4, 0, [0.7, 0.35, 0.9]);
+      ground(seabedTex(36), -0.3, 8034960);
+      const rockM = mat("oRock", () => stdMat(4872804, { roughness: 0.95, flatShading: true }));
+      along(NB(36, 18), 14, 55, 12, () => {
+        const r = new Mesh(new DodecahedronGeometry(R(1.5, 4), 0), rockM);
+        r.scale.y = R(0.6, 1.4);
+        const gg = new Group();
+        gg.add(r);
+        return gg;
+      }, (sp) => sp.y - 0.4);
+      const corals = [16738954, 16752704, 11563263, 4247744, 16769120];
+      along(NB(70, 34), 8.5, 26, 8, (i) => i % 3 === 0 ? makeBrainCoral(R(0.5, 1.1), corals[i % 5]) : i % 3 === 1 ? makeCoral(R(1, 2), corals[(i + 2) % 5]) : makeSeaweed(R(1.6, 3.4)));
+    } else if (theme === "volcano") {
+      const roadM = new MeshStandardMaterial({ map: basaltTex(false), emissiveMap: basaltTex(true), emissive: 16742954, emissiveIntensity: 0.9, roughness: 0.85 });
+      const road = new Mesh(ribbon(course, { width: pathW, yLift: 0.03, vScale: 0.12, uRepeat: 1.4 }), roadM);
+      road.receiveShadow = true;
+      g.add(road);
+      laneLines(16756816, { opacity: 0.6 });
+      const sideM = new MeshStandardMaterial({ map: ashTex(4), roughness: 0.95 });
+      const banks = new Mesh(ribbon(course, { width: 14, yLift: -0.05, pred: notTurn, vScale: 0.06, uRepeat: 4 }), sideM);
+      const banksT = new Mesh(ribbon(course, { width: 8.6, yLift: -0.06, pred: isTurn, vScale: 0.06, uRepeat: 2.4 }), sideM);
+      g.add(banks, banksT);
+      const lT = lavaTex();
+      const lavaM = new MeshBasicMaterial({ map: lT, toneMapped: false });
+      for (const side of [-1, 1]) g.add(new Mesh(ribbon(course, { width: 5, yLift: -0.25, pred: notTurn, offset: side * 10, vScale: 0.05 }), lavaM));
+      updaters.push((dt) => {
+        lT.offset.y -= dt * 0.04;
+      });
+      edges(new DodecahedronGeometry(0.5, 0), mat("basaltEdge", () => stdMat(1971732, { roughness: 0.9, flatShading: true })), pathW / 2 + 0.4, 0.05, [0.8, 0.45, 1]);
+      ground(ashTex(36), -0.35);
+      along(NB(60, 30), 13.5, 50, 12, () => makeLavaRock(R(0.8, 2.8)), (sp) => sp.y - 0.3);
+      const ventM = mat("vent", () => new MeshBasicMaterial({ color: 16742944, toneMapped: false }));
+      along(NB(16, 8), 13.5, 30, 12, () => {
+        const gg = new Group();
+        const v = new Mesh(new CircleGeometry(R(1, 2.2), 12), ventM);
+        v.rotation.x = -Math.PI / 2;
+        v.position.y = 0.05;
+        gg.add(v);
+        return gg;
+      }, (sp) => sp.y - 0.2);
+    }
+    g.userData.update = (dt, t, ctx) => updaters.forEach((u) => u(dt, t, ctx));
+    return g;
+  }
+  function makeLavaRockSand(r) {
+    const m = makeAsteroid(r);
+    m.material = mat("sandRock", () => new MeshStandardMaterial({ color: 12093018, roughness: 0.95, flatShading: true }));
+    const g = new Group();
+    g.add(m);
+    m.position.y = r * 0.35;
+    m.scale.y = 0.7;
+    return g;
+  }
+  function buildWorld2Ambience(theme, high = true) {
+    const g = new Group();
+    g.name = "themeAmbience";
+    const far = new Group();
+    far.name = "themeFar";
+    const updaters = [];
+    if (theme === "desert") {
+      [[0.1, -1, 1.6], [-0.7, -0.75, 1.1], [0.8, -0.6, 0.9], [-0.95, 0.3, 1.2], [0.9, 0.45, 1.3], [0.2, 1, 1]].forEach(([x, z, s]) => {
+        const p = makePyramid(42 * s);
+        const v = new Vector3(x, 0, z).normalize().multiplyScalar(170);
+        p.position.set(v.x, -3, v.z);
+        far.add(p);
+      });
+      for (let i = 0; i < N(high, 6, 3); i++) {
+        const a = i / N(high, 6, 3) * Math.PI * 2;
+        const c = makeCloud(R(0.8, 1.2));
+        c.position.set(Math.cos(a) * 200, R(70, 95), Math.sin(a) * 200);
+        g.add(c);
+      }
+    } else if (theme === "ocean") {
+      const surf = new Mesh(new CircleGeometry(260, 40), new MeshBasicMaterial({ map: causticTex(), color: 10482943, transparent: true, opacity: 0.55, side: DoubleSide, depthWrite: false, fog: false, toneMapped: false }));
+      surf.rotation.x = Math.PI / 2;
+      surf.position.y = 48;
+      g.add(surf);
+      const rayM = new MeshBasicMaterial({ map: canvasTex(64, 256, (ctx, W, H) => {
+        const gr = ctx.createLinearGradient(0, 0, 0, H);
+        gr.addColorStop(0, "rgba(200,250,255,0.55)");
+        gr.addColorStop(1, "rgba(200,250,255,0)");
+        ctx.fillStyle = gr;
+        ctx.fillRect(0, 0, W, H);
+      }), transparent: true, blending: AdditiveBlending, depthWrite: false, side: DoubleSide, fog: false, toneMapped: false });
+      const rays = [];
+      for (let i = 0; i < N(high, 14, 7); i++) {
+        const r = new Mesh(new PlaneGeometry(R(3, 7), 60), rayM);
+        const a = R(0, Math.PI * 2), d = R(12, 70);
+        r.position.set(Math.cos(a) * d, 18, Math.sin(a) * d);
+        r.rotation.set(0, a, R(-0.25, 0.25));
+        r.userData.ph = R(0, 6);
+        rays.push(r);
+        g.add(r);
+      }
+      const bub = makeTwinklePoints(N(high, 700, 350), () => [R(-30, 30), R(0, 30), R(-45, 12)], { minSize: 3, maxSize: 7, fall: -1.6, box: 30, colors: [14678271, 16777215], persp: true, noTwinkle: true });
+      bub.position.y = -6;
+      g.add(bub);
+      const fishM = mat("fish", () => stdMat(16756784, { emissive: 6961664, emissiveIntensity: 0.4 }));
+      const fishM2 = mat("fish2", () => stdMat(7002367, { emissive: 674410, emissiveIntensity: 0.4 }));
+      const schools = [];
+      for (let s = 0; s < N(high, 4, 2); s++) {
+        const sc = new Group();
+        for (let k = 0; k < 9; k++) {
+          const f = makeFish(s % 2 ? fishM : fishM2);
+          f.position.set(R(-2, 2), R(-1, 1), R(-2, 2));
+          sc.add(f);
+        }
+        sc.userData = { r: R(14, 26), h: R(3, 9), ph: s * 1.7, sp: R(0.18, 0.3) * (s % 2 ? 1 : -1) };
+        schools.push(sc);
+        g.add(sc);
+      }
+      updaters.push((dt, t) => {
+        rays.forEach((r) => {
+          r.material.opacity = 1;
+          r.scale.x = 0.8 + Math.sin(t * 0.6 + r.userData.ph) * 0.25;
+        });
+        schools.forEach((sc) => {
+          const u = sc.userData, a = t * u.sp + u.ph;
+          sc.position.set(Math.cos(a) * u.r, u.h + Math.sin(t * 0.8 + u.ph), Math.sin(a) * u.r - 10);
+          sc.rotation.y = -a + (u.sp > 0 ? 0 : Math.PI);
+        });
+      });
+    } else if (theme === "volcano") {
+      [[0, -1, 1.6], [-0.8, -0.6, 1], [0.85, -0.5, 1.15], [-0.9, 0.4, 0.9], [0.95, 0.4, 1]].forEach(([x, z, s], k) => {
+        const v = makeVolcanoCone(55 * s, k < 3);
+        const p = new Vector3(x, 0, z).normalize().multiplyScalar(175);
+        v.position.set(p.x, -4, p.z);
+        far.add(v);
+      });
+      const smokeM = new SpriteMaterial({ map: glowTex("70,50,50", 0.85), transparent: true, depthWrite: false, fog: false });
+      const smokes = [];
+      for (let i = 0; i < N(high, 10, 5); i++) {
+        const s = new Sprite(smokeM);
+        s.userData = { y0: R(0, 60), sp: R(3, 6), x: R(-12, 12) };
+        s.scale.setScalar(R(20, 34));
+        smokes.push(s);
+        far.add(s);
+      }
+      const emb = makeTwinklePoints(N(high, 600, 300), () => [R(-30, 30), R(0, 24), R(-45, 12)], { minSize: 3, maxSize: 6, fall: -2.2, box: 24, colors: [16747050, 16760896, 16734746], persp: true });
+      emb.position.y = -4;
+      g.add(emb);
+      updaters.push((dt, t) => smokes.forEach((s) => {
+        const u = s.userData;
+        s.position.set(u.x, 50 + (u.y0 + t * u.sp) % 60, -175);
+        s.material.opacity = 0.75;
+      }));
+    }
+    g.userData.far = far;
+    g.userData.update = (dt, t, ctx) => updaters.forEach((u) => u(dt, t, ctx));
+    return g;
+  }
+  function makeFish(m) {
+    const g = new Group();
+    const body = new Mesh(new SphereGeometry(0.22, 8, 6), m);
+    body.scale.set(1.6, 0.8, 0.5);
+    g.add(body);
+    const tail = new Mesh(new ConeGeometry(0.16, 0.3, 4), m);
+    tail.rotation.z = Math.PI / 2;
+    tail.position.x = -0.42;
+    g.add(tail);
+    return g;
+  }
+  function world2Decor(theme, i) {
+    if (theme === "desert") {
+      const k = i % 5;
+      if (k === 1 || k === 4) return { obj: makePalm(R(4.5, 6)), sideOff: 7.2 + i % 3 * 0.5 };
+      if (k === 2) return { obj: makeObelisk(R(4, 6)), sideOff: 6.4, align: true };
+      return { obj: makeCactus(R(1.8, 3)), sideOff: 6 + i % 4 * 0.5 };
+    }
+    if (theme === "ocean") {
+      const k = i % 4;
+      if (k === 0 || k === 2) return { obj: makeSeaweed(R(2.6, 4.4)), sideOff: 5.8 + i % 3 * 0.6 };
+      return { obj: makeCoral(R(1.4, 2.2), [16738954, 16752704, 11563263, 4247744][i % 4]), sideOff: 6 + i % 3 * 0.5 };
+    }
+    if (theme === "volcano") {
+      if (i % 3 === 1) return { obj: makeTorch(), sideOff: 5.2, align: true };
+      return { obj: makeLavaRock(R(0.7, 1.4)), sideOff: 6.2 + i % 4 * 0.5 };
+    }
+    return null;
+  }
+  function makeTorch(color = 16751146) {
+    const g = new Group();
+    const post = new Mesh(new CylinderGeometry(0.08, 0.12, 2.2, 6), mat("torchPost", () => stdMat(3810328)));
+    post.position.y = 1.1;
+    g.add(post);
+    const bowl = new Mesh(new CylinderGeometry(0.3, 0.16, 0.3, 8), mat("torchBowl", () => stdMat(2763306, { metalness: 0.5 })));
+    bowl.position.y = 2.25;
+    g.add(bowl);
+    const flame = new Mesh(new ConeGeometry(0.22, 0.6, 8), mat("flame" + color, () => new MeshBasicMaterial({ color, toneMapped: false })));
+    flame.position.y = 2.65;
+    g.add(flame);
+    const halo = new Sprite(mat("flameHalo", () => new SpriteMaterial({ map: glowTex("255,170,60", 0.8), transparent: true, depthWrite: false, blending: AdditiveBlending })));
+    halo.scale.set(1.8, 1.8, 1);
+    halo.position.y = 2.6;
+    g.add(halo);
+    return g;
+  }
+  function world2Hazard(theme, kind, cTex) {
+    const g = new Group();
+    const caution = () => new MeshBasicMaterial({ map: cTex });
+    if (kind === "hole") {
+      let pitM;
+      if (theme === "volcano") pitM = new MeshBasicMaterial({ map: lavaTex(), toneMapped: false });
+      else if (theme === "ocean") pitM = new MeshStandardMaterial({ color: 135710, roughness: 1, emissive: 14938, emissiveIntensity: 0.6 });
+      else pitM = new MeshStandardMaterial({ color: 9068592, roughness: 1, emissive: 2757636, emissiveIntensity: 0.3 });
+      const pit = new Mesh(new BoxGeometry(1.55, 0.22, 2.3), pitM);
+      pit.position.y = -0.08;
+      const rim = new Mesh(new BoxGeometry(1.72, 0.06, 2.45), caution());
+      rim.position.y = 0.04;
+      g.add(pit, rim);
+      if (theme === "desert") {
+        const sw = new Mesh(new RingGeometry(0.2, 0.7, 24), new MeshBasicMaterial({ color: 5913108, transparent: true, opacity: 0.6 }));
+        sw.rotation.x = -Math.PI / 2;
+        sw.position.y = 0.05;
+        sw.scale.set(1, 1.4, 1);
+        g.add(sw);
+      }
+      if (theme === "ocean") {
+        const glow = new Mesh(new RingGeometry(0.75, 0.95, 32), new MeshBasicMaterial({ color: 4255999, transparent: true, opacity: 0.8, toneMapped: false, side: DoubleSide }));
+        glow.rotation.x = -Math.PI / 2;
+        glow.position.y = 0.07;
+        glow.scale.set(1, 1.35, 1);
+        g.add(glow);
+      }
+      return g;
+    }
+    if (kind === "wall") {
+      let body;
+      if (theme === "desert") body = new Mesh(new BoxGeometry(1.7, 1.55, 0.6), mat("hieroWall", () => new MeshStandardMaterial({ map: hieroTex(), roughness: 0.85 })));
+      else if (theme === "ocean") body = new Mesh(new BoxGeometry(1.7, 1.55, 0.55), mat("coralWall", () => stdMat(16743066, { roughness: 0.6, emissive: 6953530, emissiveIntensity: 0.35, flatShading: true })));
+      else body = new Mesh(new BoxGeometry(1.7, 1.55, 0.5), mat("obsWall", () => new MeshStandardMaterial({ color: 2365994, roughness: 0.25, metalness: 0.3, emissiveMap: basaltTex(true), emissive: 16738848, emissiveIntensity: 1 })));
+      body.position.y = 0.78;
+      body.castShadow = true;
+      const stripe = new Mesh(new PlaneGeometry(1.65, 0.28), caution());
+      stripe.position.set(0, 1.28, body.geometry.parameters.depth / 2 + 0.02);
+      g.add(body, stripe);
+      if (theme === "ocean") for (let k = 0; k < 5; k++) {
+        const b = new Mesh(new SphereGeometry(0.16, 8, 6), mat("coralBump", () => stdMat(16756928, { roughness: 0.6 })));
+        b.position.set(-0.7 + k * 0.35, 1.58, 0);
+        g.add(b);
+      }
+      return g;
+    }
+    if (kind === "beam") {
+      let beamM, postM;
+      if (theme === "desert") {
+        beamM = stdMat(10119732, { roughness: 0.8 });
+        postM = stdMat(13146714);
+      } else if (theme === "ocean") {
+        beamM = stdMat(6965802, { emissive: 666154, emissiveIntensity: 0.3 });
+        postM = stdMat(4872804);
+      } else {
+        beamM = new MeshStandardMaterial({ color: 2759188, emissive: 16730640, emissiveIntensity: 0.6, roughness: 0.8 });
+        postM = stdMat(1971732);
+      }
+      const beam = new Mesh(new CylinderGeometry(0.13, 0.13, 1.72, 10), beamM);
+      beam.rotation.z = Math.PI / 2;
+      beam.position.y = 1.18;
+      beam.castShadow = true;
+      g.add(beam);
+      [-0.78, 0.78].forEach((x) => {
+        const p = new Mesh(new CylinderGeometry(0.07, 0.07, 1.22, 8), postM);
+        p.position.set(x, 0.61, 0);
+        g.add(p);
+      });
+      const band = new Mesh(new CylinderGeometry(0.15, 0.15, 0.22, 10), caution());
+      band.rotation.z = Math.PI / 2;
+      band.position.y = 1.18;
+      g.add(band);
+      if (theme === "ocean") {
+        const w = makeSeaweed(0.9, 2795616);
+        w.position.set(0.3, 0.3, 0);
+        w.scale.setScalar(0.6);
+        g.add(w);
+      }
+      return g;
+    }
+    if (theme === "desert") {
+      const t = makeTumbleweed(0.45);
+      t.position.y = 0.46;
+      g.add(t);
+      return g;
+    }
+    if (theme === "ocean") {
+      const m2 = new Mesh(new IcosahedronGeometry(0.42, 2), mat("puffer", () => stdMat(16764992, { roughness: 0.5, emissive: 4861952, emissiveIntensity: 0.3 })));
+      m2.position.y = 0.46;
+      m2.castShadow = true;
+      g.add(m2);
+      const spM = mat("pufferSp", () => stdMat(16773296));
+      for (let k = 0; k < 10; k++) {
+        const sp = new Mesh(new ConeGeometry(0.05, 0.18, 4), spM);
+        const a = k / 10 * Math.PI * 2;
+        sp.position.set(0, 0.46 + Math.sin(a) * 0.46, Math.cos(a) * 0.46);
+        sp.rotation.x = a;
+        g.add(sp);
+      }
+      const eyeM = mat("eyeBlk", () => new MeshBasicMaterial({ color: 1118481 }));
+      [-0.15, 0.15].forEach((x) => {
+        const e = new Mesh(new SphereGeometry(0.06, 6, 6), eyeM);
+        e.position.set(x, 0.6, 0.38);
+        g.add(e);
+      });
+      return g;
+    }
+    const m = makeAsteroid(0.45);
+    m.material = mat("lavaBall", () => new MeshStandardMaterial({ color: 3807760, roughness: 0.9, flatShading: true, emissive: 16730640, emissiveIntensity: 0.85 }));
+    m.position.y = 0.46;
+    m.castShadow = true;
+    g.add(m);
+    return g;
+  }
+
+  // mila-quest/js/stages.js
+  var M = (key, color, o) => mat("st_" + key, () => stdMat(color, o));
+  var B = (w, h, d) => new BoxGeometry(w, h, d);
+  var C = (rt, rb, h, n = 8, a, b, c, d) => new CylinderGeometry(rt, rb, h, n, a, b, c, d);
+  var SP = (r, a = 10, b = 8, c, d, e, f) => new SphereGeometry(r, a, b, c, d, e, f);
+  function mesh(geo, m, x = 0, y = 0, z = 0) {
+    const o = new Mesh(geo, m);
+    o.position.set(x, y, z);
+    return o;
+  }
+  function grp(...kids) {
+    const g = new Group();
+    kids.forEach((k) => k && g.add(k));
+    return g;
+  }
+  var glowSprite = (rgb, s, y) => {
+    const h = new Sprite(mat("halo" + rgb, () => new SpriteMaterial({ map: glowTex(rgb, 0.85), transparent: true, depthWrite: false, blending: AdditiveBlending })));
+    h.scale.set(s, s, 1);
+    h.position.y = y;
+    return h;
+  };
+  var basic = (key, color) => mat("stb_" + key, () => new MeshBasicMaterial({ color, toneMapped: false }));
+  var pickOf = (a) => a[Math.random() * a.length | 0];
+  var wood = () => M("wood", 9067056);
+  var darkWood = () => M("dwood", 5913118);
+  var iron = () => M("iron", 2763312, { metalness: 0.6, roughness: 0.4 });
+  var stone = () => M("stone", 11051152, { roughness: 0.9, flatShading: true });
+  var metal = () => M("metal", 12106952, { metalness: 0.6, roughness: 0.35 });
+  var goldM = () => M("gold", 16762941, { metalness: 0.7, roughness: 0.3, emissive: 6965760, emissiveIntensity: 0.3 });
+  var solarM = () => M("solar", 1718922, { metalness: 0.5, roughness: 0.2, emissive: 662106, emissiveIntensity: 0.5 });
+  var snowM = () => M("snow", 16777215, { roughness: 0.6, emissive: 13165823, emissiveIntensity: 0.15 });
+  var iceA = () => M("iceA", 10478847, { roughness: 0.1, transparent: true, opacity: 0.85, emissive: 3844320, emissiveIntensity: 0.4 });
+  var ruinM = () => M("ruin", 12103832, { roughness: 0.9 });
+  var sandst = () => M("sandstone2", 14198880, { roughness: 0.9, flatShading: true });
+  var boneM = () => M("bone", 15919832);
+  function animal(body, head, color) {
+    const m = M("an" + color, color, { roughness: 0.8 });
+    const g = grp();
+    const b = mesh(SP(body), m, 0, body * 1.1, 0);
+    b.scale.set(1, 0.85, 1.35);
+    g.add(b);
+    g.add(mesh(SP(head), m, 0, body * 1.6 + head * 0.4, body * 1.15));
+    const eye = basic("eye", 1118481);
+    [-1, 1].forEach((s) => g.add(mesh(SP(head * 0.16, 6, 4), eye, s * head * 0.45, body * 1.7 + head * 0.5, body * 1.15 + head * 0.82)));
+    return { g, m };
+  }
+  var PROPS = {
+    /* ---- forest / park ---- */
+    tree: () => {
+      const t = makeSmoothTree("jungle");
+      t.scale.setScalar(R(0.7, 1.05));
+      return t;
+    },
+    bigTree: () => {
+      const t = makeSmoothTree("jungle");
+      t.scale.setScalar(R(1.1, 1.5));
+      return t;
+    },
+    bench: () => {
+      const g = grp(mesh(B(1.8, 0.1, 0.5), wood(), 0, 0.5, 0), mesh(B(1.8, 0.45, 0.08), wood(), 0, 0.85, -0.24));
+      [-0.75, 0.75].forEach((x) => g.add(mesh(B(0.08, 0.5, 0.45), iron(), x, 0.25, 0), mesh(B(0.08, 0.5, 0.08), iron(), x, 0.8, -0.24)));
+      return g;
+    },
+    parkLamp: () => grp(mesh(C(0.06, 0.09, 3), iron(), 0, 1.5, 0), mesh(SP(0.26), basic("lampY", 16773296), 0, 3.15, 0), mesh(new ConeGeometry(0.3, 0.25, 6), iron(), 0, 3.42, 0), glowSprite("255,230,160", 1.6, 3.15)),
+    flowerBed: () => {
+      const g = grp(mesh(C(0.9, 1, 0.35, 10), M("bedStone", 12101776), 0, 0.17, 0), mesh(C(0.82, 0.82, 0.05, 10), M("soil", 5913120), 0, 0.36, 0));
+      const cols = [16734858, 16765501, 16777215, 11563263, 16747066];
+      for (let i = 0; i < 9; i++) {
+        const a = i * 2.4, r = i % 3 * 0.28;
+        g.add(mesh(SP(0.13, 6, 4), M("fl" + i % 5, cols[i % 5], { emissive: cols[i % 5], emissiveIntensity: 0.15 }), Math.cos(a) * r, 0.5, Math.sin(a) * r));
+      }
+      return g;
+    },
+    fence: () => {
+      const w = M("fence", 15921384);
+      const g = grp(mesh(B(2.2, 0.08, 0.05), w, 0, 0.55, 0.04), mesh(B(2.2, 0.08, 0.05), w, 0, 0.25, 0.04));
+      for (let i = 0; i < 5; i++) g.add(mesh(B(0.1, 0.8, 0.06), w, -1 + i * 0.5, 0.4, 0));
+      return g;
+    },
+    bush: () => {
+      const m = M("bush", 3115578, { roughness: 0.9 });
+      const g = grp();
+      for (let i = 0; i < 3; i++) g.add(mesh(SP(R(0.45, 0.7), 8, 6), m, (i - 1) * 0.5, 0.4, R(-0.2, 0.2)));
+      return g;
+    },
+    fountain: () => grp(mesh(C(1.6, 1.7, 0.5, 14), stone(), 0, 0.25, 0), mesh(C(1.45, 1.45, 0.06, 14), M("water", 4897e3, { roughness: 0.1, emissive: 1722986, emissiveIntensity: 0.3 }), 0, 0.48, 0), mesh(C(0.2, 0.3, 1.4, 8), stone(), 0, 0.9, 0), mesh(C(0.6, 0.3, 0.2, 10), stone(), 0, 1.6, 0)),
+    squirrel: () => {
+      const a = animal(0.18, 0.13, 12084778);
+      const tail = mesh(SP(0.16, 8, 6), a.m, 0, 0.42, -0.32);
+      tail.scale.set(0.8, 1.8, 0.8);
+      a.g.add(tail);
+      [-1, 1].forEach((s) => a.g.add(mesh(new ConeGeometry(0.04, 0.1, 4), a.m, s * 0.07, 0.48, 0.24)));
+      a.g.scale.setScalar(2.6);
+      a.g.userData.hop = 0.35;
+      return a.g;
+    },
+    rabbit: () => {
+      const a = animal(0.2, 0.14, 15920356);
+      [-1, 1].forEach((s) => a.g.add(mesh(C(0.03, 0.04, 0.32, 5), a.m, s * 0.06, 0.6, 0.22)));
+      a.g.add(mesh(SP(0.07, 6, 4), M("white", 16777215), 0, 0.26, -0.3));
+      a.g.scale.setScalar(2.6);
+      a.g.userData.hop = 0.4;
+      return a.g;
+    },
+    deer: () => {
+      const m = M("deer", 11035690);
+      const g = grp();
+      const b = mesh(SP(0.45), m, 0, 1, 0);
+      b.scale.set(0.7, 0.7, 1.4);
+      g.add(b);
+      [[-0.18, 0.4], [0.18, 0.4], [-0.18, -0.4], [0.18, -0.4]].forEach(([x, z]) => g.add(mesh(C(0.05, 0.04, 0.8, 5), m, x, 0.42, z)));
+      const neck = mesh(C(0.1, 0.13, 0.6, 6), m, 0, 1.35, 0.5);
+      neck.rotation.x = 0.5;
+      g.add(neck);
+      g.add(mesh(SP(0.17, 8, 6), m, 0, 1.68, 0.68));
+      const ant = M("antler", 15259832);
+      [-1, 1].forEach((s) => {
+        const a1 = mesh(C(0.02, 0.03, 0.4, 4), ant, s * 0.1, 1.95, 0.64);
+        a1.rotation.z = -s * 0.4;
+        g.add(a1);
+      });
+      return g;
+    },
+    bird: () => {
+      const a = animal(0.12, 0.09, 3836648);
+      a.g.add(mesh(new ConeGeometry(0.03, 0.08, 4), M("beak", 16756768), 0, 0.27, 0.26));
+      a.g.scale.setScalar(2.4);
+      a.g.userData.hop = 0.25;
+      return a.g;
+    },
+    mushroomGiant: () => {
+      const h = R(1.6, 3.2);
+      const g = grp(mesh(C(0.09 * h, 0.12 * h, h, 8), M("stem", 16050904), 0, h / 2, 0), mesh(SP(0.375 * h, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), M("capR", 15217210, { roughness: 0.6 }), 0, h * 0.95, 0));
+      for (let i = 0; i < 5; i++) {
+        const a = i * 1.3;
+        g.add(mesh(SP(0.04 * h, 6, 4), M("dots", 16777215), Math.cos(a) * 0.22 * h, h * 0.95 + 0.12 * h, Math.sin(a) * 0.22 * h));
+      }
+      return g;
+    },
+    mushroomGlow: () => {
+      const h = R(0.8, 1.6);
+      return grp(mesh(C(0.08, 0.12, h, 6), M("stemG", 15261951), 0, h / 2, 0), mesh(SP(0.4 * h, 12, 6, 0, Math.PI * 2, 0, Math.PI / 2), M("capG", 8014591, { emissive: 10119935, emissiveIntensity: 0.9 }), 0, h, 0));
+    },
+    log: () => {
+      const l = mesh(C(0.3, 0.32, 2.4, 9), darkWood(), 0, 0.3, 0);
+      l.rotation.z = Math.PI / 2;
+      return grp(l);
+    },
+    stump: () => grp(mesh(C(0.4, 0.5, 0.6, 9), darkWood(), 0, 0.3, 0), mesh(C(0.4, 0.4, 0.03, 9), M("logEnd", 14200952), 0, 0.61, 0)),
+    pond: () => {
+      const g = grp();
+      const w = mesh(new CircleGeometry(R(2, 3.4), 18), M("pond", 3840712, { roughness: 0.08, metalness: 0.2, emissive: 670298, emissiveIntensity: 0.35 }), 0, 0.06, 0);
+      w.rotation.x = -Math.PI / 2;
+      g.add(w);
+      for (let i = 0; i < 4; i++) {
+        const p = mesh(new CircleGeometry(0.3, 8), M("lily", 3844170, { side: DoubleSide }), R(-1.2, 1.2), 0.09, R(-1.2, 1.2));
+        p.rotation.x = -Math.PI / 2;
+        g.add(p);
+      }
+      g.add(mesh(SP(0.1, 6, 4), M("lilyF", 16751320), 0.4, 0.15, 0.3));
+      return g;
+    },
+    reeds: () => {
+      const g = grp();
+      const m = M("reed", 6982202);
+      for (let i = 0; i < 6; i++) {
+        const x = R(-0.4, 0.4), z = R(-0.4, 0.4);
+        const r = mesh(C(0.02, 0.03, R(1, 1.8), 4), m, x, 0.6, z);
+        r.rotation.z = R(-0.2, 0.2);
+        g.add(r, mesh(C(0.05, 0.05, 0.25, 5), M("cat", 6961690), x, 1.3, z));
+      }
+      return g;
+    },
+    frog: () => {
+      const a = animal(0.16, 0.13, 3848266);
+      a.g.scale.setScalar(2.6);
+      a.g.userData.hop = 0.3;
+      return a.g;
+    },
+    rockPile: () => {
+      const g = grp();
+      for (let i = 0; i < 3; i++) {
+        const r = mesh(new DodecahedronGeometry(R(0.3, 0.7), 0), stone(), R(-0.5, 0.5), 0.25, R(-0.5, 0.5));
+        r.scale.y = 0.7;
+        g.add(r);
+      }
+      return g;
+    },
+    ruinPillar: () => {
+      const h = R(1.5, 4);
+      return grp(mesh(C(0.4, 0.45, h, 10), ruinM(), 0, h / 2, 0), mesh(B(1.1, 0.3, 1.1), ruinM(), 0, h + 0.15, 0), mesh(SP(0.5, 6, 4), M("vine", 3115578), 0.25, h * 0.6, 0.2));
+    },
+    ruinArch: () => grp(mesh(B(0.7, 3.4, 0.7), ruinM(), -1.5, 1.7, 0), mesh(B(0.7, 3.4, 0.7), ruinM(), 1.5, 1.7, 0), mesh(B(3.9, 0.6, 0.8), ruinM(), 0, 3.7, 0), mesh(SP(0.6, 6, 4), M("vine", 3115578), -1.2, 3.9, 0.3)),
+    deadTree: (m) => {
+      m = m || M("dead", 4864560);
+      const g = grp(mesh(C(0.15, 0.3, 3.2, 6), m, 0, 1.6, 0));
+      [[0.6, 2.4, 0.7], [-0.6, 2, -0.8], [0.3, 2.9, 0.4]].forEach(([x, y, r]) => {
+        const b = mesh(C(0.05, 0.1, 1.4, 5), m, x * 0.6, y, 0);
+        b.rotation.z = -r;
+        g.add(b);
+      });
+      return g;
+    },
+    /* ---- pirate ---- */
+    crateStack: () => {
+      const a = makeCrate(0.9), b = makeCrate(0.85), c = makeCrate(0.8);
+      b.position.x = 0.95;
+      c.position.set(0.45, 0.9, 0);
+      c.rotation.y = 0.3;
+      return grp(a, b, c);
+    },
+    crateWall: () => {
+      const g = grp();
+      for (let x = 0; x < 3; x++) for (let y = 0; y < 3 - x % 2; y++) {
+        const c = makeCrate(0.95);
+        c.position.set(x * 0.98 - 1, y * 0.95, 0);
+        g.add(c);
+      }
+      return g;
+    },
+    barrels: () => {
+      const a = makeBarrel(), b = makeBarrel(), c = makeBarrel();
+      b.position.x = 0.8;
+      c.position.set(0.4, 0.95, 0);
+      return grp(a, b, c);
+    },
+    lanternPost: () => {
+      const h = glowSprite("255,190,90", 1.7, 2.3);
+      h.position.x = 0.55;
+      return grp(mesh(C(0.07, 0.09, 2.6), darkWood(), 0, 1.3, 0), mesh(B(0.6, 0.06, 0.06), darkWood(), 0.3, 2.55, 0), mesh(B(0.26, 0.36, 0.26), basic("lantern", 16760928), 0.55, 2.3, 0), h);
+    },
+    netPile: () => {
+      const n = mesh(SP(0.6, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2), mat("st_net", () => new MeshStandardMaterial({ color: 13150320, wireframe: true })));
+      n.scale.y = 0.6;
+      const i = mesh(SP(0.45, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2), M("netIn", 9071162));
+      i.scale.y = 0.6;
+      return grp(n, i);
+    },
+    helm: () => {
+      const g = grp(mesh(B(0.3, 1.1, 0.3), darkWood(), 0, 0.55, 0), mesh(new TorusGeometry(0.55, 0.06, 6, 16), wood(), 0, 1.3, 0.2));
+      for (let i = 0; i < 4; i++) {
+        const sp = mesh(C(0.03, 0.03, 1.4, 4), wood(), 0, 1.3, 0.2);
+        sp.rotation.z = i * Math.PI / 4;
+        g.add(sp);
+      }
+      return g;
+    },
+    telescope: () => {
+      const g = grp();
+      [-0.25, 0, 0.25].forEach((x, i) => {
+        const l = mesh(C(0.03, 0.03, 1.3, 4), darkWood(), x, 0.6, i === 1 ? -0.25 : 0.1);
+        l.rotation.x = i === 1 ? 0.3 : -0.2;
+        g.add(l);
+      });
+      const t = mesh(C(0.08, 0.13, 1.2, 10), M("brass", 14198848, { metalness: 0.7, roughness: 0.3 }), 0, 1.35, 0);
+      t.rotation.x = 1.1;
+      g.add(t);
+      return g;
+    },
+    mapTable: () => {
+      const g = grp(mesh(B(1.4, 0.08, 0.9), wood(), 0, 0.9, 0));
+      [[-0.6, -0.35], [0.6, -0.35], [-0.6, 0.35], [0.6, 0.35]].forEach(([x, z]) => g.add(mesh(B(0.08, 0.9, 0.08), darkWood(), x, 0.45, z)));
+      const mp = mesh(new PlaneGeometry(1.1, 0.7), M("map", 15785120), 0, 0.95, 0);
+      mp.rotation.x = -Math.PI / 2;
+      g.add(mp, mesh(C(0.05, 0.05, 0.25, 6), basic("candle", 16774352), 0.5, 1.07, 0.3));
+      return g;
+    },
+    chest: () => {
+      const lid = mesh(C(0.3, 0.3, 0.9, 10, 1, false, 0, Math.PI), wood(), 0, 0.5, 0);
+      lid.rotation.z = Math.PI / 2;
+      return grp(mesh(B(0.9, 0.5, 0.6), wood(), 0, 0.25, 0), lid, mesh(B(0.94, 0.08, 0.64), goldM(), 0, 0.45, 0), mesh(SP(0.3, 8, 6), M("coins", 16767050, { metalness: 0.8, roughness: 0.25, emissive: 9071104, emissiveIntensity: 0.4 }), 0.6, 0.1, 0.2));
+    },
+    anchor: () => {
+      const m = iron();
+      const arc = mesh(new TorusGeometry(0.5, 0.07, 6, 12, Math.PI), m, 0, 0.5, 0);
+      arc.rotation.z = Math.PI;
+      const g = grp(mesh(C(0.07, 0.07, 1.6, 6), m, 0, 0.9, 0), arc, mesh(new TorusGeometry(0.15, 0.04, 6, 10), m, 0, 1.8, 0), mesh(B(0.8, 0.08, 0.08), m, 0, 1.45, 0));
+      g.rotation.z = 0.3;
+      return grp(g);
+    },
+    cannon: () => makeCannon(),
+    pier: () => {
+      const g = grp(mesh(B(3, 0.15, 7), wood(), 0, 2.9, 0));
+      [[-1.3, -3], [1.3, -3], [-1.3, 3], [1.3, 3], [-1.3, 0], [1.3, 0]].forEach(([x, z]) => g.add(mesh(C(0.14, 0.14, 4, 6), darkWood(), x, 1, z)));
+      return g;
+    },
+    palm: () => makePalm(R(4.5, 7)),
+    sandIsle: () => {
+      const r = R(6, 11);
+      const m = mesh(SP(1, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), M("sand", 15783834, { roughness: 0.95 }));
+      m.scale.set(r, R(1.6, 2.6), r * 0.8);
+      const g = grp(m);
+      for (let k = 0; k < 2; k++) {
+        const p = makePalm(R(5, 7));
+        p.position.set(R(-r * 0.3, r * 0.3), 1.2, R(-r * 0.2, r * 0.2));
+        g.add(p);
+      }
+      const c = PROPS.chest();
+      c.position.set(1, 1.5, 1);
+      g.add(c);
+      return g;
+    },
+    lifebuoy: () => {
+      const g = grp(mesh(new TorusGeometry(0.35, 0.1, 8, 16), M("buoy", 16777215), 0, 0.85, 0), mesh(B(0.1, 1.3, 0.1), darkWood(), 0, 0.65, -0.14));
+      for (let i = 0; i < 4; i++) {
+        const s = mesh(new TorusGeometry(0.35, 0.105, 8, 3, 0.4), M("buoyR", 15217210), 0, 0.85, 0);
+        s.rotation.z = i * Math.PI / 2;
+        g.add(s);
+      }
+      return g;
+    },
+    mast: () => makeMast(GFX.level === "high"),
+    rockSea: () => {
+      const r = mesh(new DodecahedronGeometry(R(1, 2.6), 0), M("seaRock", 6975092, { roughness: 0.9, flatShading: true }));
+      r.scale.y = R(0.7, 1.4);
+      return grp(r);
+    },
+    /* ---- magic ---- */
+    stall: () => {
+      const c = pickOf([15217210, 3836648, 16756768, 10111704]);
+      const aw = mesh(B(2.2, 0.08, 1.4), M("awn" + c, c), 0, 2.2, 0.15);
+      aw.rotation.x = -0.25;
+      const g = grp(mesh(B(2, 0.9, 1), wood(), 0, 0.45, 0), aw);
+      [-0.9, 0.9].forEach((x) => g.add(mesh(B(0.08, 2.2, 0.08), darkWood(), x, 1.1, 0.45)));
+      for (let i = 0; i < 4; i++) g.add(mesh(SP(0.14, 6, 4), M("fruit" + i % 3, [16734778, 16765501, 8050762][i % 3]), -0.6 + i * 0.4, 1, 0.2));
+      return g;
+    },
+    balloons: () => {
+      const cols = [16734858, 5945599, 16765501, 10157946, 12614399];
+      const g = grp(mesh(C(0.01, 0.01, 2.6, 3), M("string", 16777215), 0, 1.3, 0));
+      for (let i = 0; i < 5; i++) {
+        const b = mesh(SP(0.3, 10, 8), M("bal" + i, cols[i], { roughness: 0.3, emissive: cols[i], emissiveIntensity: 0.2 }), R(-0.5, 0.5), 2.6 + R(0, 0.8), R(-0.3, 0.3));
+        b.scale.y = 1.2;
+        g.add(b);
+      }
+      g.userData.bob = 0.25;
+      return g;
+    },
+    glowTree: () => {
+      const h = R(3, 5);
+      const c = pickOf([13134591, 7002367, 16743128]);
+      const g = grp(mesh(C(0.14, 0.24, h, 7), M("gtrunk", 3811914), 0, h / 2, 0));
+      for (let i = 0; i < 3; i++) g.add(mesh(SP(R(0.8, 1.3)), M("gleaf" + c, c, { emissive: c, emissiveIntensity: 0.55, roughness: 0.6 }), R(-0.5, 0.5), h + R(-0.4, 0.6), R(-0.5, 0.5)));
+      return g;
+    },
+    castlePillar: () => {
+      const m = M("marble", 15261936, { roughness: 0.4 });
+      return grp(mesh(C(0.45, 0.5, 6, 12), m, 0, 3, 0), mesh(B(1.2, 0.3, 1.2), m, 0, 6.15, 0), mesh(B(1.2, 0.3, 1.2), m, 0, 0.15, 0));
+    },
+    banner: () => grp(mesh(C(0.05, 0.05, 4.2, 6), goldM(), 0, 2.1, 0), mesh(new PlaneGeometry(0.9, 2), M("bannerR", 11542586, { side: DoubleSide }), 0.47, 3, 0), mesh(new CircleGeometry(0.25, 12), goldM(), 0.47, 3.2, 0.01)),
+    candles: () => {
+      const g = grp(mesh(C(0.04, 0.12, 1.4, 6), goldM(), 0, 0.7, 0), mesh(B(0.7, 0.04, 0.04), goldM(), 0, 1.4, 0), glowSprite("255,200,110", 1.3, 1.8));
+      [-0.3, 0, 0.3].forEach((x) => g.add(mesh(C(0.05, 0.05, 0.3, 6), M("wax", 16775400), x, 1.55, 0), mesh(new ConeGeometry(0.05, 0.14, 6), basic("flameY", 16765024), x, 1.78, 0)));
+      return g;
+    },
+    torchBlue: () => makeTorch(7002367),
+    torch: () => makeTorch(),
+    crystal: () => makeCrystalCluster(R(1.4, 2.6), pickOf([11563263, 5953791, 16740552, 7405488])),
+    crystalBig: () => makeCrystalCluster(R(3, 5), pickOf([11563263, 5953791, 16740552])),
+    crystalFlower: () => {
+      const c = pickOf([16747224, 9099519, 16769162]);
+      const g = grp(mesh(C(0.03, 0.04, 1, 4), M("cstem", 5953674), 0, 0.5, 0));
+      for (let i = 0; i < 5; i++) {
+        const p = mesh(new OctahedronGeometry(0.16, 0), M("cpet" + c, c, { emissive: c, emissiveIntensity: 0.7, roughness: 0.2 }), Math.cos(i * 1.26) * 0.16, 1.05, Math.sin(i * 1.26) * 0.16);
+        p.scale.y = 1.6;
+        g.add(p);
+      }
+      g.scale.setScalar(1.6);
+      return g;
+    },
+    bookshelf: () => {
+      const cols = [11542586, 2775728, 2787914, 14196768, 6961818];
+      const g = grp(mesh(B(1.8, 2.6, 0.5), darkWood(), 0, 1.3, 0));
+      for (let r = 0; r < 4; r++) for (let i = 0; i < 6; i++) g.add(mesh(B(0.22, 0.45, 0.32), M("book" + (r + i) % 5, cols[(r + i) % 5]), -0.7 + i * 0.28, 0.35 + r * 0.6, 0.12));
+      return g;
+    },
+    floatBook: () => {
+      const c = pickOf([11542586, 2775728, 14196768]);
+      const pg = mesh(new PlaneGeometry(0.55, 0.4), M("page", 16775400, { side: DoubleSide, emissive: 16773312, emissiveIntensity: 0.3 }), 0, 2.27, 0);
+      pg.rotation.x = -Math.PI / 2;
+      const g = grp(mesh(B(0.6, 0.1, 0.45), M("bk" + c, c), 0, 2.2, 0), pg);
+      g.userData.bob = 0.35;
+      return g;
+    },
+    orb: () => grp(mesh(C(0.2, 0.35, 1.2, 8), stone(), 0, 0.6, 0), mesh(SP(0.38, 14, 10), M("orb", 12615935, { emissive: 10510591, emissiveIntensity: 1.1, roughness: 0.1, transparent: true, opacity: 0.9 }), 0, 1.6, 0), glowSprite("190,130,255", 2.2, 1.6)),
+    house: () => makeHouse(R(3, 4.5), R(3, 4.5), R(3, 6), R(1.6, 2.6), Math.random() * 6 | 0),
+    tower: () => makeTower(R(1.1, 1.6), R(7, 11), Math.random() * 6 | 0),
+    magicLamp: () => makeLamp(),
+    /* ---- space ---- */
+    asteroidBig: () => {
+      const a = makeAsteroid(R(2, 4.5));
+      a.rotation.set(R(0, 6), R(0, 6), 0);
+      a.position.y = R(1, 6);
+      const g = grp(a);
+      g.userData.spin = 0.15;
+      return g;
+    },
+    dome: () => grp(mesh(SP(2.2, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), M("domeG", 11065599, { roughness: 0.1, metalness: 0.3, transparent: true, opacity: 0.75, emissive: 2779816, emissiveIntensity: 0.4 })), mesh(C(2.3, 2.4, 0.4, 18), metal(), 0, 0.2, 0), mesh(B(0.9, 1.1, 1), metal(), 0, 0.55, 2.2), mesh(B(0.5, 0.7, 0.05), basic("door", 7002367), 0, 0.55, 2.72)),
+    antenna: () => {
+      const d = mesh(SP(0.9, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2.5), M("dish", 15264496, { side: DoubleSide, metalness: 0.4, roughness: 0.3 }), 0, 3.4, 0);
+      d.rotation.x = -2.2;
+      return grp(mesh(C(0.08, 0.12, 3.4, 6), metal(), 0, 1.7, 0), d, mesh(SP(0.1, 6, 4), basic("redLight", 16724016), 0, 3.6, 0));
+    },
+    solarPanel: () => {
+      const p = mesh(B(2.2, 0.06, 1.2), solarM(), 0, 1.25, 0);
+      p.rotation.x = -0.5;
+      return grp(mesh(C(0.06, 0.06, 1.2, 6), metal(), 0, 0.6, 0), p);
+    },
+    moonFlag: () => grp(mesh(C(0.03, 0.03, 2.2, 6), metal(), 0, 1.1, 0), mesh(new PlaneGeometry(0.9, 0.6), M("flagW", 16777215, { side: DoubleSide }), 0.45, 1.85, 0), mesh(B(0.9, 0.08, 0.01), M("flagB", 2775768), 0.45, 2.05, 5e-3), mesh(B(0.9, 0.08, 0.01), M("flagB", 2775768), 0.45, 1.65, 5e-3)),
+    moonRock: () => {
+      const r = mesh(new DodecahedronGeometry(R(0.5, 1.4), 0), M("moonRock", 10132132, { roughness: 1, flatShading: true }), 0, 0.3, 0);
+      r.scale.y = 0.6;
+      return grp(r);
+    },
+    crater: () => {
+      const r = mesh(new TorusGeometry(R(1.4, 2.4), 0.35, 6, 16), M("moonRock", 10132132, { roughness: 1, flatShading: true }), 0, 0.05, 0);
+      r.rotation.x = Math.PI / 2;
+      r.scale.z = 0.5;
+      return grp(r);
+    },
+    alienPlant: () => {
+      const c = pickOf([4259738, 16736464, 6340863]);
+      const m = M("aStem", 2779738);
+      const g = grp();
+      for (let i = 0; i < 3; i++) {
+        const h = R(1.2, 2.6);
+        const s = mesh(C(0.04, 0.08, h, 5), m, (i - 1) * 0.3, h / 2, 0);
+        s.rotation.z = (i - 1) * 0.3;
+        g.add(s, mesh(SP(0.22, 8, 6), M("aBulb" + c, c, { emissive: c, emissiveIntensity: 1 }), (i - 1) * (0.3 + h * 0.15), h, 0));
+      }
+      g.scale.setScalar(1.4);
+      return g;
+    },
+    alienPod: () => {
+      const c = pickOf([16747066, 11561727]);
+      const p = mesh(SP(0.9, 12, 10), M("pod" + c, c, { emissive: c, emissiveIntensity: 0.5, roughness: 0.4 }), 0, 0.8, 0);
+      p.scale.y = 1.4;
+      const g = grp(p);
+      for (let i = 0; i < 4; i++) {
+        const l = mesh(new ConeGeometry(0.25, 1.4, 5), M("aStem", 2779738), Math.cos(i * 1.57) * 0.7, 0.4, Math.sin(i * 1.57) * 0.7);
+        l.rotation.set(Math.sin(i * 1.57) * 0.6, 0, -Math.cos(i * 1.57) * 0.6);
+        g.add(l);
+      }
+      return g;
+    },
+    satellite: () => {
+      const g = grp(mesh(B(0.8, 0.8, 1.2), goldM()), mesh(C(0.02, 0.02, 0.8, 4), iron(), 0, 0.6, 0));
+      [-1, 1].forEach((s) => g.add(mesh(B(2, 0.05, 0.8), solarM(), s * 1.45, 0, 0)));
+      g.position.y = R(3, 7);
+      const w = grp(g);
+      w.userData.spin = 0.25;
+      return w;
+    },
+    ufo: () => {
+      const d = mesh(SP(1.2, 16, 8), M("ufo", 13159640, { metalness: 0.7, roughness: 0.25 }));
+      d.scale.y = 0.3;
+      const g = grp(d, mesh(SP(0.55, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), M("ufoTop", 9105663, { emissive: 2799832, emissiveIntensity: 0.8, transparent: true, opacity: 0.85 }), 0, 0.2, 0));
+      for (let i = 0; i < 6; i++) g.add(mesh(SP(0.09, 6, 4), basic("ufoL" + i % 2, i % 2 ? 16769088 : 16728224), Math.cos(i * 1.05) * 1.1, -0.05, Math.sin(i * 1.05) * 1.1));
+      g.position.y = R(4, 7);
+      const w = grp(g);
+      w.userData.bob = 0.6;
+      return w;
+    },
+    station: () => {
+      const r = mesh(new TorusGeometry(3.4, 0.35, 8, 28), metal());
+      const bar = mesh(C(0.4, 0.4, 6.8, 8), metal());
+      bar.rotation.z = Math.PI / 2;
+      const g = grp(r, bar, mesh(SP(0.9, 12, 8), goldM()));
+      g.position.y = 9;
+      g.rotation.x = 1.2;
+      const w = grp(g);
+      w.userData.spin = 0.12;
+      return w;
+    },
+    rover: () => {
+      const g = grp(mesh(B(1.4, 0.4, 0.9), metal(), 0, 0.6, 0), mesh(B(0.4, 0.3, 0.3), solarM(), 0, 0.95, 0));
+      [[-0.55, 0.5], [0.55, 0.5], [-0.55, -0.5], [0.55, -0.5]].forEach(([x, z]) => {
+        const w = mesh(C(0.22, 0.22, 0.15, 10), M("tyre", 2763306), x, 0.25, z);
+        w.rotation.x = Math.PI / 2;
+        g.add(w);
+      });
+      return g;
+    },
+    /* ---- ice ---- */
+    pine: () => makeSnowPine(R(2.6, 5)),
+    igloo: () => makeIgloo(),
+    snowman: () => {
+      const car = mesh(new ConeGeometry(0.06, 0.3, 6), M("carrot", 16742938), 0, 1.8, 0.35);
+      car.rotation.x = Math.PI / 2;
+      const sc = mesh(new TorusGeometry(0.3, 0.07, 6, 12), M("scarf", 15217210), 0, 1.55, 0);
+      sc.rotation.x = Math.PI / 2;
+      return grp(mesh(SP(0.55, 12, 10), snowM(), 0, 0.5, 0), mesh(SP(0.4, 12, 10), snowM(), 0, 1.25, 0), mesh(SP(0.28, 12, 10), snowM(), 0, 1.8, 0), car, mesh(C(0.2, 0.22, 0.32, 10), M("hat", 1710618), 0, 2.15, 0), sc);
+    },
+    penguin: () => {
+      const b = mesh(SP(0.3), M("peng", 1710634), 0, 0.4, 0);
+      b.scale.y = 1.5;
+      const f = mesh(SP(0.24), M("white", 16777215), 0, 0.38, 0.1);
+      f.scale.y = 1.4;
+      const bk = mesh(new ConeGeometry(0.05, 0.14, 4), M("beak", 16756768), 0, 0.88, 0.22);
+      bk.rotation.x = Math.PI / 2;
+      const g = grp(b, f, mesh(SP(0.2, 8, 6), M("peng", 1710634), 0, 0.9, 0), bk);
+      g.scale.setScalar(1.3);
+      g.userData.hop = 0.15;
+      return g;
+    },
+    fishingHole: () => {
+      const h = mesh(new CircleGeometry(0.6, 14), M("hole", 670298, { roughness: 0.05 }), 0, 0.04, 0);
+      h.rotation.x = -Math.PI / 2;
+      const t = mesh(new TorusGeometry(0.62, 0.1, 6, 14), snowM(), 0, 0.05, 0);
+      t.rotation.x = Math.PI / 2;
+      const rod = mesh(C(0.02, 0.03, 1.6, 4), darkWood(), 0.5, 0.7, 0);
+      rod.rotation.z = 0.7;
+      return grp(h, t, rod);
+    },
+    iceLake: () => {
+      const l = mesh(new CircleGeometry(R(5, 9), 20), M("lakeIce", 12577535, { roughness: 0.05, metalness: 0.2, emissive: 3836608, emissiveIntensity: 0.25 }), 0, 0.03, 0);
+      l.rotation.x = -Math.PI / 2;
+      return grp(l);
+    },
+    iceSpire: () => makeIceSpire(R(2, 4.5)),
+    iceArch: () => grp(mesh(new TorusGeometry(2.4, 0.45, 8, 16, Math.PI), iceA())),
+    icicleRock: () => {
+      const g = grp(mesh(new DodecahedronGeometry(R(1, 2), 0), M("iceRock", 8035e3, { roughness: 0.4, flatShading: true }), 0, 0.6, 0));
+      for (let i = 0; i < 4; i++) g.add(mesh(new ConeGeometry(0.15, 0.9, 5), iceA(), R(-0.8, 0.8), 1.5, R(-0.8, 0.8)));
+      return g;
+    },
+    sled: () => grp(mesh(B(0.7, 0.1, 1.5), M("sled", 12597547), 0, 0.35, 0), mesh(B(0.05, 0.3, 1.6), iron(), -0.3, 0.15, 0), mesh(B(0.05, 0.3, 1.6), iron(), 0.3, 0.15, 0)),
+    iceLantern: () => grp(mesh(B(0.5, 0.8, 0.5), iceA(), 0, 0.4, 0), mesh(SP(0.14, 6, 4), basic("candleF", 16767120), 0, 0.45, 0), glowSprite("255,210,140", 1.4, 0.5)),
+    snowRock: () => {
+      const r = mesh(new DodecahedronGeometry(R(0.6, 1.4), 0), M("sRock", 9083562, { roughness: 0.9, flatShading: true }), 0, 0.3, 0);
+      r.scale.y = 0.7;
+      const s = mesh(SP(R(0.6, 1.2), 8, 4, 0, Math.PI * 2, 0, Math.PI / 2), snowM(), 0, 0.55, 0);
+      s.scale.y = 0.4;
+      return grp(r, s);
+    },
+    /* ---- desert ---- */
+    cactus: () => makeCactus(R(1.6, 3.4)),
+    tent: () => {
+      const c = pickOf([15259824, 13126202, 3828400]);
+      const t = mesh(new ConeGeometry(1.6, 2.2, 4), M("tent" + c, c, { roughness: 0.9, side: DoubleSide }), 0, 1.1, 0);
+      t.rotation.y = Math.PI / 4;
+      return grp(t, mesh(new PlaneGeometry(0.7, 1.1), M("tentDoor", 3811866, { side: DoubleSide }), 0, 0.55, 1.14));
+    },
+    camel: () => {
+      const m = M("camel", 13145178);
+      const b = mesh(SP(0.55), m, 0, 1.4, 0);
+      b.scale.set(0.7, 0.6, 1.4);
+      const n = mesh(C(0.1, 0.14, 0.9, 6), m, 0, 1.85, 0.75);
+      n.rotation.x = 0.7;
+      const g = grp(b, mesh(SP(0.38), m, 0, 1.85, -0.1), n, mesh(SP(0.2, 8, 6), m, 0, 2.2, 1.05), mesh(B(0.8, 0.12, 0.6), M("blanket", 12597547), 0, 1.75, 0.25));
+      [[-0.2, 0.5], [0.2, 0.5], [-0.2, -0.5], [0.2, -0.5]].forEach(([x, z]) => g.add(mesh(C(0.07, 0.06, 1.2, 5), m, x, 0.6, z)));
+      return g;
+    },
+    amphora: () => {
+      const c = pickOf([12084266, 14191178]);
+      const p = mesh(SP(0.32), M("pot" + c, c, { roughness: 0.8 }), 0, 0.38, 0);
+      p.scale.y = 1.3;
+      return grp(p, mesh(C(0.1, 0.14, 0.3, 8), M("pot" + c, c, { roughness: 0.8 }), 0, 0.85, 0));
+    },
+    obelisk: () => makeObelisk(R(4, 7)),
+    pyramidSmall: () => makePyramid(R(8, 14)),
+    sphinx: () => {
+      const m = sandst();
+      const g = grp(mesh(B(2.2, 1.4, 5), m, 0, 0.7, 0), mesh(B(1.6, 1.8, 1.6), m, 0, 2.1, 2), mesh(B(2.2, 1.6, 0.4), M("nemes", 3828400), 0, 2.1, 1.4));
+      [-0.6, 0.6].forEach((x) => g.add(mesh(B(0.5, 0.3, 1.8), m, x, 0.15, 3.2)));
+      return g;
+    },
+    sandPillar: () => {
+      const h = R(3, 5);
+      return grp(mesh(C(0.45, 0.5, h, 10), sandst(), 0, h / 2, 0), mesh(C(0.75, 0.45, 0.5, 10), sandst(), 0, h + 0.25, 0));
+    },
+    sandArch: () => grp(mesh(B(0.8, 4, 0.8), sandst(), -1.6, 2, 0), mesh(B(0.8, 4, 0.8), sandst(), 1.6, 2, 0), mesh(B(4.2, 0.7, 1), sandst(), 0, 4.3, 0)),
+    tumbleweed: () => {
+      const t = makeTumbleweed(R(0.35, 0.6));
+      t.position.y = 0.45;
+      const g = grp(t);
+      g.userData.roll = 1;
+      return g;
+    },
+    oasis: () => {
+      const g = PROPS.pond();
+      for (let i = 0; i < 2; i++) {
+        const p = makePalm(R(4.5, 6));
+        p.position.set(R(-2, 2), 0, i ? 2.6 : -2.6);
+        g.add(p);
+      }
+      return g;
+    },
+    dune: () => {
+      const d = mesh(SP(1, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), M("duneM", 14858356, { roughness: 1 }));
+      d.scale.set(R(4, 9), R(1, 2.6), R(3, 6));
+      return grp(d);
+    },
+    skull: () => {
+      const m = boneM();
+      const s = mesh(SP(0.35), m, 0, 0.3, 0);
+      s.scale.set(1, 0.8, 1.3);
+      const g = grp(s);
+      [-1, 1].forEach((x) => {
+        const h = mesh(new ConeGeometry(0.08, 0.7, 6), m, x * 0.45, 0.45, 0.1);
+        h.rotation.z = -x * 1.1;
+        g.add(h);
+      });
+      g.scale.setScalar(1.4);
+      return g;
+    },
+    /* ---- ocean ---- */
+    coral: () => makeCoral(R(1.2, 2.4), pickOf([16738954, 16752704, 11563263, 4247744, 16769120])),
+    brainCoral: () => makeBrainCoral(R(0.6, 1.3), pickOf([16747114, 16765024, 12615935])),
+    kelp: () => {
+      const k = makeSeaweed(R(5, 9), 3840570);
+      k.userData.sway = 1;
+      return k;
+    },
+    seaweed: () => makeSeaweed(R(1.6, 3)),
+    wreck: () => {
+      const hm = M("wreckWood", 4864554, { roughness: 0.9, side: DoubleSide });
+      const hull = mesh(C(2.2, 1.4, 10, 10, 1, true, 0, Math.PI), hm, 0, 1.2, 0);
+      hull.rotation.set(Math.PI / 2, 0, Math.PI);
+      const mst = mesh(C(0.15, 0.2, 7, 6), hm, 0.6, 3.2, 1);
+      mst.rotation.z = 0.6;
+      const g = grp(hull, mst, mesh(B(4.2, 0.2, 9.4), hm, 0, 1.4, 0));
+      g.rotation.z = 0.25;
+      return grp(g);
+    },
+    giantShell: () => {
+      const c = pickOf([16763096, 16771272]);
+      const sm = M("shell" + c, c, { roughness: 0.4, side: DoubleSide });
+      const b = mesh(SP(1, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), sm, 0, 0.05, 0);
+      b.scale.set(1.2, 0.5, 1);
+      const t = mesh(SP(1, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), sm, 0, 0.3, -0.7);
+      t.scale.set(1.2, 0.5, 1);
+      t.rotation.x = -1;
+      return grp(b, t, mesh(SP(0.3, 14, 10), M("pearl", 16777215, { roughness: 0.1, metalness: 0.3, emissive: 13162751, emissiveIntensity: 0.5 }), 0, 0.5, 0.1), glowSprite("230,240,255", 1.6, 0.55));
+    },
+    jelly: () => {
+      const c = pickOf([16747224, 9099519, 13146879]);
+      const jm = M("jel" + c, c, { emissive: c, emissiveIntensity: 0.9, transparent: true, opacity: 0.75 });
+      const g = grp(mesh(SP(0.6, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), jm));
+      for (let i = 0; i < 5; i++) g.add(mesh(C(0.02, 0.01, 1.4, 3), jm, Math.cos(i * 1.26) * 0.3, -0.7, Math.sin(i * 1.26) * 0.3));
+      g.position.y = R(2.5, 6);
+      const w = grp(g);
+      w.userData.bob = 0.7;
+      return w;
+    },
+    researchDome: () => {
+      const g = PROPS.dome();
+      for (let i = 0; i < 4; i++) g.add(mesh(SP(0.18, 8, 6), basic("porth", 16769162), Math.cos(i * 0.8 - 1.2) * 2.1, 1, Math.sin(i * 0.8 - 1.2) * 2.1));
+      return g;
+    },
+    pipe: () => {
+      const p = mesh(C(0.3, 0.3, 6, 10), M("pipe", 14196768, { metalness: 0.5, roughness: 0.4 }), 0, 0.35, 0);
+      p.rotation.x = Math.PI / 2;
+      const g = grp(p);
+      [-2.5, 0, 2.5].forEach((z) => g.add(mesh(B(0.8, 0.4, 0.3), iron(), 0, 0.2, z)));
+      return g;
+    },
+    submarine: () => {
+      const sm = M("sub", 16765501, { metalness: 0.3, roughness: 0.4 });
+      const b = mesh(SP(1, 16, 10), sm);
+      b.scale.set(1, 1, 2.4);
+      const prop = mesh(new ConeGeometry(0.4, 0.6, 4), iron(), 0, 0, -2.5);
+      prop.rotation.x = -Math.PI / 2;
+      const g = grp(b, mesh(B(0.6, 0.8, 1.2), sm, 0, 1, 0), prop);
+      [-0.6, 0, 0.6].forEach((z) => {
+        const w2 = mesh(new CircleGeometry(0.22, 12), basic("porth", 16769162), 1.01, 0.1, z);
+        w2.rotation.y = Math.PI / 2;
+        g.add(w2);
+      });
+      g.position.y = 4;
+      const w = grp(g);
+      w.userData.bob = 0.4;
+      return w;
+    },
+    vent: () => {
+      const v = mesh(new CircleGeometry(0.4, 10), basic("ventGlow", 16742960), 0, 2.21, 0);
+      v.rotation.x = -Math.PI / 2;
+      return grp(mesh(C(0.4, 1, 2.2, 8), M("ventR", 2763310, { roughness: 1, flatShading: true }), 0, 1.1, 0), v, glowSprite("255,130,60", 2.4, 2.6));
+    },
+    glowAnemone: () => {
+      const c = pickOf([4259792, 16736448]);
+      const g = grp();
+      for (let i = 0; i < 7; i++) {
+        const t = mesh(C(0.03, 0.06, 0.8, 4), M("anem" + c, c, { emissive: c, emissiveIntensity: 1.1 }), Math.cos(i * 0.9) * 0.2, 0.4, Math.sin(i * 0.9) * 0.2);
+        t.rotation.set(Math.sin(i) * 0.4, 0, Math.cos(i) * 0.4);
+        g.add(t);
+      }
+      g.scale.setScalar(1.6);
+      return g;
+    },
+    rockOcean: () => {
+      const r = mesh(new DodecahedronGeometry(R(0.8, 2.2), 0), M("oRock", 4872804, { roughness: 0.95, flatShading: true }), 0, 0.3, 0);
+      r.scale.y = R(0.6, 1.3);
+      return grp(r);
+    },
+    /* ---- volcano ---- */
+    lavaRock: () => makeLavaRock(R(0.6, 1.8)),
+    lavaPool: () => {
+      const rad = R(1.5, 3);
+      const p = mesh(new CircleGeometry(rad, 16), basic("lavaPool", 16738842), 0, 0.05, 0);
+      p.rotation.x = -Math.PI / 2;
+      const rim = mesh(new TorusGeometry(rad, 0.3, 6, 16), M("lavaRim", 2759188, { roughness: 1, flatShading: true }), 0, 0.05, 0);
+      rim.rotation.x = Math.PI / 2;
+      return grp(p, rim, glowSprite("255,120,40", 4, 0.6));
+    },
+    dino: () => {
+      const c = pickOf([5941322, 9071320, 3836592]);
+      const m = M("dino" + c, c, { roughness: 0.7 });
+      const b = mesh(SP(1, 12, 8), m, 0, 1.6, 0);
+      b.scale.set(0.8, 0.75, 1.5);
+      const n = mesh(C(0.16, 0.3, 2.4, 7), m, 0, 2.8, 1.4);
+      n.rotation.x = 0.6;
+      const t = mesh(new ConeGeometry(0.3, 2.4, 7), m, 0, 1.4, -2.1);
+      t.rotation.x = -1.9;
+      const g = grp(b, n, mesh(SP(0.32), m, 0, 3.85, 2.1), t);
+      [[-0.4, 0.6], [0.4, 0.6], [-0.4, -0.6], [0.4, -0.6]].forEach(([x, z]) => g.add(mesh(C(0.18, 0.16, 1.1, 6), m, x, 0.55, z)));
+      [-0.15, 0.15].forEach((x) => g.add(mesh(SP(0.05, 6, 4), basic("eye", 1118481), x, 3.95, 2.35)));
+      return g;
+    },
+    fern: () => {
+      const m = M("fern", 3836474, { side: DoubleSide });
+      const g = grp();
+      for (let i = 0; i < 6; i++) {
+        const l = mesh(new ConeGeometry(0.25, 1.6, 4, 1, true), m, 0.6, 0.5, 0);
+        l.scale.z = 0.25;
+        l.rotation.z = -1;
+        const p = grp(l);
+        p.rotation.y = i * 1.05;
+        g.add(p);
+      }
+      g.scale.setScalar(1.3);
+      return g;
+    },
+    eggNest: () => {
+      const n = mesh(new TorusGeometry(0.7, 0.25, 6, 12), M("nest", 9071162, { roughness: 1 }), 0, 0.15, 0);
+      n.rotation.x = Math.PI / 2;
+      const g = grp(n);
+      [[0, 0], [0.3, 0.2], [-0.25, 0.25]].forEach(([x, z]) => {
+        const e = mesh(SP(0.25), M("dinoEgg", 15788232), x, 0.32, z);
+        e.scale.y = 1.3;
+        g.add(e);
+      });
+      return g;
+    },
+    bones: () => {
+      const m = boneM();
+      const sp = mesh(C(0.07, 0.07, 2, 5), m, 0, 0.05, 0);
+      sp.rotation.z = Math.PI / 2;
+      const g = grp(sp);
+      for (let i = 0; i < 5; i++) {
+        const r = mesh(new TorusGeometry(0.8, 0.06, 5, 10, Math.PI), m, (i - 2) * 0.35, 0, 0);
+        r.rotation.y = Math.PI / 2;
+        g.add(r);
+      }
+      return g;
+    },
+    obsidian: () => makeCrystalCluster(R(1.6, 3.4), 8010424),
+    geyser: () => {
+      const w = mesh(new CircleGeometry(0.45, 10), M("geyW", 7002344, { emissive: 2788e3, emissiveIntensity: 0.5 }), 0, 0.71, 0);
+      w.rotation.x = -Math.PI / 2;
+      const steam = new Sprite(mat("steamM", () => new SpriteMaterial({ map: glowTex("240,240,240", 0.7), transparent: true, depthWrite: false })));
+      steam.scale.set(2.4, 5, 1);
+      steam.position.y = 3;
+      const g = grp(mesh(C(0.5, 1.2, 0.7, 10), M("geyR", 9075296, { roughness: 1, flatShading: true }), 0, 0.35, 0), w, steam);
+      g.userData.steam = steam;
+      return g;
+    },
+    sulfur: () => {
+      const p = mesh(new CircleGeometry(R(1.2, 2.4), 14), M("sulf", 15257664, { emissive: 9075200, emissiveIntensity: 0.4, roughness: 0.3 }), 0, 0.05, 0);
+      p.rotation.x = -Math.PI / 2;
+      return grp(p);
+    },
+    charTree: () => PROPS.deadTree(M("char", 1709074, { emissive: 3803648, emissiveIntensity: 0.3 })),
+    ashPile: () => {
+      const d = mesh(SP(1, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), M("ashP", 5918800, { roughness: 1 }));
+      d.scale.set(R(1.2, 2.4), R(0.4, 0.9), R(1, 2));
+      return grp(d);
+    },
+    volcanoSmall: () => makeVolcanoCone(R(10, 16), true)
+  };
+  var META = {
+    bench: { off: 5.4, align: true },
+    parkLamp: { off: 5, align: true },
+    fence: { off: 5.8, align: true },
+    flowerBed: { off: 6.4 },
+    lanternPost: { off: 4.8, align: true },
+    helm: { off: 4.7, align: true },
+    telescope: { off: 4.8, align: true },
+    mapTable: { off: 4.8, align: true },
+    crateStack: { off: 4.85, align: true },
+    crateWall: { off: 4.9, align: true },
+    barrels: { off: 4.85, align: true },
+    chest: { off: 4.8, align: true, outward: true },
+    lifebuoy: { off: 4.9, align: true },
+    cannon: { off: 4.65, align: true, outward: true },
+    netPile: { off: 4.8 },
+    anchor: { off: 4.9, align: true },
+    mast: { off: 4.75, align: true },
+    stall: { off: 5.6, align: true },
+    castlePillar: { off: 5.4 },
+    banner: { off: 5, align: true },
+    candles: { off: 4.9 },
+    bookshelf: { off: 5.3, align: true },
+    magicLamp: { off: 4.6, align: true },
+    torch: { off: 5.2, align: true },
+    torchBlue: { off: 5.2, align: true },
+    floatBook: { off: 4.8 },
+    orb: { off: 5 },
+    ufo: { off: 8 },
+    satellite: { off: 8 },
+    iceLantern: { off: 4.8 },
+    sled: { off: 5.4, align: true },
+    tent: { off: 7.2, align: true },
+    dino: { off: 9, align: true },
+    camel: { off: 6.8, align: true },
+    kelp: { off: 6 },
+    jelly: { off: 6.5 },
+    wreck: { off: 12 },
+    sphinx: { off: 10, align: true },
+    sandArch: { off: 6.6, align: true },
+    ruinArch: { off: 6.6, align: true },
+    iceArch: { off: 7.2, align: true },
+    volcanoSmall: { off: 22 },
+    researchDome: { off: 9 },
+    giantShell: { off: 6.4 },
+    pipe: { off: 6.2, align: true },
+    submarine: { off: 9 },
+    rover: { off: 6.6, align: true },
+    antenna: { off: 6.2 },
+    solarPanel: { off: 6.4, align: true }
+  };
+  var L = (k, n, off, o = {}) => Object.assign({ k, n, off }, o);
+  var STAGE_PLANS = {
+    1: [
+      { n: "\u{1F333} \u05D9\u05E2\u05E8 \u05D4\u05E2\u05E6\u05D9\u05DD", grass: 4168250, tod: "morning", base: 1, decor: null, layers: [L([["bigTree", 2], ["bush", 2], ["rockPile", 1]], [26, 14], [9, 26])] },
+      { n: "\u{1FA91} \u05D2\u05DF \u05D4\u05E1\u05E4\u05E1\u05DC\u05D9\u05DD", grass: 7522384, tod: "noon", base: 0.35, decor: ["bench", "parkLamp", "bench", "fence", "parkLamp", "flowerBed"], layers: [L([["flowerBed", 3], ["bush", 2], ["fountain", 1], ["tree", 1]], [44, 22], [8, 24])] },
+      { n: "\u{1F43F}\uFE0F \u05D7\u05D9\u05D5\u05EA \u05D4\u05D9\u05E2\u05E8", grass: 9083444, tod: "sunset", base: 0.5, decor: ["tree", "stump", "tree", "log"], layers: [L([["squirrel", 3], ["rabbit", 3], ["deer", 2], ["bird", 2], ["stump", 1]], [40, 20], [6.5, 20])] },
+      { n: "\u{1F344} \u05E4\u05D8\u05E8\u05D9\u05D5\u05EA \u05E2\u05E0\u05E7", grass: 2775616, tod: "dusk", weather: "fireflies", base: 0.3, decor: ["mushroomGiant", "mushroomGlow", "log", "mushroomGiant"], layers: [L([["mushroomGiant", 3], ["mushroomGlow", 3], ["log", 1], ["stump", 1]], [44, 22], [7, 24])] },
+      { n: "\u{1F438} \u05D0\u05D2\u05DD \u05D4\u05E6\u05E4\u05E8\u05D3\u05E2\u05D9\u05DD", grass: 3844192, tod: "morning", base: 0.45, decor: ["reeds", "tree", "reeds", "rockPile"], layers: [L([["pond", 3], ["reeds", 3], ["frog", 2], ["rockPile", 1]], [40, 20], [8, 26])] },
+      { n: "\u{1F3DB}\uFE0F \u05DE\u05E7\u05D3\u05E9 \u05D4\u05D2'\u05D5\u05E0\u05D2\u05DC", grass: 10526792, tod: "sunset", weather: "leaves", base: 0.4, decor: ["ruinPillar", "tree", "ruinArch", "ruinPillar"], layers: [L([["ruinPillar", 3], ["ruinArch", 1], ["rockPile", 2], ["bigTree", 1]], [36, 18], [8, 26])] },
+      { n: "\u26C8\uFE0F \u05E1\u05E2\u05E8\u05D4 \u05D1\u05D9\u05E2\u05E8", grass: 3033644, tod: "storm", weather: "rain", sky: "storm", base: 0.5, decor: ["deadTree", "tree", "deadTree", "rockPile"], layers: [L([["deadTree", 3], ["rockPile", 2], ["log", 1]], [34, 17], [8, 26])] }
+    ],
+    2: [
+      { n: "\u26F5 \u05D4\u05E1\u05D9\u05E4\u05D5\u05DF \u05D4\u05E4\u05EA\u05D5\u05D7", base: 1, decor: null, layers: [] },
+      { n: "\u{1F4E6} \u05D1\u05D8\u05DF \u05D4\u05E1\u05E4\u05D9\u05E0\u05D4", base: 0.15, look: { exp: 0.98, hemi: 0.62, hemiSky: 16767136, hemiGround: 3810320, dir: 0.6, sun: 16760960, fog: 2759184, fogNear: 18, fogFar: 140, skyTop: 1708554, skyBot: 4861976, clear: 2759184, showSun: false }, decor: ["lanternPost", "barrels", "lanternPost", "netPile"], layers: [L([["crateWall", 3], ["barrels", 1], ["crateStack", 1]], [56, 28], [4.7, 5])] },
+      { n: "\u{1F305} \u05E1\u05D9\u05E4\u05D5\u05DF \u05D4\u05E7\u05E4\u05D8\u05DF", base: 0.7, look: { exp: 1.12, hemi: 0.85, hemiSky: 16763296, hemiGround: 5909032, dir: 1.2, sun: 16751196, fog: 15247496, fogNear: 40, fogFar: 300, skyTop: 5909114, skyBot: 16751194, clear: 16747092, sunDisk: 16747082 }, decor: ["helm", "mapTable", "telescope", "chest", "lanternPost", "cannon"], layers: [] },
+      { n: "\u{1F329}\uFE0F \u05E1\u05E2\u05E8\u05D4 \u05D1\u05D9\u05DD", base: 0.8, weather: "rain", sky: "storm", look: { exp: 0.95, hemi: 0.62, hemiSky: 9083576, hemiGround: 1714746, dir: 0.6, sun: 12110056, fog: 4872810, fogNear: 20, fogFar: 170, skyTop: 1712688, skyBot: 5925498, clear: 3820122, showSun: false }, decor: ["mast", "barrels", "lifebuoy", "mast", "netPile"], layers: [L([["rockSea", 1]], [20, 10], [16, 40], { y: -2.4 })] },
+      { n: "\u{1F3DD}\uFE0F \u05DE\u05D6\u05D7 \u05D0\u05D9 \u05D4\u05DE\u05D8\u05DE\u05D5\u05DF", base: 0.4, look: { exp: 1.15, skyTop: 1743592, skyBot: 12121343 }, decor: ["chest", "barrels", "anchor", "chest", "lifebuoy"], layers: [L([["sandIsle", 2], ["pier", 2]], [16, 9], [17, 34], { y: -2.3, clear: 12 })] },
+      { n: "\u{1F319} \u05DC\u05D9\u05DC\u05D4 \u05E9\u05DC \u05D9\u05E8\u05D7", base: 0.8, sky: "moon", look: { exp: 1.02, hemi: 0.72, hemiSky: 9087231, hemiGround: 662074, dir: 0.72, sun: 12110079, fog: 662074, fogNear: 30, fogFar: 230, skyTop: 132634, skyBot: 1714778, clear: 660528, showSun: false }, decor: ["lanternPost", "barrels", "lanternPost", "mast"], layers: [] },
+      { n: "\u{1F4A5} \u05E7\u05E8\u05D1 \u05D4\u05EA\u05D5\u05EA\u05D7\u05D9\u05DD", base: 0.8, weather: "embers", look: { exp: 1.05, hemi: 0.8, hemiSky: 16756874, hemiGround: 3807760, dir: 1.1, sun: 16742970, fog: 9062970, fogNear: 26, fogFar: 220, skyTop: 3803668, skyBot: 16738874, clear: 9058858, sunDisk: 16734762 }, decor: ["cannon", "barrels", "cannon", "crateStack"], layers: [] }
+    ],
+    3: [
+      { n: "\u{1F3D8}\uFE0F \u05D2\u05D2\u05D5\u05EA \u05D4\u05E2\u05D9\u05E8", base: 1, decor: null, layers: [] },
+      { n: "\u{1F3AA} \u05E9\u05D5\u05E7 \u05D4\u05E7\u05E1\u05DE\u05D9\u05DD", base: 0.6, look: { exp: 1.15, hemi: 1, hemiSky: 16773336, hemiGround: 5917290, dir: 1.4, sun: 16773840, fog: 15782120, fogNear: 40, fogFar: 320, skyTop: 5945599, skyBot: 16769264, clear: 14215423, sunDisk: 16774856, showSun: true }, decor: ["stall", "balloons", "stall", "magicLamp"], layers: [] },
+      { n: "\u{1F332} \u05D4\u05D9\u05E2\u05E8 \u05D4\u05DE\u05DB\u05D5\u05E9\u05E3", base: 0.25, weather: "fireflies", look: { exp: 1.08, hemi: 0.8, hemiSky: 10158040, hemiGround: 1718842, dir: 0.85, sun: 13172712, fog: 2775642, fogNear: 24, fogFar: 220, skyTop: 666170, skyBot: 3836538, clear: 1722954, showSun: false }, decor: ["glowTree", "mushroomGlow", "glowTree"], layers: [L([["glowTree", 3], ["mushroomGlow", 1]], [40, 20], [10, 28], { y: -11, s: 2.6 })] },
+      { n: "\u{1F3F0} \u05D0\u05D5\u05DC\u05DD \u05D4\u05D8\u05D9\u05E8\u05D4", base: 0.2, look: { exp: 1, hemi: 0.68, hemiSky: 16767136, hemiGround: 2759210, dir: 0.72, sun: 16760960, fog: 2759204, fogNear: 22, fogFar: 170, skyTop: 1313300, skyBot: 4860458, clear: 1970200, showSun: false }, decor: ["castlePillar", "banner", "torch", "castlePillar", "candles", "banner"], layers: [] },
+      { n: "\u{1F48E} \u05D2\u05DF \u05D4\u05D1\u05D3\u05D5\u05DC\u05D7\u05D9\u05DD", base: 0.3, weather: "sparkles", look: { exp: 1.1, hemi: 0.85, hemiSky: 12118271, hemiGround: 2763370, dir: 0.9, sun: 14217471, fog: 3816074, fogNear: 28, fogFar: 240, skyTop: 657978, skyBot: 6970072, clear: 2763370, showSun: false }, decor: ["crystal", "crystalFlower", "crystal", "orb"], layers: [L([["crystalBig", 2], ["crystal", 1]], [40, 20], [10, 28], { y: -11, s: 2.4 })] },
+      { n: "\u{1F4DA} \u05E1\u05E4\u05E8\u05D9\u05D9\u05EA \u05D4\u05E7\u05D5\u05E1\u05DE\u05D9\u05DD", base: 0.35, look: { exp: 1.05, hemi: 0.8, hemiSky: 16769200, hemiGround: 3811866, dir: 0.9, sun: 16767136, fog: 4863008, fogNear: 26, fogFar: 200, skyTop: 2759184, skyBot: 9067050, clear: 3811352, showSun: false }, decor: ["bookshelf", "floatBook", "candles", "bookshelf", "floatBook"], layers: [] },
+      { n: "\u{1F52E} \u05DE\u05D2\u05D3\u05DC \u05D4\u05E7\u05D5\u05E1\u05DD", base: 0.8, weather: "sparkles", sky: "storm", look: { exp: 1, hemi: 0.72, hemiSky: 13146879, hemiGround: 1706538, dir: 0.8, sun: 14201087, fog: 2757696, fogNear: 22, fogFar: 200, skyTop: 656408, skyBot: 5909130, clear: 1706538, showSun: false }, decor: ["orb", "torchBlue", "orb"], layers: [] }
+    ],
+    4: [
+      { n: "\u{1F30C} \u05E9\u05D1\u05D9\u05DC \u05D4\u05D7\u05DC\u05D1", base: 1, decor: null, layers: [] },
+      { n: "\u2604\uFE0F \u05E9\u05D3\u05D4 \u05D4\u05D0\u05E1\u05D8\u05E8\u05D5\u05D0\u05D9\u05D3\u05D9\u05DD", base: 1.6, look: { hemiSky: 16763040, sun: 16767152 }, decor: ["asteroidBig"], layers: [L([["asteroidBig", 1]], [24, 12], [9, 30])] },
+      { n: "\u{1F315} \u05D1\u05E1\u05D9\u05E1 \u05D4\u05D9\u05E8\u05D7", base: 0.25, sky: "moonBig", ground: { color: 9079444, y: -1.6 }, decor: ["antenna", "moonFlag", "solarPanel", "rover"], layers: [L([["dome", 2], ["moonRock", 3], ["crater", 2], ["solarPanel", 1]], [40, 20], [9, 28], { y: -1.6 })] },
+      { n: "\u{1F47D} \u05DB\u05D5\u05DB\u05D1 \u05D4\u05D7\u05D9\u05D9\u05D6\u05E8\u05D9\u05DD", base: 0.3, ground: { color: 2775626, y: -1.6 }, look: { exp: 1.15, hemi: 1, hemiSky: 10157978, hemiGround: 1718810, sun: 14221256, fog: 1722922, fogNear: 40, fogFar: 300, skyTop: 267274, skyBot: 1727034, clear: 666132 }, decor: ["alienPlant", "alienPod", "ufo", "alienPlant"], layers: [L([["alienPlant", 3], ["alienPod", 2]], [44, 22], [9, 28], { y: -1.6 })] },
+      { n: "\u{1F308} \u05D4\u05E2\u05E8\u05E4\u05D9\u05DC\u05D9\u05EA", base: 0.6, sky: "nebula", look: { hemiSky: 16751320, sun: 16765168, fog: 2755114 }, decor: ["crystal", "satellite"], layers: [] },
+      { n: "\u{1F6F0}\uFE0F \u05EA\u05D7\u05E0\u05EA \u05D4\u05D7\u05DC\u05DC", base: 0.5, decor: ["satellite", "antenna", "solarPanel", "satellite"], layers: [L([["station", 1], ["satellite", 2]], [10, 5], [16, 40])] },
+      { n: "\u{1F573}\uFE0F \u05D4\u05D7\u05D5\u05E8 \u05D4\u05E9\u05D7\u05D5\u05E8", base: 1.2, sky: "blackhole", look: { hemiSky: 16747146, sun: 16756912, fog: 1704976 }, decor: ["asteroidBig", "crystal"], layers: [] }
+    ],
+    5: [
+      { n: "\u{1F332} \u05D9\u05E2\u05E8 \u05DE\u05D5\u05E9\u05DC\u05D2", base: 1, decor: null, layers: [] },
+      { n: "\u{1F3E0} \u05DB\u05E4\u05E8 \u05D4\u05D0\u05D9\u05D2\u05DC\u05D5", base: 0.3, look: { exp: 1.04, hemi: 0.82, hemiSky: 13162751, hemiGround: 4872842, dir: 0.8, sun: 16763040, fog: 10135768, fogNear: 30, fogFar: 260, skyTop: 2767498, skyBot: 16758944, clear: 9083608, sunDisk: 16752752 }, decor: ["iceLantern", "snowman", "iceLantern", "sled"], layers: [L([["igloo", 3], ["snowman", 2], ["iceLantern", 2], ["pine", 1]], [40, 20], [8.5, 24])] },
+      { n: "\u26F8\uFE0F \u05D4\u05D0\u05D2\u05DD \u05D4\u05E7\u05E4\u05D5\u05D0", base: 0.25, decor: ["penguin", "fishingHole", "penguin"], layers: [L([["iceLake", 2], ["penguin", 3], ["fishingHole", 2], ["iceSpire", 1]], [40, 20], [8, 24])] },
+      { n: "\u{1F9CA} \u05DE\u05E2\u05E8\u05D5\u05EA \u05D4\u05E7\u05E8\u05D7", base: 0.2, look: { exp: 1.05, hemi: 0.78, hemiSky: 10149119, hemiGround: 1718890, dir: 0.72, sun: 12118271, fog: 2775690, fogNear: 22, fogFar: 180, skyTop: 662074, skyBot: 3832504, clear: 1718890, showSun: false }, decor: ["iceArch", "icicleRock", "crystal"], layers: [L([["icicleRock", 3], ["crystalBig", 2], ["iceSpire", 2]], [40, 20], [8.5, 22])] },
+      { n: "\u{1F30C} \u05D6\u05D5\u05D4\u05E8 \u05E6\u05E4\u05D5\u05E0\u05D9", base: 0.7, sky: "aurora", look: { exp: 1.05, hemi: 0.78, hemiSky: 10158040, hemiGround: 1714762, dir: 0.68, sun: 13166847, fog: 662058, fogNear: 30, fogFar: 240, skyTop: 133140, skyBot: 1718858, clear: 660516, showSun: false }, decor: ["pine", "iceLantern", "pine"], layers: [] },
+      { n: "\u{1F328}\uFE0F \u05E1\u05D5\u05E4\u05EA \u05E9\u05DC\u05D2\u05D9\u05DD", base: 0.8, weather: "blizzard", look: { exp: 1, hemi: 0.9, dir: 0.7, fog: 13161696, fogNear: 4, fogFar: 72, skyTop: 12110040, skyBot: 15266040, clear: 14214384, showSun: false }, decor: ["snowRock", "sled", "pine"], layers: [L([["snowRock", 2], ["pine", 2]], [26, 13], [9, 22])] },
+      { n: "\u{1F451} \u05D0\u05E8\u05DE\u05D5\u05DF \u05D4\u05E7\u05E8\u05D7", base: 0.6, weather: "snow", look: { exp: 1.06, hemi: 0.95, hemiSky: 14207231, sun: 15259903, skyTop: 3820216, skyBot: 14215423 }, decor: ["iceSpire", "iceLantern", "iceSpire"], layers: [L([["iceSpire", 2], ["crystalBig", 1]], [26, 13], [9, 24])] }
+    ],
+    6: [
+      { n: "\u{1F3DC}\uFE0F \u05D3\u05D9\u05D5\u05E0\u05D5\u05EA \u05D4\u05D7\u05D5\u05DC", base: 1, decor: null, layers: [L([["dune", 2], ["cactus", 1]], [20, 10], [12, 30], { y: -0.35 })] },
+      { n: "\u{1F334} \u05E0\u05D5\u05D5\u05D4 \u05D4\u05DE\u05D3\u05D1\u05E8", base: 0.4, look: { skyTop: 2788072, skyBot: 14218495 }, decor: ["palm", "tent", "palm", "amphora"], layers: [L([["oasis", 2], ["tent", 2], ["palm", 2]], [30, 15], [9, 26])] },
+      { n: "\u{1F53A} \u05E2\u05DE\u05E7 \u05D4\u05E4\u05D9\u05E8\u05DE\u05D9\u05D3\u05D5\u05EA", base: 0.4, decor: ["obelisk", "sphinx", "obelisk"], layers: [L([["pyramidSmall", 2], ["obelisk", 1]], [16, 8], [20, 44], { y: -0.3, clear: 15 })] },
+      { n: "\u{1F42B} \u05E9\u05D9\u05D9\u05E8\u05EA \u05D4\u05D2\u05DE\u05DC\u05D9\u05DD", base: 0.5, look: { exp: 1.12, hemi: 0.85, hemiSky: 16763296, hemiGround: 6961704, dir: 1.2, sun: 16751196, fog: 15247480, fogNear: 34, fogFar: 280, skyTop: 6957674, skyBot: 16752736, clear: 16747092, sunDisk: 16742970 }, decor: ["camel", "amphora", "camel", "tent"], layers: [L([["camel", 2], ["tent", 1], ["amphora", 2]], [30, 15], [8, 22])] },
+      { n: "\u{1F3DB}\uFE0F \u05D4\u05DE\u05E7\u05D3\u05E9 \u05D4\u05E2\u05EA\u05D9\u05E7", base: 0.3, look: { exp: 1.05, hemi: 0.85, dir: 1, sun: 16767136, fog: 13148272, skyTop: 3824296, skyBot: 15779984 }, decor: ["sandPillar", "torch", "sandArch", "sandPillar"], layers: [L([["sandPillar", 3], ["sandArch", 1], ["skull", 1], ["amphora", 1]], [36, 18], [8, 24])] },
+      { n: "\u{1F32A}\uFE0F \u05E1\u05D5\u05E4\u05EA \u05D4\u05D7\u05D5\u05DC", base: 0.8, weather: "sand", look: { exp: 1.02, hemi: 0.9, dir: 0.7, sun: 16763008, fog: 13146200, fogNear: 4, fogFar: 78, skyTop: 13144138, skyBot: 15779976, clear: 14198888, showSun: false }, decor: ["tumbleweed", "cactus", "skull"], layers: [L([["tumbleweed", 2], ["skull", 1], ["cactus", 1]], [24, 12], [8, 22])] },
+      { n: "\u{1F319} \u05DC\u05D9\u05DC\u05D4 \u05D1\u05DE\u05D3\u05D1\u05E8", base: 0.7, sky: "starsDesert", look: { exp: 1.02, hemi: 0.72, hemiSky: 9087231, hemiGround: 3811898, dir: 0.68, sun: 12110079, fog: 1710650, fogNear: 30, fogFar: 240, skyTop: 132634, skyBot: 3811930, clear: 657956, showSun: false }, decor: ["torch", "obelisk", "torch"], layers: [L([["torch", 1], ["sandPillar", 1]], [16, 8], [8, 18])] }
+    ],
+    7: [
+      { n: "\u{1FAB8} \u05E9\u05D5\u05E0\u05D9\u05EA \u05D4\u05D0\u05DC\u05DE\u05D5\u05D2\u05D9\u05DD", base: 1, decor: null, layers: [L([["coral", 2], ["brainCoral", 2]], [24, 12], [8, 22])] },
+      { n: "\u{1F33F} \u05D9\u05E2\u05E8 \u05D4\u05D0\u05E6\u05D5\u05EA", base: 0.4, look: { fog: 1731162, skyBot: 2795658, hemiSky: 11075544 }, decor: ["kelp", "kelp", "rockOcean"], layers: [L([["kelp", 4], ["rockOcean", 1]], [40, 20], [8, 26])] },
+      { n: "\u{1F3F4}\u200D\u2620\uFE0F \u05D4\u05E1\u05E4\u05D9\u05E0\u05D4 \u05D4\u05D8\u05D1\u05D5\u05E2\u05D4", base: 0.5, look: { exp: 1.02, hemi: 0.85, fog: 1002090, fogNear: 18, fogFar: 160, skyTop: 268848, skyBot: 1731210, clear: 1002090 }, decor: ["wreck", "chest", "anchor", "barrels"], layers: [L([["chest", 1], ["anchor", 1], ["barrels", 1], ["rockOcean", 1]], [24, 12], [8, 20])] },
+      { n: "\u{1F9AA} \u05DE\u05E2\u05E8\u05EA \u05D4\u05E4\u05E0\u05D9\u05E0\u05D9\u05DD", base: 0.4, look: { exp: 1.02, hemi: 0.78, hemiSky: 13162751, fog: 1718874, fogNear: 18, fogFar: 150, skyTop: 662058, skyBot: 2771562, clear: 1718874 }, decor: ["giantShell", "rockOcean", "giantShell"], layers: [L([["giantShell", 2], ["rockOcean", 3], ["glowAnemone", 1]], [36, 18], [8, 22])] },
+      { n: "\u{1FABC} \u05E2\u05D9\u05E8 \u05D4\u05DE\u05D3\u05D5\u05D6\u05D5\u05EA", base: 0.5, look: { exp: 1.05, hemi: 0.62, hemiSky: 10135807, hemiGround: 264746, dir: 0.6, fog: 531002, fogNear: 20, fogFar: 170, skyTop: 132634, skyBot: 666202, clear: 531002 }, decor: ["jelly", "glowAnemone", "jelly"], layers: [L([["jelly", 1], ["glowAnemone", 2]], [16, 8], [7, 18])] },
+      { n: "\u{1F52C} \u05EA\u05D7\u05E0\u05EA \u05D4\u05DE\u05D7\u05E7\u05E8", base: 0.5, decor: ["pipe", "researchDome", "submarine"], layers: [L([["researchDome", 2], ["pipe", 2], ["submarine", 1]], [16, 8], [10, 26])] },
+      { n: "\u{1F311} \u05D4\u05EA\u05D4\u05D5\u05DD", base: 0.5, look: { exp: 1.02, hemi: 0.58, hemiSky: 9083647, hemiGround: 132106, dir: 0.52, fog: 133658, fogNear: 16, fogFar: 140, skyTop: 520, skyBot: 268858, clear: 133658 }, decor: ["vent", "glowAnemone", "vent"], layers: [L([["vent", 2], ["glowAnemone", 2]], [20, 10], [8, 22])] }
+    ],
+    8: [
+      { n: "\u26F0\uFE0F \u05DE\u05D5\u05E8\u05D3\u05D5\u05EA \u05D4\u05E8 \u05D4\u05D2\u05E2\u05E9", base: 1, decor: null, layers: [L([["lavaPool", 1], ["lavaRock", 2]], [20, 10], [13.5, 26])] },
+      { n: "\u{1F525} \u05E0\u05D4\u05E8 \u05D4\u05DC\u05D1\u05D4", base: 0.6, look: { exp: 1.15, fog: 9058842, skyBot: 16738858 }, decor: ["torch", "lavaRock", "torch"], layers: [L([["lavaPool", 3]], [24, 12], [13.5, 22])] },
+      { n: "\u{1F995} \u05E2\u05DE\u05E7 \u05D4\u05D3\u05D9\u05E0\u05D5\u05D6\u05D0\u05D5\u05E8\u05D9\u05DD", base: 0.3, look: { exp: 1.12, hemi: 1, hemiSky: 16769200, hemiGround: 3815962, dir: 1.3, sun: 16769184, fog: 13148272, fogNear: 34, fogFar: 280, skyTop: 5929656, skyBot: 16760960, clear: 14195296 }, decor: ["fern", "dino", "fern", "eggNest"], layers: [L([["fern", 4], ["dino", 1], ["eggNest", 1], ["bones", 1]], [40, 20], [8, 26])] },
+      { n: "\u{1F7E3} \u05DE\u05E2\u05E8\u05EA \u05D4\u05D0\u05D5\u05D1\u05E1\u05D9\u05D3\u05D9\u05D0\u05DF", base: 0.3, look: { exp: 1.05, hemi: 0.72, hemiSky: 13146879, hemiGround: 1706522, dir: 0.72, sun: 14196991, fog: 1706532, fogNear: 22, fogFar: 180, skyTop: 524814, skyBot: 3807818, clear: 1313306, showSun: false }, decor: ["obsidian", "torchBlue", "obsidian"], layers: [L([["obsidian", 3], ["lavaRock", 1]], [36, 18], [8, 22])] },
+      { n: "\u2668\uFE0F \u05D2\u05D9\u05D9\u05D6\u05E8\u05D9\u05DD \u05D5\u05D0\u05D3\u05D9\u05DD", base: 0.4, weather: "steam", look: { exp: 1.1, hemi: 0.95, hemiSky: 16773320, sun: 16771264, fog: 11049600, fogNear: 22, fogFar: 200, skyTop: 6974074, skyBot: 14207136, clear: 11049600 }, decor: ["geyser", "sulfur", "geyser"], layers: [L([["geyser", 2], ["sulfur", 2], ["lavaRock", 1]], [30, 15], [8, 22])] },
+      { n: "\u{1F32B}\uFE0F \u05D9\u05E2\u05E8 \u05D4\u05D0\u05E4\u05E8", base: 0.4, weather: "ash", look: { exp: 1.02, hemi: 0.82, hemiSky: 13154480, sun: 16758928, fog: 5917256, fogNear: 8, fogFar: 115, skyTop: 2761252, skyBot: 9071194, clear: 4864568, showSun: false }, decor: ["charTree", "ashPile", "charTree"], layers: [L([["charTree", 3], ["ashPile", 2]], [40, 20], [8, 24])] },
+      { n: "\u{1F30B} \u05DC\u05D1 \u05D4\u05E8 \u05D4\u05D2\u05E2\u05E9", base: 0.8, weather: "embers", look: { exp: 1.15, hemi: 0.9, fog: 9054736, fogNear: 22, fogFar: 200, skyTop: 2753540, skyBot: 16730640, clear: 6953480 }, decor: ["torch", "lavaRock", "torch"], layers: [L([["lavaPool", 2], ["volcanoSmall", 1]], [16, 8], [16, 34], { clear: 14 })] }
+    ]
+  };
+  var stagePlan = (wid, st) => {
+    const p = STAGE_PLANS[wid];
+    return p ? p[Math.max(0, Math.min(p.length - 1, st))] : null;
+  };
+  var stageSceneName = (wid, st) => {
+    const p = stagePlan(wid, st);
+    return p ? p.n : "";
+  };
+  function stageLook(base, wid, st) {
+    const p = stagePlan(wid, st);
+    if (!base) return base;
+    return p && p.look ? Object.assign({}, base, p.look) : base;
+  }
+  function stageDecorSpec(wid, st, i) {
+    const p = stagePlan(wid, st);
+    if (!p || !p.decor || !p.decor.length) return null;
+    const key = p.decor[i % p.decor.length];
+    if (!PROPS[key]) return null;
+    const meta = META[key] || {};
+    const obj = PROPS[key]();
+    return { obj, sideOff: (meta.off || 6.4) + (meta.align ? 0 : i % 3 * 0.45), align: !!meta.align, outward: !!meta.outward, spin: !!obj.userData.spin };
+  }
+  function pickWeighted(list) {
+    const tot = list.reduce((a, x) => a + x[1], 0);
+    let v = Math.random() * tot;
+    for (const [k, w] of list) {
+      if ((v -= w) <= 0) return k;
+    }
+    return list[list.length - 1][0];
+  }
+  var isAnim = (o) => !!(o.userData.hop || o.userData.bob || o.userData.sway || o.userData.spin || o.userData.roll || o.userData.steam);
+  function buildStageScatter(wid, st, course, high) {
+    const g = new Group();
+    g.name = "stageScatter";
+    const p = stagePlan(wid, st);
+    if (!p) return g;
+    if (p.ground) {
+      const f = new Mesh(new CircleGeometry(240, 48), new MeshStandardMaterial({ color: p.ground.color, roughness: 1, map: groundTex() }));
+      f.rotation.x = -Math.PI / 2;
+      f.name = "followGround";
+      f.userData.y = p.ground.y;
+      f.position.y = p.ground.y;
+      f.receiveShadow = true;
+      g.add(f);
+    }
+    const animated = [];
+    const maxAnim = N(high, 14, 7);
+    const turnsNear = (s) => (course.turns || []).some((t) => s > t.sEnter - 10 && s < t.sExit + 8);
+    (p.layers || []).forEach((ly, li) => {
+      const len = Math.max(20, course.length - 8);
+      const n = Math.round(N(high, ly.n[0], ly.n[1]) * Math.max(1, Math.min(2.4, len / 380)));
+      for (let i = 0; i < n; i++) {
+        const s = 4 + (i + 0.5) / n * len + R(-3, 3);
+        if (turnsNear(s)) continue;
+        const side = (i + li) % 2 ? 1 : -1;
+        const off = ly.off[0] + (ly.off[1] - ly.off[0]) * Math.pow(Math.random(), 1.5);
+        const sp = sideSpot(course, s, side, off);
+        if (!clearOfCourse(course, sp.x, sp.z, ly.clear || Math.min(off - 0.6, 7.6))) continue;
+        let key = pickWeighted(ly.k);
+        let o = PROPS[key]();
+        if (isAnim(o) && animated.length >= maxAnim) {
+          const alt = ly.k.map((x) => x[0]).find((k) => k !== key && !isAnim(PROPS[k]()));
+          if (!alt) continue;
+          key = alt;
+          o = PROPS[key]();
+        }
+        if (ly.s) o.scale.multiplyScalar(ly.s);
+        o.position.set(sp.x, ly.y != null ? ly.y : sp.y - 0.05, sp.z);
+        const meta = META[key];
+        o.rotation.y = meta && meta.align ? -sp.heading : R(0, Math.PI * 2);
+        if (isAnim(o)) {
+          o.userData.baseY = o.position.y;
+          o.userData.ph = R(0, 6);
+          animated.push(o);
+        }
+        g.add(o);
+      }
+    });
+    g.userData.update = (dt, t) => {
+      for (const o of animated) {
+        const u = o.userData;
+        if (u.hop) o.position.y = u.baseY + Math.abs(Math.sin(t * 3 + u.ph)) * u.hop;
+        if (u.bob) o.position.y = u.baseY + Math.sin(t * 1.2 + u.ph) * u.bob;
+        if (u.sway) o.rotation.z = Math.sin(t * 0.9 + u.ph) * 0.12;
+        if (u.spin) o.rotation.y += dt * u.spin;
+        if (u.roll) {
+          o.rotation.x += dt * 2;
+          o.position.y = u.baseY + Math.abs(Math.sin(t * 2 + u.ph)) * 0.3;
+        }
+        if (u.steam) {
+          const k = (t * 0.5 + u.ph) % 3;
+          u.steam.scale.set(2.4, 5 * Math.min(1, k + 0.1), 1);
+          u.steam.material.opacity = k < 1.6 ? 0.9 : 0.25;
+        }
+      }
+    };
+    g.userData.animCount = animated.length;
+    return g;
+  }
+  function groundTex() {
+    return mat("stGroundTex", () => canvasTex(256, 256, (ctx, W, H) => {
+      ctx.fillStyle = "#c8c8c8";
+      ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 60; i++) {
+        ctx.fillStyle = `rgba(80,80,90,${0.1 + Math.random() * 0.25})`;
+        ctx.beginPath();
+        ctx.arc(Math.random() * W, Math.random() * H, 3 + Math.random() * 16, 0, 7);
+        ctx.fill();
+      }
+    }, [30, 30]));
+  }
+  function buildStageAtmos(wid, st, high) {
+    const p = stagePlan(wid, st);
+    const g = new Group();
+    g.name = "stageAtmos";
+    const ups = [];
+    g.userData.update = (dt, t) => ups.forEach((u) => u(dt, t));
+    if (!p) return g;
+    const box = (n, o) => {
+      const pts = makeTwinklePoints(N(high, n, Math.round(n / 2)), () => [R(-30, 30), R(0, o.box || 26), R(-45, 12)], o);
+      pts.position.y = o.y0 != null ? o.y0 : -9;
+      g.add(pts);
+    };
+    switch (p.weather) {
+      case "rain":
+        box(1600, { minSize: 2, maxSize: 3.5, fall: 16, box: 26, colors: [12112127, 14215423], normalBlend: true, persp: true, noTwinkle: true });
+        break;
+      case "snow":
+        box(1200, { minSize: 3, maxSize: 6, fall: 2.4, box: 26, colors: [16777215, 15661311], normalBlend: true, persp: true, noTwinkle: true });
+        break;
+      case "blizzard":
+        box(2600, { minSize: 3, maxSize: 7, fall: 6, box: 22, colors: [16777215, 15661311], normalBlend: true, persp: true, noTwinkle: true, drift: 2 });
+        break;
+      case "fireflies":
+        box(260, { minSize: 4, maxSize: 8, drift: 1.2, box: 8, colors: [16773754, 13172586, 16767072], persp: true, y0: -1 });
+        break;
+      case "leaves":
+        box(500, { minSize: 4, maxSize: 7, fall: 1.4, box: 22, colors: [16751162, 14204992, 9093184], normalBlend: true, persp: true, noTwinkle: true, drift: 1 });
+        break;
+      case "sparkles":
+        box(500, { minSize: 3, maxSize: 7, drift: 0.8, box: 14, colors: [16769162, 16751320, 10481919], persp: true, y0: -2 });
+        break;
+      case "sand":
+        box(2200, { minSize: 3, maxSize: 6, fall: 0.6, box: 18, colors: [15253632, 14198888], normalBlend: true, persp: true, noTwinkle: true, drift: 3 });
+        break;
+      case "embers":
+        box(700, { minSize: 3, maxSize: 6, fall: -2.4, box: 24, colors: [16747050, 16760896, 16734746], persp: true, y0: -4 });
+        break;
+      case "ash":
+        box(1200, { minSize: 2.5, maxSize: 5, fall: 1.2, box: 22, colors: [9076864, 5918800, 11577504], normalBlend: true, persp: true, noTwinkle: true, drift: 0.6 });
+        break;
+      case "steam":
+        box(700, { minSize: 10, maxSize: 20, fall: -1.4, box: 16, colors: [16777215, 15263976], normalBlend: true, persp: true, noTwinkle: true, drift: 1, y0: -2 });
+        break;
+      default:
+        break;
+    }
+    const sky = p.sky;
+    if (sky === "moon" || sky === "moonBig") {
+      const big = sky === "moonBig";
+      const moon = new Mesh(new SphereGeometry(big ? 34 : 12, 32, 20), new MeshBasicMaterial({ map: moonTex(), fog: false, toneMapped: false, color: big ? 14211296 : 16775392 }));
+      moon.position.set(big ? -60 : 70, big ? 70 : 85, -200);
+      g.add(moon);
+      const h = new Sprite(new SpriteMaterial({ map: glowTex("220,230,255", 0.5), transparent: true, depthWrite: false, blending: AdditiveBlending, fog: false }));
+      h.scale.setScalar(big ? 140 : 60);
+      h.position.copy(moon.position);
+      g.add(h);
+    }
+    if (sky === "moon" || sky === "starsDesert" || sky === "aurora") {
+      g.add(makeTwinklePoints(N(high, 900, 450), () => {
+        const v = new Vector3(R(-1, 1), R(0.15, 1), R(-1, 1)).normalize().multiplyScalar(250);
+        return [v.x, v.y, v.z];
+      }, { minSize: 2, maxSize: 5, colors: [16777215, 14215423, 16773320] }));
+    }
+    if (sky === "aurora") {
+      const am = new MeshBasicMaterial({ map: canvasTex(256, 128, (ctx, W, H) => {
+        const gr = ctx.createLinearGradient(0, H, 0, 0);
+        gr.addColorStop(0, "rgba(60,255,170,0.0)");
+        gr.addColorStop(0.25, "rgba(60,255,170,0.75)");
+        gr.addColorStop(0.7, "rgba(140,90,255,0.35)");
+        gr.addColorStop(1, "rgba(140,90,255,0)");
+        ctx.fillStyle = gr;
+        ctx.fillRect(0, 0, W, H);
+      }), transparent: true, blending: AdditiveBlending, depthWrite: false, side: DoubleSide, fog: false, toneMapped: false });
+      const bands = [];
+      for (let i = 0; i < 4; i++) {
+        const geo = new PlaneGeometry(320, 60, 40, 1);
+        const pa = geo.attributes.position;
+        for (let k = 0; k < pa.count; k++) pa.setZ(k, Math.sin(pa.getX(k) / 30 + i) * 22);
+        const b = new Mesh(geo, am);
+        b.position.set(R(-40, 40), 42 + i * 10, -150 + i * 22);
+        b.rotation.x = 0.15;
+        g.add(b);
+        bands.push(b);
+      }
+      ups.push((dt, t) => bands.forEach((b, i) => {
+        b.position.x = Math.sin(t * 0.08 + i) * 30;
+      }));
+    }
+    if (sky === "nebula" || sky === "blackhole") {
+      const cols = sky === "nebula" ? ["255,90,200", "120,90,255", "80,200,255", "255,150,90"] : ["255,60,60", "160,40,200"];
+      for (let i = 0; i < (sky === "nebula" ? 9 : 4); i++) {
+        const s = new Sprite(new SpriteMaterial({ map: glowTex(cols[i % cols.length], 0.55), transparent: true, depthWrite: false, blending: AdditiveBlending, fog: false }));
+        s.position.copy(new Vector3(R(-1, 1), R(0.05, 0.6), R(-1, -0.2)).normalize().multiplyScalar(220));
+        s.scale.setScalar(R(90, 170));
+        g.add(s);
+      }
+      if (sky === "blackhole") {
+        const disk = new Mesh(new RingGeometry(18, 44, 64), new MeshBasicMaterial({ map: canvasTex(128, 128, (ctx) => {
+          for (let a = 0; a < 360; a += 2) {
+            ctx.strokeStyle = `hsla(${15 + Math.random() * 30},100%,${55 + Math.random() * 25}%,0.9)`;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(64, 64, 34 + Math.random() * 26, a / 57.3, (a + 10) / 57.3);
+            ctx.stroke();
+          }
+        }), transparent: true, blending: AdditiveBlending, depthWrite: false, side: DoubleSide, fog: false, toneMapped: false }));
+        disk.position.set(0, 60, -210);
+        disk.rotation.x = -1.1;
+        g.add(disk);
+        const core = new Mesh(new SphereGeometry(17, 24, 16), new MeshBasicMaterial({ color: 0, fog: false }));
+        core.position.copy(disk.position);
+        g.add(core);
+        ups.push((dt) => {
+          disk.rotation.z += dt * 0.3;
+        });
+      }
+    }
+    if (sky === "storm") {
+      const flash = new Mesh(new SphereGeometry(240, 16, 8), new MeshBasicMaterial({ color: 14215423, transparent: true, opacity: 0, side: BackSide, depthWrite: false, fog: false, toneMapped: false }));
+      flash.renderOrder = -1;
+      g.add(flash);
+      let next = 2;
+      ups.push((dt, t) => {
+        if (t > next) {
+          flash.material.opacity = 0.45;
+          next = t + R(3, 7);
+        }
+        flash.material.opacity = Math.max(0, flash.material.opacity - dt * 2.2);
+      });
+    }
+    return g;
+  }
+  function moonTex() {
+    return mat("moonTex", () => canvasTex(256, 128, (ctx, W, H) => {
+      ctx.fillStyle = "#e8e4d8";
+      ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 40; i++) {
+        ctx.fillStyle = `rgba(150,145,140,${0.2 + Math.random() * 0.4})`;
+        ctx.beginPath();
+        ctx.arc(Math.random() * W, Math.random() * H, 3 + Math.random() * 12, 0, 7);
+        ctx.fill();
+      }
+    }));
+  }
+
   // mila-quest/js/settings.js
   var QTYPES = [
     // key in settings.types, internal runner mode, Hebrew label (settings + stage tiles)
@@ -35991,9 +37912,10 @@
     { key: "en2he", mode: "en2he", label: "\u05EA\u05E8\u05D2\u05D5\u05DD \u05DE\u05D0\u05E0\u05D2\u05DC\u05D9\u05EA \u05DC\u05E2\u05D1\u05E8\u05D9\u05EA" },
     { key: "listen", mode: "rev", label: "\u05D4\u05D0\u05D6\u05E0\u05D4 \u05D5\u05E4\u05D9\u05E8\u05D5\u05E9" },
     { key: "build", mode: "build", label: "\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA" },
-    { key: "missing", mode: "let", label: "\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4" }
+    { key: "missing", mode: "let", label: "\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4" },
+    { key: "picture", mode: "picw", label: "\u05EA\u05DE\u05D5\u05E0\u05D4 \u05D5\u05D7\u05D9\u05D3\u05D4" }
   ];
-  var MODE_LABEL = { tr: "\u05EA\u05E8\u05D2\u05D5\u05DD \u05DC\u05D0\u05E0\u05D2\u05DC\u05D9\u05EA", en2he: "\u05EA\u05E8\u05D2\u05D5\u05DD \u05DC\u05E2\u05D1\u05E8\u05D9\u05EA", rev: "\u05D4\u05D0\u05D6\u05E0\u05D4 \u05D5\u05E4\u05D9\u05E8\u05D5\u05E9", build: "\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", let: "\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4" };
+  var MODE_LABEL = { tr: "\u05EA\u05E8\u05D2\u05D5\u05DD \u05DC\u05D0\u05E0\u05D2\u05DC\u05D9\u05EA", en2he: "\u05EA\u05E8\u05D2\u05D5\u05DD \u05DC\u05E2\u05D1\u05E8\u05D9\u05EA", rev: "\u05D4\u05D0\u05D6\u05E0\u05D4 \u05D5\u05E4\u05D9\u05E8\u05D5\u05E9", build: "\u05D0\u05D9\u05E1\u05D5\u05E3 \u05D0\u05D5\u05EA\u05D9\u05D5\u05EA", let: "\u05D0\u05D5\u05EA \u05D7\u05E1\u05E8\u05D4", picw: "\u05EA\u05DE\u05D5\u05E0\u05D4 \u05D5\u05D7\u05D9\u05D3\u05D4", mix: "\u05E1\u05D9\u05D1\u05D5\u05D1 \u05DE\u05D4\u05D9\u05E8" };
   var DIFFS = {
     easy: { label: "\u05E7\u05DC", mul: 0.85, hearts: 4, lead: 6, boss: -1, lvlShift: -0.15 },
     normal: { label: "\u05E8\u05D2\u05D9\u05DC", mul: 1, hearts: 3, lead: 0, boss: 0, lvlShift: 0 },
@@ -36013,7 +37935,7 @@
   ];
   var DEFAULT_SETTINGS = () => ({
     difficulty: "normal",
-    types: { he2en: true, en2he: true, listen: true, build: true, missing: true },
+    types: { he2en: true, en2he: true, listen: true, build: true, missing: true, picture: true },
     speed: 1,
     gfx: "auto",
     sfx: 0.8,
@@ -36038,7 +37960,7 @@
   }
   function stageModes(stageMode, st, boss, set) {
     const en = enabledModes(set);
-    if (boss) return en.length ? en : ["tr"];
+    if (boss || stageMode === "mix") return en.length ? en : ["tr"];
     if (stageMode === "tr") {
       const tr = en.filter((m) => m === "tr" || m === "en2he");
       if (tr.length) return tr;
@@ -36052,28 +37974,35 @@
     { spd: 0.25, dens: 0.42, types: ["wall", "hole", "low"] },
     { spd: 0.5, dens: 0.52, types: ["wall", "hole", "beam", "low"] },
     { spd: 0.75, dens: 0.62, types: ["wall", "hole", "beam", "roll"] },
-    { spd: 0.55, dens: 0.56, types: ["wall", "hole", "beam", "roll"] }
+    { spd: 0.6, dens: 0.58, types: ["wall", "hole", "beam", "low"] },
+    { spd: 1, dens: 0.66, types: ["wall", "hole", "beam", "roll"] },
+    { spd: 0.55, dens: 0.6, types: ["wall", "hole", "beam", "roll"] }
   ];
+  var BOSS_I = 6;
   var LVL_MIX = [
     [1, 0, 0],
     [0.75, 0.25, 0],
     [0.45, 0.4, 0.15],
     [0.3, 0.4, 0.3],
-    [0.2, 0.35, 0.45]
+    [0.2, 0.35, 0.45],
+    [0.15, 0.35, 0.5],
+    [0.1, 0.35, 0.55],
+    [0.05, 0.3, 0.65]
   ];
   function difficultyFor(wid, st, boss, set) {
-    const k = clamp2((wid || 1) - 1, 0, 6);
+    const k = clamp2((wid || 1) - 1, 0, 9);
     const D = DIFFS[set.difficulty] || DIFFS.normal;
-    const i = boss ? 4 : clamp2(st, 0, 3);
+    const i = boss ? BOSS_I : clamp2(st, 0, 5);
     const sb = STAGE_BASE[i];
     const m = D.mul;
-    const speed = +((6.6 + 0.6 * k + sb.spd) * m).toFixed(2);
-    const lead = Math.max(15, 26 - 1.5 * k + D.lead);
-    const density = +clamp2(sb.dens * (0.7 + 0.12 * k) * m, 0.12, 0.95).toFixed(2);
-    const spacing = +((12 - 0.6 * k) / m).toFixed(2);
-    const doubleBlock = +clamp2(0.06 + 0.07 * k, 0, 0.45).toFixed(2);
+    const kk = Math.min(k, 4), ke = Math.max(0, k - 4);
+    const speed = +((6.6 + 0.6 * kk + 0.35 * ke + sb.spd) * m).toFixed(2);
+    const lead = Math.max(16, 26 - 1.5 * kk - 1 * ke + D.lead - (i === 5 ? 1.5 : 0));
+    const density = +clamp2(sb.dens * (0.7 + 0.12 * kk + 0.06 * ke) * m, 0.12, 0.95).toFixed(2);
+    const spacing = +(Math.max(8.5, 12 - 0.6 * kk - 0.35 * ke) / m).toFixed(2);
+    const doubleBlock = +clamp2(0.06 + 0.07 * k, 0, 0.5).toFixed(2);
     const similarity = +clamp2((0.1 + 0.2 * k) * m + (i >= 3 ? 0.08 : 0), 0, 0.95).toFixed(2);
-    const bossHP = Math.max(3, 4 + k + D.boss);
+    const bossHP = Math.max(3, 4 + kk + Math.ceil(ke / 2) + D.boss);
     let mix = LVL_MIX[Math.min(k, LVL_MIX.length - 1)].slice();
     const shift = D.lvlShift + 0.03 * i;
     if (k === 0 && D.lvlShift <= 0) mix = [1, 0, 0];
@@ -36153,15 +38082,24 @@
   var MP = (p) => "./assets/models/" + p;
   var shuffle = (a) => a.map((x) => [Math.random(), x]).sort((p, q) => p[0] - q[0]).map((x) => x[1]);
   var esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-  var def = () => ({ prog: {}, hero: 0, coins: 0, stars: 0, notebook: {}, known: {}, best: 0, runs: 0, ach: [], free: false, muted: false, quality: "high", settings: DEFAULT_SETTINGS(), autoTier: null });
+  var def = () => ({ stagesV: 2, prog: {}, hero: 0, coins: 0, stars: 0, notebook: {}, known: {}, best: 0, runs: 0, ach: [], free: false, muted: false, quality: "high", settings: DEFAULT_SETTINGS(), autoTier: null });
   var S;
   try {
     const raw = JSON.parse(localStorage.getItem(KEY) || "{}");
     S = Object.assign(def(), raw);
     if (!raw.settings && raw.quality === "low") S.settings.gfx = "low";
+    if (!raw.stagesV && raw.prog) {
+      const np = {};
+      for (const [k, v] of Object.entries(raw.prog)) {
+        const [w, t] = k.split("-");
+        np[w + "-" + (t === "4" ? 6 : +t)] = v;
+      }
+      S.prog = np;
+    }
   } catch (e) {
     S = def();
   }
+  S.stagesV = 2;
   S.settings = normSettings(S.settings);
   var save = () => {
     try {
@@ -36225,13 +38163,13 @@
   };
   var starSum = () => Object.values(S.prog).reduce((a, b) => a + b, 0);
   var stDone = (w, t) => !!S.prog[w + "-" + t];
-  var bossDone = (wid) => !!S.prog[wid + "-4"];
+  var bossDone = (wid) => !!S.prog[wid + "-" + BOSS_ST];
   var keysOwned = () => WORLDS.filter((w) => bossDone(w.id)).map((w) => w.id);
   var wOpen = (i) => S.free || i === 0 || bossDone(WORLDS[i - 1].id);
-  var sOpen = (i, t) => wOpen(i) && (S.free || t === 0 || stDone(WORLDS[i].id, t - 1));
+  var sOpen = (i, t) => wOpen(i) && (S.free || t === 0 || stDone(WORLDS[i].id, t - 1) || stDone(WORLDS[i].id, t));
   var nbs = () => WORDS.map((w) => ({ w, n: S.notebook[w.en] })).filter((x) => x.n);
   var learnedCount = () => WORDS.filter((w) => S.notebook[w.en] && S.notebook[w.en].learned || S.known[w.en]).length;
-  var worldsDone = () => WORLDS.filter((w) => [0, 1, 2, 3, 4].every((t) => stDone(w.id, t))).length;
+  var worldsDone = () => WORLDS.filter((w) => ST[w.id - 1].every((_, t) => stDone(w.id, t))).length;
   function grantAch(id) {
     if (!S.ach.includes(id)) {
       S.ach.push(id);
@@ -36309,17 +38247,41 @@
     if (ms.length === 1 && ms[0] !== runnerModeOf(t[1])) return MODE_LABEL[ms[0]] || t[0];
     return t[0];
   }
+  function renderWorldChips() {
+    const box = $("world-chips");
+    if (!box) return;
+    box.innerHTML = WORLDS.map((w, i) => {
+      const done = ST[i].filter((_, k) => stDone(w.id, k)).length;
+      return `<button class="wchip${i === selectedWorld ? " sel" : ""}${wOpen(i) ? "" : " lock"}" data-w="${i}">${w.icon} ${esc(w.name)} ${wOpen(i) ? done + "/" + NSTAGES : "\u{1F512}"}</button>`;
+    }).join("");
+    box.onclick = (e) => {
+      const b = e.target.closest("[data-w]");
+      if (!b) return;
+      selectedWorld = +b.dataset.w;
+      highlightIsland();
+      renderStages();
+      focusIslandCam(selectedWorld);
+      sfx.click();
+    };
+    const sel = box.querySelector(".sel");
+    if (sel && sel.scrollIntoView) try {
+      sel.scrollIntoView({ block: "nearest", inline: "center" });
+    } catch (e) {
+    }
+  }
   function renderStages() {
     const i = selectedWorld;
     const w = WORLDS[i];
     $("stage-bar").innerHTML = ST[i].map((t, k) => {
       const op = sOpen(i, k);
       const n = S.prog[w.id + "-" + k] || 0;
-      return `<button class="tile" data-st="${k}" ${op ? "" : "disabled"}>
-      <small>${k === 4 ? "\u05D1\u05D5\u05E1" : "\u05E9\u05DC\u05D1 " + (k + 1)}</small><div>${stageLabel(i, k)}</div>
+      return `<button class="tile${k === BOSS_ST ? " boss" : ""}" data-st="${k}" ${op ? "" : "disabled"}>
+      <small>${k === BOSS_ST ? "\u2694\uFE0F \u05D1\u05D5\u05E1" : "\u05E9\u05DC\u05D1 " + (k + 1)}</small><div class="t-mode">${stageLabel(i, k)}</div>
+      <div class="t-scene">${esc(stageSceneName(w.id, k))}</div>
       <div>${op ? n ? "\u2B50".repeat(n) : "\u25B6" : "\u{1F512}"}</div>
     </button>`;
     }).join("");
+    renderWorldChips();
     $("stage-bar").onclick = (e) => {
       const b = e.target.closest("[data-st]");
       if (b && !b.disabled) startLevel(WORLDS[selectedWorld].id, +b.dataset.st);
@@ -36429,7 +38391,7 @@
   var camera = new PerspectiveCamera(52, innerWidth / innerHeight, 0.1, 520);
   var mapScene = new Scene();
   var runScene = new Scene();
-  mapScene.fog = new Fog(9357567, 22, 90);
+  mapScene.fog = new Fog(9357567, 30, 125);
   runScene.fog = new Fog(9426082, 16, 68);
   function addLights(scene, world) {
     const hemi = new HemisphereLight(world ? world.hemiSky : 12906751, world ? world.hemiGround : 3832384, 1.28);
@@ -36461,16 +38423,16 @@
     tex2.colorSpace = SRGBColorSpace;
     tex2.minFilter = LinearFilter;
     tex2.magFilter = LinearFilter;
-    const mesh = new Mesh(
+    const mesh2 = new Mesh(
       new SphereGeometry(300, 24, 18),
       new MeshBasicMaterial({ map: tex2, side: BackSide, depthWrite: false, fog: false })
     );
-    mesh.name = "sky";
-    return mesh;
+    mesh2.name = "sky";
+    return mesh2;
   }
-  function paintSky(mesh, topHex, botHex) {
-    if (!mesh || !mesh.material.map) return;
-    const c = mesh.material.map.image;
+  function paintSky(mesh2, topHex, botHex) {
+    if (!mesh2 || !mesh2.material.map) return;
+    const c = mesh2.material.map.image;
     const ctx = c.getContext("2d");
     const g = ctx.createLinearGradient(0, 0, 0, c.height);
     const top = "#" + topHex.toString(16).padStart(6, "0");
@@ -36483,7 +38445,7 @@
     g.addColorStop(1, bot);
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, c.width, c.height);
-    mesh.material.map.needsUpdate = true;
+    mesh2.material.map.needsUpdate = true;
   }
   var mapLights = addLights(mapScene);
   var runLights = addLights(runScene, WORLDS[0]);
@@ -36855,9 +38817,9 @@
   function makeLockMesh() {
     const g = new Group();
     g.name = "lock";
-    const iron = new MeshStandardMaterial({ color: 2761784, metalness: 0.55, roughness: 0.35, emissive: 1445919, emissiveIntensity: 0.2 });
+    const iron2 = new MeshStandardMaterial({ color: 2761784, metalness: 0.55, roughness: 0.35, emissive: 1445919, emissiveIntensity: 0.2 });
     const gold = new MeshStandardMaterial({ color: 16762941, metalness: 0.8, roughness: 0.25, emissive: 11171584, emissiveIntensity: 0.45 });
-    const body = new Mesh(new BoxGeometry(1.15, 0.95, 0.42), iron);
+    const body = new Mesh(new BoxGeometry(1.15, 0.95, 0.42), iron2);
     body.position.y = 2.85;
     const shackle = new Mesh(new TorusGeometry(0.42, 0.12, 8, 16), gold);
     shackle.position.y = 3.55;
@@ -36912,7 +38874,10 @@
       [-12, 0.4, -10],
       [12, 0.3, -10],
       [-8, 0.6, -22],
-      [8, 0.5, -22]
+      [8, 0.5, -22],
+      [-15, 0.5, -34],
+      [15, 0.4, -34],
+      [0, 0.7, -45]
     ];
     const showcase = [
       "nature/tree_detailed.glb",
@@ -36921,14 +38886,41 @@
       "space/craft_speederA.glb",
       "holiday/tree-snow-a.glb"
     ];
-    for (let i = 0; i < 5; i++) {
+    const showcase2 = { 5: () => PROPS.pyramidSmall(), 6: () => PROPS.coral(), 7: () => PROPS.volcanoSmall() };
+    const showScale = { 5: 0.22, 6: 1.4, 7: 0.22 };
+    for (let i = 0; i < WORLDS.length; i++) {
       const world = WORLDS[i];
       const isle = makeIslandMesh(world);
       isle.position.set(...positions[i]);
       isle.userData.worldIndex = i;
-      const prop = await createProp(MP(showcase[i]), i === 3 ? 1.6 : 2.8);
+      let prop;
+      if (showcase[i]) prop = await createProp(MP(showcase[i]), i === 3 ? 1.6 : 2.8);
+      else {
+        prop = showcase2[i]();
+        prop.scale.multiplyScalar(showScale[i]);
+      }
       prop.position.set(0.6, 0.58, -0.4);
       isle.add(prop);
+      if (i === 5) {
+        const c = PROPS.cactus();
+        c.scale.setScalar(0.7);
+        c.position.set(-1.6, 0.58, 0.2);
+        isle.add(c);
+      }
+      if (i === 6) {
+        const c = PROPS.brainCoral();
+        c.position.set(-1.5, 0.58, 0.3);
+        isle.add(c);
+        const k = PROPS.seaweed();
+        k.position.set(1.8, 0.58, 0.6);
+        isle.add(k);
+      }
+      if (i === 7) {
+        const d = PROPS.dino();
+        d.scale.setScalar(0.45);
+        d.position.set(-1.7, 0.58, 0.2);
+        isle.add(d);
+      }
       const extras = world.decor.slice(1, 3);
       for (let e = 0; e < extras.length; e++) {
         const p2 = await createProp(MP(extras[e]), 1.5 + e * 0.35);
@@ -36936,9 +38928,9 @@
         p2.rotation.y = e * 1.1;
         isle.add(p2);
       }
-      for (let k = 0; k < 5; k++) {
-        const pin = new Mesh(new ConeGeometry(0.16, 0.5, 6), new MeshStandardMaterial({ color: k === 4 ? 15226173 : 16762941 }));
-        pin.position.set(-1.6 + k * 0.8, 1.05, 1.5);
+      for (let k = 0; k < NSTAGES; k++) {
+        const pin = new Mesh(new ConeGeometry(0.16, 0.5, 6), new MeshStandardMaterial({ color: k === BOSS_ST ? 15226173 : 16762941 }));
+        pin.position.set(-1.86 + k * 0.62, 1.05, 1.5);
         pin.userData.pin = { world: i, stage: k };
         isle.add(pin);
       }
@@ -37056,8 +39048,8 @@
     lookGoal.set(0, 1.2, 2.6);
   }
   function focusMapCam() {
-    camGoal.set(0, 16, 18);
-    lookGoal.set(0, 0, -12);
+    camGoal.set(0, 44, 24);
+    lookGoal.set(0, 0, -8);
   }
   function focusIslandCam(i) {
     const p = islands[i].position;
@@ -37174,9 +39166,9 @@
     if (run && run.layout) applyStageLook(world);
   }
   function applyStageLook(world) {
-    const L = run && run.layout;
-    if (!L) return;
-    const look = THEME_LOOK[themeOf(world.id)];
+    const L2 = run && run.layout;
+    if (!L2) return;
+    const look = stageLook(THEME_LOOK[themeOf(world.id)], world.id, run.st);
     if (look) {
       renderer.toneMappingExposure = look.exp;
       runLights.hemi.intensity = look.hemi * lightBoost;
@@ -37209,14 +39201,33 @@
       sunset: { exp: 1.16, hemi: 0.86, dir: 1.25, fogNear: 18, fogFar: 290 },
       dusk: { exp: 0.98, hemi: 0.62, dir: 0.85, fogNear: 16, fogFar: 230 },
       storm: { exp: 0.9, hemi: 0.55, dir: 0.75, fogNear: 14, fogFar: 200 }
-    }[L.tod] || { exp: 1.15, hemi: 0.85, dir: 1.2, fogNear: 14, fogFar: 56 };
+    }[L2.tod] || { exp: 1.15, hemi: 0.85, dir: 1.2, fogNear: 14, fogFar: 56 };
     renderer.toneMappingExposure = tod.exp;
     runLights.hemi.intensity = tod.hemi * lightBoost;
     runLights.dir.intensity = tod.dir;
     runScene.fog.near = tod.fogNear;
     runScene.fog.far = tod.fogFar;
     applyDrawDistance();
-    if (L.tod === "sunset") {
+    const JT = {
+      morning: { dir: 16773328, hemi: 14216447, gnd: 4876858, fog: 13165808, clear: 10146047, top: 5943551, bot: 14742783, sun: 16773808 },
+      noon: { dir: 16777215, hemi: 14741759, gnd: 5929530, fog: 13692159, clear: 9095423, top: 3840240, bot: 13692159, sun: 16776160 },
+      dusk: { dir: 10204927, hemi: 8030408, gnd: 2763322, fog: 4864618, clear: 3811930, top: 1710666, bot: 9067146, sun: 13162239 },
+      storm: { dir: 10203336, hemi: 6978186, gnd: 2764840, fog: 4870232, clear: 3817544, top: 2764856, bot: 6975608, sun: 13162239 }
+    }[L2.tod];
+    if (JT) {
+      runLights.dir.color.setHex(JT.dir);
+      runLights.hemi.color.setHex(JT.hemi);
+      runLights.hemi.groundColor.setHex(JT.gnd);
+      runScene.fog.color.setHex(JT.fog);
+      runScene.background = new Color(JT.clear);
+      renderer.setClearColor(JT.clear);
+      if (runSky) paintSky(runSky, JT.top, JT.bot);
+      if (runSunDisk) {
+        runSunDisk.material.color.setHex(JT.sun);
+        runSunDisk.visible = L2.tod !== "storm";
+      }
+    } else if (L2.tod === "sunset") {
+      runScene.background = new Color(16747092);
       runLights.dir.color.setHex(16751196);
       runLights.hemi.color.setHex(16763296);
       runLights.hemi.groundColor.setHex(6961704);
@@ -37224,7 +39235,7 @@
       renderer.setClearColor(16747092);
       if (runSky) paintSky(runSky, 16742970, 16765600);
       if (runSunDisk) runSunDisk.material.color.setHex(16747082);
-    } else if (L.tod === "dusk" || L.tod === "storm") {
+    } else if (L2.tod === "dusk" || L2.tod === "storm") {
       runLights.dir.color.setHex(10204927);
       runLights.hemi.color.setHex(6981832);
       runScene.fog.color.setHex(world.id === 4 ? world.fog : 3816042);
@@ -37331,8 +39342,17 @@
     const course = run.course;
     const narrow = !!(run.layout && run.layout.narrow);
     const th = themeOf(run.world);
+    const plan = stagePlan(run.world, run.st) || {};
+    const base = plan.base != null ? plan.base : 1;
     if (th !== "jungle") {
-      const tg = buildThemeCourse(th, course, { narrow, high: isHigh() });
+      const tg = NEW_THEMES.includes(th) ? buildWorld2Course(th, course, { narrow, high: isHigh(), baseScale: base }) : buildThemeCourse(th, course, { narrow, high: isHigh(), baseScale: base });
+      const ss2 = buildStageScatter(run.world, run.st, course, isHigh());
+      tg.add(ss2);
+      const prevU = tg.userData.update;
+      tg.userData.update = (dt, t, ctx) => {
+        if (prevU) prevU(dt, t, ctx);
+        ss2.userData.update(dt, t, ctx);
+      };
       tg.add(plantCourseFlags(course, isHigh()));
       tg.userData.mergeStats = mergeStatic(tg);
       courseVisual = tg;
@@ -37351,9 +39371,9 @@
     grass.name = "ribbonGrass";
     const turnGrass = new Mesh(makeRibbonGeometry(course, { width: 8.6, yLift: -0.05, pred: (s) => s.kind === "turn", vScale: 0.07 }), sideMat);
     turnGrass.receiveShadow = true;
-    const stone = new Mesh(makeRibbonGeometry(course, { width: 6.8, yLift: 0.05, pred: (s) => s.kind === "causeway", vScale: 0.4, uRepeat: 3 }), stoneMat);
-    stone.receiveShadow = true;
-    stone.name = "ribbonStone";
+    const stone2 = new Mesh(makeRibbonGeometry(course, { width: 6.8, yLift: 0.05, pred: (s) => s.kind === "causeway", vScale: 0.4, uRepeat: 3 }), stoneMat);
+    stone2.receiveShadow = true;
+    stone2.name = "ribbonStone";
     const skirt = new Mesh(makeSkirtGeometry(course, { width: 6.8, depth: 4.4, pred: (s) => s.kind === "causeway" }), skirtMat);
     skirt.name = "ribbonSkirt";
     const valley = new Mesh(makeRibbonGeometry(course, { width: 92, yLift: -6.4, pred: (s) => s.kind === "causeway", vScale: 0.04 }), valleyMat);
@@ -37389,11 +39409,14 @@
       new MeshBasicMaterial({ color: 16770754, transparent: true, opacity: 0.32, depthWrite: false, fog: true, side: DoubleSide })
     );
     haze.name = "valleyHaze";
-    const theme = ["jungle", "pirate", "magic", "space", "ice"][(run.world || 1) - 1] || "jungle";
+    const theme = "jungle";
     const valleyBits = populateValley(course, theme, isHigh());
-    const scatter = scatterGroundDetails(course, theme, isHigh());
+    const scatter = scatterGroundDetails(course, theme, isHigh(), Math.max(0.3, base));
     const flags = plantCourseFlags(course, isHigh());
-    group.add(follow, scatter, grass, turnGrass, dirt, stripeL, stripeR, valley, valleyBits, haze, skirt, stone, railL, railR, flags);
+    const ss = buildStageScatter(run.world, run.st, course, isHigh());
+    group.add(ss);
+    group.userData.update = (dt, t, ctx) => ss.userData.update(dt, t, ctx);
+    group.add(follow, scatter, grass, turnGrass, dirt, stripeL, stripeR, valley, valleyBits, haze, skirt, stone2, railL, railR, flags);
     group.userData.mergeStats = mergeStatic(group);
     courseVisual = group;
     runScene.add(courseVisual);
@@ -37508,10 +39531,11 @@
     const theme = themeOf(world.id);
     const n = N(isHigh(), 26, 16);
     for (let i = 0; i < n; i++) {
-      const spec = theme === "jungle" ? null : makeThemeDecor(theme, i, isHigh());
+      const spec = stageDecorSpec(world.id, run ? run.st : 0, i) || (theme === "jungle" ? null : NEW_THEMES.includes(theme) ? world2Decor(theme, i) : makeThemeDecor(theme, i, isHigh()));
       let m;
       if (spec) m = spec.obj || await createProp(MP(spec.glb), spec.height);
       else m = makeSmoothTree(theme);
+      if (spec && spec.obj && !spec.spin) mergeStatic(m);
       if (spec && spec.glb && theme === "space") {
         m.traverse((o) => {
           if (!o.isMesh || !o.material || !o.material.color) return;
@@ -37601,24 +39625,28 @@
     return [-span, 0, span];
   }
   function stageProfile(st, boss, wid) {
-    const i = boss ? 4 : st;
+    const i = boss ? BOSS_ST : st;
     const table = [
       { speed: 7.5, curve: 1.15, hillAmp: 5.8, turnDir: -1, bridge: 0, narrow: 0, tod: "sunset", density: 0.32, types: ["wall", "low"] },
       { speed: 8, curve: 1.35, hillAmp: 6, turnDir: 1, bridge: 0, narrow: 0, tod: "sunset", density: 0.52, types: ["wall", "hole", "low"] },
       { speed: 8.35, curve: 1.2, hillAmp: 5.4, turnDir: -1, bridge: 1, narrow: 0, tod: "sunset", density: 0.68, types: ["wall", "hole", "beam", "low"] },
       { speed: 8.7, curve: 1.4, hillAmp: 6.2, turnDir: 1, bridge: 0, narrow: 1, tod: "dusk", density: 0.82, types: ["wall", "hole", "beam", "roll"] },
+      { speed: 8.5, curve: 1.3, hillAmp: 5.9, turnDir: -1, bridge: 0, narrow: 0, tod: "sunset", density: 0.75, types: ["wall", "hole", "beam", "low"] },
+      { speed: 9, curve: 1.45, hillAmp: 6.3, turnDir: 1, bridge: 0, narrow: 1, tod: "dusk", density: 0.85, types: ["wall", "hole", "beam", "roll"] },
       { speed: 8.15, curve: 1.05, hillAmp: 5.5, turnDir: -1, bridge: 0, narrow: 0, tod: "storm", density: 0.62, types: ["wall", "hole", "beam", "roll"] }
     ];
-    const L = Object.assign({}, table[Math.max(0, Math.min(4, i))]);
+    const L2 = Object.assign({}, table[Math.max(0, Math.min(BOSS_ST, i))]);
     const D = difficultyFor(wid || 1, st, boss, S.settings);
-    L.speed = D.speed;
-    L.density = D.density;
-    L.types = D.types;
-    L.diff = D;
-    L.causeway = wid === 1;
-    if (wid === 1) L.tod = "sunset";
-    else L.tod = themeOf(wid);
-    return L;
+    L2.speed = D.speed;
+    L2.density = D.density;
+    L2.types = D.types;
+    L2.diff = D;
+    L2.causeway = wid === 1;
+    if (wid === 1) {
+      const pl = stagePlan(1, boss ? BOSS_ST : st);
+      L2.tod = pl && pl.tod || "sunset";
+    } else L2.tod = themeOf(wid);
+    return L2;
   }
   function pickWords(wid, st, lost, n = 8, mix = [1, 0, 0], filter = null) {
     if (lost) {
@@ -37684,8 +39712,8 @@
   function letterDistractors(c, k, sim = 0) {
     const out = /* @__PURE__ */ new Set();
     if (Math.random() < sim) {
-      const grp = shuffle([...new Set(CONFUSE.filter((g) => g.includes(c)).join(""))].filter((x) => x !== c));
-      for (const ch of grp) {
+      const grp2 = shuffle([...new Set(CONFUSE.filter((g) => g.includes(c)).join(""))].filter((x) => x !== c));
+      for (const ch of grp2) {
         if (out.size >= k) break;
         out.add(ch);
       }
@@ -37744,11 +39772,19 @@
     else $("hud-prog").textContent = `${Math.min(run.i + 1, run.queue.length)}/${run.queue.length}`;
   }
   function clearLetters() {
-    letters.forEach((L) => {
-      if (L.mesh && L.mesh.parent) runScene.remove(L.mesh);
+    letters.forEach((L2) => {
+      if (L2.mesh && L2.mesh.parent) runScene.remove(L2.mesh);
     });
     letters.length = 0;
   }
+  var PIC_COUNT = (() => {
+    const c = {};
+    WORDS.forEach((w) => {
+      if (w.pic) c[w.pic] = (c[w.pic] || 0) + 1;
+    });
+    return c;
+  })();
+  var picOK = (w) => !!(w && w.pic && PIC_COUNT[w.pic] === 1);
   function setupQuestion() {
     if (!run || run.i >= run.queue.length) return;
     clearLetters();
@@ -37759,6 +39795,7 @@
     const modes = run.modes || [run.qmode];
     let mode = modes[run.i % modes.length];
     if (isSpellMode(mode) && !spellOK(w)) mode = modes.find((m) => !isSpellMode(m)) || "en2he";
+    if (mode === "picw" && !picOK(w)) mode = modes.find((m) => m !== "picw" && !isSpellMode(m)) || "tr";
     run.activeMode = mode;
     const sim = run.layout && run.layout.diff && run.layout.diff.similarity || 0;
     if (mode === "build") {
@@ -37782,6 +39819,19 @@
       ans = opts.indexOf(w.he);
       sub = "\u05DE\u05D4 \u05D4\u05E4\u05D9\u05E8\u05D5\u05E9 \u05D1\u05E2\u05D1\u05E8\u05D9\u05EA? \u05E8\u05E6\u05D5 \u05D0\u05DC \u05D4\u05E9\u05E2\u05E8";
       q = `<span class="en">${esc(w.en)}</span>`;
+    } else if (mode === "picw") {
+      const ds = distractors(w, "en", 5, sim).filter((d) => {
+        const x = WORDS.find((y) => y.en === d);
+        return !x || x.pic !== w.pic;
+      }).slice(0, 2);
+      while (ds.length < 2) {
+        const x = WORDS[Math.floor(Math.random() * WORDS.length)];
+        if (x.pic !== w.pic && x.en !== w.en && !ds.includes(x.en)) ds.push(x.en);
+      }
+      opts = shuffle([w.en, ...ds]);
+      ans = opts.indexOf(w.en);
+      sub = "\u05EA\u05DE\u05D5\u05E0\u05D4 \u05D5\u05D7\u05D9\u05D3\u05D4 \u2014 \u05E8\u05E6\u05D5 \u05D0\u05DC \u05D4\u05DE\u05D9\u05DC\u05D4 \u05D1\u05D0\u05E0\u05D2\u05DC\u05D9\u05EA";
+      q = `<span class="pic-big">${w.pic}</span><div class="riddle">${esc(w.clue || "\u05DE\u05D4 \u05E8\u05D5\u05D0\u05D9\u05DD \u05D1\u05EA\u05DE\u05D5\u05E0\u05D4?")}</div>`;
     } else if (mode === "rev") {
       opts = shuffle([w.he, ...distractors(w, "he", 2, sim)]);
       ans = opts.indexOf(w.he);
@@ -37875,12 +39925,12 @@
   function spawnCoinRow(s) {
     if (run && run.activeMode === "build" && run.spell && run.spell.rows && run.spell.rows.some((r) => r != null && Math.abs(r - s) < 3)) return;
     const lane = Math.floor(Math.random() * 3);
-    const mesh = run.coinProto ? run.coinProto.clone(true) : new Mesh(new CylinderGeometry(0.25, 0.25, 0.06, 12), new MeshStandardMaterial({ color: 16765514, metalness: 0.6, roughness: 0.3 }));
-    placeOnCourse(mesh, s, lane);
-    mesh.position.y += 0.7;
-    mesh.rotation.x = Math.PI / 2;
-    runScene.add(mesh);
-    coins.push({ mesh, taken: false, s, lane });
+    const mesh2 = run.coinProto ? run.coinProto.clone(true) : new Mesh(new CylinderGeometry(0.25, 0.25, 0.06, 12), new MeshStandardMaterial({ color: 16765514, metalness: 0.6, roughness: 0.3 }));
+    placeOnCourse(mesh2, s, lane);
+    mesh2.position.y += 0.7;
+    mesh2.rotation.x = Math.PI / 2;
+    runScene.add(mesh2);
+    coins.push({ mesh: mesh2, taken: false, s, lane });
   }
   function cautionTex() {
     if (cautionTex._t) return cautionTex._t;
@@ -37907,6 +39957,7 @@
   }
   function hazardMark(kind) {
     const th = run ? themeOf(run.world) : "jungle";
+    if (NEW_THEMES.includes(th)) return world2Hazard(th, kind, cautionTex());
     if (th !== "jungle") return makeThemedHazard(th, kind, cautionTex());
     const g = new Group();
     if (kind === "hole") {
@@ -37963,23 +40014,23 @@
     if (run.hearts <= 0) finishLevel(false);
   }
   function spawnObstacle(s) {
-    const L = run && run.layout || stageProfile(run ? run.st : 0, run && run.boss, run && run.world);
-    if (Math.random() > L.density) return;
+    const L2 = run && run.layout || stageProfile(run ? run.st : 0, run && run.boss, run && run.world);
+    if (Math.random() > L2.density) return;
     if (!letterObstacleOK(s)) return;
-    const type = L.types[Math.floor(Math.random() * L.types.length)];
-    const dbl = L.diff ? L.diff.doubleBlock : 0.28;
-    const blocked = type === "beam" ? [0, 1, 2] : shuffle([0, 1, 2]).slice(0, Math.random() < dbl && L.density > 0.35 ? 2 : 1);
+    const type = L2.types[Math.floor(Math.random() * L2.types.length)];
+    const dbl = L2.diff ? L2.diff.doubleBlock : 0.28;
+    const blocked = type === "beam" ? [0, 1, 2] : shuffle([0, 1, 2]).slice(0, Math.random() < dbl && L2.density > 0.35 ? 2 : 1);
     blocked.forEach((lane) => {
-      let mesh;
+      let mesh2;
       if (type === "low") {
         const world = WORLDS[run.world - 1];
         const file = world.obstacle[Math.floor(Math.random() * world.obstacle.length)];
         const proto = run.obsProtos && run.obsProtos[file];
-        mesh = proto ? proto.clone(true) : hazardMark("wall");
-      } else mesh = hazardMark(type);
-      placeOnCourse(mesh, s, lane);
-      runScene.add(mesh);
-      obstacles.push({ mesh, lane, type, hit: false, spin: type === "roll" ? 4 : 0, s });
+        mesh2 = proto ? proto.clone(true) : hazardMark("wall");
+      } else mesh2 = hazardMark(type);
+      placeOnCourse(mesh2, s, lane);
+      runScene.add(mesh2);
+      obstacles.push({ mesh: mesh2, lane, type, hit: false, spin: type === "roll" ? 4 : 0, s });
     });
   }
   function nextAfterResolve() {
@@ -38057,7 +40108,7 @@
     <h2>${title}</h2>
     <div style="font-size:48px">${"\u2B50".repeat(st)}${"\u2606".repeat(3 - st)}</div>
     <p>\u05E0\u05D9\u05E7\u05D5\u05D3: <b>${run.score}</b> \xB7 \u{1FA99} +${run.coins} \xB7 \u05E0\u05DB\u05D5\u05DF \u05D1\u05E0\u05D9\u05E1\u05D9\u05D5\u05DF \u05E8\u05D0\u05E9\u05D5\u05DF: ${run.firstTry}/${run.queue.length}</p>
-    ${ok && run.boss && run.bossHP <= 0 && run.world < 5 ? "<p>\u{1F511} \u05E7\u05D9\u05D1\u05DC\u05EA\u05DD \u05DE\u05E4\u05EA\u05D7 \u05D6\u05D4\u05D1! \u05D4\u05E2\u05D5\u05DC\u05DD \u05D4\u05D1\u05D0 \u05E0\u05E4\u05EA\u05D7.</p>" : ""}
+    ${ok && run.boss && run.bossHP <= 0 && run.world < WORLDS.length ? "<p>\u{1F511} \u05E7\u05D9\u05D1\u05DC\u05EA\u05DD \u05DE\u05E4\u05EA\u05D7 \u05D6\u05D4\u05D1! \u05D4\u05E2\u05D5\u05DC\u05DD \u05D4\u05D1\u05D0 \u05E0\u05E4\u05EA\u05D7.</p>" : ""}
   </div>
   <div class="row" style="margin-top:12px">${nx}
     <button class="btn" id="again">\u05E9\u05D5\u05D1</button>
@@ -38067,7 +40118,7 @@
     $("again").onclick = () => startLevel(run.world, run.st, run.lost);
     const nxb = $("nx");
     if (nxb) nxb.onclick = () => {
-      if (run.st < 4) startLevel(run.world, run.st + 1);
+      if (run.st < BOSS_ST) startLevel(run.world, run.st + 1);
       else startLevel(run.world + 1, 0);
     };
   }
@@ -38088,14 +40139,14 @@
     const bossWin = !!(ok && run.boss && run.bossHP <= 0);
     if (bossWin) {
       grantAch("boss1");
-      if (run.world < 5) pendingUnlock = run.world;
+      if (run.world < WORLDS.length) pendingUnlock = run.world;
       startKeyReward();
       appMode = "run";
     } else {
       appMode = "map";
     }
-    if (stDone(1, 4)) grantAch("world1");
-    if (worldsDone() >= 5) grantAch("worlds5");
+    if (stDone(1, BOSS_ST)) grantAch("world1");
+    if (worldsDone() >= WORLDS.length) grantAch("worlds5");
     const ln = learnedCount();
     if (ln >= 10) grantAch("learn10");
     if (ln >= 50) grantAch("learn50");
@@ -38105,7 +40156,7 @@
     const title = !ok ? "\u{1F4AA} \u05E0\u05E1\u05D5 \u05E9\u05D5\u05D1 \u2014 \u05D4\u05DC\u05D1\u05D1\u05D5\u05EA \u05E0\u05D2\u05DE\u05E8\u05D5" : bossWin ? "\u{1F3C6} \u05E0\u05D9\u05E6\u05D7\u05EA\u05DD \u05D0\u05EA " + BOSSES[run.world - 1].name + "!" : "\u{1F3C1} \u05D4\u05E9\u05DC\u05D1 \u05D4\u05D5\u05E9\u05DC\u05DD!";
     let nx = "";
     if (ok && !run.lost) {
-      if (run.st < 4) nx = `<button class="btn g" id="nx">\u05DC\u05E9\u05DC\u05D1 \u05D4\u05D1\u05D0 \u25B6</button>`;
+      if (run.st < BOSS_ST) nx = `<button class="btn g" id="nx">\u05DC\u05E9\u05DC\u05D1 \u05D4\u05D1\u05D0 \u25B6</button>`;
       else if (WORLDS[run.world]) nx = `<button class="btn g" id="nx">\u05DC\u05E2\u05D5\u05DC\u05DD \u05D4\u05D1\u05D0 \u25B6</button>`;
     }
     if (bossWin) {
@@ -38113,6 +40164,45 @@
     } else {
       showEndScreen(ok, st, title, nx);
     }
+  }
+  function fixZeroNormals(root) {
+    root.traverse((o) => {
+      if (!o.isMesh || !o.geometry || !o.geometry.attributes.normal) return;
+      const a = o.geometry.attributes.normal.array;
+      let bad = false;
+      for (let k = 0; k + 2 < a.length; k += 3) {
+        const x = a[k], y = a[k + 1], z = a[k + 2];
+        if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z) || x * x + y * y + z * z < 1e-8) {
+          bad = true;
+          break;
+        }
+      }
+      if (bad) {
+        o.geometry = o.geometry.clone();
+        o.geometry.computeVertexNormals();
+      }
+    });
+  }
+  function tintActor(root, hex) {
+    const c = new Color(hex);
+    root.traverse((o) => {
+      if (!o.isMesh || !o.material) return;
+      const tint = (m) => {
+        const n = new MeshStandardMaterial({
+          map: m.map || null,
+          color: (m.color ? m.color.clone() : new Color(16777215)).lerp(c, m.map ? 0.35 : 0.55),
+          roughness: m.roughness != null ? m.roughness : 0.7,
+          metalness: Math.min(m.metalness || 0, 0.3),
+          emissive: c,
+          emissiveIntensity: 0.12,
+          transparent: !!m.transparent,
+          opacity: m.opacity != null ? m.opacity : 1,
+          side: m.side
+        });
+        return n;
+      };
+      o.material = Array.isArray(o.material) ? o.material.map(tint) : tint(o.material);
+    });
   }
   async function startLevel(wid, st, lost, opt) {
     wid = wid || 1;
@@ -38149,7 +40239,9 @@
       const sp = spellable(queue);
       if (sp.length >= 4) queue = sp;
     }
-    if (boss) queue = pickWords(wid, 4, false, Math.max(10, D.bossHP + 2), D.lvlMix);
+    if (boss) queue = pickWords(wid, BOSS_ST, false, Math.max(10, D.bossHP + 2), D.lvlMix);
+    else if (!lost && modes.length === 1 && modes[0] === "picw") queue = pickWords(wid, st, false, 8, D.lvlMix, picOK);
+    else if (!lost && stageMode === "mix") queue = pickWords(wid, st, false, 10, D.lvlMix);
     run = {
       world: wid,
       st,
@@ -38192,6 +40284,11 @@
     save();
     grantAch("first_run");
     applyWorldTheme(world);
+    {
+      const pl = lost ? null : stagePlan(wid, st);
+      if (pl && pl.grass) sideMat.color.setHex(pl.grass);
+      if (pl && pl.path) pathMat.color.setHex(pl.path);
+    }
     applyStageLook(world);
     if (runHills && runHills.parent) runScene.remove(runHills);
     if (runHills) disposeDeep(runHills);
@@ -38212,10 +40309,25 @@
       themeAmb = null;
     }
     if (theme !== "jungle") {
-      themeAmb = buildThemeAmbience(theme, isHigh());
+      themeAmb = NEW_THEMES.includes(theme) ? buildWorld2Ambience(theme, isHigh()) : buildThemeAmbience(theme, isHigh());
       if (themeAmb.userData.far) themeAmb.userData.far.userData.mergeStats = mergeStatic(themeAmb.userData.far);
       runScene.add(themeAmb);
       if (themeAmb.userData.far) runScene.add(themeAmb.userData.far);
+    } else {
+      themeAmb = new Group();
+      themeAmb.name = "jungleAmb";
+      runScene.add(themeAmb);
+    }
+    {
+      const atm = buildStageAtmos(wid, lost ? 0 : st, isHigh());
+      if (atm) {
+        themeAmb.add(atm);
+        const prevU = themeAmb.userData.update;
+        themeAmb.userData.update = (dt, t, ctx) => {
+          if (prevU) prevU(dt, t, ctx);
+          if (atm.userData.update) atm.userData.update(dt, t, ctx);
+        };
+      }
     }
     if (runMist) disposeDeep(runMist);
     runMist = makeMist();
@@ -38242,6 +40354,8 @@
     if (boss) {
       const b = BOSSES[wid - 1];
       bossActor = await createActor(MP(b.file), b.height, true);
+      fixZeroNormals(bossActor.model);
+      if (b.tint != null) tintActor(bossActor.model, b.tint);
       placeOnCourse(bossActor.model, 0, 0);
       runScene.add(bossActor.model);
       playAnim(bossActor, "sprint");
@@ -38252,14 +40366,24 @@
     setupQuestion();
     updateHud();
     const title = lost ? "\u{1F4DA} \u05E1\u05E4\u05E8\u05D9\u05D9\u05EA \u05D4\u05DE\u05D9\u05DC\u05D9\u05DD \u05D4\u05D0\u05D1\u05D5\u05D3\u05D5\u05EA" : boss ? "\u2694\uFE0F " + BOSSES[wid - 1].name : stageLabel(wid - 1, st);
+    const scene = lost ? "" : `<p class="scene-name">${esc(stageSceneName(wid, st))}</p>`;
     showUI("hud");
     $("btn-hint").classList.toggle("hidden", !S.settings.hints);
-    showModal(`<h2>${title}</h2><p>${boss ? "\u05D4\u05D1\u05D5\u05E1 \u05E8\u05E5 \u05DE\u05D0\u05D7\u05D5\u05E8\u05D9\u05DB\u05DD! \u05E2\u05E0\u05D5 \u05E0\u05DB\u05D5\u05DF \u05DB\u05D3\u05D9 \u05DC\u05D4\u05D7\u05DC\u05D9\u05E9 \u05D0\u05D5\u05EA\u05D5!" : st === 0 && !lost ? INTRO[wid - 1] : "\u05E7\u05D3\u05D9\u05DE\u05D4, \u05D0\u05EA\u05DD \u05D9\u05DB\u05D5\u05DC\u05D9\u05DD!"}</p>
+    showModal(`<h2>${title}</h2>${scene}<p>${boss ? "\u05D4\u05D1\u05D5\u05E1 \u05E8\u05E5 \u05DE\u05D0\u05D7\u05D5\u05E8\u05D9\u05DB\u05DD! \u05E2\u05E0\u05D5 \u05E0\u05DB\u05D5\u05DF \u05DB\u05D3\u05D9 \u05DC\u05D4\u05D7\u05DC\u05D9\u05E9 \u05D0\u05D5\u05EA\u05D5!" : st === 0 && !lost ? INTRO[wid - 1] : "\u05E7\u05D3\u05D9\u05DE\u05D4, \u05D0\u05EA\u05DD \u05D9\u05DB\u05D5\u05DC\u05D9\u05DD!"}</p>
     <button class="btn g" id="mgo">\u05D9\u05D5\u05E6\u05D0\u05D9\u05DD \u05DC\u05D3\u05E8\u05DA \u25B6</button>`);
     $("mgo").onclick = () => {
       hideModal();
       paused = false;
       playAnim(player, "sprint");
+      const touchBoss = () => {
+        if (bossActor && bossActor.model) bossActor.model.traverse((o) => {
+          if (o.isMesh) [].concat(o.material || []).forEach((m) => {
+            if (m) m.needsUpdate = true;
+          });
+        });
+      };
+      touchBoss();
+      setTimeout(touchBoss, 400);
     };
     return true;
   }
@@ -38609,24 +40733,24 @@
       if (g.resolved && g.group.parent && (g.s != null ? g.s : 0) < player.s - 8) disposeObj(g.group);
     }
     if (run.activeMode === "build") {
-      for (const L of letters) {
-        if (L.taken) continue;
-        if ((L.s != null ? L.s : 0) < player.s - 4) continue;
+      for (const L2 of letters) {
+        if (L2.taken) continue;
+        if ((L2.s != null ? L2.s : 0) < player.s - 4) continue;
         const pr = run.layout && run.layout.diff && run.layout.diff.letterReach || 1.1;
-        if (L.index === run.spell.idx && Math.abs((L.s || 0) - player.s) < pr && L.lane === playerLaneNow() && player.y < 2.4) {
-          L.taken = true;
-          runScene.remove(L.mesh);
+        if (L2.index === run.spell.idx && Math.abs((L2.s || 0) - player.s) < pr && L2.lane === playerLaneNow() && player.y < 2.4) {
+          L2.taken = true;
+          runScene.remove(L2.mesh);
           const need = run.spell.rest[run.spell.idx];
-          if (L.ch === need) {
+          if (L2.ch === need) {
             letters.forEach((o) => {
-              if (o.index === L.index && !o.taken) {
+              if (o.index === L2.index && !o.taken) {
                 o.taken = true;
                 runScene.remove(o.mesh);
               }
             });
             run.spell.idx++;
             sfx.coin();
-            burst(L.mesh.position, 5164484);
+            burst(L2.mesh.position, 5164484);
             if (run.spell.idx >= run.spell.rest.length) onCorrect();
             else updateSpellHud();
           } else if (run.layout && run.layout.diff && run.layout.diff.letterForgive) {
@@ -38818,7 +40942,7 @@
     <h2>\u{1F9ED} \u05D4\u05DE\u05E1\u05E2 \u05E9\u05DC\u05D9</h2>
     <p>\u05DE\u05D9\u05DC\u05D9\u05DD \u05E9\u05E0\u05DC\u05DE\u05D3\u05D5: <b>${ln}</b> \u05DE\u05EA\u05D5\u05DA ${WORDS.length}</p>
     <div class="bar"><i style="width:${ln / WORDS.length * 100}%"></i></div>
-    <p>\u05DC\u05EA\u05E8\u05D2\u05D5\u05DC: <b>${pr}</b> \xB7 \u05E2\u05D5\u05DC\u05DE\u05D5\u05EA: <b>${worldsDone()}</b>/5 \xB7 \u05E9\u05DC\u05D1\u05D9\u05DD: ${Object.keys(S.prog).length}/25</p>
+    <p>\u05DC\u05EA\u05E8\u05D2\u05D5\u05DC: <b>${pr}</b> \xB7 \u05E2\u05D5\u05DC\u05DE\u05D5\u05EA: <b>${worldsDone()}</b>/${WORLDS.length} \xB7 \u05E9\u05DC\u05D1\u05D9\u05DD: ${Object.keys(S.prog).length}/${WORLDS.length * NSTAGES}</p>
     <p>\u{1FA99} ${S.coins} \xB7 \u2B50 ${starSum()}</p>
     <div class="row">${achHtml}</div>
   </div>
@@ -38896,9 +41020,9 @@
     grid.innerHTML = WORLDS.map((w, i) => {
       const stages = ST[i].map((t, k) => {
         const locked = !sOpen(i, k);
-        const label = (k === 4 ? "\u2694\uFE0F " : "") + stageLabel(i, k) + (k === 4 ? " (\u05D1\u05D5\u05E1)" : "");
+        const label = (k === BOSS_ST ? "\u2694\uFE0F " : "") + stageLabel(i, k) + (k === BOSS_ST ? " (\u05D1\u05D5\u05E1)" : "") + " \xB7 " + stageSceneName(w.id, k);
         const extra = locked ? " \u{1F512}" : "";
-        return `<button class="btn s${k === 4 ? " boss" : ""}" data-dev-w="${w.id}" data-dev-st="${k}">${esc(label)}${extra}</button>`;
+        return `<button class="btn s${k === BOSS_ST ? " boss" : ""}" data-dev-w="${w.id}" data-dev-st="${k}">${esc(label)}${extra}</button>`;
       }).join("");
       return `<div class="dev-world"><h3>${w.icon} ${esc(w.name)}</h3><div class="dev-stages">${stages}</div></div>`;
     }).join("");
@@ -39162,9 +41286,9 @@
     let nGates = 0, nSigns = 0, nPosts = 0;
     const stages = [];
     try {
-      for (let wi = 1; wi <= 5; wi++) {
-        for (let st = 0; st <= 4; st++) {
-          const layout = stageProfile(st, st === 4, wi);
+      for (let wi = 1; wi <= WORLDS.length; wi++) {
+        for (let st = 0; st < NSTAGES; st++) {
+          const layout = stageProfile(st, st === BOSS_ST, wi);
           run.layout = layout;
           run.course = buildCourse({
             curve: layout.curve,
@@ -39250,8 +41374,8 @@
       ok: failures.length === 0,
       threshold: 0.1,
       thresholdUnitsNote: "0.1 * lane width (lane width is distance between adjacent lane centers)",
-      nWorlds: 5,
-      nStages: 25,
+      nWorlds: WORLDS.length,
+      nStages: WORLDS.length * NSTAGES,
       nGates,
       nSigns,
       nPosts,
@@ -39340,11 +41464,11 @@
     spawnHazardsAt: (s) => {
       ["hole", "wall", "beam", "roll"].forEach((type, i) => {
         const lane = i === 2 ? 1 : i % 3;
-        const mesh = hazardMark(type);
+        const mesh2 = hazardMark(type);
         const ps = (s || player.s || 0) + i * 6;
-        placeOnCourse(mesh, ps, lane);
-        runScene.add(mesh);
-        obstacles.push({ mesh, lane, type, hit: false, spin: type === "roll" ? 4 : 0, s: ps });
+        placeOnCourse(mesh2, ps, lane);
+        runScene.add(mesh2);
+        obstacles.push({ mesh: mesh2, lane, type, hit: false, spin: type === "roll" ? 4 : 0, s: ps });
       });
     },
     hitObstacle,

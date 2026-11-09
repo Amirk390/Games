@@ -558,10 +558,10 @@ export function populateValley(course, theme = "jungle", high = true) {
   return group;
 }
 
-export function scatterGroundDetails(course, theme = "jungle", high = true) {
+export function scatterGroundDetails(course, theme = "jungle", high = true, scale = 1) {
   const group = new THREE.Group();
   group.name = "groundScatter";
-  const n = N(high, 72, 34);
+  const n = Math.round(N(high, 72, 34) * scale);
   const colors = [0x2f8a3a, 0x3a9a44, 0x267833];
   const len = course.length || 240;
   for (let i = 0; i < n; i++) {

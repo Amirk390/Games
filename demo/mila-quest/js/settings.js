@@ -7,9 +7,10 @@ export const QTYPES = [
   { key: "en2he", mode: "en2he", label: "תרגום מאנגלית לעברית" },
   { key: "listen", mode: "rev", label: "האזנה ופירוש" },
   { key: "build", mode: "build", label: "איסוף אותיות" },
-  { key: "missing", mode: "let", label: "אות חסרה" }
+  { key: "missing", mode: "let", label: "אות חסרה" },
+  { key: "picture", mode: "picw", label: "תמונה וחידה" }
 ];
-export const MODE_LABEL = { tr: "תרגום לאנגלית", en2he: "תרגום לעברית", rev: "האזנה ופירוש", build: "איסוף אותיות", let: "אות חסרה" };
+export const MODE_LABEL = { tr: "תרגום לאנגלית", en2he: "תרגום לעברית", rev: "האזנה ופירוש", build: "איסוף אותיות", let: "אות חסרה", picw: "תמונה וחידה", mix: "סיבוב מהיר" };
 
 export const DIFFS = {
   easy: { label: "קל", mul: 0.85, hearts: 4, lead: 6, boss: -1, lvlShift: -0.15 },
@@ -31,7 +32,7 @@ export const GFX_OPTS = [
 
 export const DEFAULT_SETTINGS = () => ({
   difficulty: "normal",
-  types: { he2en: true, en2he: true, listen: true, build: true, missing: true },
+  types: { he2en: true, en2he: true, listen: true, build: true, missing: true, picture: true },
   speed: 1,
   gfx: "auto",
   sfx: 0.8,
@@ -59,10 +60,10 @@ export function enabledModes(set) {
 /* Per-question modes for a stage.  stageMode = the stage's designed type from config.ST.
    - translation stage ("tr") mixes the enabled translation directions;
    - a disabled stage type is replaced by an enabled one (rotated by stage so stages differ);
-   - boss cycles through every enabled type. */
+   - boss and the "mix" speed round cycle through every enabled type. */
 export function stageModes(stageMode, st, boss, set) {
   const en = enabledModes(set);
-  if (boss) return en.length ? en : ["tr"];
+  if (boss || stageMode === "mix") return en.length ? en : ["tr"];
   if (stageMode === "tr") {
     const tr = en.filter((m) => m === "tr" || m === "en2he");
     if (tr.length) return tr;
@@ -72,36 +73,44 @@ export function stageModes(stageMode, st, boss, set) {
 }
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-/* stage index 0..3 regular, 4 = boss */
+/* v8b: stage index 0..5 regular, 6 = boss (4 = picture riddle, 5 = speed round) */
 const STAGE_BASE = [
   { spd: 0, dens: 0.30, types: ["wall", "low"] },
   { spd: 0.25, dens: 0.42, types: ["wall", "hole", "low"] },
   { spd: 0.5, dens: 0.52, types: ["wall", "hole", "beam", "low"] },
   { spd: 0.75, dens: 0.62, types: ["wall", "hole", "beam", "roll"] },
-  { spd: 0.55, dens: 0.56, types: ["wall", "hole", "beam", "roll"] }
+  { spd: 0.6, dens: 0.58, types: ["wall", "hole", "beam", "low"] },
+  { spd: 1.0, dens: 0.66, types: ["wall", "hole", "beam", "roll"] },
+  { spd: 0.55, dens: 0.6, types: ["wall", "hole", "beam", "roll"] }
 ];
-/* word-level mix (lvl 1 / 2 / 3) per world index 0..4 (worlds beyond 5 reuse the last row) */
+const BOSS_I = 6;
+/* word-level mix (lvl 1 / 2 / 3) per world index 0..7 */
 const LVL_MIX = [
   [1, 0, 0],
   [0.75, 0.25, 0],
   [0.45, 0.4, 0.15],
   [0.3, 0.4, 0.3],
-  [0.2, 0.35, 0.45]
+  [0.2, 0.35, 0.45],
+  [0.15, 0.35, 0.5],
+  [0.1, 0.35, 0.55],
+  [0.05, 0.3, 0.65]
 ];
 
 export function difficultyFor(wid, st, boss, set) {
-  const k = clamp((wid || 1) - 1, 0, 6); // progression index; capped for future worlds
+  const k = clamp((wid || 1) - 1, 0, 9); // progression index (world 1 = 0)
   const D = DIFFS[set.difficulty] || DIFFS.normal;
-  const i = boss ? 4 : clamp(st, 0, 3);
+  const i = boss ? BOSS_I : clamp(st, 0, 5);
   const sb = STAGE_BASE[i];
   const m = D.mul;
-  const speed = +((6.6 + 0.6 * k + sb.spd) * m).toFixed(2);
-  const lead = Math.max(15, 26 - 1.5 * k + D.lead);            // metres from question to gate
-  const density = +clamp(sb.dens * (0.7 + 0.12 * k) * m, 0.12, 0.95).toFixed(2);
-  const spacing = +((12 - 0.6 * k) / m).toFixed(2);            // metres between obstacle rows (+0..4 random)
-  const doubleBlock = +clamp(0.06 + 0.07 * k, 0, 0.45).toFixed(2);
+  // v8b: worlds 6-8 keep getting harder, but more gently (speed +0.35/world, lead -1 m/world)
+  const kk = Math.min(k, 4), ke = Math.max(0, k - 4);
+  const speed = +((6.6 + 0.6 * kk + 0.35 * ke + sb.spd) * m).toFixed(2);
+  const lead = Math.max(16, 26 - 1.5 * kk - 1.0 * ke + D.lead - (i === 5 ? 1.5 : 0)); // metres from question to gate
+  const density = +clamp(sb.dens * (0.7 + 0.12 * kk + 0.06 * ke) * m, 0.12, 0.95).toFixed(2);
+  const spacing = +(Math.max(8.5, 12 - 0.6 * kk - 0.35 * ke) / m).toFixed(2);            // metres between obstacle rows (+0..4 random)
+  const doubleBlock = +clamp(0.06 + 0.07 * k, 0, 0.5).toFixed(2);
   const similarity = +clamp((0.1 + 0.2 * k) * m + (i >= 3 ? 0.08 : 0), 0, 0.95).toFixed(2);
-  const bossHP = Math.max(3, 4 + k + D.boss);
+  const bossHP = Math.max(3, 4 + kk + Math.ceil(ke / 2) + D.boss);
   let mix = LVL_MIX[Math.min(k, LVL_MIX.length - 1)].slice();
   const shift = D.lvlShift + 0.03 * i;
   if (k === 0 && D.lvlShift <= 0) mix = [1, 0, 0]; // world 1 stays basic unless HARD
